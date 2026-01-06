@@ -187,4 +187,25 @@ class FeedControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
     }
+
+    #[Test]
+    public function markAsReadStayRequiresCsrfToken(): void
+    {
+        $client = static::createClient();
+        $client->request("POST", "/f/0123456789abcdef/read-stay");
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    #[Test]
+    public function filteredMarkAsReadStayRequiresCsrfToken(): void
+    {
+        $client = static::createClient();
+        $client->request(
+            "POST",
+            "/s/0123456789abcdef/f/fedcba9876543210/read-stay",
+        );
+
+        $this->assertResponseStatusCodeSame(403);
+    }
 }

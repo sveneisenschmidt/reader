@@ -87,6 +87,19 @@ class SubscriptionRepository extends ServiceEntityRepository
         }
     }
 
+    public function updateFolder(
+        int $userId,
+        string $guid,
+        ?array $folder,
+    ): void {
+        $subscription = $this->findByUserIdAndGuid($userId, $guid);
+
+        if ($subscription !== null) {
+            $subscription->setFolder($folder);
+            $this->getEntityManager()->flush();
+        }
+    }
+
     public function updateAllRefreshTimestamps(int $userId): void
     {
         $subscriptions = $this->findByUserId($userId);

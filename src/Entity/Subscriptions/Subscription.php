@@ -43,6 +43,9 @@ class Subscription
     #[ORM\Column(type: "datetime_immutable", nullable: true)]
     private ?\DateTimeImmutable $lastRefreshedAt = null;
 
+    #[ORM\Column(type: "json", nullable: true)]
+    private ?array $folder = null;
+
     public function __construct(
         int $userId,
         string $url,
@@ -106,6 +109,17 @@ class Subscription
     public function updateLastRefreshedAt(): self
     {
         $this->lastRefreshedAt = new \DateTimeImmutable();
+        return $this;
+    }
+
+    public function getFolder(): ?array
+    {
+        return $this->folder;
+    }
+
+    public function setFolder(?array $folder): self
+    {
+        $this->folder = $folder;
         return $this;
     }
 }

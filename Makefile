@@ -31,3 +31,14 @@ test:
 
 worker:
 	php bin/console messenger:consume scheduler_default --time-limit=$${WORKER_TTL:-55}
+
+serve-prod:
+	APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --em=users --no-interaction
+	APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --em=subscriptions --no-interaction
+	APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --em=content --no-interaction
+	APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear
+	APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup
+	APP_ENV=prod APP_DEBUG=0 php bin/console messenger:consume scheduler_default & \
+	WORKER_PID=$$!; \
+	trap "kill $$WORKER_PID 2>/dev/null" EXIT; \
+	APP_ENV=prod APP_DEBUG=0 symfony serve --no-tls

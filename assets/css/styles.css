@@ -173,6 +173,33 @@ main {
     list-style: none;
     flex: 1;
 
+    & > li {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.25rem 0;
+
+        &.active {
+            font-weight: 500;
+        }
+
+        &.folder {
+            flex-direction: column;
+        }
+    }
+}
+
+.folder-name {
+    padding: 0.5rem 0 0.25rem 0;
+}
+
+.folder-separator {
+    margin: 0 0.25rem;
+}
+
+.folder-feeds {
+    list-style: none;
+    padding-left: 0.75rem;
+
     & li {
         display: flex;
         justify-content: space-between;
@@ -182,6 +209,10 @@ main {
             font-weight: 500;
         }
     }
+}
+
+.count {
+    opacity: 0.7;
 }
 
 .toggle-switch {
@@ -342,6 +373,11 @@ main {
 
         & a {
             text-decoration: underline;
+        }
+
+        & img {
+            max-width: 100%;
+            height: auto;
         }
     }
 

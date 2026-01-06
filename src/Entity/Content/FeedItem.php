@@ -7,7 +7,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 namespace App\Entity\Content;
 
 use Doctrine\ORM\Mapping as ORM;

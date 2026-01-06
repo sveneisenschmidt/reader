@@ -40,18 +40,18 @@ class FeedFetcher
 
     private function persistFeedItems(array $items): void
     {
+        $oneDayAgo = new \DateTimeImmutable("-24 hours");
+
         foreach ($items as $itemData) {
             $existing = $this->feedItemRepository->findByGuid(
                 $itemData["guid"],
             );
 
-            if ($existing !== null) {
-                $existing->setTitle($itemData["title"]);
-                $existing->setLink($itemData["link"]);
-                $existing->setSource($itemData["source"]);
-                $existing->setExcerpt($itemData["excerpt"]);
-                $existing->updateFetchedAt();
-            } else {
+            $publishedAt = \DateTimeImmutable::createFromMutable(
+                $itemData["date"],
+            );
+
+            if ($existing === null) {
                 $feedItem = new FeedItem(
                     $itemData["guid"],
                     $itemData["feedGuid"],
@@ -59,9 +59,14 @@ class FeedFetcher
                     $itemData["link"],
                     $itemData["source"],
                     $itemData["excerpt"],
-                    \DateTimeImmutable::createFromMutable($itemData["date"]),
+                    $publishedAt,
                 );
                 $this->contentEntityManager->persist($feedItem);
+            } elseif ($existing->getPublishedAt() > $oneDayAgo) {
+                $existing->setTitle($itemData["title"]);
+                $existing->setLink($itemData["link"]);
+                $existing->setSource($itemData["source"]);
+                $existing->setExcerpt($itemData["excerpt"]);
             }
         }
 

@@ -333,12 +333,95 @@ class SubscriptionServiceTest extends TestCase
         string $guid,
         string $name,
         string $url,
+        ?array $folder = null,
     ): Subscription&MockObject {
         $subscription = $this->createMock(Subscription::class);
         $subscription->method("getGuid")->willReturn($guid);
         $subscription->method("getName")->willReturn($name);
         $subscription->method("getUrl")->willReturn($url);
+        $subscription->method("getFolder")->willReturn($folder);
 
         return $subscription;
+    }
+
+    #[Test]
+    public function getSubscriptionsWithCountsIncludesFolder(): void
+    {
+        $userId = 1;
+        $sub1 = $this->createSubscription(
+            "guid1",
+            "Feed 1",
+            "https://example.com/feed1",
+            ["News", "Tech"],
+        );
+        $sub2 = $this->createSubscription(
+            "guid2",
+            "Feed 2",
+            "https://example.com/feed2",
+            null,
+        );
+
+        $this->subscriptionRepository
+            ->method("findByUserId")
+            ->willReturn([$sub1, $sub2]);
+
+        $result = $this->service->getSubscriptionsWithCounts($userId, []);
+
+        $this->assertEquals(["News", "Tech"], $result[0]["folder"]);
+        $this->assertNull($result[1]["folder"]);
+    }
+
+    #[Test]
+    public function toYamlIncludesFolderWhenSet(): void
+    {
+        $userId = 1;
+        $subscriptions = [
+            $this->createSubscription(
+                "guid1",
+                "Feed One",
+                "https://example.com/1",
+                ["News", "Politics"],
+            ),
+            $this->createSubscription(
+                "guid2",
+                "Feed Two",
+                "https://example.com/2",
+                null,
+            ),
+        ];
+
+        $this->subscriptionRepository
+            ->method("findByUserId")
+            ->willReturn($subscriptions);
+
+        $result = $this->service->toYaml($userId);
+
+        $this->assertStringContainsString("folder:", $result);
+        $this->assertStringContainsString("News", $result);
+        $this->assertStringContainsString("Politics", $result);
+    }
+
+    #[Test]
+    public function importFromYamlRejectsFolderAsNonArray(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Item 0 'folder' must be an array");
+
+        $yaml = "- url: https://example.com/feed\n  folder: not-an-array\n";
+
+        $this->service->importFromYaml(1, $yaml);
+    }
+
+    #[Test]
+    public function importFromYamlRejectsFolderWithNonStringElements(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            "Item 0 'folder' must contain only strings",
+        );
+
+        $yaml = "- url: https://example.com/feed\n  folder:\n    - 123\n";
+
+        $this->service->importFromYaml(1, $yaml);
     }
 }

@@ -173,6 +173,23 @@ class FeedController extends AbstractController
 
     #[
         Route(
+            "/f/{fguid}/read-stay",
+            name: "feed_item_mark_read_stay",
+            requirements: ["fguid" => "[a-f0-9]{16}"],
+            methods: ["POST"],
+        ),
+    ]
+    public function markAsReadStay(Request $request, string $fguid): Response
+    {
+        $this->validateCsrfToken($request, "mark_read");
+        $user = $this->userService->getCurrentUser();
+        $this->readStatusService->markAsRead($user->getId(), $fguid);
+
+        return $this->redirectToRoute("feed_item", ["fguid" => $fguid]);
+    }
+
+    #[
+        Route(
             "/s/{sguid}/f/{fguid}/read",
             name: "feed_item_filtered_mark_read",
             requirements: [
@@ -224,6 +241,32 @@ class FeedController extends AbstractController
         $this->validateCsrfToken($request, "mark_read");
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsUnread($user->getId(), $fguid);
+
+        return $this->redirectToRoute("feed_item_filtered", [
+            "sguid" => $sguid,
+            "fguid" => $fguid,
+        ]);
+    }
+
+    #[
+        Route(
+            "/s/{sguid}/f/{fguid}/read-stay",
+            name: "feed_item_filtered_mark_read_stay",
+            requirements: [
+                "sguid" => "[a-f0-9]{16}",
+                "fguid" => "[a-f0-9]{16}",
+            ],
+            methods: ["POST"],
+        ),
+    ]
+    public function markAsReadFilteredStay(
+        Request $request,
+        string $sguid,
+        string $fguid,
+    ): Response {
+        $this->validateCsrfToken($request, "mark_read");
+        $user = $this->userService->getCurrentUser();
+        $this->readStatusService->markAsRead($user->getId(), $fguid);
 
         return $this->redirectToRoute("feed_item_filtered", [
             "sguid" => $sguid,

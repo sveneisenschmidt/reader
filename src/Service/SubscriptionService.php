@@ -43,6 +43,7 @@ class SubscriptionService
     public function __construct(
         private SubscriptionRepository $subscriptionRepository,
         private FeedFetcher $feedFetcher,
+        private string $appEnv = "prod",
     ) {}
 
     private function validateFeedUrl(string $url, int $index): void
@@ -64,6 +65,12 @@ class SubscriptionService
         }
 
         $host = strtolower($parsed["host"]);
+
+        // Allow localhost in dev mode
+        if ($this->appEnv === "dev") {
+            return;
+        }
+
         foreach (self::BLOCKED_HOSTS as $blocked) {
             if ($host === $blocked || str_starts_with($host, $blocked)) {
                 throw new \InvalidArgumentException(
@@ -101,6 +108,7 @@ class SubscriptionService
                 "name" => $subscription->getName(),
                 "url" => $subscription->getUrl(),
                 "count" => $unreadCounts[$sguid] ?? 0,
+                "folder" => $subscription->getFolder(),
             ];
         }
 
@@ -162,10 +170,14 @@ class SubscriptionService
         $data = [];
 
         foreach ($subscriptions as $subscription) {
-            $data[] = [
+            $item = [
                 "url" => $subscription->getUrl(),
                 "title" => $subscription->getName(),
             ];
+            if ($subscription->getFolder() !== null) {
+                $item["folder"] = $subscription->getFolder();
+            }
+            $data[] = $item;
         }
 
         return \Symfony\Component\Yaml\Yaml::dump($data);
@@ -226,6 +238,20 @@ class SubscriptionService
                     "Item $index 'title' must be a string",
                 );
             }
+            if (isset($item["folder"]) && !is_array($item["folder"])) {
+                throw new \InvalidArgumentException(
+                    "Item $index 'folder' must be an array",
+                );
+            }
+            if (isset($item["folder"])) {
+                foreach ($item["folder"] as $folderPart) {
+                    if (!is_string($folderPart)) {
+                        throw new \InvalidArgumentException(
+                            "Item $index 'folder' must contain only strings",
+                        );
+                    }
+                }
+            }
             $this->validateFeedUrl($item["url"], $index);
         }
 
@@ -258,16 +284,26 @@ class SubscriptionService
                         $item["title"],
                     );
                 }
+                // Update folder
+                $this->subscriptionRepository->updateFolder(
+                    $userId,
+                    $sguid,
+                    $item["folder"] ?? null,
+                );
             } else {
                 // Add new subscription
                 $title =
                     $item["title"] ?? $this->feedFetcher->getFeedTitle($url);
-                $this->subscriptionRepository->addSubscription(
+                $subscription = $this->subscriptionRepository->addSubscription(
                     $userId,
                     $url,
                     $title,
                     $sguid,
                 );
+                if (isset($item["folder"])) {
+                    $subscription->setFolder($item["folder"]);
+                    $this->subscriptionRepository->getEntityManager()->flush();
+                }
             }
         }
 
