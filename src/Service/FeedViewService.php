@@ -23,20 +23,29 @@ class FeedViewService
         ?string $sguid = null,
         ?string $fguid = null,
         bool $unreadOnly = false,
-        int $limit = 100,
+        int $limit = 50,
     ): array {
         $allItems = $this->loadEnrichedItems($userId);
-        $feeds = $this->subscriptionService->getSubscriptionsWithCounts($userId, $allItems);
-        $unreadCount = count(array_filter($allItems, fn($item) => !$item['isRead']));
+        $feeds = $this->subscriptionService->getSubscriptionsWithCounts(
+            $userId,
+            $allItems,
+        );
+        $unreadCount = count(
+            array_filter($allItems, fn($item) => !$item["isRead"]),
+        );
 
         $items = $sguid
-            ? array_values(array_filter($allItems, fn($item) => $item['sguid'] === $sguid))
+            ? array_values(
+                array_filter($allItems, fn($item) => $item["sguid"] === $sguid),
+            )
             : $allItems;
 
         $activeItem = $fguid ? $this->findItemByGuid($items, $fguid) : null;
 
         if ($unreadOnly) {
-            $items = array_values(array_filter($items, fn($item) => !$item['isRead']));
+            $items = array_values(
+                array_filter($items, fn($item) => !$item["isRead"]),
+            );
         }
 
         if ($limit > 0) {
@@ -44,10 +53,10 @@ class FeedViewService
         }
 
         return [
-            'feeds' => $feeds,
-            'items' => $items,
-            'allItemsCount' => $unreadCount,
-            'activeItem' => $activeItem,
+            "feeds" => $feeds,
+            "items" => $items,
+            "allItemsCount" => $unreadCount,
+            "activeItem" => $activeItem,
         ];
     }
 
@@ -55,10 +64,19 @@ class FeedViewService
     {
         $sguids = $this->subscriptionService->getFeedGuids($userId);
         $items = $this->feedFetcher->getAllItems($sguids);
-        $items = $this->subscriptionService->enrichItemsWithSubscriptionNames($items, $userId);
-        $items = $this->readStatusService->enrichItemsWithReadStatus($items, $userId);
+        $items = $this->subscriptionService->enrichItemsWithSubscriptionNames(
+            $items,
+            $userId,
+        );
+        $items = $this->readStatusService->enrichItemsWithReadStatus(
+            $items,
+            $userId,
+        );
 
-        return $this->seenStatusService->enrichItemsWithSeenStatus($items, $userId);
+        return $this->seenStatusService->enrichItemsWithSeenStatus(
+            $items,
+            $userId,
+        );
     }
 
     public function getAllItemGuids(int $userId): array
@@ -66,33 +84,40 @@ class FeedViewService
         $sguids = $this->subscriptionService->getFeedGuids($userId);
         $items = $this->feedFetcher->getAllItems($sguids);
 
-        return array_column($items, 'guid');
+        return array_column($items, "guid");
     }
 
-    public function getItemGuidsForSubscription(int $userId, string $sguid): array
-    {
+    public function getItemGuidsForSubscription(
+        int $userId,
+        string $sguid,
+    ): array {
         $sguids = $this->subscriptionService->getFeedGuids($userId);
         $items = $this->feedFetcher->getAllItems($sguids);
-        $items = array_filter($items, fn($item) => $item['sguid'] === $sguid);
+        $items = array_filter($items, fn($item) => $item["sguid"] === $sguid);
 
-        return array_column($items, 'guid');
+        return array_column($items, "guid");
     }
 
-    public function findNextItemGuid(int $userId, ?string $sguid, string $currentGuid): ?string
-    {
+    public function findNextItemGuid(
+        int $userId,
+        ?string $sguid,
+        string $currentGuid,
+    ): ?string {
         $sguids = $this->subscriptionService->getFeedGuids($userId);
         $items = $this->feedFetcher->getAllItems($sguids);
 
         if ($sguid) {
-            $items = array_values(array_filter($items, fn($item) => $item['sguid'] === $sguid));
+            $items = array_values(
+                array_filter($items, fn($item) => $item["sguid"] === $sguid),
+            );
         }
 
         $found = false;
         foreach ($items as $item) {
             if ($found) {
-                return $item['guid'];
+                return $item["guid"];
             }
-            if ($item['guid'] === $currentGuid) {
+            if ($item["guid"] === $currentGuid) {
                 $found = true;
             }
         }
@@ -103,7 +128,7 @@ class FeedViewService
     private function findItemByGuid(array $items, string $guid): ?array
     {
         foreach ($items as $item) {
-            if ($item['guid'] === $guid) {
+            if ($item["guid"] === $guid) {
                 return $item;
             }
         }

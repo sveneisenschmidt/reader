@@ -7,8 +7,9 @@
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
 </head>
 <body{% block body_class %}{% endblock %}>
+    <input type="checkbox" id="menu-toggle" class="menu-checkbox">
     <header>
-        <a href="#" class="menu-toggle" data-menu-toggle>Menu</a>
+        <label for="menu-toggle" class="menu-toggle">Menu</label>
         <h1><a href="{{ path_with_filters('feed_index') }}" class="home">Reader</a></h1>
         <nav>
             <a href="{{ path_with_filters('subscriptions') }}">Subscriptions</a>
@@ -20,12 +21,15 @@
     </main>
 
     <footer>
-        <p>Reader is open source and <a href="https://github.com/sveneisenschmidt">available on GitHub</a></p>
+        <span>Reader is open source and <a href="https://github.com/sveneisenschmidt">available on GitHub</a></span>
+        {% set refreshTime = last_refresh() %}
+        {% if refreshTime %}
+        <span class="last-refresh">Refreshed {{ refreshTime|ago }}</span>
+        {% endif %}
     </footer>
 
     {% block scripts %}
     <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
-    <script src="{{ asset('js/mobile-menu.js') }}"></script>
     {% endblock %}
 </body>
 </html>

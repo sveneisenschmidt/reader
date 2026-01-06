@@ -61,8 +61,8 @@ class FilterParameterSubscriber implements EventSubscriberInterface
             $filters["unread"] = "1";
         }
 
-        $limit = $request->query->getInt("limit", 100);
-        if ($limit !== 100) {
+        $limit = $request->query->getInt("limit", 50);
+        if ($limit !== 50) {
             $filters["limit"] = $limit;
         }
 

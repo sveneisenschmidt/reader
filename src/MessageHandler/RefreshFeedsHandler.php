@@ -29,10 +29,16 @@ class RefreshFeedsHandler
         $subscriptions = $this->subscriptionRepository->findAll();
         $urls = array_map(fn($s) => $s->getUrl(), $subscriptions);
 
-        $this->logger->info('Refreshing feeds', ['count' => count($urls)]);
+        $this->logger->info("Refreshing feeds", ["count" => count($urls)]);
 
         $this->feedFetcher->refreshAllFeeds($urls);
 
-        $this->logger->info('Feeds refreshed successfully');
+        // Update refresh timestamps for all subscriptions
+        foreach ($subscriptions as $subscription) {
+            $subscription->updateLastRefreshedAt();
+        }
+        $this->subscriptionRepository->getEntityManager()->flush();
+
+        $this->logger->info("Feeds refreshed successfully");
     }
 }

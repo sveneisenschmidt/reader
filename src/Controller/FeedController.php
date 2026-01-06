@@ -46,6 +46,7 @@ class FeedController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $feedUrls = $this->subscriptionService->getFeedUrls($user->getId());
         $this->feedFetcher->refreshAllFeeds($feedUrls);
+        $this->subscriptionService->updateRefreshTimestamps($user->getId());
 
         return new Response("OK", Response::HTTP_OK);
     }
@@ -99,6 +100,7 @@ class FeedController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $guids = $this->feedViewService->getAllItemGuids($user->getId());
         $this->readStatusService->markManyAsRead($user->getId(), $guids);
+        $this->seenStatusService->markManyAsSeen($user->getId(), $guids);
 
         return $this->redirectToRoute("feed_index");
     }
@@ -122,6 +124,7 @@ class FeedController extends AbstractController
             $sguid,
         );
         $this->readStatusService->markManyAsRead($user->getId(), $guids);
+        $this->seenStatusService->markManyAsSeen($user->getId(), $guids);
 
         return $this->redirectToRoute("subscription_show", ["sguid" => $sguid]);
     }
@@ -235,7 +238,7 @@ class FeedController extends AbstractController
     ): Response {
         $user = $this->userService->getCurrentUser();
         $unread = $request->query->getBoolean("unread", false);
-        $limit = $request->query->getInt("limit", 100);
+        $limit = $request->query->getInt("limit", 50);
 
         $viewData = $this->feedViewService->getViewData(
             $user->getId(),

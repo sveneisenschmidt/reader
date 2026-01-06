@@ -106,6 +106,8 @@ body {
     & > footer {
         border-top: 1px solid var(--color-border);
         padding: 0.5rem 1rem;
+        display: flex;
+        justify-content: space-between;
 
         & a {
             text-decoration: underline;
@@ -153,7 +155,7 @@ h3 {
 /* Main layout */
 main {
     display: grid;
-    grid-template-columns: 200px 38.2fr 61.8fr;
+    grid-template-columns: 240px 38.2fr 61.8fr;
     flex: 1;
     overflow: hidden;
 }
@@ -187,16 +189,22 @@ main {
     font-size: 1.4em;
 }
 
-.filter-toggle.active {
-    color: var(--color-link);
-    font-weight: 500;
+.filter-toggle,
+.filter-limit {
+    white-space: nowrap;
+
+    &:hover {
+        color: var(--color-link);
+    }
+
+    &.active {
+        font-weight: 500;
+    }
 }
 
-.filter-limit.active {
-    color: var(--color-link);
-    font-weight: 500;
-    pointer-events: none;
-    cursor: default;
+.filter-group {
+    display: flex;
+    gap: 0.25rem;
 }
 
 .sidebar-footer {
@@ -357,6 +365,35 @@ main {
     }
 }
 
+.feed-empty {
+    padding: 1rem;
+    text-align: center;
+
+    & p {
+        margin-bottom: 1rem;
+    }
+
+    & a {
+        &:hover {
+            color: var(--color-link);
+        }
+    }
+
+    & .touch-show {
+        display: none;
+    }
+
+    @media (pointer: coarse) {
+        & .touch-hide {
+            display: none;
+        }
+
+        & .touch-show {
+            display: inline;
+        }
+    }
+}
+
 .back-link {
     display: none;
 }
@@ -411,8 +448,13 @@ main {
 }
 
 /* Menu toggle */
+.menu-checkbox {
+    display: none;
+}
+
 .menu-toggle {
     display: none;
+    cursor: pointer;
 }
 
 /* Responsive */
@@ -462,15 +504,13 @@ main {
         margin: 1rem 1rem 1rem 1rem;
     }
 
-    body.sidebar-open {
-        & .sidebar {
-            display: flex;
-        }
+    .menu-checkbox:checked ~ main .sidebar {
+        display: flex;
+    }
 
-        & .feed-stream,
-        & .reading-pane {
-            display: none;
-        }
+    .menu-checkbox:checked ~ main .feed-stream,
+    .menu-checkbox:checked ~ main .reading-pane {
+        display: none;
     }
 
     body.has-active-item {
@@ -483,10 +523,8 @@ main {
         }
     }
 
-    body.has-active-item.sidebar-open {
-        & .reading-pane {
-            display: none;
-        }
+    .menu-checkbox:checked ~ main .reading-pane {
+        display: none;
     }
 }
 

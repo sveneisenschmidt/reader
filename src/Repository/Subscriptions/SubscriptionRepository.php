@@ -7,7 +7,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 namespace App\Repository\Subscriptions;
 
 use App\Entity\Subscriptions\Subscription;
@@ -86,5 +85,16 @@ class SubscriptionRepository extends ServiceEntityRepository
             $subscription->setName($name);
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function updateAllRefreshTimestamps(int $userId): void
+    {
+        $subscriptions = $this->findByUserId($userId);
+
+        foreach ($subscriptions as $subscription) {
+            $subscription->updateLastRefreshedAt();
+        }
+
+        $this->getEntityManager()->flush();
     }
 }

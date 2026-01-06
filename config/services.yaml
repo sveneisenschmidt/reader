@@ -40,3 +40,7 @@ services:
             $registry: "@doctrine"
         tags:
             - { name: doctrine.repository_service }
+
+    App\EventListener\SqliteWalListener:
+        tags:
+            - { name: doctrine.event_listener, event: postConnect }

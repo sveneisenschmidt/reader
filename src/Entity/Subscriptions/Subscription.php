@@ -7,7 +7,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 namespace App\Entity\Subscriptions;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -40,6 +39,9 @@ class Subscription
 
     #[ORM\Column(type: "datetime_immutable")]
     private \DateTimeImmutable $createdAt;
+
+    #[ORM\Column(type: "datetime_immutable", nullable: true)]
+    private ?\DateTimeImmutable $lastRefreshedAt = null;
 
     public function __construct(
         int $userId,
@@ -94,5 +96,16 @@ class Subscription
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getLastRefreshedAt(): ?\DateTimeImmutable
+    {
+        return $this->lastRefreshedAt;
+    }
+
+    public function updateLastRefreshedAt(): self
+    {
+        $this->lastRefreshedAt = new \DateTimeImmutable();
+        return $this;
     }
 }

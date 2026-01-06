@@ -171,6 +171,29 @@ class SubscriptionService
         return \Symfony\Component\Yaml\Yaml::dump($data);
     }
 
+    public function getOldestRefreshTime(int $userId): ?\DateTimeImmutable
+    {
+        $subscriptions = $this->getSubscriptionsForUser($userId);
+        $oldest = null;
+
+        foreach ($subscriptions as $subscription) {
+            $lastRefreshed = $subscription->getLastRefreshedAt();
+            if ($lastRefreshed === null) {
+                return null;
+            }
+            if ($oldest === null || $lastRefreshed < $oldest) {
+                $oldest = $lastRefreshed;
+            }
+        }
+
+        return $oldest;
+    }
+
+    public function updateRefreshTimestamps(int $userId): void
+    {
+        $this->subscriptionRepository->updateAllRefreshTimestamps($userId);
+    }
+
     public function importFromYaml(int $userId, string $yaml): void
     {
         try {

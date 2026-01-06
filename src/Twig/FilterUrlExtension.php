@@ -7,7 +7,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 namespace App\Twig;
 
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -40,7 +39,7 @@ class FilterUrlExtension extends AbstractExtension
             "unread" => $request->query->getBoolean("unread", false)
                 ? "1"
                 : "0",
-            "limit" => $request->query->getInt("limit", 100),
+            "limit" => $request->query->getInt("limit", 50),
         ];
 
         $merged = array_merge($current, $params);
@@ -49,7 +48,7 @@ class FilterUrlExtension extends AbstractExtension
         if ($merged["unread"] === "0" || $merged["unread"] === 0) {
             unset($merged["unread"]);
         }
-        if ($merged["limit"] === 100) {
+        if ($merged["limit"] === 50) {
             unset($merged["limit"]);
         }
 
@@ -69,8 +68,8 @@ class FilterUrlExtension extends AbstractExtension
             $filters["unread"] = "1";
         }
 
-        $limit = $request->query->getInt("limit", 100);
-        if ($limit !== 100) {
+        $limit = $request->query->getInt("limit", 50);
+        if ($limit !== 50) {
             $filters["limit"] = $limit;
         }
 
