@@ -106,6 +106,7 @@
             const atTop = window.scrollY === 0;
 
             if (atTop && rawDistance > DIST_IGNORE && !refreshing) {
+                e.preventDefault();
                 const distance = applyResistance(rawDistance - DIST_IGNORE);
                 const progress = Math.min(distance / DIST_THRESHOLD, 1);
                 const ready = distance >= DIST_THRESHOLD;
@@ -114,7 +115,7 @@
                 hidePullIndicator();
             }
         },
-        { passive: true },
+        { passive: false },
     );
 
     document.addEventListener("touchend", () => {

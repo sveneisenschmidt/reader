@@ -40,7 +40,7 @@ class FeedFetcher
 
     private function persistFeedItems(array $items): void
     {
-        $oneDayAgo = new \DateTimeImmutable("-24 hours");
+        $twoDaysAgo = new \DateTimeImmutable("-48 hours");
 
         foreach ($items as $itemData) {
             $existing = $this->feedItemRepository->findByGuid(
@@ -62,7 +62,7 @@ class FeedFetcher
                     $publishedAt,
                 );
                 $this->contentEntityManager->persist($feedItem);
-            } elseif ($existing->getPublishedAt() > $oneDayAgo) {
+            } elseif ($existing->getPublishedAt() > $twoDaysAgo) {
                 $existing->setTitle($itemData["title"]);
                 $existing->setLink($itemData["link"]);
                 $existing->setSource($itemData["source"]);

@@ -102,7 +102,7 @@
                 <time datetime="{{ activeItem.date|date('Y-m-d') }}">{{ activeItem.date|date('F j, Y') }}</time>
             </p>
         </header>
-        <div class="content" id="article-content">
+        <div class="content" data-article-content>
             {{ activeItem.excerpt|raw }}
         </div>
         <footer>
@@ -123,6 +123,5 @@
             {% endif %}
         </footer>
     </article>
-    <script src="{{ asset('js/mark-read-on-click.js') }}"></script>
     {% endif %}
 {% endblock %}
