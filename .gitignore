@@ -17,6 +17,11 @@
 /.vscode/
 *.swp
 *.swo
+.phpactor.json
+
+# Docker
+compose.yaml
+compose.override.yaml
 
 # OS
 .DS_Store
