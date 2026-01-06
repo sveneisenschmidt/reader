@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Subscriptions - Reader{% endblock %}
+
+{% block scripts %}{% endblock %}
+
+{% block body_class %} class="page-subscriptions"{% endblock %}
+
+{% block main %}
+    <div class="subscriptions-page">
+        <h2>Subscriptions</h2>
+        {{ form_start(form) }}
+            <div class="code-box">
+                <div class="code-box-header">YAML</div>
+                {{ form_widget(form.yaml) }}
+            </div>
+            <div class="form-actions">
+                {{ form_widget(form.save) }}
+            </div>
+        {{ form_end(form) }}
+
+        {% for message in app.flashes('success') %}
+            <p class="flash-success">{{ message }}</p>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <p class="flash-error">{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endblock %}

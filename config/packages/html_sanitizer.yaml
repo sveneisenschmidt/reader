@@ -1,0 +1,8 @@
+framework:
+    html_sanitizer:
+        sanitizers:
+            app.feed_content_sanitizer:
+                allow_safe_elements: true
+                allow_relative_links: false
+                allow_relative_medias: false
+                force_https_urls: true

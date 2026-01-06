@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Feeds - Reader{% endblock %}
+
+{% block body_class %}{% if app.request.attributes.get('_route') in ['feed_item', 'feed_item_filtered'] %} class="has-active-item"{% endif %}{% endblock %}
+
+{% block main %}
+    <aside class="sidebar">
+        <ul class="subscription-list">
+            <li{% if not activeFeed %} class="active"{% endif %}>
+                <a href="{{ path_with_filters('feed_index') }}">All</a>
+                {% if allItemsCount > 0 %}<span class="count">{{ allItemsCount }}</span>{% endif %}
+            </li>
+            {% for feed in feeds %}
+            <li{% if activeFeed == feed.sguid %} class="active"{% endif %}>
+                <a href="{{ path_with_filters('subscription_show', {sguid: feed.sguid}) }}">{{ feed.name }}</a>
+                {% if feed.count > 0 %}<span class="count">{{ feed.count }}</span>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <div class="sidebar-filters">
+            <div class="filter-group">
+                <a href="{{ filter_url({unread: unread ? 0 : 1}) }}" class="filter-toggle{% if unread %} active{% endif %}"><span class="toggle-switch">{% if unread %}▣▢{% else %}▢▣{% endif %}</span> Unread</a>
+            </div>
+            <div class="filter-group">
+                <a href="{{ filter_url({limit: 50}) }}" class="filter-limit{% if limit == 50 %} active{% endif %}">50</a>
+                <a href="{{ filter_url({limit: 100}) }}" class="filter-limit{% if limit == 100 %} active{% endif %}">100</a>
+                <a href="{{ filter_url({limit: 0}) }}" class="filter-limit{% if limit == 0 %} active{% endif %}">∞</a>
+            </div>
+        </div>
+        {% if allItemsCount > 0 %}
+        <footer class="sidebar-footer">
+            <form action="{% if activeFeed %}{{ path('subscription_mark_all_read', {sguid: activeFeed}) }}{% else %}{{ path('feed_mark_all_read') }}{% endif %}" method="post" class="inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('mark_all_read') }}">
+                <button type="submit">Mark all as read</button>
+            </form>
+        </footer>
+        {% endif %}
+    </aside>
+
+    <section class="feed-stream{% if not activeItem %} full-width{% endif %}" data-feed-stream>
+        {% for item in items %}
+        <div class="feed-item{% if activeItem and item.guid == activeItem.guid %} active{% endif %}{% if item.isRead %} read{% endif %}"{% if activeItem and item.guid == activeItem.guid %} data-active{% endif %}>
+            <a href="{% if activeFeed %}{{ path_with_filters('feed_item_filtered', {sguid: activeFeed, fguid: item.guid}) }}{% else %}{{ path_with_filters('feed_item', {fguid: item.guid}) }}{% endif %}" class="feed-item-link">
+                <h2>{% if item.isNew %}<span class="new-indicator">●</span> {% endif %}{{ item.title }}</h2>
+                <p class="meta">
+                    <span class="source">{{ item.source }}</span>
+                    <time datetime="{{ item.date|date('Y-m-d') }}">{{ item.date|date('F j, Y') }}</time>
+                </p>
+            </a>
+
+        </div>
+        {% endfor %}
+    </section>
+    <script src="{{ asset('js/scroll-restore.js') }}"></script>
+    <script src="{{ asset('js/external-links.js') }}"></script>
+
+    {% if activeItem %}
+    <article class="reading-pane">
+        <a href="{% if activeFeed %}{{ path_with_filters('subscription_show', {sguid: activeFeed}) }}{% else %}{{ path_with_filters('feed_index') }}{% endif %}" class="back-link">&larr; Back</a>
+        <header>
+            <h1><a href="{{ activeItem.link }}" target="_blank">{{ activeItem.title }}</a></h1>
+            <p class="meta">
+                <a href="{{ path_with_filters('subscription_show', {sguid: activeItem.sguid}) }}" class="source">{{ activeItem.source }}</a>
+                <time datetime="{{ activeItem.date|date('Y-m-d') }}">{{ activeItem.date|date('F j, Y') }}</time>
+            </p>
+        </header>
+        <div class="content" id="article-content">
+            {{ activeItem.excerpt|raw }}
+        </div>
+        <footer>
+            <a href="{{ activeItem.link }}" target="_blank">Read original</a>
+            {% if activeItem.isRead %}
+                <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_unread', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_unread', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
+                    <button type="submit">Mark as unread</button>
+                </form>
+            {% else %}
+                <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_read', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_read', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
+                    <button type="submit">Mark as read</button>
+                </form>
+            {% endif %}
+        </footer>
+    </article>
+    {% endif %}
+{% endblock %}

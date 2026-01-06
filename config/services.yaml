@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: "../src/"
+
+    # Entity Manager aliases
+    App\Service\FeedFetcher:
+        arguments:
+            $contentEntityManager: "@doctrine.orm.content_entity_manager"
+            $feedContentSanitizer: "@html_sanitizer.sanitizer.app.feed_content_sanitizer"
+
+    # Repository configurations with correct entity managers
+    App\Repository\Users\UserRepository:
+        arguments:
+            $registry: "@doctrine"
+        tags:
+            - { name: doctrine.repository_service }
+
+    App\Repository\Users\ReadStatusRepository:
+        arguments:
+            $registry: "@doctrine"
+        tags:
+            - { name: doctrine.repository_service }
+
+    App\Repository\Subscriptions\SubscriptionRepository:
+        arguments:
+            $registry: "@doctrine"
+        tags:
+            - { name: doctrine.repository_service }
+
+    App\Repository\Content\FeedItemRepository:
+        arguments:
+            $registry: "@doctrine"
+        tags:
+            - { name: doctrine.repository_service }

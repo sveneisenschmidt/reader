@@ -1,0 +1,6 @@
+doctrine_migrations:
+    migrations_paths:
+        'DoctrineMigrations\Users': "%kernel.project_dir%/migrations/users"
+        'DoctrineMigrations\Subscriptions': "%kernel.project_dir%/migrations/subscriptions"
+        'DoctrineMigrations\Content': "%kernel.project_dir%/migrations/content"
+    enable_profiler: false

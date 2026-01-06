@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Reader{% endblock %}</title>
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+</head>
+<body{% block body_class %}{% endblock %}>
+    <header>
+        <a href="#" class="menu-toggle" data-menu-toggle>Menu</a>
+        <h1><a href="{{ path_with_filters('feed_index') }}" class="home">Reader</a></h1>
+        <nav>
+            <a href="{{ path_with_filters('subscriptions') }}">Subscriptions</a>
+        </nav>
+    </header>
+
+    <main>
+        {% block main %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>Reader is open source and <a href="https://github.com/sveneisenschmidt">available on GitHub</a></p>
+    </footer>
+
+    {% block scripts %}
+    <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
+    <script src="{{ asset('js/mobile-menu.js') }}"></script>
+    {% endblock %}
+</body>
+</html>
