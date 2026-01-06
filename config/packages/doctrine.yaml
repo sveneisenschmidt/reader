@@ -3,11 +3,11 @@ doctrine:
         default_connection: users
         connections:
             users:
-                url: "sqlite:///%kernel.project_dir%/var/data/users.db"
+                url: "%env(resolve:DATABASE_USERS_URL)%"
             subscriptions:
-                url: "sqlite:///%kernel.project_dir%/var/data/subscriptions.db"
+                url: "%env(resolve:DATABASE_SUBSCRIPTIONS_URL)%"
             content:
-                url: "sqlite:///%kernel.project_dir%/var/data/content.db"
+                url: "%env(resolve:DATABASE_CONTENT_URL)%"
 
     orm:
         default_entity_manager: users

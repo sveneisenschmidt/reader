@@ -23,6 +23,8 @@
     --color-bg: #fff;
     --color-bg-muted: color-mix(in srgb, var(--color-bg) 95%, black);
     --color-new: #22c55e;
+    --color-text-inverted: #e0e0e0;
+    --color-bg-inverted: #0d1117;
 
     @media (prefers-color-scheme: dark) {
         --color-text: #e0e0e0;
@@ -30,6 +32,8 @@
         --color-border: #444;
         --color-bg: #0d1117;
         --color-bg-muted: color-mix(in srgb, var(--color-bg) 95%, white);
+        --color-text-inverted: #222;
+        --color-bg-inverted: #fff;
     }
 }
 
@@ -183,33 +187,41 @@ main {
     font-size: 1.4em;
 }
 
+.filter-toggle.active {
+    color: var(--color-link);
+    font-weight: 500;
+}
+
+.filter-limit.active {
+    color: var(--color-link);
+    font-weight: 500;
+    pointer-events: none;
+    cursor: default;
+}
+
 .sidebar-footer {
     position: sticky;
     bottom: 0;
     background: var(--color-bg);
-    padding: 0.5rem 0;
-    margin: 0 -1rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
 
     &::before {
         content: "";
         display: block;
         border-top: 1px solid var(--color-border);
-        margin: 0 1rem 0.5rem 0;
+        margin: 1rem 0;
     }
 
     & button {
         background: none;
         border: none;
-        color: var(--color-link);
+        color: var(--color-text);
         font-family: inherit;
         font-size: inherit;
         cursor: pointer;
         padding: 0;
 
         &:hover {
-            text-decoration: underline;
+            color: var(--color-link);
         }
     }
 }
@@ -336,7 +348,11 @@ main {
         justify-content: space-between;
 
         & a {
-            color: var(--color-link);
+            color: var(--color-text);
+
+            &:hover {
+                color: var(--color-link);
+            }
         }
     }
 }
@@ -352,19 +368,33 @@ main {
     & button {
         background: none;
         border: none;
-        color: var(--color-link);
+        color: var(--color-text);
         font-family: inherit;
         font-size: inherit;
         cursor: pointer;
         padding: 0;
 
         &:hover {
-            text-decoration: underline;
+            color: var(--color-link);
         }
     }
 }
 
-/* Refresh overlay */
+/* Pull to refresh */
+[data-pull-indicator] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.5rem 1rem;
+    text-align: center;
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.1s;
+}
+
 [data-refresh-overlay] {
     position: fixed;
     top: 0;
@@ -378,20 +408,6 @@ main {
     font-size: 4rem;
     color: #fff;
     z-index: 9999;
-}
-
-/* Pull indicator */
-[data-pull-indicator] {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    color: #fff;
-    text-align: center;
-    z-index: -1;
 }
 
 /* Menu toggle */
@@ -412,7 +428,8 @@ main {
     .sidebar {
         display: none;
         border-right: none;
-        height: 100%;
+        height: calc(100vh - 3.5rem - 2.5rem);
+        overflow-y: auto;
     }
 
     .feed-stream {
@@ -487,35 +504,20 @@ body.page-subscriptions main {
         margin-bottom: 1rem;
     }
 
-    & .code-box {
+    & .hint {
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    & .yaml-editor {
+        width: 100%;
+        font-family: monospace;
+        font-size: 0.9rem;
+        background: var(--color-bg-inverted);
+        color: var(--color-text-inverted);
         border: 1px solid var(--color-border);
-        background: var(--color-bg-muted);
-
-        & .code-box-header {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.75rem;
-            font-family: monospace;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 1px solid var(--color-border);
-            opacity: 0.7;
-        }
-
-        & .yaml-editor {
-            width: 100%;
-            font-family: monospace;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            background: #f5f5f5;
-            color: #222;
-            border: none;
-            padding: 0.75rem;
-            resize: vertical;
-
-            &:focus {
-                outline: none;
-            }
-        }
+        padding: 0.75rem;
+        resize: vertical;
     }
 
     & .form-actions {

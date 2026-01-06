@@ -20,12 +20,13 @@
         </ul>
         <div class="sidebar-filters">
             <div class="filter-group">
-                <a href="{{ filter_url({unread: unread ? 0 : 1}) }}" class="filter-toggle{% if unread %} active{% endif %}"><span class="toggle-switch">{% if unread %}▣▢{% else %}▢▣{% endif %}</span> Unread</a>
+                <a href="{{ filter_url({unread: unread ? 0 : 1}) }}" class="filter-toggle{% if unread %} active{% endif %}">Unread</a>
             </div>
             <div class="filter-group">
+                <a href="{{ filter_url({limit: 10}) }}" class="filter-limit{% if limit == 10 %} active{% endif %}">10</a>
                 <a href="{{ filter_url({limit: 50}) }}" class="filter-limit{% if limit == 50 %} active{% endif %}">50</a>
                 <a href="{{ filter_url({limit: 100}) }}" class="filter-limit{% if limit == 100 %} active{% endif %}">100</a>
-                <a href="{{ filter_url({limit: 0}) }}" class="filter-limit{% if limit == 0 %} active{% endif %}">∞</a>
+                <a href="{{ filter_url({limit: 0}) }}" class="filter-limit{% if limit == 0 %} active{% endif %}">999+</a>
             </div>
         </div>
         {% if allItemsCount > 0 %}

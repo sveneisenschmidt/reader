@@ -7,7 +7,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 namespace App\Repository\Content;
 
 use App\Entity\Content\FeedItem;
@@ -23,17 +22,20 @@ class FeedItemRepository extends ServiceEntityRepository
 
     public function findByGuid(string $guid): ?FeedItem
     {
-        return $this->findOneBy(['guid' => $guid]);
+        return $this->findOneBy(["guid" => $guid]);
     }
 
     public function findByFeedGuid(string $feedGuid): array
     {
-        return $this->findBy(['feedGuid' => $feedGuid], ['publishedAt' => 'DESC']);
+        return $this->findBy(
+            ["feedGuid" => $feedGuid],
+            ["publishedAt" => "DESC"],
+        );
     }
 
     public function findAllOrderedByDate(): array
     {
-        return $this->findBy([], ['publishedAt' => 'DESC']);
+        return $this->findBy([], ["publishedAt" => "DESC"]);
     }
 
     public function findByFeedGuids(array $feedGuids): array
@@ -42,10 +44,10 @@ class FeedItemRepository extends ServiceEntityRepository
             return [];
         }
 
-        return $this->createQueryBuilder('f')
-            ->where('f.feedGuid IN (:feedGuids)')
-            ->setParameter('feedGuids', $feedGuids)
-            ->orderBy('f.publishedAt', 'DESC')
+        return $this->createQueryBuilder("f")
+            ->where("f.feedGuid IN (:feedGuids)")
+            ->setParameter("feedGuids", $feedGuids)
+            ->orderBy("f.publishedAt", "DESC")
             ->getQuery()
             ->getResult();
     }
@@ -88,6 +90,16 @@ class FeedItemRepository extends ServiceEntityRepository
 
     public function getItemCountByFeedGuid(string $feedGuid): int
     {
-        return $this->count(['feedGuid' => $feedGuid]);
+        return $this->count(["feedGuid" => $feedGuid]);
+    }
+
+    public function deleteOlderThan(\DateTimeInterface $date): int
+    {
+        return $this->createQueryBuilder("f")
+            ->delete()
+            ->where("f.publishedAt < :date")
+            ->setParameter("date", $date)
+            ->getQuery()
+            ->execute();
     }
 }

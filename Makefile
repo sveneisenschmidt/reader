@@ -1,9 +1,12 @@
-.PHONY: serve stop cache-clear install db-migrate db-reset test
+.PHONY: serve stop cache-clear install db-migrate db-reset test worker
 
 install:
 	composer install
 
 serve:
+	php bin/console messenger:consume scheduler_default & \
+	WORKER_PID=$$!; \
+	trap "kill $$WORKER_PID 2>/dev/null" EXIT; \
 	symfony serve --no-tls
 
 stop:
@@ -25,3 +28,6 @@ db-reset:
 
 test:
 	php bin/phpunit
+
+worker:
+	php bin/console messenger:consume scheduler_default --time-limit=$${WORKER_TTL:-55}
