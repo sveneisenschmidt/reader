@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Feeds - Reader{% endblock %}
+{% block title %}{% if activeItem %}{{ activeItem.title }} | {{ activeItem.source }} | Reader{% elseif activeFeed %}{% for feed in feeds %}{% if feed.sguid == activeFeed %}{{ feed.name }} | Reader{% endif %}{% endfor %}{% else %}Reader{% endif %}{% endblock %}
 
 {% block body_class %}{% if app.request.attributes.get('_route') in ['feed_item', 'feed_item_filtered'] %} class="has-active-item"{% endif %}{% endblock %}
 
