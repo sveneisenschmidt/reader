@@ -327,7 +327,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     validation?: bool|array{ // Validation configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *         enable_attributes?: bool|Param, // Default: true
  *         static_method?: list<scalar|null|Param>,
  *         translation_domain?: scalar|null|Param, // Default: "validators"
@@ -622,7 +622,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     rate_limiter?: bool|array{ // Rate limiter configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *         limiters?: array<string, array{ // Default: []
  *             lock_factory?: scalar|null|Param, // The service ID of the lock factory used by this limiter (or null to disable locking). // Default: "auto"
  *             cache_pool?: scalar|null|Param, // The cache pool to use for storing the current limiter state. // Default: "cache.rate_limiter"
@@ -978,6 +978,358 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     intercept_redirects?: bool|Param, // Default: false
  *     excluded_ajax_paths?: scalar|null|Param, // Default: "^/((index|app(_[\\w]+)?)\\.php/)?_wdt"
  * }
+ * @psalm-type SecurityConfig = array{
+ *     access_denied_url?: scalar|null|Param, // Default: null
+ *     session_fixation_strategy?: "none"|"migrate"|"invalidate"|Param, // Default: "migrate"
+ *     expose_security_errors?: \Symfony\Component\Security\Http\Authentication\ExposeSecurityLevel::None|\Symfony\Component\Security\Http\Authentication\ExposeSecurityLevel::AccountStatus|\Symfony\Component\Security\Http\Authentication\ExposeSecurityLevel::All|Param, // Default: "none"
+ *     erase_credentials?: bool|Param, // Default: true
+ *     access_decision_manager?: array{
+ *         strategy?: "affirmative"|"consensus"|"unanimous"|"priority"|Param,
+ *         service?: scalar|null|Param,
+ *         strategy_service?: scalar|null|Param,
+ *         allow_if_all_abstain?: bool|Param, // Default: false
+ *         allow_if_equal_granted_denied?: bool|Param, // Default: true
+ *     },
+ *     password_hashers?: array<string, string|array{ // Default: []
+ *         algorithm?: scalar|null|Param,
+ *         migrate_from?: list<scalar|null|Param>,
+ *         hash_algorithm?: scalar|null|Param, // Name of hashing algorithm for PBKDF2 (i.e. sha256, sha512, etc..) See hash_algos() for a list of supported algorithms. // Default: "sha512"
+ *         key_length?: scalar|null|Param, // Default: 40
+ *         ignore_case?: bool|Param, // Default: false
+ *         encode_as_base64?: bool|Param, // Default: true
+ *         iterations?: scalar|null|Param, // Default: 5000
+ *         cost?: int|Param, // Default: null
+ *         memory_cost?: scalar|null|Param, // Default: null
+ *         time_cost?: scalar|null|Param, // Default: null
+ *         id?: scalar|null|Param,
+ *     }>,
+ *     providers?: array<string, array{ // Default: []
+ *         id?: scalar|null|Param,
+ *         chain?: array{
+ *             providers?: list<scalar|null|Param>,
+ *         },
+ *         entity?: array{
+ *             class: scalar|null|Param, // The full entity class name of your user class.
+ *             property?: scalar|null|Param, // Default: null
+ *             manager_name?: scalar|null|Param, // Default: null
+ *         },
+ *         memory?: array{
+ *             users?: array<string, array{ // Default: []
+ *                 password?: scalar|null|Param, // Default: null
+ *                 roles?: list<scalar|null|Param>,
+ *             }>,
+ *         },
+ *         ldap?: array{
+ *             service: scalar|null|Param,
+ *             base_dn: scalar|null|Param,
+ *             search_dn?: scalar|null|Param, // Default: null
+ *             search_password?: scalar|null|Param, // Default: null
+ *             extra_fields?: list<scalar|null|Param>,
+ *             default_roles?: list<scalar|null|Param>,
+ *             role_fetcher?: scalar|null|Param, // Default: null
+ *             uid_key?: scalar|null|Param, // Default: "sAMAccountName"
+ *             filter?: scalar|null|Param, // Default: "({uid_key}={user_identifier})"
+ *             password_attribute?: scalar|null|Param, // Default: null
+ *         },
+ *     }>,
+ *     firewalls: array<string, array{ // Default: []
+ *         pattern?: scalar|null|Param,
+ *         host?: scalar|null|Param,
+ *         methods?: list<scalar|null|Param>,
+ *         security?: bool|Param, // Default: true
+ *         user_checker?: scalar|null|Param, // The UserChecker to use when authenticating users in this firewall. // Default: "security.user_checker"
+ *         request_matcher?: scalar|null|Param,
+ *         access_denied_url?: scalar|null|Param,
+ *         access_denied_handler?: scalar|null|Param,
+ *         entry_point?: scalar|null|Param, // An enabled authenticator name or a service id that implements "Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface".
+ *         provider?: scalar|null|Param,
+ *         stateless?: bool|Param, // Default: false
+ *         lazy?: bool|Param, // Default: false
+ *         context?: scalar|null|Param,
+ *         logout?: array{
+ *             enable_csrf?: bool|null|Param, // Default: null
+ *             csrf_token_id?: scalar|null|Param, // Default: "logout"
+ *             csrf_parameter?: scalar|null|Param, // Default: "_csrf_token"
+ *             csrf_token_manager?: scalar|null|Param,
+ *             path?: scalar|null|Param, // Default: "/logout"
+ *             target?: scalar|null|Param, // Default: "/"
+ *             invalidate_session?: bool|Param, // Default: true
+ *             clear_site_data?: list<"*"|"cache"|"cookies"|"storage"|"executionContexts"|Param>,
+ *             delete_cookies?: array<string, array{ // Default: []
+ *                 path?: scalar|null|Param, // Default: null
+ *                 domain?: scalar|null|Param, // Default: null
+ *                 secure?: scalar|null|Param, // Default: false
+ *                 samesite?: scalar|null|Param, // Default: null
+ *                 partitioned?: scalar|null|Param, // Default: false
+ *             }>,
+ *         },
+ *         switch_user?: array{
+ *             provider?: scalar|null|Param,
+ *             parameter?: scalar|null|Param, // Default: "_switch_user"
+ *             role?: scalar|null|Param, // Default: "ROLE_ALLOWED_TO_SWITCH"
+ *             target_route?: scalar|null|Param, // Default: null
+ *         },
+ *         required_badges?: list<scalar|null|Param>,
+ *         custom_authenticators?: list<scalar|null|Param>,
+ *         login_throttling?: array{
+ *             limiter?: scalar|null|Param, // A service id implementing "Symfony\Component\HttpFoundation\RateLimiter\RequestRateLimiterInterface".
+ *             max_attempts?: int|Param, // Default: 5
+ *             interval?: scalar|null|Param, // Default: "1 minute"
+ *             lock_factory?: scalar|null|Param, // The service ID of the lock factory used by the login rate limiter (or null to disable locking). // Default: null
+ *             cache_pool?: string|Param, // The cache pool to use for storing the limiter state // Default: "cache.rate_limiter"
+ *             storage_service?: string|Param, // The service ID of a custom storage implementation, this precedes any configured "cache_pool" // Default: null
+ *         },
+ *         x509?: array{
+ *             provider?: scalar|null|Param,
+ *             user?: scalar|null|Param, // Default: "SSL_CLIENT_S_DN_Email"
+ *             credentials?: scalar|null|Param, // Default: "SSL_CLIENT_S_DN"
+ *             user_identifier?: scalar|null|Param, // Default: "emailAddress"
+ *         },
+ *         remote_user?: array{
+ *             provider?: scalar|null|Param,
+ *             user?: scalar|null|Param, // Default: "REMOTE_USER"
+ *         },
+ *         login_link?: array{
+ *             check_route: scalar|null|Param, // Route that will validate the login link - e.g. "app_login_link_verify".
+ *             check_post_only?: scalar|null|Param, // If true, only HTTP POST requests to "check_route" will be handled by the authenticator. // Default: false
+ *             signature_properties: list<scalar|null|Param>,
+ *             lifetime?: int|Param, // The lifetime of the login link in seconds. // Default: 600
+ *             max_uses?: int|Param, // Max number of times a login link can be used - null means unlimited within lifetime. // Default: null
+ *             used_link_cache?: scalar|null|Param, // Cache service id used to expired links of max_uses is set.
+ *             success_handler?: scalar|null|Param, // A service id that implements Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface.
+ *             failure_handler?: scalar|null|Param, // A service id that implements Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface.
+ *             provider?: scalar|null|Param, // The user provider to load users from.
+ *             secret?: scalar|null|Param, // Default: "%kernel.secret%"
+ *             always_use_default_target_path?: bool|Param, // Default: false
+ *             default_target_path?: scalar|null|Param, // Default: "/"
+ *             login_path?: scalar|null|Param, // Default: "/login"
+ *             target_path_parameter?: scalar|null|Param, // Default: "_target_path"
+ *             use_referer?: bool|Param, // Default: false
+ *             failure_path?: scalar|null|Param, // Default: null
+ *             failure_forward?: bool|Param, // Default: false
+ *             failure_path_parameter?: scalar|null|Param, // Default: "_failure_path"
+ *         },
+ *         form_login?: array{
+ *             provider?: scalar|null|Param,
+ *             remember_me?: bool|Param, // Default: true
+ *             success_handler?: scalar|null|Param,
+ *             failure_handler?: scalar|null|Param,
+ *             check_path?: scalar|null|Param, // Default: "/login_check"
+ *             use_forward?: bool|Param, // Default: false
+ *             login_path?: scalar|null|Param, // Default: "/login"
+ *             username_parameter?: scalar|null|Param, // Default: "_username"
+ *             password_parameter?: scalar|null|Param, // Default: "_password"
+ *             csrf_parameter?: scalar|null|Param, // Default: "_csrf_token"
+ *             csrf_token_id?: scalar|null|Param, // Default: "authenticate"
+ *             enable_csrf?: bool|Param, // Default: false
+ *             post_only?: bool|Param, // Default: true
+ *             form_only?: bool|Param, // Default: false
+ *             always_use_default_target_path?: bool|Param, // Default: false
+ *             default_target_path?: scalar|null|Param, // Default: "/"
+ *             target_path_parameter?: scalar|null|Param, // Default: "_target_path"
+ *             use_referer?: bool|Param, // Default: false
+ *             failure_path?: scalar|null|Param, // Default: null
+ *             failure_forward?: bool|Param, // Default: false
+ *             failure_path_parameter?: scalar|null|Param, // Default: "_failure_path"
+ *         },
+ *         form_login_ldap?: array{
+ *             provider?: scalar|null|Param,
+ *             remember_me?: bool|Param, // Default: true
+ *             success_handler?: scalar|null|Param,
+ *             failure_handler?: scalar|null|Param,
+ *             check_path?: scalar|null|Param, // Default: "/login_check"
+ *             use_forward?: bool|Param, // Default: false
+ *             login_path?: scalar|null|Param, // Default: "/login"
+ *             username_parameter?: scalar|null|Param, // Default: "_username"
+ *             password_parameter?: scalar|null|Param, // Default: "_password"
+ *             csrf_parameter?: scalar|null|Param, // Default: "_csrf_token"
+ *             csrf_token_id?: scalar|null|Param, // Default: "authenticate"
+ *             enable_csrf?: bool|Param, // Default: false
+ *             post_only?: bool|Param, // Default: true
+ *             form_only?: bool|Param, // Default: false
+ *             always_use_default_target_path?: bool|Param, // Default: false
+ *             default_target_path?: scalar|null|Param, // Default: "/"
+ *             target_path_parameter?: scalar|null|Param, // Default: "_target_path"
+ *             use_referer?: bool|Param, // Default: false
+ *             failure_path?: scalar|null|Param, // Default: null
+ *             failure_forward?: bool|Param, // Default: false
+ *             failure_path_parameter?: scalar|null|Param, // Default: "_failure_path"
+ *             service?: scalar|null|Param, // Default: "ldap"
+ *             dn_string?: scalar|null|Param, // Default: "{user_identifier}"
+ *             query_string?: scalar|null|Param,
+ *             search_dn?: scalar|null|Param, // Default: ""
+ *             search_password?: scalar|null|Param, // Default: ""
+ *         },
+ *         json_login?: array{
+ *             provider?: scalar|null|Param,
+ *             remember_me?: bool|Param, // Default: true
+ *             success_handler?: scalar|null|Param,
+ *             failure_handler?: scalar|null|Param,
+ *             check_path?: scalar|null|Param, // Default: "/login_check"
+ *             use_forward?: bool|Param, // Default: false
+ *             login_path?: scalar|null|Param, // Default: "/login"
+ *             username_path?: scalar|null|Param, // Default: "username"
+ *             password_path?: scalar|null|Param, // Default: "password"
+ *         },
+ *         json_login_ldap?: array{
+ *             provider?: scalar|null|Param,
+ *             remember_me?: bool|Param, // Default: true
+ *             success_handler?: scalar|null|Param,
+ *             failure_handler?: scalar|null|Param,
+ *             check_path?: scalar|null|Param, // Default: "/login_check"
+ *             use_forward?: bool|Param, // Default: false
+ *             login_path?: scalar|null|Param, // Default: "/login"
+ *             username_path?: scalar|null|Param, // Default: "username"
+ *             password_path?: scalar|null|Param, // Default: "password"
+ *             service?: scalar|null|Param, // Default: "ldap"
+ *             dn_string?: scalar|null|Param, // Default: "{user_identifier}"
+ *             query_string?: scalar|null|Param,
+ *             search_dn?: scalar|null|Param, // Default: ""
+ *             search_password?: scalar|null|Param, // Default: ""
+ *         },
+ *         access_token?: array{
+ *             provider?: scalar|null|Param,
+ *             remember_me?: bool|Param, // Default: true
+ *             success_handler?: scalar|null|Param,
+ *             failure_handler?: scalar|null|Param,
+ *             realm?: scalar|null|Param, // Default: null
+ *             token_extractors?: list<scalar|null|Param>,
+ *             token_handler: string|array{
+ *                 id?: scalar|null|Param,
+ *                 oidc_user_info?: string|array{
+ *                     base_uri: scalar|null|Param, // Base URI of the userinfo endpoint on the OIDC server, or the OIDC server URI to use the discovery (require "discovery" to be configured).
+ *                     discovery?: array{ // Enable the OIDC discovery.
+ *                         cache?: array{
+ *                             id: scalar|null|Param, // Cache service id to use to cache the OIDC discovery configuration.
+ *                         },
+ *                     },
+ *                     claim?: scalar|null|Param, // Claim which contains the user identifier (e.g. sub, email, etc.). // Default: "sub"
+ *                     client?: scalar|null|Param, // HttpClient service id to use to call the OIDC server.
+ *                 },
+ *                 oidc?: array{
+ *                     discovery?: array{ // Enable the OIDC discovery.
+ *                         base_uri: list<scalar|null|Param>,
+ *                         cache?: array{
+ *                             id: scalar|null|Param, // Cache service id to use to cache the OIDC discovery configuration.
+ *                         },
+ *                     },
+ *                     claim?: scalar|null|Param, // Claim which contains the user identifier (e.g.: sub, email..). // Default: "sub"
+ *                     audience: scalar|null|Param, // Audience set in the token, for validation purpose.
+ *                     issuers: list<scalar|null|Param>,
+ *                     algorithms: list<scalar|null|Param>,
+ *                     keyset?: scalar|null|Param, // JSON-encoded JWKSet used to sign the token (must contain a list of valid public keys).
+ *                     encryption?: bool|array{
+ *                         enabled?: bool|Param, // Default: false
+ *                         enforce?: bool|Param, // When enabled, the token shall be encrypted. // Default: false
+ *                         algorithms: list<scalar|null|Param>,
+ *                         keyset: scalar|null|Param, // JSON-encoded JWKSet used to decrypt the token (must contain a list of valid private keys).
+ *                     },
+ *                 },
+ *                 cas?: array{
+ *                     validation_url: scalar|null|Param, // CAS server validation URL
+ *                     prefix?: scalar|null|Param, // CAS prefix // Default: "cas"
+ *                     http_client?: scalar|null|Param, // HTTP Client service // Default: null
+ *                 },
+ *                 oauth2?: scalar|null|Param,
+ *             },
+ *         },
+ *         http_basic?: array{
+ *             provider?: scalar|null|Param,
+ *             realm?: scalar|null|Param, // Default: "Secured Area"
+ *         },
+ *         http_basic_ldap?: array{
+ *             provider?: scalar|null|Param,
+ *             realm?: scalar|null|Param, // Default: "Secured Area"
+ *             service?: scalar|null|Param, // Default: "ldap"
+ *             dn_string?: scalar|null|Param, // Default: "{user_identifier}"
+ *             query_string?: scalar|null|Param,
+ *             search_dn?: scalar|null|Param, // Default: ""
+ *             search_password?: scalar|null|Param, // Default: ""
+ *         },
+ *         remember_me?: array{
+ *             secret?: scalar|null|Param, // Default: "%kernel.secret%"
+ *             service?: scalar|null|Param,
+ *             user_providers?: list<scalar|null|Param>,
+ *             catch_exceptions?: bool|Param, // Default: true
+ *             signature_properties?: list<scalar|null|Param>,
+ *             token_provider?: string|array{
+ *                 service?: scalar|null|Param, // The service ID of a custom remember-me token provider.
+ *                 doctrine?: bool|array{
+ *                     enabled?: bool|Param, // Default: false
+ *                     connection?: scalar|null|Param, // Default: null
+ *                 },
+ *             },
+ *             token_verifier?: scalar|null|Param, // The service ID of a custom rememberme token verifier.
+ *             name?: scalar|null|Param, // Default: "REMEMBERME"
+ *             lifetime?: int|Param, // Default: 31536000
+ *             path?: scalar|null|Param, // Default: "/"
+ *             domain?: scalar|null|Param, // Default: null
+ *             secure?: true|false|"auto"|Param, // Default: false
+ *             httponly?: bool|Param, // Default: true
+ *             samesite?: null|"lax"|"strict"|"none"|Param, // Default: null
+ *             always_remember_me?: bool|Param, // Default: false
+ *             remember_me_parameter?: scalar|null|Param, // Default: "_remember_me"
+ *         },
+ *         two_factor?: array{
+ *             check_path?: scalar|null|Param, // Default: "/2fa_check"
+ *             post_only?: bool|Param, // Default: true
+ *             auth_form_path?: scalar|null|Param, // Default: "/2fa"
+ *             always_use_default_target_path?: bool|Param, // Default: false
+ *             default_target_path?: scalar|null|Param, // Default: "/"
+ *             success_handler?: scalar|null|Param, // Default: null
+ *             failure_handler?: scalar|null|Param, // Default: null
+ *             authentication_required_handler?: scalar|null|Param, // Default: null
+ *             auth_code_parameter_name?: scalar|null|Param, // Default: "_auth_code"
+ *             trusted_parameter_name?: scalar|null|Param, // Default: "_trusted"
+ *             remember_me_sets_trusted?: scalar|null|Param, // Default: false
+ *             multi_factor?: bool|Param, // Default: false
+ *             prepare_on_login?: bool|Param, // Default: false
+ *             prepare_on_access_denied?: bool|Param, // Default: false
+ *             enable_csrf?: scalar|null|Param, // Default: false
+ *             csrf_parameter?: scalar|null|Param, // Default: "_csrf_token"
+ *             csrf_token_id?: scalar|null|Param, // Default: "two_factor"
+ *             csrf_header?: scalar|null|Param, // Default: null
+ *             csrf_token_manager?: scalar|null|Param, // Default: "scheb_two_factor.csrf_token_manager"
+ *             provider?: scalar|null|Param, // Default: null
+ *         },
+ *     }>,
+ *     access_control?: list<array{ // Default: []
+ *         request_matcher?: scalar|null|Param, // Default: null
+ *         requires_channel?: scalar|null|Param, // Default: null
+ *         path?: scalar|null|Param, // Use the urldecoded format. // Default: null
+ *         host?: scalar|null|Param, // Default: null
+ *         port?: int|Param, // Default: null
+ *         ips?: list<scalar|null|Param>,
+ *         attributes?: array<string, scalar|null|Param>,
+ *         route?: scalar|null|Param, // Default: null
+ *         methods?: list<scalar|null|Param>,
+ *         allow_if?: scalar|null|Param, // Default: null
+ *         roles?: list<scalar|null|Param>,
+ *     }>,
+ *     role_hierarchy?: array<string, string|list<scalar|null|Param>>,
+ * }
+ * @psalm-type SchebTwoFactorConfig = array{
+ *     persister?: scalar|null|Param, // Default: "scheb_two_factor.persister.doctrine"
+ *     model_manager_name?: scalar|null|Param, // Default: null
+ *     security_tokens?: list<scalar|null|Param>,
+ *     ip_whitelist?: list<scalar|null|Param>,
+ *     ip_whitelist_provider?: scalar|null|Param, // Default: "scheb_two_factor.default_ip_whitelist_provider"
+ *     two_factor_token_factory?: scalar|null|Param, // Default: "scheb_two_factor.default_token_factory"
+ *     two_factor_provider_decider?: scalar|null|Param, // Default: "scheb_two_factor.default_provider_decider"
+ *     two_factor_condition?: scalar|null|Param, // Default: null
+ *     code_reuse_cache?: scalar|null|Param, // Default: null
+ *     code_reuse_cache_duration?: int|Param, // Default: 60
+ *     code_reuse_default_handler?: scalar|null|Param, // Default: null
+ *     totp?: bool|array{
+ *         enabled?: scalar|null|Param, // Default: false
+ *         form_renderer?: scalar|null|Param, // Default: null
+ *         issuer?: scalar|null|Param, // Default: null
+ *         server_name?: scalar|null|Param, // Default: null
+ *         leeway?: int|Param, // Default: 0
+ *         parameters?: list<scalar|null|Param>,
+ *         template?: scalar|null|Param, // Default: "@SchebTwoFactor/Authentication/form.html.twig"
+ *     },
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -987,6 +1339,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     twig_extra?: TwigExtraConfig,
  *     doctrine?: DoctrineConfig,
  *     doctrine_migrations?: DoctrineMigrationsConfig,
+ *     security?: SecurityConfig,
+ *     scheb_two_factor?: SchebTwoFactorConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -997,6 +1351,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         doctrine?: DoctrineConfig,
  *         doctrine_migrations?: DoctrineMigrationsConfig,
  *         web_profiler?: WebProfilerConfig,
+ *         security?: SecurityConfig,
+ *         scheb_two_factor?: SchebTwoFactorConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1007,6 +1363,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_extra?: TwigExtraConfig,
  *         doctrine?: DoctrineConfig,
  *         doctrine_migrations?: DoctrineMigrationsConfig,
+ *         security?: SecurityConfig,
+ *         scheb_two_factor?: SchebTwoFactorConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1018,6 +1376,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         doctrine?: DoctrineConfig,
  *         doctrine_migrations?: DoctrineMigrationsConfig,
  *         web_profiler?: WebProfilerConfig,
+ *         security?: SecurityConfig,
+ *         scheb_two_factor?: SchebTwoFactorConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

@@ -9,3 +9,8 @@ framework:
             - submit
             - authenticate
             - logout
+            - setup
+            - first_feed
+            - refresh
+            - mark_all_read
+            - mark_read

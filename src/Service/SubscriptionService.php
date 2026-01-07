@@ -85,6 +85,11 @@ class SubscriptionService
         return $this->subscriptionRepository->findByUserId($userId);
     }
 
+    public function countByUser(int $userId): int
+    {
+        return $this->subscriptionRepository->countByUserId($userId);
+    }
+
     public function getSubscriptionsWithCounts(
         int $userId,
         array $items = [],

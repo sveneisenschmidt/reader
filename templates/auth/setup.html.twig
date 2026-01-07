@@ -1,0 +1,49 @@
+{% extends 'auth/base.html.twig' %}
+
+{% block title %}Setup | Reader{% endblock %}
+{% block header %}Setup{% endblock %}
+{% block page_id %}setup{% endblock %}
+{% block intro %}Create your account to start using Reader. You'll need an authenticator app for secure login.{% endblock %}
+
+{% block form %}
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+    {{ form_label(form.email) }}
+    {{ form_widget(form.email) }}
+    {{ form_errors(form.email) }}
+
+    <div>
+        <div>
+            {{ form_label(form.password.first) }}
+            {{ form_widget(form.password.first) }}
+            {{ form_errors(form.password.first) }}
+        </div>
+
+        <div>
+            {{ form_label(form.password.second) }}
+            {{ form_widget(form.password.second) }}
+            {{ form_errors(form.password.second) }}
+        </div>
+    </div>
+    {{ form_errors(form.password) }}
+
+    <p>Scan with your authenticator app or enter the code manually. Then enter the verification code below.</p>
+
+    <figure>
+        <img src="{{ totp_qr_data_uri }}" alt="QR Code">
+        <figcaption><code>{{ totp_secret }}</code></figcaption>
+    </figure>
+
+    {{ form_label(form.otp) }}
+    {{ include('components/otp-inputs.html.twig') }}
+    {{ form_widget(form.otp, {attr: {'data-otp-value': true, 'hidden': true}}) }}
+    {{ form_errors(form.otp) }}
+
+    <button type="submit">Create Account</button>
+
+    {{ form_end(form) }}
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ asset('js/otp-inputs.js') }}"></script>
+{% endblock %}

@@ -1,101 +1,104 @@
 # Reader
 
-A fast, minimal RSS reader.
+A fast, minimal RSS reader for a single user.
 
 ![Screenshot](docs/screenshot.png)
 
+## Getting Started
+
+### First-Time Setup
+
+When you open Reader for the first time, you'll be guided through a setup wizard:
+
+1. **Create your account** - Enter your email and choose a password
+2. **Set up two-factor authentication** - Scan the QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.)
+3. **Verify** - Enter the 6-digit code from your authenticator to confirm it's working
+4. **Add your first feed** - Paste an RSS feed URL to get started
+
+### Logging In
+
+Every login requires:
+- Your email
+- Your password
+- A 6-digit code from your authenticator app
+
 ## Features
 
-- Three-column layout: sidebar, reading list, reading pane
-- Unread/read tracking with mark-all-as-read
-- Green dot indicator for new (unseen) articles
-- Pull to refresh on mobile and desktop
+- Clean three-column layout: feeds, articles, reading pane
+- Track read/unread articles
+- Green dot shows new articles you haven't seen yet
+- Pull down to refresh on any device
 - Organize feeds into folders
-- Dark mode support
+- Automatic dark mode
 
-## Usage
+## Using Reader
 
 ### Reading Articles
 
-Open an article by clicking it in the reading list. The article content appears in the reading pane.
+Click any article in the list to read it. The content appears in the reading pane on the right.
 
-Articles are marked **read** when you click "Mark as read", "Mark all as read", or open the original link.
+**Marking articles as read:**
+- Click "Mark as read" on an article
+- Click "Mark all as read" in the sidebar
+- Click "Read original" to open the source and mark as read
 
-The green dot disappears when you open an article in the reading pane, helping you track which articles you've looked at.
+The green dot next to new articles disappears once you've viewed them.
 
 ### Refreshing Feeds
 
+Two ways to check for new articles:
 - Pull down from the top of the page
-- Click the "Refreshed..." timestamp in the footer
+- Click the "Refreshed..." text in the footer
 
-### Managing Subscriptions
+Feeds also refresh automatically in the background.
 
-Click "Subscriptions" to edit your feeds via YAML:
+### Managing Your Feeds
+
+Click **Subscriptions** in the header to add, edit, or remove feeds.
+
+Feeds are configured in YAML format:
 
 ```yaml
 - url: https://example.com/feed.xml
   title: Example Feed
 
-- url: https://example.com/tech.xml
-  title: Tech Feed
+- url: https://news.site/rss
+  title: Daily News
+  folder: ["News"]
+
+- url: https://techblog.com/feed
+  title: Tech Blog
   folder: ["News", "Technology"]
 ```
 
-Feeds with `folder` are grouped in the sidebar. Nested folders display as "News / Technology".
+**Adding a feed:** Add a new entry with `url` and `title`.
 
-### Filters
+**Organizing into folders:** Add a `folder` property with a list of folder names. Nested folders appear as "News / Technology" in the sidebar.
 
-- **Show unread**: Toggle to hide read articles
-- **Limit**: Show 25, 50, or all articles
+**Removing a feed:** Delete its entry from the list.
 
----
+Click **Save** to apply your changes.
 
-## Development
+### Filtering Articles
 
-### Requirements
+Use the filters in the sidebar:
 
-- PHP 8.4+
-- Composer
-- Symfony CLI
+- **Show unread** - Hide articles you've already read
+- **25 / 50 / 99+** - Limit how many articles are shown
 
-### Setup
+### Keyboard Shortcuts
 
-```bash
-composer install
-make db-migrate
-make dev
-```
+Navigate efficiently with your keyboard:
+- Pull-to-refresh works on desktop too (scroll up past the top)
 
-Open http://127.0.0.1:8000
+## Security
 
-### Stack
+Reader is designed for single-user, self-hosted use:
 
-- Symfony 7
-- SQLite (separate databases for users, subscriptions, content)
-- Vanilla CSS and JavaScript
-- Symfony Scheduler for background tasks
-
-### Background Worker
-
-Feeds refresh every 15 minutes. Old articles are cleaned up daily.
-
-`make dev` starts the worker automatically. For production, use cron or Supervisor:
-
-```cron
-* * * * * cd /path/to/reader && make worker
-```
-
-### Available Commands
-
-| Command | Description |
-|---------|-------------|
-| `make dev` | Start development server with worker |
-| `make stop` | Stop development server |
-| `make test` | Run tests |
-| `make db-migrate` | Run database migrations |
-| `make db-reset` | Reset all databases |
-| `make cache-clear` | Clear application cache |
-| `make worker` | Run background worker (55s timeout) |
+- All pages require authentication
+- Passwords are securely hashed
+- Two-factor authentication (TOTP) is mandatory
+- Sessions expire automatically
 
 ## License
 

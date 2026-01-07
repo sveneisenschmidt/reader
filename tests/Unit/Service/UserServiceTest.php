@@ -10,31 +10,32 @@
 namespace App\Tests\Unit\Service;
 
 use App\Entity\Users\User;
-use App\Repository\Users\UserRepository;
 use App\Service\UserService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class UserServiceTest extends TestCase
 {
-    private UserRepository&MockObject $userRepository;
+    private Security&MockObject $security;
     private UserService $service;
 
     protected function setUp(): void
     {
-        $this->userRepository = $this->createMock(UserRepository::class);
-        $this->service = new UserService($this->userRepository);
+        $this->security = $this->createMock(Security::class);
+        $this->service = new UserService($this->security);
     }
 
     #[Test]
-    public function getCurrentUserReturnsRepositoryResult(): void
+    public function getCurrentUserReturnsAuthenticatedUser(): void
     {
         $user = $this->createMock(User::class);
 
-        $this->userRepository
+        $this->security
             ->expects($this->once())
-            ->method('getOrCreateDummyUser')
+            ->method("getUser")
             ->willReturn($user);
 
         $result = $this->service->getCurrentUser();
@@ -43,20 +44,12 @@ class UserServiceTest extends TestCase
     }
 
     #[Test]
-    public function isDummyUserReturnsTrueForDummyEmail(): void
+    public function getCurrentUserThrowsWhenNotAuthenticated(): void
     {
-        $user = $this->createMock(User::class);
-        $user->method('getEmail')->willReturn('dummy@reader.local');
+        $this->security->method("getUser")->willReturn(null);
 
-        $this->assertTrue($this->service->isDummyUser($user));
-    }
+        $this->expectException(AccessDeniedException::class);
 
-    #[Test]
-    public function isDummyUserReturnsFalseForOtherEmail(): void
-    {
-        $user = $this->createMock(User::class);
-        $user->method('getEmail')->willReturn('user@example.com');
-
-        $this->assertFalse($this->service->isDummyUser($user));
+        $this->service->getCurrentUser();
     }
 }

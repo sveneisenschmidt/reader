@@ -7,27 +7,22 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 namespace App\Service;
 
 use App\Entity\Users\User;
-use App\Repository\Users\UserRepository;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class UserService
 {
-    private const DUMMY_EMAIL = 'dummy@reader.local';
-
-    public function __construct(
-        private UserRepository $userRepository,
-    ) {}
+    public function __construct(private Security $security) {}
 
     public function getCurrentUser(): User
     {
-        return $this->userRepository->getOrCreateDummyUser();
-    }
-
-    public function isDummyUser(User $user): bool
-    {
-        return $user->getEmail() === self::DUMMY_EMAIL;
+        $user = $this->security->getUser();
+        if (!$user instanceof User) {
+            throw new AccessDeniedException("User not authenticated");
+        }
+        return $user;
     }
 }

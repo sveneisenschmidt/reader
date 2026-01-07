@@ -110,4 +110,14 @@ class SubscriptionRepository extends ServiceEntityRepository
 
         $this->getEntityManager()->flush();
     }
+
+    public function hasAnyForUser(int $userId): bool
+    {
+        return $this->count(["userId" => $userId]) > 0;
+    }
+
+    public function countByUserId(int $userId): int
+    {
+        return $this->count(["userId" => $userId]);
+    }
 }

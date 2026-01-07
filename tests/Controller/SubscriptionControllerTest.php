@@ -9,15 +9,29 @@
 
 namespace App\Tests\Controller;
 
+use App\Tests\Trait\AuthenticatedTestTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class SubscriptionControllerTest extends WebTestCase
 {
+    use AuthenticatedTestTrait;
+
+    #[Test]
+    public function subscriptionsPageRedirectsToLoginWhenNotAuthenticated(): void
+    {
+        $client = static::createClient();
+        $client->request("GET", "/subscriptions");
+
+        $this->assertResponseRedirects("/login");
+    }
+
     #[Test]
     public function subscriptionsPageLoads(): void
     {
         $client = static::createClient();
+        $this->loginAsTestUser($client);
+
         $client->request("GET", "/subscriptions");
 
         $this->assertResponseIsSuccessful();
@@ -27,6 +41,8 @@ class SubscriptionControllerTest extends WebTestCase
     public function subscriptionsPageShowsForm(): void
     {
         $client = static::createClient();
+        $this->loginAsTestUser($client);
+
         $crawler = $client->request("GET", "/subscriptions");
 
         $this->assertResponseIsSuccessful();
@@ -38,6 +54,8 @@ class SubscriptionControllerTest extends WebTestCase
     public function subscriptionsFormSubmitRequiresValidYaml(): void
     {
         $client = static::createClient();
+        $this->loginAsTestUser($client);
+
         $crawler = $client->request("GET", "/subscriptions");
 
         $form = $crawler->selectButton("Save")->form();
@@ -47,13 +65,15 @@ class SubscriptionControllerTest extends WebTestCase
 
         // Should show page with error flash message
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists(".flash-error, .alert-error, .error");
+        $this->assertSelectorExists("p.error");
     }
 
     #[Test]
     public function subscriptionsFormAcceptsValidYaml(): void
     {
         $client = static::createClient();
+        $this->loginAsTestUser($client);
+
         $crawler = $client->request("GET", "/subscriptions");
 
         $form = $crawler->selectButton("Save")->form();
@@ -70,6 +90,8 @@ class SubscriptionControllerTest extends WebTestCase
     public function subscriptionsFormRejectsBlockedUrls(): void
     {
         $client = static::createClient();
+        $this->loginAsTestUser($client);
+
         $crawler = $client->request("GET", "/subscriptions");
 
         $form = $crawler->selectButton("Save")->form();
@@ -80,13 +102,15 @@ class SubscriptionControllerTest extends WebTestCase
 
         // Should show page with error flash message
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists(".flash-error, .alert-error, .error");
+        $this->assertSelectorExists("p.error");
     }
 
     #[Test]
     public function subscriptionsFormHasCsrfProtection(): void
     {
         $client = static::createClient();
+        $this->loginAsTestUser($client);
+
         $crawler = $client->request("GET", "/subscriptions");
 
         // Check that form has a CSRF token field
@@ -97,6 +121,8 @@ class SubscriptionControllerTest extends WebTestCase
     public function subscriptionsPageDisplaysYamlContent(): void
     {
         $client = static::createClient();
+        $this->loginAsTestUser($client);
+
         $crawler = $client->request("GET", "/subscriptions");
 
         $this->assertResponseIsSuccessful();

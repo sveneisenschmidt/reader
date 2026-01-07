@@ -1,0 +1,38 @@
+{# Minimal form theme - no wrapper divs, no extra markup #}
+
+{%- block form_row -%}
+    {{- form_widget(form) -}}
+    {{- form_errors(form) -}}
+{%- endblock form_row -%}
+
+{%- block form_label -%}
+    {%- if label is not same as(false) -%}
+        <label{% if id %} for="{{ id }}"{% endif %}>{{ label }}</label>
+    {%- endif -%}
+{%- endblock form_label -%}
+
+{%- block form_widget_simple -%}
+    {%- set type = type|default('text') -%}
+    <input type="{{ type }}" {{ block('widget_attributes') }}{% if value is not empty %} value="{{ value }}"{% endif %}>
+{%- endblock form_widget_simple -%}
+
+{%- block form_errors -%}
+    {%- if errors|length > 0 -%}
+        {%- for error in errors -%}
+            <p class="form-error">{{ error.message }}</p>
+        {%- endfor -%}
+    {%- endif -%}
+{%- endblock form_errors -%}
+
+{%- block form_start -%}
+    <form method="{{ method|default('post') }}"{% if action %} action="{{ action }}"{% endif %}{{ block('attributes') }}>
+    {%- if form.vars.multipart %} enctype="multipart/form-data"{% endif -%}
+    {%- if method != 'GET' and method != 'POST' -%}
+        <input type="hidden" name="_method" value="{{ method }}">
+    {%- endif -%}
+{%- endblock form_start -%}
+
+{%- block form_end -%}
+    {{- form_rest(form) -}}
+    </form>
+{%- endblock form_end -%}

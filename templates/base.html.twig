@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,10 +15,11 @@
         <h1><a href="{{ path_with_filters('feed_index') }}" class="home">Reader</a></h1>
         <nav>
             <a href="{{ path_with_filters('subscriptions') }}">Subscriptions</a>
+            <a href="{{ path('auth_logout') }}">Logout</a>
         </nav>
     </header>
 
-    <main>
+    <main id="{% block page_id %}{% endblock %}">
         {% block main %}{% endblock %}
     </main>
 
@@ -27,8 +28,10 @@
         {% if refreshTime %}
         <form action="{{ path('feed_refresh') }}" method="post" class="inline" data-refresh-form>
             <input type="hidden" name="_token" value="{{ csrf_token('refresh') }}">
-            <button type="submit">Refreshed {{ refreshTime|ago }}</button>
+            <button type="submit" class="btn-link">Refreshed {{ refreshTime|ago }}</button>
         </form>
+        {% else %}
+        &nbsp;
         {% endif %}
     </footer>
 

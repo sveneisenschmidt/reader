@@ -9,55 +9,109 @@
 
 namespace App\Tests\Controller;
 
+use App\Tests\Trait\AuthenticatedTestTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class FeedControllerTest extends WebTestCase
 {
+    use AuthenticatedTestTrait;
+
     #[Test]
     public function indexPageLoads(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request("GET", "/");
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists("main");
+        $this->assertSelectorExists("main#feed");
     }
 
     #[Test]
-    public function indexPageShowsFeedList(): void
+    public function indexPageShowsFeedSidebar(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $crawler = $client->request("GET", "/");
 
         $this->assertResponseIsSuccessful();
-        // Check for feed sidebar structure
-        $this->assertSelectorExists(".sidebar");
+        $this->assertSelectorExists("aside");
+    }
+
+    #[Test]
+    public function indexPageRedirectsToLoginWhenNotAuthenticated(): void
+    {
+        $client = static::createClient();
+        $client->request("GET", "/");
+
+        $this->assertResponseRedirects("/login");
+    }
+
+    #[Test]
+    public function indexPageRedirectsToOnboardingWhenNoSubscriptions(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+
+        // Delete all subscriptions for this user using the trait method
+        $this->deleteAllSubscriptionsForTestUser();
+
+        $client->request("GET", "/");
+
+        $this->assertResponseRedirects("/onboarding");
     }
 
     #[Test]
     public function refreshEndpointRequiresPostMethod(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request("GET", "/refresh");
 
         $this->assertResponseStatusCodeSame(405);
     }
 
     #[Test]
-    public function refreshEndpointAcceptsPost(): void
+    public function refreshEndpointRequiresCsrfToken(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request("POST", "/refresh");
 
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    #[Test]
+    public function refreshEndpointAcceptsPostWithCsrfToken(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
+        // Make a GET request first to establish the session
+        $crawler = $client->request("GET", "/");
         $this->assertResponseIsSuccessful();
-        $this->assertEquals("OK", $client->getResponse()->getContent());
+
+        // Get the CSRF token from the refresh form in the footer
+        $token = $crawler
+            ->filter('form[data-refresh-form] input[name="_token"]')
+            ->attr("value");
+
+        $client->request("POST", "/refresh", ["_token" => $token]);
+
+        $this->assertResponseRedirects("/");
     }
 
     #[Test]
     public function markAllReadRequiresPostMethod(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request("GET", "/mark-all-read");
 
         $this->assertResponseStatusCodeSame(405);
@@ -67,6 +121,8 @@ class FeedControllerTest extends WebTestCase
     public function markAllReadRequiresCsrfToken(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request("POST", "/mark-all-read");
 
         $this->assertResponseStatusCodeSame(403);
@@ -76,6 +132,7 @@ class FeedControllerTest extends WebTestCase
     public function subscriptionRouteRequires16CharHexGuid(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
 
         // Invalid GUID (too short)
         $client->request("GET", "/s/abc");
@@ -90,6 +147,7 @@ class FeedControllerTest extends WebTestCase
     public function subscriptionRouteWithValidGuidLoads(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
 
         // Valid 16-char hex GUID
         $client->request("GET", "/s/0123456789abcdef");
@@ -100,6 +158,7 @@ class FeedControllerTest extends WebTestCase
     public function feedItemRouteRequires16CharHexGuid(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
 
         // Invalid GUID
         $client->request("GET", "/f/invalid");
@@ -110,6 +169,7 @@ class FeedControllerTest extends WebTestCase
     public function feedItemRouteWithValidGuidLoads(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
 
         // Valid 16-char hex GUID
         $client->request("GET", "/f/0123456789abcdef");
@@ -120,6 +180,8 @@ class FeedControllerTest extends WebTestCase
     public function markAsReadRequiresCsrfToken(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request("POST", "/f/0123456789abcdef/read");
 
         $this->assertResponseStatusCodeSame(403);
@@ -129,6 +191,8 @@ class FeedControllerTest extends WebTestCase
     public function markAsUnreadRequiresCsrfToken(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request("POST", "/f/0123456789abcdef/unread");
 
         $this->assertResponseStatusCodeSame(403);
@@ -138,6 +202,8 @@ class FeedControllerTest extends WebTestCase
     public function subscriptionMarkAllReadRequiresCsrfToken(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request("POST", "/s/0123456789abcdef/mark-all-read");
 
         $this->assertResponseStatusCodeSame(403);
@@ -147,6 +213,7 @@ class FeedControllerTest extends WebTestCase
     public function filteredFeedItemRouteRequiresBothValidGuids(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
 
         // Both GUIDs invalid
         $client->request("GET", "/s/invalid/f/invalid");
@@ -165,6 +232,8 @@ class FeedControllerTest extends WebTestCase
     public function filteredFeedItemRouteWithValidGuidsLoads(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request("GET", "/s/0123456789abcdef/f/fedcba9876543210");
 
         $this->assertResponseIsSuccessful();
@@ -174,6 +243,8 @@ class FeedControllerTest extends WebTestCase
     public function indexPageAcceptsUnreadQueryParam(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request("GET", "/?unread=1");
 
         $this->assertResponseIsSuccessful();
@@ -183,6 +254,8 @@ class FeedControllerTest extends WebTestCase
     public function indexPageAcceptsLimitQueryParam(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request("GET", "/?limit=50");
 
         $this->assertResponseIsSuccessful();
@@ -192,6 +265,8 @@ class FeedControllerTest extends WebTestCase
     public function markAsReadStayRequiresCsrfToken(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request("POST", "/f/0123456789abcdef/read-stay");
 
         $this->assertResponseStatusCodeSame(403);
@@ -201,6 +276,8 @@ class FeedControllerTest extends WebTestCase
     public function filteredMarkAsReadStayRequiresCsrfToken(): void
     {
         $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
         $client->request(
             "POST",
             "/s/0123456789abcdef/f/fedcba9876543210/read-stay",

@@ -37,6 +37,11 @@ class FeedController extends AbstractController
     #[Route("/", name: "feed_index")]
     public function index(Request $request): Response
     {
+        $user = $this->userService->getCurrentUser();
+        if ($this->subscriptionService->countByUser($user->getId()) === 0) {
+            return $this->redirectToRoute("onboarding");
+        }
+
         return $this->renderFeedView($request);
     }
 

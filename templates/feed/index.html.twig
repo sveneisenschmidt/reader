@@ -4,6 +4,8 @@
 
 {% block body_class %}{% if app.request.attributes.get('_route') in ['feed_item', 'feed_item_filtered'] %} class="has-active-item"{% endif %}{% endblock %}
 
+{% block page_id %}feed{% endblock %}
+
 {% block main %}
     <aside data-sidebar>
         <ul class="subscription-list">
@@ -63,7 +65,7 @@
         <footer class="sidebar-footer">
             <form action="{% if activeFeed %}{{ path('subscription_mark_all_read', {sguid: activeFeed}) }}{% else %}{{ path('feed_mark_all_read') }}{% endif %}" method="post" class="inline">
                 <input type="hidden" name="_token" value="{{ csrf_token('mark_all_read') }}">
-                <button type="submit">Mark all as read</button>
+                <button type="submit" class="btn-link">Mark all as read</button>
             </form>
         </footer>
         {% endif %}
@@ -90,7 +92,6 @@
         {% endfor %}
     </section>
     <script src="{{ asset('js/scroll-restore.js') }}"></script>
-    <script src="{{ asset('js/external-links.js') }}"></script>
 
     {% if activeItem %}
     <article data-reading-pane>
@@ -108,20 +109,21 @@
         <footer>
             <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_read_stay', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_read_stay', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline" data-mark-read-stay-form data-external-url="{{ activeItem.link }}">
                 <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
-                <button type="submit" data-external-link>Read original</button>
+                <button type="submit" class="btn-link" data-external-link>Read original</button>
             </form>
             {% if activeItem.isRead %}
                 <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_unread', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_unread', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
                     <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
-                    <button type="submit">Mark as unread</button>
+                    <button type="submit" class="btn-link">Mark as unread</button>
                 </form>
             {% else %}
                 <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_read', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_read', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
                     <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
-                    <button type="submit">Mark as read</button>
+                    <button type="submit" class="btn-link">Mark as read</button>
                 </form>
             {% endif %}
         </footer>
     </article>
+    <script src="{{ asset('js/external-links.js') }}"></script>
     {% endif %}
 {% endblock %}

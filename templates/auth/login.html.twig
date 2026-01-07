@@ -1,0 +1,31 @@
+{% extends 'auth/base.html.twig' %}
+
+{% block title %}Login | Reader{% endblock %}
+{% block header %}Login{% endblock %}
+{% block page_id %}login{% endblock %}
+{% block intro %}Sign in with your email, password and authenticator code.{% endblock %}
+
+{% block form %}
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+    {{ form_label(form.email) }}
+    {{ form_widget(form.email) }}
+    {{ form_errors(form.email) }}
+
+    {{ form_label(form.password) }}
+    {{ form_widget(form.password) }}
+    {{ form_errors(form.password) }}
+
+    {{ form_label(form.otp) }}
+    {{ include('components/otp-inputs.html.twig') }}
+    {{ form_widget(form.otp, {attr: {'data-otp-value': true, 'hidden': true}}) }}
+    {{ form_errors(form.otp) }}
+
+    <button type="submit">Login</button>
+
+    {{ form_end(form) }}
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ asset('js/otp-inputs.js') }}"></script>
+{% endblock %}
