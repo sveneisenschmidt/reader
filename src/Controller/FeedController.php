@@ -41,14 +41,15 @@ class FeedController extends AbstractController
     }
 
     #[Route("/refresh", name: "feed_refresh", methods: ["POST"])]
-    public function refresh(): Response
+    public function refresh(Request $request): Response
     {
+        $this->validateCsrfToken($request, "refresh");
         $user = $this->userService->getCurrentUser();
         $feedUrls = $this->subscriptionService->getFeedUrls($user->getId());
         $this->feedFetcher->refreshAllFeeds($feedUrls);
         $this->subscriptionService->updateRefreshTimestamps($user->getId());
 
-        return new Response("OK", Response::HTTP_OK);
+        return $this->redirectToRoute("feed_index");
     }
 
     #[

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
     <title>{% block title %}Reader{% endblock %}</title>
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
 </head>
@@ -21,15 +23,17 @@
     </main>
 
     <footer>
-        <span>Reader is open source and <a href="https://github.com/sveneisenschmidt">available on GitHub</a></span>
         {% set refreshTime = last_refresh() %}
         {% if refreshTime %}
-        <span class="last-refresh">Refreshed {{ refreshTime|ago }}</span>
+        <form action="{{ path('feed_refresh') }}" method="post" class="inline" data-refresh-form>
+            <input type="hidden" name="_token" value="{{ csrf_token('refresh') }}">
+            <button type="submit">Refreshed {{ refreshTime|ago }}</button>
+        </form>
         {% endif %}
     </footer>
 
-    {% block scripts %}
+    {% block scripts %}{% endblock %}
+    <script src="{{ asset('js/refresh.js') }}"></script>
     <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
-    {% endblock %}
 </body>
 </html>

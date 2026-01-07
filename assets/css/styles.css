@@ -49,6 +49,11 @@ html {
     scroll-behavior: smooth;
 }
 
+html,
+body {
+    overscroll-behavior: none;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
@@ -108,15 +113,10 @@ body {
         border-top: 1px solid var(--color-border);
         padding: 0.5rem 1rem;
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
 
-        & a {
-            text-decoration: underline;
-            text-underline-offset: 0.1em;
-
-            &:hover {
-                color: var(--color-link);
-            }
+        @media (min-width: 769px) {
+            justify-content: flex-end;
         }
     }
 }
@@ -162,7 +162,7 @@ main {
 }
 
 /* Sidebar */
-.sidebar {
+[data-sidebar] {
     border-right: 1px solid var(--color-border);
     padding: 1rem;
     overflow-y: auto;
@@ -216,11 +216,6 @@ main {
     opacity: 0.7;
 }
 
-.toggle-switch {
-    font-family: monospace;
-    font-size: 1.4em;
-}
-
 .filter-toggle,
 .filter-limit {
     white-space: nowrap;
@@ -240,8 +235,7 @@ main {
 }
 
 .sidebar-footer {
-    position: sticky;
-    bottom: 0;
+    margin-top: auto;
     background: var(--color-bg);
 
     &::before {
@@ -266,8 +260,8 @@ main {
     }
 }
 
-/* Feed stream */
-.feed-stream {
+/* Reading list */
+[data-reading-list] {
     border-right: 1px solid var(--color-border);
     overflow-y: auto;
     display: flex;
@@ -278,7 +272,7 @@ main {
         display: none;
     }
 
-    &.full-width {
+    &[data-full-width] {
         grid-column: 2 / -1;
         border-right: none;
     }
@@ -335,18 +329,16 @@ main {
 }
 
 /* Reading pane */
-.reading-pane {
+[data-reading-pane] {
     display: flex;
     flex-direction: column;
     overflow: hidden;
 
     & > header {
-        position: sticky;
-        top: 0;
-        background: var(--color-bg);
         margin: 0 2rem;
         border-bottom: 1px solid var(--color-border);
         padding: 2rem 0 1rem 0;
+        background: var(--color-bg);
 
         & .meta {
             display: flex;
@@ -383,14 +375,12 @@ main {
     }
 
     & > footer {
-        position: sticky;
-        bottom: 0;
-        background: var(--color-bg);
         margin: 0 2rem;
         border-top: 1px solid var(--color-border);
         padding: 1rem 0;
         display: flex;
         justify-content: space-between;
+        background: var(--color-bg);
 
         & a {
             color: var(--color-text);
@@ -454,21 +444,30 @@ main {
     }
 }
 
-/* Pull to refresh */
+/* Pull to refresh indicator */
 [data-pull-indicator] {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    background: var(--color-bg);
     border-bottom: 1px solid var(--color-border);
-    padding: 0.5rem 1rem;
+    padding: 1rem;
     text-align: center;
+    font-size: 1.25rem;
     z-index: 9998;
-    opacity: 0;
-    transition: opacity 0.1s;
 }
 
+[data-pull-indicator="pulling"] {
+    background: #dc2626;
+    color: #fff;
+}
+
+[data-pull-indicator="ready"] {
+    background: #22c55e;
+    color: #fff;
+}
+
+/* Refresh overlay */
 [data-refresh-overlay] {
     position: fixed;
     top: 0;
@@ -505,21 +504,22 @@ main {
         display: block;
     }
 
-    .sidebar {
+    [data-sidebar] {
         display: none;
         border-right: none;
-        height: calc(100vh - 3.5rem - 2.5rem);
+        min-height: calc(100dvh - 8rem);
         overflow-y: auto;
     }
 
-    .feed-stream {
+    [data-reading-list] {
         border-right: none;
     }
 
-    .reading-pane {
+    [data-reading-pane] {
         display: none;
         width: 100%;
-        height: 100%;
+        min-height: calc(100dvh - 8rem);
+        overflow: visible;
 
         & > header {
             margin: 0 1rem;
@@ -528,41 +528,37 @@ main {
 
         & .content {
             padding: 1rem;
+            flex: 1;
+            overflow: visible;
         }
 
         & > footer {
             margin: 0 1rem;
-            position: sticky;
-            bottom: 0;
         }
     }
 
     .back-link {
         display: block;
-        margin: 1rem 1rem 1rem 1rem;
+        margin: 1rem;
     }
 
-    .menu-checkbox:checked ~ main .sidebar {
+    .menu-checkbox:checked ~ main [data-sidebar] {
         display: flex;
     }
 
-    .menu-checkbox:checked ~ main .feed-stream,
-    .menu-checkbox:checked ~ main .reading-pane {
+    .menu-checkbox:checked ~ main [data-reading-list],
+    .menu-checkbox:checked ~ main [data-reading-pane] {
         display: none;
     }
 
     body.has-active-item {
-        & .feed-stream {
+        & [data-reading-list] {
             display: none;
         }
 
-        & .reading-pane {
+        & [data-reading-pane] {
             display: flex;
         }
-    }
-
-    .menu-checkbox:checked ~ main .reading-pane {
-        display: none;
     }
 }
 

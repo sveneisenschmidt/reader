@@ -5,7 +5,7 @@
 {% block body_class %}{% if app.request.attributes.get('_route') in ['feed_item', 'feed_item_filtered'] %} class="has-active-item"{% endif %}{% endblock %}
 
 {% block main %}
-    <aside class="sidebar">
+    <aside data-sidebar>
         <ul class="subscription-list">
             <li{% if not activeFeed %} class="active"{% endif %}>
                 <a href="{{ path_with_filters('feed_index') }}">All</a>
@@ -69,11 +69,11 @@
         {% endif %}
     </aside>
 
-    <section class="feed-stream{% if not activeItem %} full-width{% endif %}" data-feed-stream>
+    <section data-reading-list{% if not activeItem %} data-full-width{% endif %}>
         {% if items is empty and unread %}
         <div class="feed-empty">
             <p>No unread items</p>
-            <a href="{{ filter_url({unread: 0}) }}"><span class="touch-hide">Click</span><span class="touch-show">Tap</span> to show all items</a> or pull to refresh
+            <a href="{{ filter_url({unread: 0}) }}"><span class="touch-hide">Click</span><span class="touch-show">Tap</span> to show all items</a> or <a href="#" data-trigger-refresh>tap to refresh</a>
         </div>
         {% endif %}
         {% for item in items %}
@@ -93,7 +93,7 @@
     <script src="{{ asset('js/external-links.js') }}"></script>
 
     {% if activeItem %}
-    <article class="reading-pane">
+    <article data-reading-pane>
         <a href="{% if activeFeed %}{{ path_with_filters('subscription_show', {sguid: activeFeed}) }}{% else %}{{ path_with_filters('feed_index') }}{% endif %}" class="back-link">&larr; Back</a>
         <header>
             <h1><a href="{{ activeItem.link }}" data-external-link>{{ activeItem.title }}</a></h1>

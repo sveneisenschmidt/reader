@@ -1,13 +1,13 @@
-.PHONY: serve stop cache-clear install db-migrate db-reset test worker
+.PHONY: dev stop cache-clear install db-migrate db-reset test worker
 
 install:
 	composer install
 
-serve:
+dev:
 	php bin/console messenger:consume scheduler_default & \
 	WORKER_PID=$$!; \
 	trap "kill $$WORKER_PID 2>/dev/null" EXIT; \
-	symfony serve --no-tls
+	symfony serve --no-tls --allow-all-ip
 
 stop:
 	symfony server:stop

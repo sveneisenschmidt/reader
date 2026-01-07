@@ -1,110 +1,101 @@
 # Reader
 
-A fast, lightweight RSS reader.
+A fast, minimal RSS reader.
 
 ![Screenshot](docs/screenshot.png)
 
 ## Features
 
-- Three-column layout: subscriptions, articles, reading pane
+- Three-column layout: sidebar, reading list, reading pane
 - Unread/read tracking with mark-all-as-read
-- Pull to refresh on mobile
-- YAML-based subscription management with folder support
-- Background worker for automatic feed updates and cleanup
-- Dark mode
+- Green dot indicator for new (unseen) articles
+- Pull to refresh on mobile and desktop
+- Organize feeds into folders
+- Dark mode support
 
-## User Guide
+## Usage
 
-### Read Status
+### Reading Articles
 
-Articles are marked as **read** when you:
-- Click "Mark as read" button
-- Click "Mark all as read" in the sidebar
-- Click on the article title (opens original in new tab)
-- Click "Read original" (opens original in new tab)
+Open an article by clicking it in the reading list. The article content appears in the reading pane.
 
-### Seen Status
+Articles are marked **read** when you click "Mark as read", "Mark all as read", or open the original link.
 
-Articles are marked as **seen** (removes the green dot indicator) when you:
-- Open an article in the reading pane
+The green dot disappears when you open an article in the reading pane, helping you track which articles you've looked at.
 
-The green dot helps you identify new articles you haven't looked at yet, even if they're still unread.
+### Refreshing Feeds
 
-### Folders
+- Pull down from the top of the page
+- Click the "Refreshed..." timestamp in the footer
 
-Organize subscriptions into folders via the YAML editor in "Subscriptions":
+### Managing Subscriptions
+
+Click "Subscriptions" to edit your feeds via YAML:
 
 ```yaml
 - url: https://example.com/feed.xml
   title: Example Feed
-  folder: ["News"]
 
 - url: https://example.com/tech.xml
   title: Tech Feed
   folder: ["News", "Technology"]
 ```
 
-- `folder` is an array of strings for nested folders
-- Feeds without a folder appear at the bottom of the sidebar
-- Nested folders display as "News / Technology" in the sidebar
+Feeds with `folder` are grouped in the sidebar. Nested folders display as "News / Technology".
 
 ### Filters
 
-- **Show unread**: Toggle to show only unread articles
-- **Limit**: Show 25, 50, or all (99+) articles
+- **Show unread**: Toggle to hide read articles
+- **Limit**: Show 25, 50, or all articles
 
-## Requirements
-
-- PHP 8.4+
-- Composer
-
-## Installation
-
-```bash
-composer install
-make db-create
-make db-migrate
-```
+---
 
 ## Development
 
+### Requirements
+
+- PHP 8.4+
+- Composer
+- Symfony CLI
+
+### Setup
+
 ```bash
-make serve
+composer install
+make db-migrate
+make dev
 ```
 
-Open http://127.0.0.1:8000 in your browser.
+Open http://127.0.0.1:8000
 
-## Background Worker
+### Stack
 
-The app uses Symfony Scheduler for periodic tasks:
+- Symfony 7
+- SQLite (separate databases for users, subscriptions, content)
+- Vanilla CSS and JavaScript
+- Symfony Scheduler for background tasks
 
-- **Refresh feeds**: Every 15 minutes
-- **Cleanup old content**: Daily (removes articles older than 30 days)
+### Background Worker
 
-### Running the Worker
+Feeds refresh every 15 minutes. Old articles are cleaned up daily.
 
-**Development** (runs once and exits):
-```bash
-php bin/console messenger:consume scheduler_default --limit=1
-```
+`make dev` starts the worker automatically. For production, use cron or Supervisor:
 
-**Production** (via cron, runs for 55 seconds then exits cleanly):
 ```cron
-* * * * * cd /path/to/reader && php bin/console messenger:consume scheduler_default --time-limit=55
+* * * * * cd /path/to/reader && make worker
 ```
 
-**Production** (via Supervisor for continuous running):
-```ini
-[program:reader-worker]
-command=php bin/console messenger:consume scheduler_default --time-limit=3600
-directory=/path/to/reader
-autostart=true
-autorestart=true
-```
+### Available Commands
 
-## Production
-
-TBD
+| Command | Description |
+|---------|-------------|
+| `make dev` | Start development server with worker |
+| `make stop` | Stop development server |
+| `make test` | Run tests |
+| `make db-migrate` | Run database migrations |
+| `make db-reset` | Reset all databases |
+| `make cache-clear` | Clear application cache |
+| `make worker` | Run background worker (55s timeout) |
 
 ## License
 

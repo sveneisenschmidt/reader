@@ -1,6 +1,6 @@
 (() => {
-    const element = document.querySelector("[data-feed-stream]");
-    const key = "feed-stream-scroll";
+    const element = document.querySelector("[data-reading-list]");
+    const key = "reading-list-scroll";
     const activeElement = document.querySelector("[data-active]");
 
     if (element) {
