@@ -269,6 +269,36 @@ class CaptureScreenshotsCommand extends Command
             $this->takeScreenshot("profile");
             $io->success("profile.png");
 
+            // Capture mobile screenshots
+            $io->section("Capturing Mobile Feed List");
+            $this->driver
+                ->manage()
+                ->window()
+                ->setSize(new \Facebook\WebDriver\WebDriverDimension(375, 812));
+
+            // Navigate directly to Sven's Blog subscription URL
+            $svensGuid = $this->feedFetcher->createGuid(
+                self::TEST_FEEDS[0]["url"],
+            );
+            $this->driver->get($baseUrl . "/s/" . $svensGuid);
+            $this->waitForPage();
+            sleep(1);
+            $this->takeScreenshot("feed-mobile-list");
+            $io->success("feed-mobile-list.png");
+
+            // Capture mobile reading pane - click first article
+            $io->section("Capturing Mobile Reading Pane");
+            $articles = $this->driver->findElements(
+                WebDriverBy::cssSelector("[data-reading-list] > div"),
+            );
+            if (count($articles) > 0) {
+                $articles[0]->click();
+                $this->waitForPage();
+                sleep(1);
+            }
+            $this->takeScreenshot("feed-mobile-reading");
+            $io->success("feed-mobile-reading.png");
+
             $io->success("All screenshots captured in " . $screenshotDir);
 
             return Command::SUCCESS;
