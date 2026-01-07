@@ -45,8 +45,10 @@ class CaptureScreenshotsCommand extends Command
     private const SCREENSHOT_DIR = "docs/screenshots";
     private const VIEWPORT_WIDTH = 1280;
     private const VIEWPORT_HEIGHT = 1024;
-    private const MOBILE_VIEWPORT_WIDTH = 393;
-    private const MOBILE_VIEWPORT_HEIGHT = 852;
+    // Chrome enforces minimum width of 500px, so we use that
+    // Height needs +139px offset for Chrome UI in headless mode
+    private const MOBILE_VIEWPORT_WIDTH = 500;
+    private const MOBILE_VIEWPORT_HEIGHT = 991; // 852 + 139 = actual viewport 852
 
     private const TEST_FEEDS = [
         [
@@ -272,17 +274,18 @@ class CaptureScreenshotsCommand extends Command
             $io->success("profile.png");
 
             // Capture mobile screenshots (iPhone 15 portrait)
-            $io->section("Capturing Mobile Feed List");
-            $this->driver
-                ->manage()
-                ->window()
-                ->setSize(
-                    new \Facebook\WebDriver\WebDriverDimension(
-                        self::MOBILE_VIEWPORT_WIDTH,
-                        self::MOBILE_VIEWPORT_HEIGHT,
-                    ),
-                );
+            // Restart WebDriver with mobile viewport size
+            $this->driver->quit();
+            $this->setupWebDriver(
+                $chromedriverUrl,
+                self::MOBILE_VIEWPORT_WIDTH,
+                self::MOBILE_VIEWPORT_HEIGHT,
+            );
 
+            // Login again for mobile session
+            $this->login($baseUrl, $totpSecret);
+
+            $io->section("Capturing Mobile Feed List");
             // Navigate directly to Sven's Blog subscription URL
             $svensGuid = $this->feedFetcher->createGuid(
                 self::TEST_FEEDS[0]["url"],
@@ -317,19 +320,19 @@ class CaptureScreenshotsCommand extends Command
         }
     }
 
-    private function setupWebDriver(string $chromedriverUrl): void
-    {
+    private function setupWebDriver(
+        string $chromedriverUrl,
+        int $width = self::VIEWPORT_WIDTH,
+        int $height = self::VIEWPORT_HEIGHT,
+    ): void {
         $options = new ChromeOptions();
         $args = [
             "--headless=new",
             "--disable-gpu",
             "--no-sandbox",
             "--disable-dev-shm-usage",
-            sprintf(
-                "--window-size=%d,%d",
-                self::VIEWPORT_WIDTH,
-                self::VIEWPORT_HEIGHT,
-            ),
+            "--force-device-scale-factor=1",
+            sprintf("--window-size=%d,%d", $width, $height),
         ];
 
         $options->addArguments($args);
@@ -341,6 +344,14 @@ class CaptureScreenshotsCommand extends Command
             $chromedriverUrl,
             $capabilities,
         );
+
+        // Set window size via WebDriver API
+        $this->driver
+            ->manage()
+            ->window()
+            ->setSize(
+                new \Facebook\WebDriver\WebDriverDimension($width, $height),
+            );
     }
 
     private function waitForPage(): void
