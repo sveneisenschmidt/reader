@@ -33,7 +33,6 @@ class ProfileController extends AbstractController
 
         $form = $this->createForm(ProfileType::class, [
             "username" => $user->getUsername(),
-            "email" => $user->getEmail(),
             "theme" => $user->getTheme(),
         ]);
 
@@ -54,6 +53,7 @@ class ProfileController extends AbstractController
 
         return $this->render("profile/index.html.twig", [
             "form" => $form,
+            "email" => $user->getEmail(),
         ]);
     }
 }

@@ -1,21 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="{{ app.user ? app.user.theme : 'auto' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
     <title>{% block title %}Reader{% endblock %}</title>
-    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
+    {% block stylesheets %}{% endblock %}
 </head>
 <body{% block body_class %}{% endblock %}>
-    <input type="checkbox" id="menu-toggle" class="menu-checkbox">
+    {% block menu_toggle %}{% endblock %}
     <header>
-        <label for="menu-toggle" class="menu-toggle">Menu</label>
         <h1><a href="{{ path_with_filters('feed_index') }}" class="home">Reader</a></h1>
         <nav>
-            <a href="{{ path_with_filters('subscriptions') }}">Subscriptions</a>
-            <a href="{{ path('profile') }}">Profile</a>
+            {% block menu_link %}
+                <a href="{{ path_with_filters('feed_index') }}" class="feeds-link">Feeds</a>
+            {% endblock %}
+            <a href="{{ path_with_filters('subscriptions') }}"{% if app.request.attributes.get('_route') == 'subscriptions' %} class="active"{% endif %}>Subscriptions</a>
+            <a href="{{ path_with_filters('profile') }}"{% if app.request.attributes.get('_route') == 'profile' %} class="active"{% endif %}>Profile</a>
         </nav>
     </header>
 
@@ -26,7 +29,7 @@
     <footer>
         {% set refreshTime = last_refresh() %}
         {% if refreshTime %}
-        <form action="{{ path('feed_refresh') }}" method="post" class="inline" data-refresh-form>
+        <form action="{{ path_with_filters('feed_refresh') }}" method="post" class="inline" data-refresh-form>
             <input type="hidden" name="_token" value="{{ csrf_token('refresh') }}">
             <button type="submit" class="btn-link">Refreshed {{ refreshTime|ago }}</button>
         </form>

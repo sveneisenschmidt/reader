@@ -1,0 +1,250 @@
+/* ========================================
+   #subscriptions - Manage subscriptions
+   ======================================== */
+
+#subscriptions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding: var(--spacing-xl);
+    overflow-y: auto;
+
+    & > p.success {
+        width: 100%;
+        padding: var(--spacing-sm) var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+        background: var(--color-success);
+        color: var(--color-bg);
+
+        @media (min-width: 769px) {
+            max-width: var(--width-form);
+        }
+    }
+
+    & form {
+        width: 100%;
+
+        @media (min-width: 769px) {
+            max-width: var(--width-form);
+        }
+
+        & section {
+            margin-bottom: var(--spacing-xl);
+
+            & h3 {
+                margin-bottom: var(--spacing-md);
+                font-size: 1rem;
+                opacity: 0.7;
+            }
+
+            &.existing-subscriptions {
+                border-top: 1px solid var(--color-border);
+                padding-top: var(--spacing-xl);
+
+                & > button[type="submit"] {
+                    margin-top: var(--spacing-md);
+                    padding: var(--spacing-sm) var(--spacing-md);
+                    background: var(--button-primary-bg);
+                    color: var(--button-primary-text);
+                    border: none;
+                    font-family: inherit;
+                    font-size: inherit;
+                    cursor: pointer;
+
+                    &:hover {
+                        background: var(--button-primary-hover-bg);
+                        color: var(--button-primary-hover-text);
+                    }
+                }
+            }
+
+            &.new-subscription {
+                margin-bottom: var(--spacing-xl);
+
+                & .subscription-input {
+                    display: flex;
+                    gap: var(--spacing-sm);
+
+                    & input {
+                        flex: 1;
+                    }
+
+                    & button[type="submit"] {
+                        width: var(--width-button);
+                        padding: var(--spacing-sm) var(--spacing-md);
+                        background: var(--button-primary-bg);
+                        color: var(--button-primary-text);
+                        border: none;
+                        font-family: inherit;
+                        font-size: inherit;
+                        cursor: pointer;
+
+                        &:hover {
+                            background: var(--button-primary-hover-bg);
+                            color: var(--button-primary-hover-text);
+                        }
+                    }
+                }
+            }
+        }
+
+        & label {
+            display: block;
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        & input[type="text"],
+        & input[type="url"] {
+            width: 100%;
+            padding: var(--spacing-sm);
+            font-family: inherit;
+            font-size: inherit;
+            background: var(--color-bg);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+
+            &:focus {
+                outline: none;
+                border-color: var(--color-link);
+            }
+        }
+
+        & select {
+            padding: var(--spacing-sm);
+            font-family: inherit;
+            font-size: inherit;
+            background: var(--color-bg);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+
+            &:focus {
+                outline: none;
+                border-color: var(--color-link);
+            }
+        }
+
+        & p {
+            margin-top: var(--spacing-sm);
+
+            & a {
+                word-break: break-all;
+            }
+        }
+
+        & p.form-error {
+            color: var(--color-error);
+        }
+
+        & > section > button[type="submit"] {
+            width: var(--width-button);
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--button-primary-bg);
+            color: var(--button-primary-text);
+            border: none;
+            font-family: inherit;
+            font-size: inherit;
+            cursor: pointer;
+
+            &:hover {
+                background: var(--button-primary-hover-bg);
+                color: var(--button-primary-hover-text);
+            }
+        }
+
+        & .subscription-row {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-lg);
+
+            & .subscription-input {
+                display: flex;
+                gap: var(--spacing-sm);
+
+                & input {
+                    flex: 1;
+                }
+
+                & button[type="submit"] {
+                    width: var(--width-button);
+                    padding: var(--spacing-sm) var(--spacing-md);
+                    background: var(--button-secondary-bg);
+                    color: var(--button-secondary-text);
+                    border: 1px solid var(--button-secondary-border);
+                    font-family: inherit;
+                    font-size: inherit;
+                    cursor: pointer;
+
+                    &:hover {
+                        border-color: var(--button-secondary-hover-border);
+                        color: var(--button-secondary-hover-text);
+                    }
+                }
+            }
+
+            & .subscription-fields {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: var(--spacing-xs);
+
+                & input[type="text"],
+                & input[type="url"] {
+                    width: 100%;
+                    padding: var(--spacing-sm);
+                    font-family: inherit;
+                    font-size: inherit;
+                    background: var(--color-bg);
+                    color: var(--color-text);
+                    border: 1px solid var(--color-border);
+
+                    &:focus {
+                        outline: none;
+                        border-color: var(--color-link);
+                    }
+
+                    &:disabled,
+                    &[readonly] {
+                        opacity: 0.6;
+                        cursor: not-allowed;
+                    }
+                }
+
+                & ul {
+                    list-style: none;
+                    margin-top: var(--spacing-xs);
+
+                    & li {
+                        color: var(--color-error);
+                        font-size: 0.9rem;
+                    }
+                }
+            }
+        }
+
+        & > button[type="submit"] {
+            width: 100%;
+            padding: var(--spacing-button);
+            background: var(--button-primary-bg);
+            color: var(--button-primary-text);
+            border: none;
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: var(--font-weight-medium);
+            cursor: pointer;
+
+            &:hover {
+                background: var(--button-primary-hover-bg);
+                color: var(--button-primary-hover-text);
+            }
+
+            @media (min-width: 769px) {
+                width: auto;
+                padding: var(--spacing-button) var(--spacing-xl);
+            }
+        }
+    }
+}

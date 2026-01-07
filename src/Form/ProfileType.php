@@ -11,7 +11,6 @@ namespace App\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -20,21 +19,19 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ProfileType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
-    {
+    public function buildForm(
+        FormBuilderInterface $builder,
+        array $options,
+    ): void {
         $builder
             ->add("username", TextType::class, [
-                "label" => false,
-                "attr" => ["placeholder" => "Username"],
-                "constraints" => [new NotBlank(message: "Username is required")],
-            ])
-            ->add("email", EmailType::class, [
-                "label" => false,
-                "attr" => ["placeholder" => "Email", "readonly" => true],
-                "disabled" => true,
+                "label" => "Username",
+                "constraints" => [
+                    new NotBlank(message: "Username is required"),
+                ],
             ])
             ->add("theme", ChoiceType::class, [
-                "label" => false,
+                "label" => "Theme",
                 "choices" => [
                     "Auto" => "auto",
                     "Light" => "light",

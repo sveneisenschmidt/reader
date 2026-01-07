@@ -2,10 +2,13 @@
 
 {% block title %}Subscriptions | Reader{% endblock %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/subscriptions.css') }}">
+{% endblock %}
+
 {% block page_id %}subscriptions{% endblock %}
 
 {% block main %}
-    <h2>Subscriptions</h2>
 
     {% for message in app.flashes('success') %}
         <p class="success">{{ message }}</p>
@@ -16,6 +19,7 @@
     <section class="new-subscription">
         {{ form_widget(form.new.guid, {'attr': {'hidden': true}}) }}
         {{ form_widget(form.new.name, {'attr': {'hidden': true}}) }}
+        <label>Subscribe to feed</label>
         <div class="subscription-input">
             {{ form_widget(form.new.url) }}
             {{ form_widget(form.add) }}

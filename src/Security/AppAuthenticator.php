@@ -58,17 +58,17 @@ class AppAuthenticator extends AbstractAuthenticator implements
         }
 
         $loginData = $request->request->all("login");
-        $username = $loginData["email"] ?? "";
+        $email = $loginData["email"] ?? "";
         $password = $loginData["password"] ?? "";
         $otpCode = $loginData["otp"] ?? "";
 
-        if (empty($username) || empty($password) || empty($otpCode)) {
+        if (empty($email) || empty($password) || empty($otpCode)) {
             throw new CustomUserMessageAuthenticationException(
                 "All fields are required.",
             );
         }
 
-        $user = $this->userRepository->findByUsername($username);
+        $user = $this->userRepository->findByEmail($email);
 
         if (
             !$user ||
@@ -92,7 +92,7 @@ class AppAuthenticator extends AbstractAuthenticator implements
 
         $limiter->reset();
 
-        return new SelfValidatingPassport(new UserBadge($username));
+        return new SelfValidatingPassport(new UserBadge($email));
     }
 
     public function onAuthenticationSuccess(

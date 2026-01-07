@@ -2,10 +2,13 @@
 
 {% block title %}Profile | Reader{% endblock %}
 
-{% block page_id %}subscriptions{% endblock %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
+{% endblock %}
+
+{% block page_id %}profile{% endblock %}
 
 {% block main %}
-    <h2>Profile</h2>
 
     {% for message in app.flashes('success') %}
         <p class="success">{{ message }}</p>
@@ -13,38 +16,21 @@
 
     {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
-    <section class="existing-subscriptions">
-        <div class="subscription-row">
-            <div class="subscription-input">
-                {{ form_widget(form.username) }}
-            </div>
-            <p>Username</p>
+    <section>
+        <div class="profile-row">
+            {{ form_row(form.username) }}
+            <p>Your email ({{ email }}) can not be changed. Reset the deployment if you need to change it.</p>
         </div>
 
-        <div class="subscription-row">
-            <div class="subscription-input">
-                {{ form_widget(form.email) }}
-            </div>
-            <p>Email (cannot be changed)</p>
+        <div class="profile-row">
+            {{ form_row(form.theme) }}
         </div>
 
-        <div class="subscription-row">
-            <div class="subscription-input">
-                {{ form_widget(form.theme) }}
-            </div>
-            <p>Theme</p>
+        <div class="profile-actions">
+            {{ form_widget(form.save) }}
+            <a href="{{ path('auth_logout') }}" class="button-secondary">Logout</a>
         </div>
-
-        {{ form_widget(form.save) }}
     </section>
 
     {{ form_end(form, {'render_rest': false}) }}
-
-    <section class="existing-subscriptions">
-        <div class="subscription-row">
-            <div class="subscription-input">
-                <a href="{{ path('auth_logout') }}" class="button-secondary">Logout</a>
-            </div>
-        </div>
-    </section>
 {% endblock %}
