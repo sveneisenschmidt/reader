@@ -45,8 +45,8 @@ class CaptureScreenshotsCommand extends Command
     private const SCREENSHOT_DIR = "docs/screenshots";
     private const VIEWPORT_WIDTH = 1280;
     private const VIEWPORT_HEIGHT = 1024;
-    private const MOBILE_VIEWPORT_WIDTH = 390;
-    private const MOBILE_VIEWPORT_HEIGHT = 844;
+    private const MOBILE_VIEWPORT_WIDTH = 393;
+    private const MOBILE_VIEWPORT_HEIGHT = 852;
 
     private const TEST_FEEDS = [
         [
@@ -271,7 +271,7 @@ class CaptureScreenshotsCommand extends Command
             $this->takeScreenshot("profile");
             $io->success("profile.png");
 
-            // Capture mobile screenshots (iPhone 14 portrait)
+            // Capture mobile screenshots (iPhone 15 portrait)
             $io->section("Capturing Mobile Feed List");
             $this->driver
                 ->manage()
