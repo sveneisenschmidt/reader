@@ -19,26 +19,15 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class UserServiceTest extends TestCase
 {
-    private Security&MockObject $security;
-    private UserService $service;
-
-    protected function setUp(): void
-    {
-        $this->security = $this->createMock(Security::class);
-        $this->service = new UserService($this->security);
-    }
-
     #[Test]
     public function getCurrentUserReturnsAuthenticatedUser(): void
     {
-        $user = $this->createMock(User::class);
+        $user = $this->createStub(User::class);
+        $security = $this->createStub(Security::class);
+        $security->method("getUser")->willReturn($user);
 
-        $this->security
-            ->expects($this->once())
-            ->method("getUser")
-            ->willReturn($user);
-
-        $result = $this->service->getCurrentUser();
+        $service = new UserService($security);
+        $result = $service->getCurrentUser();
 
         $this->assertSame($user, $result);
     }
@@ -46,10 +35,12 @@ class UserServiceTest extends TestCase
     #[Test]
     public function getCurrentUserThrowsWhenNotAuthenticated(): void
     {
-        $this->security->method("getUser")->willReturn(null);
+        $security = $this->createStub(Security::class);
+        $security->method("getUser")->willReturn(null);
+
+        $service = new UserService($security);
 
         $this->expectException(AccessDeniedException::class);
-
-        $this->service->getCurrentUser();
+        $service->getCurrentUser();
     }
 }

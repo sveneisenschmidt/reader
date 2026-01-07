@@ -12,75 +12,68 @@ namespace App\Tests\Unit\Service;
 use App\Repository\Users\SeenStatusRepository;
 use App\Service\SeenStatusService;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class SeenStatusServiceTest extends TestCase
 {
-    private SeenStatusRepository&MockObject $seenStatusRepository;
-    private SeenStatusService $service;
-
-    protected function setUp(): void
-    {
-        $this->seenStatusRepository = $this->createMock(SeenStatusRepository::class);
-        $this->service = new SeenStatusService($this->seenStatusRepository);
-    }
-
     #[Test]
     public function markAsSeenDelegatesToRepository(): void
     {
         $userId = 1;
-        $guid = 'item-guid';
+        $guid = "item-guid";
 
-        $this->seenStatusRepository
+        $repository = $this->createMock(SeenStatusRepository::class);
+        $repository
             ->expects($this->once())
-            ->method('markAsSeen')
+            ->method("markAsSeen")
             ->with($userId, $guid);
 
-        $this->service->markAsSeen($userId, $guid);
+        $service = new SeenStatusService($repository);
+        $service->markAsSeen($userId, $guid);
     }
 
     #[Test]
     public function markManyAsSeenDelegatesToRepository(): void
     {
         $userId = 1;
-        $guids = ['guid1', 'guid2', 'guid3'];
+        $guids = ["guid1", "guid2", "guid3"];
 
-        $this->seenStatusRepository
+        $repository = $this->createMock(SeenStatusRepository::class);
+        $repository
             ->expects($this->once())
-            ->method('markManyAsSeen')
+            ->method("markManyAsSeen")
             ->with($userId, $guids);
 
-        $this->service->markManyAsSeen($userId, $guids);
+        $service = new SeenStatusService($repository);
+        $service->markManyAsSeen($userId, $guids);
     }
 
     #[Test]
     public function isSeenReturnsRepositoryResult(): void
     {
         $userId = 1;
-        $guid = 'item-guid';
+        $guid = "item-guid";
 
-        $this->seenStatusRepository
-            ->method('isSeen')
-            ->with($userId, $guid)
-            ->willReturn(true);
+        $repository = $this->createStub(SeenStatusRepository::class);
+        $repository->method("isSeen")->willReturn(true);
 
-        $this->assertTrue($this->service->isSeen($userId, $guid));
+        $service = new SeenStatusService($repository);
+
+        $this->assertTrue($service->isSeen($userId, $guid));
     }
 
     #[Test]
     public function getSeenGuidsForUserReturnsRepositoryResult(): void
     {
         $userId = 1;
-        $filterGuids = ['guid1', 'guid2'];
-        $seenGuids = ['guid1'];
+        $filterGuids = ["guid1", "guid2"];
+        $seenGuids = ["guid1"];
 
-        $this->seenStatusRepository
-            ->method('getSeenGuidsForUser')
-            ->with($userId, $filterGuids)
-            ->willReturn($seenGuids);
+        $repository = $this->createStub(SeenStatusRepository::class);
+        $repository->method("getSeenGuidsForUser")->willReturn($seenGuids);
 
-        $result = $this->service->getSeenGuidsForUser($userId, $filterGuids);
+        $service = new SeenStatusService($repository);
+        $result = $service->getSeenGuidsForUser($userId, $filterGuids);
 
         $this->assertEquals($seenGuids, $result);
     }
@@ -90,21 +83,23 @@ class SeenStatusServiceTest extends TestCase
     {
         $userId = 1;
 
-        $this->seenStatusRepository
-            ->method('getSeenGuidsForUser')
-            ->willReturn(['guid1', 'guid3']);
+        $repository = $this->createStub(SeenStatusRepository::class);
+        $repository
+            ->method("getSeenGuidsForUser")
+            ->willReturn(["guid1", "guid3"]);
 
         $items = [
-            ['guid' => 'guid1', 'title' => 'Item 1'],
-            ['guid' => 'guid2', 'title' => 'Item 2'],
-            ['guid' => 'guid3', 'title' => 'Item 3'],
+            ["guid" => "guid1", "title" => "Item 1"],
+            ["guid" => "guid2", "title" => "Item 2"],
+            ["guid" => "guid3", "title" => "Item 3"],
         ];
 
-        $result = $this->service->enrichItemsWithSeenStatus($items, $userId);
+        $service = new SeenStatusService($repository);
+        $result = $service->enrichItemsWithSeenStatus($items, $userId);
 
-        $this->assertFalse($result[0]['isNew']); // seen = not new
-        $this->assertTrue($result[1]['isNew']);  // not seen = new
-        $this->assertFalse($result[2]['isNew']); // seen = not new
+        $this->assertFalse($result[0]["isNew"]); // seen = not new
+        $this->assertTrue($result[1]["isNew"]); // not seen = new
+        $this->assertFalse($result[2]["isNew"]); // seen = not new
     }
 
     #[Test]
@@ -112,19 +107,19 @@ class SeenStatusServiceTest extends TestCase
     {
         $userId = 1;
 
-        $this->seenStatusRepository
-            ->method('getSeenGuidsForUser')
-            ->willReturn([]);
+        $repository = $this->createStub(SeenStatusRepository::class);
+        $repository->method("getSeenGuidsForUser")->willReturn([]);
 
         $items = [
-            ['guid' => 'guid1', 'title' => 'Item 1'],
-            ['guid' => 'guid2', 'title' => 'Item 2'],
+            ["guid" => "guid1", "title" => "Item 1"],
+            ["guid" => "guid2", "title" => "Item 2"],
         ];
 
-        $result = $this->service->enrichItemsWithSeenStatus($items, $userId);
+        $service = new SeenStatusService($repository);
+        $result = $service->enrichItemsWithSeenStatus($items, $userId);
 
-        $this->assertTrue($result[0]['isNew']);
-        $this->assertTrue($result[1]['isNew']);
+        $this->assertTrue($result[0]["isNew"]);
+        $this->assertTrue($result[1]["isNew"]);
     }
 
     #[Test]
@@ -132,11 +127,11 @@ class SeenStatusServiceTest extends TestCase
     {
         $userId = 1;
 
-        $this->seenStatusRepository
-            ->method('getSeenGuidsForUser')
-            ->willReturn([]);
+        $repository = $this->createStub(SeenStatusRepository::class);
+        $repository->method("getSeenGuidsForUser")->willReturn([]);
 
-        $result = $this->service->enrichItemsWithSeenStatus([], $userId);
+        $service = new SeenStatusService($repository);
+        $result = $service->enrichItemsWithSeenStatus([], $userId);
 
         $this->assertEmpty($result);
     }
@@ -146,16 +141,18 @@ class SeenStatusServiceTest extends TestCase
     {
         $userId = 1;
         $items = [
-            ['guid' => 'guid1', 'title' => 'Item 1'],
-            ['guid' => 'guid2', 'title' => 'Item 2'],
+            ["guid" => "guid1", "title" => "Item 1"],
+            ["guid" => "guid2", "title" => "Item 2"],
         ];
 
-        $this->seenStatusRepository
+        $repository = $this->createMock(SeenStatusRepository::class);
+        $repository
             ->expects($this->once())
-            ->method('getSeenGuidsForUser')
-            ->with($userId, ['guid1', 'guid2'])
+            ->method("getSeenGuidsForUser")
+            ->with($userId, ["guid1", "guid2"])
             ->willReturn([]);
 
-        $this->service->enrichItemsWithSeenStatus($items, $userId);
+        $service = new SeenStatusService($repository);
+        $service->enrichItemsWithSeenStatus($items, $userId);
     }
 }

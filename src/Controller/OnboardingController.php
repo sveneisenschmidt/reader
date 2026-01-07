@@ -34,16 +34,27 @@ class OnboardingController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $user = $this->userService->getCurrentUser();
+            $feedUrl = $data["feedUrl"];
 
-            $this->subscriptionService->addSubscription(
-                $user->getId(),
-                $data["feedUrl"],
-            );
-            $this->feedFetcher->refreshAllFeeds([$data["feedUrl"]]);
-            $this->subscriptionService->updateRefreshTimestamps($user->getId());
+            $error = $this->feedFetcher->validateFeedUrl($feedUrl);
+            if ($error !== null) {
+                $form
+                    ->get("feedUrl")
+                    ->addError(new \Symfony\Component\Form\FormError($error));
+            } else {
+                $user = $this->userService->getCurrentUser();
 
-            return $this->redirectToRoute("feed_index");
+                $this->subscriptionService->addSubscription(
+                    $user->getId(),
+                    $feedUrl,
+                );
+                $this->feedFetcher->refreshAllFeeds([$feedUrl]);
+                $this->subscriptionService->updateRefreshTimestamps(
+                    $user->getId(),
+                );
+
+                return $this->redirectToRoute("feed_index");
+            }
         }
 
         return $this->render("onboarding.html.twig", [
