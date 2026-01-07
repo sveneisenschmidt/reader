@@ -17,15 +17,27 @@
 
 /* Variables */
 :root {
-    --color-text: #222;
-    --color-link: #00e;
-    --color-border: #222;
-    --color-bg: #fff;
+    --color-text: rgb(34, 34, 34);
+    --color-link: rgb(56, 114, 211);
+    --color-border: rgb(34, 34, 34);
+    --color-bg: rgb(255, 255, 255);
     --color-bg-muted: color-mix(in srgb, var(--color-bg) 95%, black);
-    --color-new: #22c55e;
-    --color-error: #dc2626;
-    --color-text-inverted: #e0e0e0;
-    --color-bg-inverted: #0d1117;
+    --color-success: rgb(99, 182, 76);
+    --color-new: rgb(99, 182, 76);
+    --color-error: rgb(196, 119, 121);
+    --color-text-inverted: rgb(224, 224, 224);
+    --color-bg-inverted: rgb(13, 17, 23);
+
+    /* Button colors */
+    --button-primary-bg: var(--color-text);
+    --button-primary-text: var(--color-bg);
+    --button-primary-hover-bg: var(--color-link);
+    --button-primary-hover-text: var(--color-bg);
+    --button-secondary-bg: var(--color-bg);
+    --button-secondary-text: var(--color-text);
+    --button-secondary-border: var(--color-border);
+    --button-secondary-hover-text: var(--color-link);
+    --button-secondary-hover-border: var(--color-link);
 
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
@@ -37,13 +49,35 @@
     --size-qr-code: 160px;
 
     @media (prefers-color-scheme: dark) {
-        --color-text: #e0e0e0;
-        --color-link: #99c3ff;
-        --color-border: #444;
-        --color-bg: #0d1117;
+        --color-text: rgb(224, 224, 224);
+        --color-border: rgb(68, 68, 68);
+        --color-bg: rgb(13, 17, 23);
         --color-bg-muted: color-mix(in srgb, var(--color-bg) 95%, white);
-        --color-text-inverted: #222;
-        --color-bg-inverted: #fff;
+        --color-text-inverted: rgb(34, 34, 34);
+        --color-bg-inverted: rgb(255, 255, 255);
+
+        /* Accent colors */
+        --color-blue: rgb(56, 114, 211);
+        --color-green: rgb(179, 215, 98);
+        --color-orange: rgb(243, 183, 101);
+        --color-red: rgb(193, 66, 63);
+
+        /* Semantic colors */
+        --color-link: var(--color-blue);
+        --color-success: var(--color-green);
+        --color-pending: var(--color-orange);
+        --color-error: var(--color-red);
+
+        /* Button colors */
+        --button-primary-bg: var(--color-text);
+        --button-primary-text: var(--color-bg);
+        --button-primary-hover-bg: var(--color-blue);
+        --button-primary-hover-text: var(--color-text);
+        --button-secondary-bg: var(--color-bg);
+        --button-secondary-text: var(--color-text);
+        --button-secondary-border: var(--color-border);
+        --button-secondary-hover-text: var(--color-blue);
+        --button-secondary-hover-border: var(--color-blue);
     }
 }
 
@@ -483,7 +517,6 @@ h3 {
                 }
 
                 & span:last-child {
-                    opacity: 0.7;
                 }
             }
         }
@@ -649,66 +682,244 @@ h3 {
    ======================================== */
 
 #subscriptions {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
     padding: var(--spacing-xl);
-    width: 100%;
-    max-width: 600px;
+    overflow-y: auto;
 
-    & h2 {
-        margin-bottom: var(--spacing-md);
-    }
+    & > h2 {
+        width: 100%;
+        margin-bottom: var(--spacing-lg);
 
-    & form {
-        & > header {
-            padding: var(--spacing-sm);
-            background: var(--color-bg-muted);
-            border: 1px solid var(--color-border);
-            border-bottom: none;
-        }
-
-        & textarea {
-            width: 100%;
-            font-family: monospace;
-            font-size: 0.9rem;
-            background: var(--color-bg-inverted);
-            color: var(--color-text-inverted);
-            border: 1px solid var(--color-border);
-            padding: 0.75rem;
-            resize: vertical;
-        }
-
-        & > footer {
-            text-align: right;
-            margin-top: var(--spacing-sm);
-
-            & button {
-                background: none;
-                border: none;
-                color: var(--color-text);
-                cursor: pointer;
-                font-family: inherit;
-                font-size: inherit;
-                padding: 0;
-
-                &:hover {
-                    text-decoration: underline;
-                }
-
-                &::after {
-                    content: " ↵";
-                }
-            }
+        @media (min-width: 769px) {
+            max-width: 768px;
         }
     }
 
     & > p.success {
-        margin-top: var(--spacing-md);
-        color: var(--color-new);
+        width: 100%;
+        padding: var(--spacing-sm) var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+        background: var(--color-success);
+        color: var(--color-bg);
+
+        @media (min-width: 769px) {
+            max-width: 768px;
+        }
     }
 
-    & > p.error {
-        margin-top: var(--spacing-md);
-        color: var(--color-error);
+    & form {
+        width: 100%;
+
+        @media (min-width: 769px) {
+            max-width: 768px;
+        }
+
+        & section {
+            margin-bottom: var(--spacing-xl);
+
+            & h3 {
+                margin-bottom: var(--spacing-md);
+                font-size: 1rem;
+                opacity: 0.7;
+            }
+
+            &.existing-subscriptions {
+                border-top: 1px solid var(--color-border);
+                padding-top: var(--spacing-xl);
+
+                & > button[type="submit"] {
+                    margin-top: var(--spacing-md);
+                    padding: var(--spacing-sm) var(--spacing-md);
+                    background: var(--button-primary-bg);
+                    color: var(--button-primary-text);
+                    border: none;
+                    font-family: inherit;
+                    font-size: inherit;
+                    cursor: pointer;
+
+                    &:hover {
+                        background: var(--button-primary-hover-bg);
+                        color: var(--button-primary-hover-text);
+                    }
+                }
+            }
+
+            &.new-subscription {
+                margin-bottom: var(--spacing-xl);
+
+                & .subscription-input {
+                    display: flex;
+                    gap: var(--spacing-sm);
+
+                    & input {
+                        flex: 1;
+                    }
+
+                    & button[type="submit"] {
+                        width: 7rem;
+                        padding: var(--spacing-sm) var(--spacing-md);
+                        background: var(--button-primary-bg);
+                        color: var(--button-primary-text);
+                        border: none;
+                        font-family: inherit;
+                        font-size: inherit;
+                        cursor: pointer;
+
+                        &:hover {
+                            background: var(--button-primary-hover-bg);
+                            color: var(--button-primary-hover-text);
+                        }
+                    }
+                }
+            }
+        }
+
+        & label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        & input[type="text"],
+        & input[type="url"] {
+            width: 100%;
+            padding: var(--spacing-sm);
+            font-family: inherit;
+            font-size: inherit;
+            background: var(--color-bg);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+
+            &:focus {
+                outline: none;
+                border-color: var(--color-link);
+            }
+        }
+
+        & p {
+            margin-top: var(--spacing-sm);
+
+            & a {
+                word-break: break-all;
+            }
+        }
+
+        & p.form-error {
+            color: var(--color-error);
+        }
+
+        & > section > button[type="submit"] {
+            width: 7rem;
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--button-primary-bg);
+            color: var(--button-primary-text);
+            border: none;
+            font-family: inherit;
+            font-size: inherit;
+            cursor: pointer;
+
+            &:hover {
+                background: var(--button-primary-hover-bg);
+                color: var(--button-primary-hover-text);
+            }
+        }
+
+        & .subscription-row {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-lg);
+
+            & .subscription-input {
+                display: flex;
+                gap: var(--spacing-sm);
+
+                & input {
+                    flex: 1;
+                }
+
+                & button[type="submit"] {
+                    width: 7rem;
+                    padding: var(--spacing-sm) var(--spacing-md);
+                    background: var(--button-secondary-bg);
+                    color: var(--button-secondary-text);
+                    border: 1px solid var(--button-secondary-border);
+                    font-family: inherit;
+                    font-size: inherit;
+                    cursor: pointer;
+
+                    &:hover {
+                        border-color: var(--button-secondary-hover-border);
+                        color: var(--button-secondary-hover-text);
+                    }
+                }
+            }
+
+            & .subscription-fields {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: var(--spacing-xs);
+
+                & input[type="text"],
+                & input[type="url"] {
+                    width: 100%;
+                    padding: var(--spacing-sm);
+                    font-family: inherit;
+                    font-size: inherit;
+                    background: var(--color-bg);
+                    color: var(--color-text);
+                    border: 1px solid var(--color-border);
+
+                    &:focus {
+                        outline: none;
+                        border-color: var(--color-link);
+                    }
+
+                    &:disabled,
+                    &[readonly] {
+                        opacity: 0.6;
+                        cursor: not-allowed;
+                    }
+                }
+
+                & ul {
+                    list-style: none;
+                    margin-top: var(--spacing-xs);
+
+                    & li {
+                        color: var(--color-error);
+                        font-size: 0.9rem;
+                    }
+                }
+            }
+        }
+
+        & > button[type="submit"] {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--button-primary-bg);
+            color: var(--button-primary-text);
+            border: none;
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: 500;
+            cursor: pointer;
+
+            &:hover {
+                background: var(--button-primary-hover-bg);
+                color: var(--button-primary-hover-text);
+            }
+
+            @media (min-width: 769px) {
+                width: auto;
+                padding: 0.75rem var(--spacing-xl);
+            }
+        }
     }
 }
 
@@ -729,8 +940,8 @@ h3 {
 }
 
 [data-pull-indicator="pulling"] {
-    background: var(--color-error);
-    color: #fff;
+    background: var(--color-bg);
+    color: var(--color-text);
 }
 
 [data-pull-indicator="ready"] {

@@ -7,7 +7,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 namespace App\Repository\Users;
 
 use App\Entity\Users\SeenStatus;
@@ -24,8 +23,8 @@ class SeenStatusRepository extends ServiceEntityRepository
     public function markAsSeen(int $userId, string $feedItemGuid): void
     {
         $existing = $this->findOneBy([
-            'userId' => $userId,
-            'feedItemGuid' => $feedItemGuid,
+            "userId" => $userId,
+            "feedItemGuid" => $feedItemGuid,
         ]);
 
         if ($existing === null) {
@@ -53,25 +52,47 @@ class SeenStatusRepository extends ServiceEntityRepository
     public function isSeen(int $userId, string $feedItemGuid): bool
     {
         return $this->findOneBy([
-            'userId' => $userId,
-            'feedItemGuid' => $feedItemGuid,
+            "userId" => $userId,
+            "feedItemGuid" => $feedItemGuid,
         ]) !== null;
     }
 
-    public function getSeenGuidsForUser(int $userId, array $filterGuids = []): array
-    {
-        $qb = $this->createQueryBuilder('s')
-            ->select('s.feedItemGuid')
-            ->where('s.userId = :userId')
-            ->setParameter('userId', $userId);
+    public function getSeenGuidsForUser(
+        int $userId,
+        array $filterGuids = [],
+    ): array {
+        $qb = $this->createQueryBuilder("s")
+            ->select("s.feedItemGuid")
+            ->where("s.userId = :userId")
+            ->setParameter("userId", $userId);
 
         if (count($filterGuids) > 0) {
-            $qb->andWhere('s.feedItemGuid IN (:guids)')
-               ->setParameter('guids', $filterGuids);
+            $qb->andWhere("s.feedItemGuid IN (:guids)")->setParameter(
+                "guids",
+                $filterGuids,
+            );
         }
 
         $results = $qb->getQuery()->getScalarResult();
 
-        return array_column($results, 'feedItemGuid');
+        return array_column($results, "feedItemGuid");
+    }
+
+    public function deleteByFeedItemGuids(
+        int $userId,
+        array $feedItemGuids,
+    ): int {
+        if (empty($feedItemGuids)) {
+            return 0;
+        }
+
+        return $this->createQueryBuilder("s")
+            ->delete()
+            ->where("s.userId = :userId")
+            ->andWhere("s.feedItemGuid IN (:guids)")
+            ->setParameter("userId", $userId)
+            ->setParameter("guids", $feedItemGuids)
+            ->getQuery()
+            ->execute();
     }
 }

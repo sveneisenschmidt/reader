@@ -7,28 +7,44 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 namespace App\Form;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class SubscriptionsType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
-    {
+    public function buildForm(
+        FormBuilderInterface $builder,
+        array $options,
+    ): void {
         $builder
-            ->add('yaml', TextareaType::class, [
-                'label' => false,
-                'attr' => [
-                    'rows' => 20,
-                    'class' => 'yaml-editor',
-                ],
+            ->add("existing", CollectionType::class, [
+                "entry_type" => SubscriptionItemType::class,
+                "entry_options" => ["is_existing" => true],
+                "allow_delete" => true,
+                "label" => false,
             ])
-            ->add('save', SubmitType::class, [
-                'label' => 'Save',
+            ->add("new", SubscriptionItemType::class, [
+                "is_existing" => false,
+                "label" => false,
+                "required" => false,
+            ])
+            ->add("save", SubmitType::class, [
+                "label" => "Update",
+            ])
+            ->add("add", SubmitType::class, [
+                "label" => "Subscribe",
             ]);
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            "csrf_protection" => true,
+        ]);
     }
 }

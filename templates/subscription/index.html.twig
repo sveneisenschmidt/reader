@@ -1,25 +1,45 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Subscriptions - Reader{% endblock %}
-
-{% block scripts %}{% endblock %}
+{% block title %}Subscriptions | Reader{% endblock %}
 
 {% block page_id %}subscriptions{% endblock %}
 
 {% block main %}
     <h2>Subscriptions</h2>
-    {{ form_start(form) }}
-        <header>YAML</header>
-        {{ form_widget(form.yaml) }}
-        <footer>
-            {{ form_widget(form.save) }}
-        </footer>
-    {{ form_end(form) }}
 
     {% for message in app.flashes('success') %}
         <p class="success">{{ message }}</p>
     {% endfor %}
-    {% for message in app.flashes('error') %}
-        <p class="error">{{ message }}</p>
-    {% endfor %}
+
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+    <section class="new-subscription">
+        {{ form_widget(form.new.guid, {'attr': {'hidden': true}}) }}
+        {{ form_widget(form.new.name, {'attr': {'hidden': true}}) }}
+        <div class="subscription-input">
+            {{ form_widget(form.new.url) }}
+            {{ form_widget(form.add) }}
+        </div>
+        {{ form_errors(form.new.url) }}
+        <p>Name is auto-detected from the feed.</p>
+    </section>
+
+    {% if form.existing|length > 0 %}
+    <section class="existing-subscriptions">
+        {% for subscription in form.existing %}
+        <div class="subscription-row">
+            {{ form_widget(subscription.guid) }}
+            {{ form_widget(subscription.url, {'attr': {'hidden': true}}) }}
+            <div class="subscription-input">
+                {{ form_widget(subscription.name) }}
+                {{ form_widget(subscription.remove) }}
+            </div>
+            <p><a href="{{ subscription.url.vars.value }}" target="_blank" rel="noopener">{{ subscription.url.vars.value }}</a></p>
+        </div>
+        {% endfor %}
+        {{ form_widget(form.save) }}
+    </section>
+    {% endif %}
+
+    {{ form_end(form, {'render_rest': false}) }}
 {% endblock %}

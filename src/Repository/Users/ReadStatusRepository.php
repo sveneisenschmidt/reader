@@ -93,4 +93,22 @@ class ReadStatusRepository extends ServiceEntityRepository
 
         $em->flush();
     }
+
+    public function deleteByFeedItemGuids(
+        int $userId,
+        array $feedItemGuids,
+    ): int {
+        if (empty($feedItemGuids)) {
+            return 0;
+        }
+
+        return $this->createQueryBuilder("r")
+            ->delete()
+            ->where("r.userId = :userId")
+            ->andWhere("r.feedItemGuid IN (:guids)")
+            ->setParameter("userId", $userId)
+            ->setParameter("guids", $feedItemGuids)
+            ->getQuery()
+            ->execute();
+    }
 }

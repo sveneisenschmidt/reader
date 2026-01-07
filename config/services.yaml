@@ -44,7 +44,3 @@ services:
     App\EventListener\SqliteWalListener:
         tags:
             - { name: doctrine.event_listener, event: postConnect }
-
-    App\Service\SubscriptionService:
-        arguments:
-            $appEnv: "%kernel.environment%"

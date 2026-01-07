@@ -102,4 +102,26 @@ class FeedItemRepository extends ServiceEntityRepository
             ->getQuery()
             ->execute();
     }
+
+    public function getGuidsByFeedGuid(string $feedGuid): array
+    {
+        $results = $this->createQueryBuilder("f")
+            ->select("f.guid")
+            ->where("f.feedGuid = :feedGuid")
+            ->setParameter("feedGuid", $feedGuid)
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($results, "guid");
+    }
+
+    public function deleteByFeedGuid(string $feedGuid): int
+    {
+        return $this->createQueryBuilder("f")
+            ->delete()
+            ->where("f.feedGuid = :feedGuid")
+            ->setParameter("feedGuid", $feedGuid)
+            ->getQuery()
+            ->execute();
+    }
 }

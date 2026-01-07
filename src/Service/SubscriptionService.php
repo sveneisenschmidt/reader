@@ -10,75 +10,20 @@
 namespace App\Service;
 
 use App\Entity\Subscriptions\Subscription;
+use App\Repository\Content\FeedItemRepository;
 use App\Repository\Subscriptions\SubscriptionRepository;
+use App\Repository\Users\ReadStatusRepository;
+use App\Repository\Users\SeenStatusRepository;
 
 class SubscriptionService
 {
-    private const BLOCKED_HOSTS = [
-        "localhost",
-        "127.0.0.1",
-        "0.0.0.0",
-        "::1",
-        "169.254.",
-        "10.",
-        "172.16.",
-        "172.17.",
-        "172.18.",
-        "172.19.",
-        "172.20.",
-        "172.21.",
-        "172.22.",
-        "172.23.",
-        "172.24.",
-        "172.25.",
-        "172.26.",
-        "172.27.",
-        "172.28.",
-        "172.29.",
-        "172.30.",
-        "172.31.",
-        "192.168.",
-    ];
-
     public function __construct(
         private SubscriptionRepository $subscriptionRepository,
+        private FeedItemRepository $feedItemRepository,
+        private ReadStatusRepository $readStatusRepository,
+        private SeenStatusRepository $seenStatusRepository,
         private FeedFetcher $feedFetcher,
-        private string $appEnv = "prod",
     ) {}
-
-    private function validateFeedUrl(string $url, int $index): void
-    {
-        $parsed = parse_url($url);
-
-        if (
-            $parsed === false ||
-            !isset($parsed["scheme"]) ||
-            !isset($parsed["host"])
-        ) {
-            throw new \InvalidArgumentException("Item $index has invalid URL");
-        }
-
-        if (!in_array($parsed["scheme"], ["http", "https"], true)) {
-            throw new \InvalidArgumentException(
-                "Item $index URL must use http or https",
-            );
-        }
-
-        $host = strtolower($parsed["host"]);
-
-        // Allow localhost in dev mode
-        if ($this->appEnv === "dev") {
-            return;
-        }
-
-        foreach (self::BLOCKED_HOSTS as $blocked) {
-            if ($host === $blocked || str_starts_with($host, $blocked)) {
-                throw new \InvalidArgumentException(
-                    "Item $index URL points to blocked host",
-                );
-            }
-        }
-    }
 
     public function getSubscriptionsForUser(int $userId): array
     {
@@ -147,7 +92,41 @@ class SubscriptionService
 
     public function removeSubscription(int $userId, string $guid): void
     {
+        // Get all feed item GUIDs for this subscription
+        $feedItemGuids = $this->feedItemRepository->getGuidsByFeedGuid($guid);
+
+        // Delete read/seen statuses for these items
+        if (!empty($feedItemGuids)) {
+            $this->readStatusRepository->deleteByFeedItemGuids(
+                $userId,
+                $feedItemGuids,
+            );
+            $this->seenStatusRepository->deleteByFeedItemGuids(
+                $userId,
+                $feedItemGuids,
+            );
+        }
+
+        // Delete all feed items for this subscription
+        $this->feedItemRepository->deleteByFeedGuid($guid);
+
+        // Delete the subscription itself
         $this->subscriptionRepository->removeSubscription($userId, $guid);
+    }
+
+    public function updateSubscriptionName(
+        int $userId,
+        string $guid,
+        string $name,
+    ): void {
+        $this->subscriptionRepository->updateName($userId, $guid, $name);
+    }
+
+    public function getSubscriptionByGuid(
+        int $userId,
+        string $guid,
+    ): ?Subscription {
+        return $this->subscriptionRepository->findByGuid($userId, $guid);
     }
 
     public function enrichItemsWithSubscriptionNames(
@@ -169,157 +148,13 @@ class SubscriptionService
         }, $items);
     }
 
-    public function toYaml(int $userId): string
-    {
-        $subscriptions = $this->getSubscriptionsForUser($userId);
-        $data = [];
-
-        foreach ($subscriptions as $subscription) {
-            $item = [
-                "url" => $subscription->getUrl(),
-                "title" => $subscription->getName(),
-            ];
-            if ($subscription->getFolder() !== null) {
-                $item["folder"] = $subscription->getFolder();
-            }
-            $data[] = $item;
-        }
-
-        return \Symfony\Component\Yaml\Yaml::dump($data);
-    }
-
     public function getOldestRefreshTime(int $userId): ?\DateTimeImmutable
     {
-        $subscriptions = $this->getSubscriptionsForUser($userId);
-        $oldest = null;
-
-        foreach ($subscriptions as $subscription) {
-            $lastRefreshed = $subscription->getLastRefreshedAt();
-            if ($lastRefreshed === null) {
-                return null;
-            }
-            if ($oldest === null || $lastRefreshed < $oldest) {
-                $oldest = $lastRefreshed;
-            }
-        }
-
-        return $oldest;
+        return $this->subscriptionRepository->getOldestRefreshTime($userId);
     }
 
     public function updateRefreshTimestamps(int $userId): void
     {
         $this->subscriptionRepository->updateAllRefreshTimestamps($userId);
-    }
-
-    public function importFromYaml(int $userId, string $yaml): void
-    {
-        try {
-            $data = \Symfony\Component\Yaml\Yaml::parse($yaml);
-        } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {
-            throw new \InvalidArgumentException(
-                "Invalid YAML syntax: " . $e->getMessage(),
-            );
-        }
-
-        if (!is_array($data)) {
-            throw new \InvalidArgumentException(
-                "YAML must be a list of subscriptions",
-            );
-        }
-
-        foreach ($data as $index => $item) {
-            if (!is_array($item)) {
-                throw new \InvalidArgumentException(
-                    "Item $index must be an object",
-                );
-            }
-            if (!isset($item["url"]) || !is_string($item["url"])) {
-                throw new \InvalidArgumentException(
-                    "Item $index must have a 'url' string",
-                );
-            }
-            if (isset($item["title"]) && !is_string($item["title"])) {
-                throw new \InvalidArgumentException(
-                    "Item $index 'title' must be a string",
-                );
-            }
-            if (isset($item["folder"]) && !is_array($item["folder"])) {
-                throw new \InvalidArgumentException(
-                    "Item $index 'folder' must be an array",
-                );
-            }
-            if (isset($item["folder"])) {
-                foreach ($item["folder"] as $folderPart) {
-                    if (!is_string($folderPart)) {
-                        throw new \InvalidArgumentException(
-                            "Item $index 'folder' must contain only strings",
-                        );
-                    }
-                }
-            }
-            $this->validateFeedUrl($item["url"], $index);
-        }
-
-        // Get current subscriptions
-        $currentSubs = $this->subscriptionRepository->findByUserId($userId);
-        $currentGuids = array_map(fn($s) => $s->getGuid(), $currentSubs);
-
-        $newGuids = [];
-
-        foreach ($data as $item) {
-            if (!isset($item["url"])) {
-                continue;
-            }
-
-            $url = $item["url"];
-            $sguid = $this->feedFetcher->createGuid($url);
-            $newGuids[] = $sguid;
-
-            $existing = $this->subscriptionRepository->findByGuid(
-                $userId,
-                $sguid,
-            );
-
-            if ($existing) {
-                // Update title if provided
-                if (isset($item["title"])) {
-                    $this->subscriptionRepository->updateName(
-                        $userId,
-                        $sguid,
-                        $item["title"],
-                    );
-                }
-                // Update folder
-                $this->subscriptionRepository->updateFolder(
-                    $userId,
-                    $sguid,
-                    $item["folder"] ?? null,
-                );
-            } else {
-                // Add new subscription
-                $title =
-                    $item["title"] ?? $this->feedFetcher->getFeedTitle($url);
-                $subscription = $this->subscriptionRepository->addSubscription(
-                    $userId,
-                    $url,
-                    $title,
-                    $sguid,
-                );
-                if (isset($item["folder"])) {
-                    $subscription->setFolder($item["folder"]);
-                    $this->subscriptionRepository->getEntityManager()->flush();
-                }
-            }
-        }
-
-        // Remove subscriptions not in YAML
-        foreach ($currentGuids as $guid) {
-            if (!in_array($guid, $newGuids)) {
-                $this->subscriptionRepository->removeSubscription(
-                    $userId,
-                    $guid,
-                );
-            }
-        }
     }
 }

@@ -10,9 +10,11 @@
 namespace App\Controller;
 
 use App\Form\SubscriptionsType;
+use App\Service\FeedFetcher;
 use App\Service\SubscriptionService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,30 +24,121 @@ class SubscriptionController extends AbstractController
     public function __construct(
         private SubscriptionService $subscriptionService,
         private UserService $userService,
+        private FeedFetcher $feedFetcher,
     ) {}
 
     #[Route("/subscriptions", name: "subscriptions")]
     public function index(Request $request): Response
     {
         $user = $this->userService->getCurrentUser();
-        $yaml = $this->subscriptionService->toYaml($user->getId());
+        $subscriptions = $this->subscriptionService->getSubscriptionsForUser(
+            $user->getId(),
+        );
 
-        $form = $this->createForm(SubscriptionsType::class, ["yaml" => $yaml]);
+        $existingData = [];
+        foreach ($subscriptions as $subscription) {
+            $existingData[] = [
+                "guid" => $subscription->getGuid(),
+                "url" => $subscription->getUrl(),
+                "name" => $subscription->getName(),
+            ];
+        }
+
+        $form = $this->createForm(SubscriptionsType::class, [
+            "existing" => $existingData,
+            "new" => ["guid" => "", "url" => "", "name" => ""],
+        ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            try {
-                $this->subscriptionService->importFromYaml(
-                    $user->getId(),
-                    $data["yaml"],
+            // Check if a remove button was clicked
+            foreach ($form->get("existing") as $index => $subscriptionForm) {
+                if ($subscriptionForm->get("remove")->isClicked()) {
+                    $guid = $data["existing"][$index]["guid"];
+                    $this->subscriptionService->removeSubscription(
+                        $user->getId(),
+                        $guid,
+                    );
+                    $this->addFlash("success", "Feed removed.");
+                    return $this->redirectToRoute("subscriptions");
+                }
+            }
+
+            $hasError = false;
+
+            // Handle new subscription
+            $newData = $data["new"];
+            if (!empty($newData["url"])) {
+                // Check if feed already exists
+                $existingUrls = array_map(
+                    fn($s) => $s->getUrl(),
+                    $subscriptions,
                 );
-                $this->addFlash("success", "Subscriptions saved.");
+                if (in_array($newData["url"], $existingUrls)) {
+                    $form
+                        ->get("new")
+                        ->get("url")
+                        ->addError(
+                            new FormError("This feed is already subscribed."),
+                        );
+                    $hasError = true;
+                } else {
+                    $error = $this->feedFetcher->validateFeedUrl(
+                        $newData["url"],
+                    );
+                    if ($error !== null) {
+                        $form
+                            ->get("new")
+                            ->get("url")
+                            ->addError(new FormError($error));
+                        $hasError = true;
+                    } else {
+                        $this->subscriptionService->addSubscription(
+                            $user->getId(),
+                            $newData["url"],
+                        );
+                        $this->addFlash("success", "Feed added.");
+                    }
+                }
+            }
+
+            // Handle existing subscriptions updates
+            if (!$hasError) {
+                $updatedCount = 0;
+                foreach ($data["existing"] as $item) {
+                    $guid = $item["guid"];
+
+                    $subscription = $this->subscriptionService->getSubscriptionByGuid(
+                        $user->getId(),
+                        $guid,
+                    );
+
+                    if (
+                        $subscription &&
+                        $item["name"] !== $subscription->getName()
+                    ) {
+                        $this->subscriptionService->updateSubscriptionName(
+                            $user->getId(),
+                            $guid,
+                            $item["name"],
+                        );
+                        $updatedCount++;
+                    }
+                }
+
+                if ($updatedCount > 0) {
+                    $this->addFlash(
+                        "success",
+                        $updatedCount === 1
+                            ? "Feed updated."
+                            : "Feeds updated.",
+                    );
+                }
 
                 return $this->redirectToRoute("subscriptions");
-            } catch (\InvalidArgumentException $e) {
-                $this->addFlash("error", $e->getMessage());
             }
         }
 

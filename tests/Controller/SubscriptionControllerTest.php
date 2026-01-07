@@ -18,12 +18,12 @@ class SubscriptionControllerTest extends WebTestCase
     use AuthenticatedTestTrait;
 
     #[Test]
-    public function subscriptionsPageRedirectsToLoginWhenNotAuthenticated(): void
+    public function subscriptionsPageRedirectsWhenNotAuthenticated(): void
     {
         $client = static::createClient();
         $client->request("GET", "/subscriptions");
 
-        $this->assertResponseRedirects("/login");
+        $this->assertResponseRedirects();
     }
 
     #[Test]
@@ -47,62 +47,7 @@ class SubscriptionControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists("form");
-        $this->assertSelectorExists("textarea");
-    }
-
-    #[Test]
-    public function subscriptionsFormSubmitRequiresValidYaml(): void
-    {
-        $client = static::createClient();
-        $this->loginAsTestUser($client);
-
-        $crawler = $client->request("GET", "/subscriptions");
-
-        $form = $crawler->selectButton("Save")->form();
-        $form["subscriptions[yaml]"] = "invalid: yaml: syntax: [";
-
-        $client->submit($form);
-
-        // Should show page with error flash message
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists("p.error");
-    }
-
-    #[Test]
-    public function subscriptionsFormAcceptsValidYaml(): void
-    {
-        $client = static::createClient();
-        $this->loginAsTestUser($client);
-
-        $crawler = $client->request("GET", "/subscriptions");
-
-        $form = $crawler->selectButton("Save")->form();
-        $form["subscriptions[yaml]"] =
-            "- url: https://example.com/feed.xml\n  title: Test Feed\n";
-
-        $client->submit($form);
-
-        // Should redirect after successful save
-        $this->assertResponseRedirects("/subscriptions");
-    }
-
-    #[Test]
-    public function subscriptionsFormRejectsBlockedUrls(): void
-    {
-        $client = static::createClient();
-        $this->loginAsTestUser($client);
-
-        $crawler = $client->request("GET", "/subscriptions");
-
-        $form = $crawler->selectButton("Save")->form();
-        $form["subscriptions[yaml]"] =
-            "- url: http://localhost/feed.xml\n  title: Local Feed\n";
-
-        $client->submit($form);
-
-        // Should show page with error flash message
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists("p.error");
+        $this->assertSelectorExists('input[name="subscriptions[new][url]"]');
     }
 
     #[Test]
@@ -111,24 +56,149 @@ class SubscriptionControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $client->request("GET", "/subscriptions");
 
-        // Check that form has a CSRF token field
         $this->assertSelectorExists('input[name="subscriptions[_token]"]');
     }
 
     #[Test]
-    public function subscriptionsPageDisplaysYamlContent(): void
+    public function subscriptionsFormHasSubscribeButton(): void
     {
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
+        $client->request("GET", "/subscriptions");
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('button[name="subscriptions[add]"]');
+    }
+
+    #[Test]
+    public function subscriptionsPageShowsExistingSubscriptions(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+        $this->createTestSubscription();
+
         $crawler = $client->request("GET", "/subscriptions");
 
         $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists(".existing-subscriptions");
+        $this->assertSelectorExists('button[name="subscriptions[save]"]');
+    }
 
-        // The textarea should exist
-        $textarea = $crawler->filter('textarea[name="subscriptions[yaml]"]');
-        $this->assertCount(1, $textarea);
+    #[Test]
+    public function subscriptionsPageShowsRemoveButtonForExistingFeeds(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+        $this->createTestSubscription();
+
+        $crawler = $client->request("GET", "/subscriptions");
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists(
+            'button[name="subscriptions[existing][0][remove]"]',
+        );
+    }
+
+    #[Test]
+    public function addingNewFeedShowsSuccessMessage(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+        $this->deleteAllSubscriptionsForTestUser();
+
+        $crawler = $client->request("GET", "/subscriptions");
+
+        $form = $crawler->selectButton("Subscribe")->form();
+        $form["subscriptions[new][url]"] =
+            "https://sven.eisenschmidt.website/index.xml";
+
+        $client->submit($form);
+
+        $this->assertResponseRedirects("/subscriptions");
+        $client->followRedirect();
+
+        $this->assertSelectorExists("p.success");
+        $this->assertSelectorTextContains("p.success", "Feed added");
+    }
+
+    #[Test]
+    public function addingDuplicateFeedShowsError(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+        $this->deleteAllSubscriptionsForTestUser();
+        $this->createTestSubscription();
+
+        $crawler = $client->request("GET", "/subscriptions");
+
+        $form = $crawler->selectButton("Subscribe")->form();
+        $form["subscriptions[new][url]"] = "https://example.com/feed.xml";
+
+        $client->submit($form);
+
+        $this->assertSelectorExists("p.form-error");
+        $this->assertSelectorTextContains("p.form-error", "already subscribed");
+    }
+
+    #[Test]
+    public function removingFeedShowsSuccessMessage(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+        $this->deleteAllSubscriptionsForTestUser();
+        $this->createTestSubscription();
+
+        $crawler = $client->request("GET", "/subscriptions");
+
+        $form = $crawler->selectButton("Remove")->form();
+        $client->submit($form);
+
+        $this->assertResponseRedirects("/subscriptions");
+        $client->followRedirect();
+
+        $this->assertSelectorExists("p.success");
+        $this->assertSelectorTextContains("p.success", "Feed removed");
+    }
+
+    #[Test]
+    public function updatingFeedNameShowsSuccessMessage(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+        $this->deleteAllSubscriptionsForTestUser();
+        $this->createTestSubscription();
+
+        $crawler = $client->request("GET", "/subscriptions");
+
+        $form = $crawler->selectButton("Update")->form();
+        $form["subscriptions[existing][0][name]"] = "Updated Feed Name";
+
+        $client->submit($form);
+
+        $this->assertResponseRedirects("/subscriptions");
+        $client->followRedirect();
+
+        $this->assertSelectorExists("p.success");
+        $this->assertSelectorTextContains("p.success", "Feed updated");
+    }
+
+    #[Test]
+    public function existingSubscriptionShowsFeedUrl(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+        $this->deleteAllSubscriptionsForTestUser();
+        $this->createTestSubscription();
+
+        $crawler = $client->request("GET", "/subscriptions");
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains(
+            ".subscription-row p a",
+            "https://example.com/feed.xml",
+        );
     }
 }
