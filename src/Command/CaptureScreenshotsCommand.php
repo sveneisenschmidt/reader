@@ -45,6 +45,8 @@ class CaptureScreenshotsCommand extends Command
     private const SCREENSHOT_DIR = "docs/screenshots";
     private const VIEWPORT_WIDTH = 1280;
     private const VIEWPORT_HEIGHT = 1024;
+    private const MOBILE_VIEWPORT_WIDTH = 390;
+    private const MOBILE_VIEWPORT_HEIGHT = 844;
 
     private const TEST_FEEDS = [
         [
@@ -269,12 +271,17 @@ class CaptureScreenshotsCommand extends Command
             $this->takeScreenshot("profile");
             $io->success("profile.png");
 
-            // Capture mobile screenshots
+            // Capture mobile screenshots (iPhone 14 portrait)
             $io->section("Capturing Mobile Feed List");
             $this->driver
                 ->manage()
                 ->window()
-                ->setSize(new \Facebook\WebDriver\WebDriverDimension(375, 812));
+                ->setSize(
+                    new \Facebook\WebDriver\WebDriverDimension(
+                        self::MOBILE_VIEWPORT_WIDTH,
+                        self::MOBILE_VIEWPORT_HEIGHT,
+                    ),
+                );
 
             // Navigate directly to Sven's Blog subscription URL
             $svensGuid = $this->feedFetcher->createGuid(
