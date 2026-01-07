@@ -91,6 +91,7 @@
         }
     },
     "require-dev": {
+        "php-webdriver/webdriver": "^1.16",
         "phpunit/phpunit": "^12.5",
         "symfony/browser-kit": "8.0.*",
         "symfony/css-selector": "8.0.*",

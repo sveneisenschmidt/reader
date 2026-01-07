@@ -19,13 +19,13 @@
     <section class="new-subscription">
         {{ form_widget(form.new.guid, {'attr': {'hidden': true}}) }}
         {{ form_widget(form.new.name, {'attr': {'hidden': true}}) }}
-        <label>Subscribe to feed</label>
+        <label>Feed URL</label>
         <div class="subscription-input">
             {{ form_widget(form.new.url) }}
             {{ form_widget(form.add) }}
         </div>
         {{ form_errors(form.new.url) }}
-        <p>Name is auto-detected from the feed.</p>
+        <p>Name is auto-detected from the feed. You can customize it later.</p>
     </section>
 
     {% if form.existing|length > 0 %}

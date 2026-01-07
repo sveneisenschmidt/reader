@@ -2,7 +2,7 @@
 
 A fast, minimal RSS reader for a single user.
 
-![Screenshot](docs/screenshot.png)
+![Feed View](docs/screenshots/feed.png)
 
 ## Getting Started
 
@@ -82,6 +82,23 @@ Reader is designed for single-user, self-hosted use:
 - Passwords are securely hashed
 - Two-factor authentication (TOTP) is mandatory
 - Sessions expire automatically
+
+## Screenshots
+
+### Login
+![Login](docs/screenshots/login.png)
+
+### Setup
+![Setup](docs/screenshots/setup.png)
+
+### Onboarding
+![Onboarding](docs/screenshots/onboarding.png)
+
+### Subscriptions
+![Subscriptions](docs/screenshots/subscriptions.png)
+
+### Profile
+![Profile](docs/screenshots/profile.png)
 
 ## License
 

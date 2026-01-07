@@ -12,7 +12,8 @@
     & > p {
         margin-bottom: var(--spacing-lg);
         max-width: var(--width-form);
-        text-align: center;
+        text-align: left;
+        font-weight: var(--font-weight-normal);
     }
 
     & form {
