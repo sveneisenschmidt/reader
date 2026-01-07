@@ -2,7 +2,9 @@
 
 A fast, minimal RSS reader for a single user.
 
-![Feed View](docs/screenshots/feed.png)
+![Feed View (Dark)](docs/screenshots/feed.png)
+
+![Feed View (Light)](docs/screenshots/feed-light.png)
 
 ## Getting Started
 

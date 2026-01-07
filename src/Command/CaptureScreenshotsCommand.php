@@ -241,6 +241,20 @@ class CaptureScreenshotsCommand extends Command
             $this->takeScreenshot("feed");
             $io->success("feed.png");
 
+            // Capture feed view with light theme
+            $io->section("Capturing Feed (Light)");
+            $this->driver->executeScript(
+                "document.documentElement.setAttribute('data-theme', 'light');",
+            );
+            usleep(500000);
+            $this->takeScreenshot("feed-light");
+            $io->success("feed-light.png");
+
+            // Reset to dark theme for remaining screenshots
+            $this->driver->executeScript(
+                "document.documentElement.setAttribute('data-theme', 'dark');",
+            );
+
             // Capture subscriptions
             $io->section("Capturing Subscriptions");
             $this->driver->get($baseUrl . "/subscriptions");
