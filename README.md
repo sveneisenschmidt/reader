@@ -28,8 +28,7 @@ Every login requires:
 - Track read/unread articles
 - Green dot shows new articles you haven't seen yet
 - Pull down to refresh on any device
-- Organize feeds into folders
-- Automatic dark mode
+- Light, dark, and auto theme
 
 ## Using Reader
 
@@ -56,28 +55,11 @@ Feeds also refresh automatically in the background.
 
 Click **Subscriptions** in the header to add, edit, or remove feeds.
 
-Feeds are configured in YAML format:
+**Adding a feed:** Enter a feed URL and click "Subscribe".
 
-```yaml
-- url: https://example.com/feed.xml
-  title: Example Feed
+**Editing a feed:** Change the title and click "Save".
 
-- url: https://news.site/rss
-  title: Daily News
-  folder: ["News"]
-
-- url: https://techblog.com/feed
-  title: Tech Blog
-  folder: ["News", "Technology"]
-```
-
-**Adding a feed:** Add a new entry with `url` and `title`.
-
-**Organizing into folders:** Add a `folder` property with a list of folder names. Nested folders appear as "News / Technology" in the sidebar.
-
-**Removing a feed:** Delete its entry from the list.
-
-Click **Save** to apply your changes.
+**Removing a feed:** Click "Unsubscribe" next to the feed you want to remove.
 
 ### Filtering Articles
 
@@ -86,10 +68,11 @@ Use the filters in the sidebar:
 - **Show unread** - Hide articles you've already read
 - **25 / 50 / 99+** - Limit how many articles are shown
 
-### Keyboard Shortcuts
+### Profile Settings
 
-Navigate efficiently with your keyboard:
-- Pull-to-refresh works on desktop too (scroll up past the top)
+Click **Profile** in the header to change your settings:
+
+- **Theme** - Choose between Auto, Light, or Dark mode
 
 ## Security
 
