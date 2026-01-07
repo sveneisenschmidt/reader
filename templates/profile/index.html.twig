@@ -41,6 +41,10 @@
     {{ form_end(form, {'render_rest': false}) }}
 
     <section class="existing-subscriptions">
-        <a href="{{ path('auth_logout') }}" class="logout-link">Logout</a>
+        <div class="subscription-row">
+            <div class="subscription-input">
+                <a href="{{ path('auth_logout') }}" class="button-secondary">Logout</a>
+            </div>
+        </div>
     </section>
 {% endblock %}
