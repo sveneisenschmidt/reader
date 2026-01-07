@@ -54,6 +54,15 @@ class FeedController extends AbstractController
         $this->feedFetcher->refreshAllFeeds($feedUrls);
         $this->subscriptionService->updateRefreshTimestamps($user->getId());
 
+        $referer = $request->headers->get("referer");
+        if ($referer) {
+            $refererHost = parse_url($referer, PHP_URL_HOST);
+            $currentHost = $request->getHost();
+            if ($refererHost === $currentHost) {
+                return $this->redirect($referer);
+            }
+        }
+
         return $this->redirectToRoute("feed_index");
     }
 

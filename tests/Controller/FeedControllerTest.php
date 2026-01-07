@@ -107,6 +107,62 @@ class FeedControllerTest extends WebTestCase
     }
 
     #[Test]
+    public function refreshEndpointRedirectsToRefererWhenPresent(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
+        // Make a GET request first to establish the session
+        $crawler = $client->request("GET", "/");
+        $this->assertResponseIsSuccessful();
+
+        // Get the CSRF token from the refresh form in the footer
+        $token = $crawler
+            ->filter('form[data-refresh-form] input[name="_token"]')
+            ->attr("value");
+
+        // Send refresh request with a referer header pointing to a subscription page
+        $client->request(
+            "POST",
+            "/refresh",
+            ["_token" => $token],
+            [],
+            ["HTTP_REFERER" => "http://localhost/s/0123456789abcdef"],
+        );
+
+        $this->assertResponseRedirects("http://localhost/s/0123456789abcdef");
+    }
+
+    #[Test]
+    public function refreshEndpointRedirectsToRefererWithQueryParams(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
+        // Make a GET request first to establish the session
+        $crawler = $client->request("GET", "/");
+        $this->assertResponseIsSuccessful();
+
+        // Get the CSRF token from the refresh form in the footer
+        $token = $crawler
+            ->filter('form[data-refresh-form] input[name="_token"]')
+            ->attr("value");
+
+        // Send refresh request with a referer that includes query params
+        $client->request(
+            "POST",
+            "/refresh",
+            ["_token" => $token],
+            [],
+            ["HTTP_REFERER" => "http://localhost/s/0123456789abcdef?unread=1"],
+        );
+
+        $this->assertResponseRedirects(
+            "http://localhost/s/0123456789abcdef?unread=1",
+        );
+    }
+
+    #[Test]
     public function markAllReadRequiresPostMethod(): void
     {
         $client = static::createClient();
