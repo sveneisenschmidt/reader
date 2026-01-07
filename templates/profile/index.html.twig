@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profile | Reader{% endblock %}
+
+{% block page_id %}subscriptions{% endblock %}
+
+{% block main %}
+    <h2>Profile</h2>
+
+    {% for message in app.flashes('success') %}
+        <p class="success">{{ message }}</p>
+    {% endfor %}
+
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+    <section class="existing-subscriptions">
+        <div class="subscription-row">
+            <div class="subscription-input">
+                {{ form_widget(form.username) }}
+            </div>
+            <p>Username</p>
+        </div>
+
+        <div class="subscription-row">
+            <div class="subscription-input">
+                {{ form_widget(form.email) }}
+            </div>
+            <p>Email (cannot be changed)</p>
+        </div>
+
+        <div class="subscription-row">
+            <div class="subscription-input">
+                {{ form_widget(form.theme) }}
+            </div>
+            <p>Theme</p>
+        </div>
+
+        {{ form_widget(form.save) }}
+    </section>
+
+    {{ form_end(form, {'render_rest': false}) }}
+
+    <section class="existing-subscriptions">
+        <a href="{{ path('auth_logout') }}" class="logout-link">Logout</a>
+    </section>
+{% endblock %}
