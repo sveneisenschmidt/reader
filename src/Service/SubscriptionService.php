@@ -157,4 +157,10 @@ class SubscriptionService
     {
         $this->subscriptionRepository->updateAllRefreshTimestamps($userId);
     }
+
+    public function updateRefreshTimestamp(Subscription $subscription): void
+    {
+        $subscription->updateLastRefreshedAt();
+        $this->subscriptionRepository->getEntityManager()->flush();
+    }
 }

@@ -9,6 +9,7 @@
 
 namespace App\Tests\Controller;
 
+use App\Repository\Subscriptions\SubscriptionRepository;
 use App\Tests\Trait\AuthenticatedTestTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -199,6 +200,37 @@ class SubscriptionControllerTest extends WebTestCase
         $this->assertSelectorTextContains(
             ".subscription-row p a",
             "https://example.com/feed.xml",
+        );
+    }
+
+    #[Test]
+    public function addingNewFeedSetsRefreshTimestamp(): void
+    {
+        $client = static::createClient();
+        $user = $this->loginAsTestUser($client);
+        $this->deleteAllSubscriptionsForTestUser();
+
+        $crawler = $client->request("GET", "/subscriptions");
+
+        $form = $crawler->selectButton("Subscribe")->form();
+        $form["subscriptions[new][url]"] =
+            "https://sven.eisenschmidt.website/index.xml";
+
+        $client->submit($form);
+
+        $this->assertResponseRedirects("/subscriptions");
+
+        // Verify the subscription has a refresh timestamp
+        $container = static::getContainer();
+        $subscriptionRepository = $container->get(
+            SubscriptionRepository::class,
+        );
+        $subscriptions = $subscriptionRepository->findByUserId($user->getId());
+
+        $this->assertCount(1, $subscriptions);
+        $this->assertNotNull(
+            $subscriptions[0]->getLastRefreshedAt(),
+            "New subscription should have refresh timestamp set",
         );
     }
 }

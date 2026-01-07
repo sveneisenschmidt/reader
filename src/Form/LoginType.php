@@ -33,6 +33,7 @@ class LoginType extends AbstractType
                     ),
                 ],
                 "attr" => [
+                    "placeholder" => "you@example.com",
                     "autofocus" => true,
                 ],
             ])
@@ -40,6 +41,9 @@ class LoginType extends AbstractType
                 "label" => "Password",
                 "constraints" => [
                     new Assert\NotBlank(message: "Password is required."),
+                ],
+                "attr" => [
+                    "placeholder" => "Your password",
                 ],
             ])
             ->add("otp", TextType::class, [

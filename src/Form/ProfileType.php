@@ -29,6 +29,9 @@ class ProfileType extends AbstractType
                 "constraints" => [
                     new NotBlank(message: "Username is required"),
                 ],
+                "attr" => [
+                    "placeholder" => "Your username",
+                ],
             ])
             ->add("theme", ChoiceType::class, [
                 "label" => "Theme",

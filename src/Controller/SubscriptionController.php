@@ -96,9 +96,14 @@ class SubscriptionController extends AbstractController
                             ->addError(new FormError($error));
                         $hasError = true;
                     } else {
-                        $this->subscriptionService->addSubscription(
+                        $subscription = $this->subscriptionService->addSubscription(
                             $user->getId(),
                             $newData["url"],
+                        );
+                        // Feed content is already fetched by addSubscription (via getFeedTitle)
+                        // Just update the refresh timestamp for this subscription
+                        $this->subscriptionService->updateRefreshTimestamp(
+                            $subscription,
                         );
                         $this->addFlash("success", "Feed added.");
                     }

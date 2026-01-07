@@ -34,13 +34,20 @@ class SetupType extends AbstractType
                     ),
                 ],
                 "attr" => [
+                    "placeholder" => "you@example.com",
                     "autofocus" => true,
                 ],
             ])
             ->add("password", RepeatedType::class, [
                 "type" => PasswordType::class,
-                "first_options" => ["label" => "Password"],
-                "second_options" => ["label" => "Confirm Password"],
+                "first_options" => [
+                    "label" => "Password",
+                    "attr" => ["placeholder" => "Choose a password"],
+                ],
+                "second_options" => [
+                    "label" => "Confirm Password",
+                    "attr" => ["placeholder" => "Repeat password"],
+                ],
                 "invalid_message" => "Passwords do not match.",
                 "constraints" => [
                     new Assert\NotBlank(message: "Password is required."),
