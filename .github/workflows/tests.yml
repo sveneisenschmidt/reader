@@ -1,43 +1,59 @@
 name: Tests
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+    test:
+        runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+        steps:
+            - uses: actions/checkout@v4
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: sqlite3, pdo_sqlite
-          coverage: none
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.4"
+                  extensions: sqlite3, pdo_sqlite
+                  coverage: none
 
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+            - name: Get Composer cache directory
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-      - name: Cache Composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
+            - name: Cache Composer dependencies
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: ${{ runner.os }}-composer-
 
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+            - name: Create .env file
+              run: |
+                  cat > .env << 'EOF'
+                  APP_ENV=test
+                  APP_SECRET=test-secret-key-for-ci
+                  APP_SHARE_DIR=var/share
+                  APP_TIMEZONE=UTC
+                  DEFAULT_URI=http://localhost
+                  DATABASE_USERS_URL="sqlite:///%kernel.project_dir%/var/data/test_users.db"
+                  DATABASE_SUBSCRIPTIONS_URL="sqlite:///%kernel.project_dir%/var/data/test_subscriptions.db"
+                  DATABASE_CONTENT_URL="sqlite:///%kernel.project_dir%/var/data/test_content.db"
+                  WORKER_TTL=55
+                  WORKER_REFRESH_INTERVAL="1 minute"
+                  WORKER_CLEANUP_INTERVAL="1 day"
+                  LOCK_DSN=flock
+                  MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
+                  EOF
 
-      - name: Run database migrations
-        run: make db-migrate
-        env:
-          APP_ENV: test
+            - name: Install dependencies
+              run: composer install --prefer-dist --no-progress
 
-      - name: Run tests
-        run: php bin/phpunit
+            - name: Run database migrations
+              run: make db-migrate
+
+            - name: Run tests
+              run: php bin/phpunit
