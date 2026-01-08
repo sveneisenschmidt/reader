@@ -21,7 +21,7 @@
         {{ form_widget(form.new.name, {'attr': {'hidden': true}}) }}
         <label>Feed URL</label>
         <div class="subscription-input">
-            {{ form_widget(form.new.url) }}
+            {{ form_widget(form.new.url, {'attr': {'autofocus': true}}) }}
             {{ form_widget(form.add) }}
         </div>
         {{ form_errors(form.new.url) }}

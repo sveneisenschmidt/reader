@@ -18,7 +18,7 @@
 
     <section>
         <div class="profile-row">
-            {{ form_row(form.username) }}
+            {{ form_row(form.username, {'attr': {'autofocus': true}}) }}
             <p>Your email ({{ email }}) can not be changed. Reset the deployment if you need to change it.</p>
         </div>
 

@@ -44,6 +44,7 @@
     --color-bg-muted: color-mix(in srgb, var(--color-bg) 95%, black);
     --color-text-inverted: rgb(224, 224, 224);
     --color-bg-inverted: rgb(13, 17, 23);
+    --color-placeholder: rgb(180, 180, 180);
 
     /* Accent colors */
     --color-blue: rgb(56, 114, 211);
@@ -75,7 +76,7 @@
 [data-theme="auto"] {
     @media (prefers-color-scheme: dark) {
         --color-text: rgb(224, 224, 224);
-        --color-border: rgb(68, 68, 68);
+        --color-border: rgb(63, 68, 76);
         --color-bg: rgb(13, 17, 23);
         --color-bg-muted: color-mix(in srgb, var(--color-bg) 95%, white);
         --color-text-inverted: rgb(34, 34, 34);
@@ -139,6 +140,12 @@
     --button-secondary-border: var(--color-border);
     --button-secondary-hover-text: var(--color-blue);
     --button-secondary-hover-border: var(--color-blue);
+}
+
+/* Placeholder */
+::placeholder {
+    color: var(--color-placeholder);
+    opacity: 1;
 }
 
 /* Reset */

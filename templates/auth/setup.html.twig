@@ -9,7 +9,7 @@
     {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
     {{ form_label(form.email) }}
-    {{ form_widget(form.email) }}
+    {{ form_widget(form.email, {'attr': {'autofocus': true}}) }}
     {{ form_errors(form.email) }}
 
     <div>

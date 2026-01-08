@@ -14,7 +14,7 @@
     {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
     {{ form_label(form.feedUrl) }}
-    {{ form_widget(form.feedUrl) }}
+    {{ form_widget(form.feedUrl, {'attr': {'autofocus': true}}) }}
     {{ form_errors(form.feedUrl) }}
 
     <button type="submit">Subscribe</button>
