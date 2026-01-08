@@ -5,21 +5,46 @@
     };
 
     const OTP_LENGTH = 6;
+    const hiddenInput = document.querySelector(SELECTORS.hiddenValue);
 
-    document.querySelectorAll(SELECTORS.container).forEach((container) => {
+    if (!hiddenInput) {
+        console.error("OTP: Hidden input not found", SELECTORS.hiddenValue);
+        return;
+    }
+
+    const containers = document.querySelectorAll(SELECTORS.container);
+
+    if (containers.length === 0) {
+        console.error("OTP: No container found", SELECTORS.container);
+        return;
+    }
+
+    containers.forEach((container) => {
         const inputs = container.querySelectorAll("input");
-        const hiddenInput = container.nextElementSibling?.matches(
-            SELECTORS.hiddenValue,
-        )
-            ? container.nextElementSibling
-            : container.parentElement?.querySelector(SELECTORS.hiddenValue);
 
-        if (!hiddenInput) return;
+        if (inputs.length === 0) {
+            console.error("OTP: No inputs found in container");
+            return;
+        }
+
+        if (inputs.length !== OTP_LENGTH) {
+            console.error(
+                "OTP: Expected",
+                OTP_LENGTH,
+                "inputs, found",
+                inputs.length,
+            );
+        }
 
         const updateHiddenValue = () => {
-            hiddenInput.value = Array.from(inputs)
+            const value = Array.from(inputs)
                 .map((input) => input.value)
                 .join("");
+            hiddenInput.value = value;
+
+            if (value.length === OTP_LENGTH && hiddenInput.value !== value) {
+                console.error("OTP: Failed to set hidden input value");
+            }
         };
 
         inputs.forEach((input, index) => {
