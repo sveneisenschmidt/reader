@@ -1,0 +1,74 @@
+name: Deploy
+
+on:
+    workflow_dispatch:
+
+jobs:
+    test:
+        if: github.actor == 'sveneisenschmidt'
+        uses: ./.github/workflows/tests.yml
+
+    deploy:
+        needs: test
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.4"
+                  extensions: ctype, iconv, sqlite3, pdo_sqlite
+                  coverage: none
+
+            - name: Install dependencies
+              run: composer install --no-dev --no-scripts --optimize-autoloader --no-progress
+
+            - name: Setup SSH
+              run: |
+                  mkdir -p ~/.ssh
+                  echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+                  chmod 600 ~/.ssh/deploy_key
+                  ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+            - name: Ensure directories exist on server
+              run: |
+                  ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+                    "mkdir -p ${{ secrets.DEPLOY_PATH }}/var/data ${{ secrets.DEPLOY_PATH }}/var/share ${{ secrets.DEPLOY_PATH }}/backup"
+
+            - name: Backup databases
+              run: |
+                  ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+                    "cd ${{ secrets.DEPLOY_PATH }}/var/data && for db in *.db; do [ -f \"\$db\" ] && cp \"\$db\" ${{ secrets.DEPLOY_PATH }}/backup/\$(date +%Y%m%d_%H%M%S)_\$db; done || true"
+
+            - name: Deploy via rsync
+              run: |
+                  rsync -avz --delete \
+                    --include='bin/***' \
+                    --include='config/***' \
+                    --include='migrations/***' \
+                    --include='public/***' \
+                    --include='src/***' \
+                    --include='templates/***' \
+                    --include='translations/***' \
+                    --include='vendor/***' \
+                    --exclude='*' \
+                    -e "ssh -i ~/.ssh/deploy_key" \
+                    ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}
+
+            - name: Run migrations
+              run: |
+                  ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+                    "cd ${{ secrets.DEPLOY_PATH }} && \
+                     php bin/console doctrine:migrations:migrate --em=users --no-interaction && \
+                     php bin/console doctrine:migrations:migrate --em=subscriptions --no-interaction && \
+                     php bin/console doctrine:migrations:migrate --em=content --no-interaction"
+
+            - name: Clear cache
+              run: |
+                  ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+                    "cd ${{ secrets.DEPLOY_PATH }} && \
+                     php bin/console cache:clear && \
+                     php bin/console cache:warmup"
