@@ -51,6 +51,11 @@ jobs:
                   ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
                     "cd ${{ secrets.DEPLOY_PATH }}/var/data && for db in *.db; do [ -f \"\$db\" ] && cp \"\$db\" ${{ secrets.DEPLOY_PATH }}/backup/\$(date +%Y%m%d_%H%M%S)_\$db; done || true"
 
+            - name: Stop workers
+              run: |
+                  ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+                    "cd ${{ secrets.DEPLOY_PATH }} && php bin/console messenger:stop-workers || true"
+
             - name: Deploy via rsync
               run: |
                   rsync -avz --delete \
@@ -87,3 +92,8 @@ jobs:
                   ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
                     "cd ${{ secrets.DEPLOY_PATH }} && \
                      php bin/console cache:warmup"
+
+            - name: Start worker
+              run: |
+                  ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+                    "cd ${{ secrets.DEPLOY_PATH }} && nohup php bin/console messenger:consume scheduler_default > /dev/null 2>&1 &"
