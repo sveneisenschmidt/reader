@@ -35,15 +35,10 @@
     </figure>
 
     {{ form_label(form.otp) }}
-    {{ include('components/otp-inputs.html.twig') }}
-    {{ form_widget(form.otp, {attr: {'data-otp-value': true, 'hidden': true}}) }}
+    {{ form_widget(form.otp, {attr: {class: 'otp-input', maxlength: 6, inputmode: 'numeric', pattern: '[0-9]{6}', autocomplete: 'one-time-code', placeholder: '000000'}}) }}
     {{ form_errors(form.otp) }}
 
     <button type="submit">Create Account</button>
 
     {{ form_end(form) }}
-{% endblock %}
-
-{% block scripts %}
-    <script src="{{ asset('js/otp-inputs.js') }}"></script>
 {% endblock %}
