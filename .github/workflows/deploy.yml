@@ -59,6 +59,12 @@ jobs:
                     -e "ssh -i ~/.ssh/deploy_key" \
                     ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}
 
+            - name: Run composer scripts on server
+              run: |
+                  ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+                    "cd ${{ secrets.DEPLOY_PATH }} && \
+                     composer dump-autoload --optimize --classmap-authoritative"
+
             - name: Clear cache
               run: |
                   ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
