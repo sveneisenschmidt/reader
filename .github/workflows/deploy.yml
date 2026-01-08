@@ -80,7 +80,8 @@ jobs:
                     "cd ${{ secrets.DEPLOY_PATH }} && \
                      php bin/console doctrine:migrations:migrate --em=users --no-interaction && \
                      php bin/console doctrine:migrations:migrate --em=subscriptions --no-interaction && \
-                     php bin/console doctrine:migrations:migrate --em=content --no-interaction"
+                     php bin/console doctrine:migrations:migrate --em=content --no-interaction && \
+                     php bin/console doctrine:migrations:migrate --em=logs --no-interaction"
 
             - name: Warmup cache
               run: |
