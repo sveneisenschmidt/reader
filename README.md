@@ -51,7 +51,7 @@ Two ways to check for new articles:
 - Pull down from the top of the page
 - Click the "Refreshed..." text in the footer
 
-Feeds also refresh automatically in the background.
+Feeds also refresh automatically when the background worker is running (check Profile for status).
 
 ### Managing Your Feeds
 
@@ -75,6 +75,7 @@ Use the filters in the sidebar:
 Click **Profile** in the header to change your settings:
 
 - **Theme** - Choose between Auto, Light, or Dark mode
+- **Worker Status** - Shows if background refresh is running
 
 ## Security
 
@@ -105,6 +106,31 @@ Reader is designed for single-user, self-hosted use:
 ### Mobile
 ![Mobile Feed List](docs/screenshots/feed-mobile-list.png)
 ![Mobile Reading Pane](docs/screenshots/feed-mobile-reading.png)
+
+## Requirements
+
+- PHP 8.4+
+- SQLite3
+
+## Development
+
+```bash
+# Install dependencies
+make install
+
+# Run database migrations
+make db-migrate
+
+# Start development server (without worker)
+make dev
+
+# Start development server (with worker)
+make dev-with-worker
+```
+
+## Deployment
+
+See `.github/workflows/deploy.yml` for an example deployment setup.
 
 ## License
 
