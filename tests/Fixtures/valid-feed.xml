@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Test Feed</title>
+        <link>https://example.com</link>
+        <description>A test feed for unit tests</description>
+        <item>
+            <title>Test Article</title>
+            <link>https://example.com/article-1</link>
+            <guid>https://example.com/article-1</guid>
+            <pubDate>Mon, 01 Jan 2024 12:00:00 +0000</pubDate>
+            <description>This is a test article excerpt.</description>
+        </item>
+    </channel>
+</rss>

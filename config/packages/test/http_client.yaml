@@ -1,0 +1,3 @@
+services:
+    App\Tests\Mock\MockHttpClientFactory:
+        public: true

@@ -113,8 +113,7 @@ class SubscriptionControllerTest extends WebTestCase
         $crawler = $client->request("GET", "/subscriptions");
 
         $form = $crawler->selectButton("Subscribe")->form();
-        $form["subscriptions[new][url]"] =
-            "https://sven.eisenschmidt.website/index.xml";
+        $form["subscriptions[new][url]"] = "https://example.com/new-feed.xml";
 
         $client->submit($form);
 
@@ -213,8 +212,7 @@ class SubscriptionControllerTest extends WebTestCase
         $crawler = $client->request("GET", "/subscriptions");
 
         $form = $crawler->selectButton("Subscribe")->form();
-        $form["subscriptions[new][url]"] =
-            "https://sven.eisenschmidt.website/index.xml";
+        $form["subscriptions[new][url]"] = "https://example.com/new-feed.xml";
 
         $client->submit($form);
 
