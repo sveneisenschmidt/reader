@@ -95,5 +95,5 @@ jobs:
 
             - name: Start worker
               run: |
-                  ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-                    "cd ${{ secrets.DEPLOY_PATH }} && nohup php bin/console messenger:consume scheduler_default > /dev/null 2>&1 &"
+                  ssh -f -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+                    "cd ${{ secrets.DEPLOY_PATH }} && nohup php bin/console messenger:consume scheduler_default > /dev/null 2>&1 & exit"
