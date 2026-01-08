@@ -54,12 +54,18 @@ class CaptureScreenshotsCommand extends Command
         [
             "url" => "https://sven.eisenschmidt.website/index.xml",
             "title" => "Sven's Blog",
+            "folder" => "Personal",
         ],
         [
             "url" => "https://jasper.tandy.is/syndicated",
             "title" => "Jasper's Blog",
+            "folder" => "Personal",
         ],
-        ["url" => "https://news.ycombinator.com/rss", "title" => "Hacker News"],
+        [
+            "url" => "https://news.ycombinator.com/rss",
+            "title" => "Hacker News",
+            "folder" => "News",
+        ],
     ];
 
     private ?Process $serverProcess = null;
@@ -166,7 +172,12 @@ class CaptureScreenshotsCommand extends Command
                 // Feeds are automatically refreshed when added
                 $io->section("Adding test feeds");
                 foreach (self::TEST_FEEDS as $feed) {
-                    $this->addFeed($baseUrl, $feed["url"], $feed["title"]);
+                    $this->addFeed(
+                        $baseUrl,
+                        $feed["url"],
+                        $feed["title"],
+                        $feed["folder"] ?? null,
+                    );
                     $io->writeln("  Added: " . $feed["title"]);
                 }
                 $io->success("Feeds added");
@@ -439,6 +450,7 @@ class CaptureScreenshotsCommand extends Command
         string $baseUrl,
         string $feedUrl,
         string $title,
+        ?string $folder = null,
     ): void {
         $this->driver->get($baseUrl . "/subscriptions");
         $this->waitForPage();
@@ -460,14 +472,30 @@ class CaptureScreenshotsCommand extends Command
             ->click();
         $this->waitForPage();
 
-        // Update the title - find the last subscription row and update its name
-        $nameInputs = $this->driver->findElements(
-            WebDriverBy::cssSelector('.subscription-row input[type="text"]'),
+        // Update the title and folder - find the last subscription row
+        $subscriptionRows = $this->driver->findElements(
+            WebDriverBy::cssSelector(".subscription-row"),
         );
-        if (count($nameInputs) > 0) {
-            $lastInput = $nameInputs[count($nameInputs) - 1];
-            $lastInput->clear();
-            $lastInput->sendKeys($title);
+        if (count($subscriptionRows) > 0) {
+            $lastRow = $subscriptionRows[count($subscriptionRows) - 1];
+
+            // Update name
+            $nameInput = $lastRow->findElement(
+                WebDriverBy::cssSelector('input[type="text"][id$="_name"]'),
+            );
+            $nameInput->clear();
+            $nameInput->sendKeys($title);
+
+            // Update folder if provided
+            if ($folder !== null) {
+                $folderInput = $lastRow->findElement(
+                    WebDriverBy::cssSelector(
+                        'input[type="text"][id$="_folder"]',
+                    ),
+                );
+                $folderInput->clear();
+                $folderInput->sendKeys($folder);
+            }
 
             // Save immediately
             $saveButton = $this->driver->findElements(
