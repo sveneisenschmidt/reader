@@ -41,7 +41,7 @@ class WorkerHeartbeat
         return new \DateTimeImmutable()->setTimestamp((int) $timestamp);
     }
 
-    public function isAlive(int $maxAge = 540): bool
+    public function isAlive(int $maxAge = 30): bool
     {
         $lastBeat = $this->getLastBeat();
 
