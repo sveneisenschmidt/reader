@@ -7,11 +7,25 @@ security:
             entity:
                 class: App\Entity\Users\User
                 property: email
+        webhook_provider:
+            memory:
+                users:
+                    webhook:
+                        {
+                            password: "%env(WEBHOOK_PASSWORD)%",
+                            roles: ["ROLE_WEBHOOK"],
+                        }
 
     firewalls:
         dev:
             pattern: ^/(_profiler|_wdt|assets|build)/
             security: false
+        webhook:
+            pattern: ^/webhook
+            stateless: true
+            provider: webhook_provider
+            http_basic:
+                realm: "Webhook"
         main:
             lazy: true
             provider: app_user_provider
@@ -22,6 +36,7 @@ security:
                 target: auth_login
 
     access_control:
+        - { path: ^/webhook, roles: ROLE_WEBHOOK }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/logout, roles: PUBLIC_ACCESS }
         - { path: ^/setup, roles: PUBLIC_ACCESS }

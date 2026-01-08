@@ -4,5 +4,6 @@ framework:
             sync: "sync://"
 
         routing:
+            'App\Message\HeartbeatMessage': sync
             'App\Message\RefreshFeedsMessage': sync
             'App\Message\CleanupContentMessage': sync

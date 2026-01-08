@@ -83,4 +83,31 @@
             }
         }
     }
+
+    & > hr {
+        width: 100%;
+        border: none;
+        border-top: 1px solid var(--color-border);
+        margin: var(--spacing-lg) 0;
+
+        @media (min-width: 769px) {
+            max-width: var(--width-form);
+        }
+    }
+
+    & > p {
+        width: 100%;
+
+        @media (min-width: 769px) {
+            max-width: var(--width-form);
+        }
+
+        & .status-online {
+            color: var(--color-success);
+        }
+
+        & .status-offline {
+            color: var(--color-error);
+        }
+    }
 }

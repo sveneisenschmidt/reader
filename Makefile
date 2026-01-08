@@ -1,4 +1,4 @@
-.PHONY: dev stop cache-clear install db-migrate db-reset test worker check-deps screenshots
+.PHONY: dev dev-with-worker stop cache-clear install db-migrate db-reset test worker check-deps screenshots
 
 check-deps:
 	@echo "Checking dependencies..."
@@ -12,6 +12,9 @@ install:
 	composer install
 
 dev:
+	symfony serve --no-tls --allow-all-ip
+
+dev-with-worker:
 	php bin/console messenger:consume scheduler_default & \
 	WORKER_PID=$$!; \
 	trap "kill $$WORKER_PID 2>/dev/null" EXIT; \
@@ -62,14 +65,3 @@ screenshots: check-deps
 	echo "Stopping ChromeDriver..."; \
 	kill $$CHROME_PID 2>/dev/null || true; \
 	echo "Done!"
-
-serve-prod:
-	APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --em=users --no-interaction
-	APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --em=subscriptions --no-interaction
-	APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --em=content --no-interaction
-	APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear
-	APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup
-	APP_ENV=prod APP_DEBUG=0 php bin/console messenger:consume scheduler_default & \
-	WORKER_PID=$$!; \
-	trap "kill $$WORKER_PID 2>/dev/null" EXIT; \
-	APP_ENV=prod APP_DEBUG=0 symfony serve --no-tls

@@ -33,4 +33,17 @@
     </section>
 
     {{ form_end(form, {'render_rest': false}) }}
+
+    <hr>
+
+    <p>
+        {% if workerAlive %}
+            <span class="status-online">●</span> Worker online (last heartbeat {{ workerLastBeat|ago }})
+        {% else %}
+            <span class="status-offline">●</span> Worker offline
+            {% if workerLastBeat %}
+                (last seen {{ workerLastBeat|ago }})
+            {% endif %}
+        {% endif %}
+    </p>
 {% endblock %}

@@ -11,6 +11,7 @@ namespace App\Controller;
 
 use App\Entity\Users\User;
 use App\Form\ProfileType;
+use App\Service\WorkerHeartbeat;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,7 @@ class ProfileController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private WorkerHeartbeat $workerHeartbeat,
     ) {}
 
     #[Route("/profile", name: "profile")]
@@ -54,6 +56,8 @@ class ProfileController extends AbstractController
         return $this->render("profile/index.html.twig", [
             "form" => $form,
             "email" => $user->getEmail(),
+            "workerAlive" => $this->workerHeartbeat->isAlive(),
+            "workerLastBeat" => $this->workerHeartbeat->getLastBeat(),
         ]);
     }
 }

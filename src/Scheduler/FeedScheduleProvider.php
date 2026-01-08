@@ -10,6 +10,7 @@
 namespace App\Scheduler;
 
 use App\Message\CleanupContentMessage;
+use App\Message\HeartbeatMessage;
 use App\Message\RefreshFeedsMessage;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
@@ -34,6 +35,7 @@ class FeedScheduleProvider implements ScheduleProviderInterface
     public function getSchedule(): Schedule
     {
         return new Schedule()
+            ->add(RecurringMessage::every("10 seconds", new HeartbeatMessage()))
             ->add(
                 RecurringMessage::every(
                     $this->refreshInterval,
