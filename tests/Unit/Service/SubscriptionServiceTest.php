@@ -94,7 +94,7 @@ class SubscriptionServiceTest extends TestCase
             "guid1",
             "Feed 1",
             "https://example.com/feed1",
-            ["News", "Tech"],
+            "News/Tech",
         );
         $sub2 = $this->createSubscriptionStub(
             "guid2",
@@ -110,7 +110,7 @@ class SubscriptionServiceTest extends TestCase
 
         $result = $service->getSubscriptionsWithCounts($userId, []);
 
-        $this->assertEquals(["News", "Tech"], $result[0]["folder"]);
+        $this->assertEquals("News/Tech", $result[0]["folder"]);
         $this->assertNull($result[1]["folder"]);
     }
 
@@ -337,7 +337,7 @@ class SubscriptionServiceTest extends TestCase
         string $guid,
         string $name,
         string $url,
-        ?array $folder = null,
+        ?string $folder = null,
     ): Subscription {
         $subscription = $this->createStub(Subscription::class);
         $subscription->method("getGuid")->willReturn($guid);
