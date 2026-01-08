@@ -1,5 +1,8 @@
 security:
     password_hashers:
+        App\Security\WebhookUser:
+            algorithm: plaintext
+            ignore_case: false
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
 
     providers:
@@ -7,11 +10,19 @@ security:
             entity:
                 class: App\Entity\Users\User
                 property: email
+        webhook_user_provider:
+            id: App\Security\WebhookUserProvider
 
     firewalls:
         dev:
             pattern: ^/(_profiler|_wdt|assets|build)/
             security: false
+        webhook:
+            pattern: ^/webhook/
+            stateless: true
+            http_basic:
+                realm: "Webhook API"
+            provider: webhook_user_provider
         main:
             lazy: true
             provider: app_user_provider
@@ -25,11 +36,15 @@ security:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/logout, roles: PUBLIC_ACCESS }
         - { path: ^/setup, roles: PUBLIC_ACCESS }
+        - { path: ^/webhook/, roles: ROLE_WEBHOOK }
         - { path: ^/, roles: ROLE_USER }
 
 when@test:
     security:
         password_hashers:
+            App\Security\WebhookUser:
+                algorithm: plaintext
+                ignore_case: false
             Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
                 algorithm: auto
                 cost: 4

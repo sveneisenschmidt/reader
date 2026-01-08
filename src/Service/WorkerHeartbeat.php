@@ -9,36 +9,32 @@
 
 namespace App\Service;
 
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use App\Entity\Logs\LogEntry;
+use App\Repository\Logs\LogEntryRepository;
 
 class WorkerHeartbeat
 {
-    private string $heartbeatFile;
-
     public function __construct(
-        #[Autowire("%kernel.project_dir%")] string $projectDir,
-    ) {
-        $this->heartbeatFile = $projectDir . "/var/worker_heartbeat";
-    }
+        private LogEntryRepository $logEntryRepository,
+    ) {}
 
     public function beat(): void
     {
-        file_put_contents($this->heartbeatFile, (string) time());
+        $this->logEntryRepository->log(
+            LogEntry::CHANNEL_WORKER,
+            "heartbeat",
+            LogEntry::STATUS_SUCCESS,
+        );
     }
 
     public function getLastBeat(): ?\DateTimeImmutable
     {
-        if (!file_exists($this->heartbeatFile)) {
-            return null;
-        }
+        $entry = $this->logEntryRepository->getLastByChannelAndAction(
+            LogEntry::CHANNEL_WORKER,
+            "heartbeat",
+        );
 
-        $timestamp = file_get_contents($this->heartbeatFile);
-
-        if ($timestamp === false) {
-            return null;
-        }
-
-        return new \DateTimeImmutable()->setTimestamp((int) $timestamp);
+        return $entry?->getCreatedAt();
     }
 
     public function isAlive(int $maxAge = 30): bool

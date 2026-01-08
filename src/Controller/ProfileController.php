@@ -9,8 +9,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Logs\LogEntry;
 use App\Entity\Users\User;
 use App\Form\ProfileType;
+use App\Repository\Logs\LogEntryRepository;
 use App\Service\WorkerHeartbeat;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +27,7 @@ class ProfileController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private WorkerHeartbeat $workerHeartbeat,
+        private LogEntryRepository $logEntryRepository,
     ) {}
 
     #[Route("/profile", name: "profile")]
@@ -53,11 +56,21 @@ class ProfileController extends AbstractController
             return $this->redirectToRoute("profile");
         }
 
+        $lastWebhook = $this->logEntryRepository->getLastByChannel(
+            LogEntry::CHANNEL_WEBHOOK,
+        );
+        $webhookAlive =
+            $lastWebhook &&
+            $lastWebhook->getStatus() === LogEntry::STATUS_SUCCESS &&
+            $lastWebhook->getCreatedAt()->getTimestamp() > time() - 300;
+
         return $this->render("profile/index.html.twig", [
             "form" => $form,
             "email" => $user->getEmail(),
-            "workerAlive" => $this->workerHeartbeat->isAlive(),
+            "workerAlive" => $this->workerHeartbeat->isAlive(15),
             "workerLastBeat" => $this->workerHeartbeat->getLastBeat(),
+            "lastWebhook" => $lastWebhook,
+            "webhookAlive" => $webhookAlive,
         ]);
     }
 }

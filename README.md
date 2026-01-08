@@ -144,7 +144,53 @@ This runs the worker hourly, with a 59-minute time limit (3540 seconds) to ensur
 
 ### Worker Status
 
-The Profile page shows whether the worker is running. This is determined by checking if the heartbeat file was updated within the last 30 seconds.
+The Profile page shows whether the worker is running. This is determined by checking if the last heartbeat log entry was created within the last 30 seconds.
+
+### Webhooks
+
+As an alternative to the background worker, you can trigger tasks via HTTP webhooks. Webhooks use Basic Auth with dedicated credentials configured in your `.env`:
+
+```env
+WEBHOOK_USER=webhook
+WEBHOOK_PASSWORD=your-secret-password
+```
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/webhook/refresh-feeds` | POST | Refreshes all subscribed feeds |
+| `/webhook/cleanup-content` | POST | Deletes articles older than 30 days |
+
+Example using curl:
+
+```bash
+curl -X POST -u "webhook:your-secret-password" https://your-reader.com/webhook/refresh-feeds
+```
+
+Example cron setup (refresh feeds every 5 minutes):
+
+```cron
+*/5 * * * * curl -s -X POST -u "webhook:your-secret-password" https://your-reader.com/webhook/refresh-feeds
+```
+
+### Viewing Logs
+
+Worker and webhook activity is logged to a database. Use the `reader:logs` command to view recent entries:
+
+```bash
+# Show last 20 log entries
+php bin/console reader:logs
+
+# Filter by channel
+php bin/console reader:logs --channel=webhook
+php bin/console reader:logs --channel=worker
+
+# Filter by status
+php bin/console reader:logs --status=success
+php bin/console reader:logs --status=error
+
+# Combine filters and set limit
+php bin/console reader:logs -c webhook -s error -l 50
+```
 
 ## Requirements
 

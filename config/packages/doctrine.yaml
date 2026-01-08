@@ -8,6 +8,8 @@ doctrine:
                 url: "%env(resolve:DATABASE_SUBSCRIPTIONS_URL)%"
             content:
                 url: "%env(resolve:DATABASE_CONTENT_URL)%"
+            logs:
+                url: "%env(resolve:DATABASE_LOGS_URL)%"
 
     orm:
         default_entity_manager: users
@@ -42,6 +44,16 @@ doctrine:
                         dir: "%kernel.project_dir%/src/Entity/Content"
                         prefix: 'App\Entity\Content'
                         alias: Content
+            logs:
+                connection: logs
+                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+                mappings:
+                    Logs:
+                        type: attribute
+                        is_bundle: false
+                        dir: "%kernel.project_dir%/src/Entity/Logs"
+                        prefix: 'App\Entity\Logs'
+                        alias: Logs
 
 when@prod:
     doctrine:
@@ -62,6 +74,13 @@ when@prod:
                         type: pool
                         pool: doctrine.system_cache_pool
                 content:
+                    metadata_cache_driver:
+                        type: pool
+                        pool: doctrine.system_cache_pool
+                    query_cache_driver:
+                        type: pool
+                        pool: doctrine.system_cache_pool
+                logs:
                     metadata_cache_driver:
                         type: pool
                         pool: doctrine.system_cache_pool

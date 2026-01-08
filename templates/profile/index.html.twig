@@ -38,12 +38,20 @@
 
     <p>
         {% if workerAlive %}
-            <span class="status-online">●</span> Worker online (last heartbeat {{ workerLastBeat|ago }})
+            <span class="status-online">●</span> Worker online ({{ workerLastBeat|ago }})
+        {% elseif workerLastBeat %}
+            <span class="status-offline">●</span> Worker offline ({{ workerLastBeat|ago }})
         {% else %}
             <span class="status-offline">●</span> Worker offline
-            {% if workerLastBeat %}
-                (last seen {{ workerLastBeat|ago }})
-            {% endif %}
+        {% endif %}
+    </p>
+    <p>
+        {% if webhookAlive %}
+            <span class="status-online">●</span> Webhook online ({{ lastWebhook.createdAt|ago }})
+        {% elseif lastWebhook %}
+            <span class="status-offline">●</span> Webhook offline ({{ lastWebhook.createdAt|ago }})
+        {% else %}
+            <span class="status-offline">●</span> Webhook offline
         {% endif %}
     </p>
 {% endblock %}

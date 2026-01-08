@@ -34,7 +34,7 @@ use Symfony\Component\Process\Process;
 
 #[
     AsCommand(
-        name: "app:capture-screenshots",
+        name: "reader:capture-screenshots",
         description: "Capture screenshots of all app pages for documentation",
     ),
 ]

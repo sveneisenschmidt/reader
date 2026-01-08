@@ -31,9 +31,10 @@ db-migrate:
 	php bin/console doctrine:migrations:migrate --em=users --no-interaction
 	php bin/console doctrine:migrations:migrate --em=subscriptions --no-interaction
 	php bin/console doctrine:migrations:migrate --em=content --no-interaction
+	php bin/console doctrine:migrations:migrate --em=logs --no-interaction
 
 db-reset:
-	rm -f var/data/users.db var/data/subscriptions.db var/data/content.db
+	rm -f var/data/users.db var/data/subscriptions.db var/data/content.db var/data/logs.db
 	$(MAKE) db-migrate
 	php bin/console cache:pool:clear cache.app
 
@@ -45,10 +46,11 @@ screenshots: check-deps
 	-pkill -f chromedriver 2>/dev/null || true
 	-symfony server:stop 2>/dev/null || true
 	@echo "Resetting test database..."
-	rm -f var/data/test_users.db var/data/test_subscriptions.db var/data/test_content.db
+	rm -f var/data/test_users.db var/data/test_subscriptions.db var/data/test_content.db var/data/test_logs.db
 	APP_ENV=test php bin/console doctrine:migrations:migrate --em=users --no-interaction
 	APP_ENV=test php bin/console doctrine:migrations:migrate --em=subscriptions --no-interaction
 	APP_ENV=test php bin/console doctrine:migrations:migrate --em=content --no-interaction
+	APP_ENV=test php bin/console doctrine:migrations:migrate --em=logs --no-interaction
 	@echo "Starting ChromeDriver..."
 	chromedriver --port=9515 & CHROME_PID=$$!; \
 	sleep 2; \
@@ -56,7 +58,7 @@ screenshots: check-deps
 	APP_ENV=test symfony server:start --port=8001 --daemon --no-tls; \
 	sleep 2; \
 	echo "Capturing screenshots..."; \
-	APP_ENV=test php bin/console app:capture-screenshots --base-url=http://127.0.0.1:8001; \
+	APP_ENV=test php bin/console reader:capture-screenshots --base-url=http://127.0.0.1:8001; \
 	echo "Stopping Symfony server..."; \
 	symfony server:stop; \
 	echo "Stopping ChromeDriver..."; \
