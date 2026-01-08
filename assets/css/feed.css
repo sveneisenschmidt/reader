@@ -104,12 +104,14 @@
             border-right: none;
         }
 
-        & > div:first-child:last-child {
+        & > .feed-empty {
+            display: block;
             padding: var(--spacing-md);
             text-align: center;
+            border-bottom: none;
 
-            & p {
-                margin-bottom: var(--spacing-md);
+            &:hover {
+                background: transparent;
             }
         }
 
