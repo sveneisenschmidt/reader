@@ -45,20 +45,20 @@ screenshots: check-deps
 	@echo "Stopping any running services..."
 	-pkill -f chromedriver 2>/dev/null || true
 	-symfony server:stop 2>/dev/null || true
-	@echo "Resetting test database..."
-	rm -f var/data/test_users.db var/data/test_subscriptions.db var/data/test_content.db var/data/test_logs.db
-	APP_ENV=test php bin/console doctrine:migrations:migrate --em=users --no-interaction
-	APP_ENV=test php bin/console doctrine:migrations:migrate --em=subscriptions --no-interaction
-	APP_ENV=test php bin/console doctrine:migrations:migrate --em=content --no-interaction
-	APP_ENV=test php bin/console doctrine:migrations:migrate --em=logs --no-interaction
+	@echo "Resetting dev database..."
+	rm -f var/data/dev_users.db var/data/dev_subscriptions.db var/data/dev_content.db var/data/dev_logs.db
+	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=users --no-interaction
+	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=subscriptions --no-interaction
+	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=content --no-interaction
+	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=logs --no-interaction
 	@echo "Starting ChromeDriver..."
 	chromedriver --port=9515 & CHROME_PID=$$!; \
 	sleep 2; \
 	echo "Starting Symfony server..."; \
-	APP_ENV=test symfony server:start --port=8001 --daemon --no-tls; \
+	APP_ENV=dev symfony server:start --port=8001 --daemon --no-tls; \
 	sleep 2; \
 	echo "Capturing screenshots..."; \
-	APP_ENV=test php bin/console reader:capture-screenshots --base-url=http://127.0.0.1:8001; \
+	APP_ENV=dev php bin/console reader:capture-screenshots --base-url=http://127.0.0.1:8001; \
 	echo "Stopping Symfony server..."; \
 	symfony server:stop; \
 	echo "Stopping ChromeDriver..."; \
