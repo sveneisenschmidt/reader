@@ -41,6 +41,7 @@ class SubscriptionController extends AbstractController
                 "guid" => $subscription->getGuid(),
                 "url" => $subscription->getUrl(),
                 "name" => $subscription->getName(),
+                "folder" => $subscription->getFolder(),
             ];
         }
 
@@ -121,16 +122,22 @@ class SubscriptionController extends AbstractController
                         $guid,
                     );
 
-                    if (
-                        $subscription &&
-                        $item["name"] !== $subscription->getName()
-                    ) {
-                        $this->subscriptionService->updateSubscriptionName(
-                            $user->getId(),
-                            $guid,
-                            $item["name"],
-                        );
-                        $updatedCount++;
+                    if ($subscription) {
+                        $nameChanged =
+                            $item["name"] !== $subscription->getName();
+                        $folderChanged =
+                            ($item["folder"] ?? null) !==
+                            $subscription->getFolder();
+
+                        if ($nameChanged || $folderChanged) {
+                            $this->subscriptionService->updateSubscription(
+                                $user->getId(),
+                                $guid,
+                                $item["name"],
+                                $item["folder"] ?? null,
+                            );
+                            $updatedCount++;
+                        }
                     }
                 }
 

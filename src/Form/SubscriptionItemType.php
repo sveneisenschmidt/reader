@@ -56,6 +56,14 @@ class SubscriptionItemType extends AbstractType
                 ? []
                 : ["placeholder" => "Feed name (auto-detected)"],
         ]);
+
+        if ($isExisting) {
+            $builder->add("folder", TextType::class, [
+                "label" => "Folder",
+                "required" => false,
+                "attr" => ["placeholder" => "Optional folder name"],
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

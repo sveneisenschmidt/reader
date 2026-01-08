@@ -122,6 +122,23 @@ class SubscriptionService
         $this->subscriptionRepository->updateName($userId, $guid, $name);
     }
 
+    public function updateSubscription(
+        int $userId,
+        string $guid,
+        string $name,
+        ?string $folder,
+    ): void {
+        $subscription = $this->subscriptionRepository->findByGuid(
+            $userId,
+            $guid,
+        );
+        if ($subscription) {
+            $subscription->setName($name);
+            $subscription->setFolder($folder);
+            $this->subscriptionRepository->getEntityManager()->flush();
+        }
+    }
+
     public function getSubscriptionByGuid(
         int $userId,
         string $guid,

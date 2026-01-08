@@ -43,8 +43,8 @@ class Subscription
     #[ORM\Column(type: "datetime_immutable", nullable: true)]
     private ?\DateTimeImmutable $lastRefreshedAt = null;
 
-    #[ORM\Column(type: "json", nullable: true)]
-    private ?array $folder = null;
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    private ?string $folder = null;
 
     public function __construct(
         int $userId,
@@ -112,12 +112,12 @@ class Subscription
         return $this;
     }
 
-    public function getFolder(): ?array
+    public function getFolder(): ?string
     {
         return $this->folder;
     }
 
-    public function setFolder(?array $folder): self
+    public function setFolder(?string $folder): self
     {
         $this->folder = $folder;
         return $this;

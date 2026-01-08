@@ -30,7 +30,7 @@
             {% set ungroupedFeeds = [] %}
             {% for feed in feeds %}
                 {% if feed.folder is not null and feed.folder|length > 0 %}
-                    {% set folderKey = feed.folder|join('/') %}
+                    {% set folderKey = feed.folder %}
                     {% if groupedFeeds[folderKey] is not defined %}
                         {% set groupedFeeds = groupedFeeds|merge({(folderKey): {'folder': feed.folder, 'feeds': []}}) %}
                     {% endif %}
@@ -41,12 +41,7 @@
             {% endfor %}
             {% for folderKey, group in groupedFeeds %}
             <li class="folder">
-                <span class="folder-name">
-                    {% for part in group.folder %}
-                        {% if not loop.first %}<span class="folder-separator">/</span>{% endif %}
-                        {{ part }}
-                    {% endfor %}
-                </span>
+                <span class="folder-name">{{ group.folder }}</span>
                 <ul class="folder-feeds">
                     {% for feed in group.feeds %}
                     <li{% if activeFeed == feed.sguid %} class="active"{% endif %}>

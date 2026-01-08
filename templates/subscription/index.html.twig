@@ -36,6 +36,7 @@
             {{ form_widget(subscription.url, {'attr': {'hidden': true}}) }}
             <div class="subscription-input">
                 {{ form_widget(subscription.name) }}
+                {{ form_widget(subscription.folder, {'attr': {'placeholder': 'Folder'}}) }}
                 {{ form_widget(subscription.remove) }}
             </div>
             <p><a href="{{ subscription.url.vars.value }}" target="_blank" rel="noopener">{{ subscription.url.vars.value }}</a></p>
