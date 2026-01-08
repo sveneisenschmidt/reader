@@ -42,7 +42,9 @@ jobs:
             - name: Ensure directories exist on server
               run: |
                   ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-                    "mkdir -p ${{ secrets.DEPLOY_PATH }}/var/data ${{ secrets.DEPLOY_PATH }}/var/share ${{ secrets.DEPLOY_PATH }}/var/log ${{ secrets.DEPLOY_PATH }}/backup"
+                    "mkdir -p ${{ secrets.DEPLOY_PATH }}/var/data ${{ secrets.DEPLOY_PATH }}/var/share ${{ secrets.DEPLOY_PATH }}/var/log ${{ secrets.DEPLOY_PATH }}/var/cache ${{ secrets.DEPLOY_PATH }}/backup && \
+                     chmod -R 775 ${{ secrets.DEPLOY_PATH }}/var && \
+                     chmod -R 777 ${{ secrets.DEPLOY_PATH }}/var/cache ${{ secrets.DEPLOY_PATH }}/var/log"
 
             - name: Backup databases
               run: |
