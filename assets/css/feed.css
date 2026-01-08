@@ -108,14 +108,13 @@
             display: block;
             padding: var(--spacing-md);
             text-align: center;
-            border-bottom: none;
 
             &:hover {
                 background: transparent;
             }
         }
 
-        & > div {
+        & > .feed-item {
             display: flex;
             align-items: center;
             padding: var(--spacing-button) var(--spacing-md);
