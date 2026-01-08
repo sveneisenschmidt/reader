@@ -9,7 +9,9 @@
 
 namespace App\Command;
 
+use App\Entity\Logs\LogEntry;
 use App\Entity\Users\User;
+use App\Repository\Logs\LogEntryRepository;
 use App\Repository\Users\UserRepository;
 use App\Service\FeedFetcher;
 use App\Service\FeedViewService;
@@ -80,6 +82,7 @@ class CaptureScreenshotsCommand extends Command
         private ReadStatusService $readStatusService,
         private SeenStatusService $seenStatusService,
         private FeedFetcher $feedFetcher,
+        private LogEntryRepository $logEntryRepository,
     ) {
         parent::__construct();
     }
@@ -279,6 +282,12 @@ class CaptureScreenshotsCommand extends Command
 
             // Capture profile
             $io->section("Capturing Profile");
+            // Create a webhook log entry so "Webhook: Online" is shown
+            $this->logEntryRepository->log(
+                LogEntry::CHANNEL_WEBHOOK,
+                "refresh-feeds",
+                LogEntry::STATUS_SUCCESS,
+            );
             $this->driver->get($baseUrl . "/profile");
             $this->waitForPage();
             $this->takeScreenshot("profile");
