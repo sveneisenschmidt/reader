@@ -12,6 +12,8 @@ jobs:
     deploy:
         # needs: test
         runs-on: ubuntu-latest
+        env:
+            APP_ENV: prod
 
         steps:
             - name: Checkout code
@@ -28,7 +30,7 @@ jobs:
               run: composer install --no-dev --no-scripts --optimize-autoloader --no-progress
 
             - name: Build assets
-              run: APP_ENV=prod php bin/console asset-map:compile
+              run: php bin/console asset-map:compile
 
             - name: Setup SSH
               run: |
