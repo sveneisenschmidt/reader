@@ -1,4 +1,4 @@
-.PHONY: dev dev-with-worker stop cache-clear install db-migrate db-reset test worker check-deps screenshots
+.PHONY: dev dev-with-worker stop cache-clear install db-migrate db-reset test check-deps screenshots
 
 check-deps:
 	@echo "Checking dependencies..."
@@ -39,9 +39,6 @@ db-reset:
 
 test:
 	php bin/phpunit
-
-worker:
-	php bin/console messenger:consume scheduler_default --time-limit=$${WORKER_TTL:-55}
 
 screenshots: check-deps
 	@echo "Stopping any running services..."

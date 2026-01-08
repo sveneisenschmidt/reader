@@ -107,6 +107,45 @@ Reader is designed for single-user, self-hosted use:
 ![Mobile Feed List](docs/screenshots/feed-mobile-list.png)
 ![Mobile Reading Pane](docs/screenshots/feed-mobile-reading.png)
 
+## Background Worker
+
+Reader uses a background worker to automatically refresh feeds and clean up old content. The worker is built on Symfony Messenger with the Scheduler component.
+
+### Scheduled Tasks
+
+| Task | Description |
+|------|-------------|
+| Heartbeat | Updates `var/worker_heartbeat` file to indicate the worker is alive |
+| Refresh Feeds | Fetches new articles from all subscribed feeds |
+| Cleanup Content | Deletes articles older than 30 days |
+
+Intervals are configured via environment variables (see below).
+
+### Running the Worker
+
+```bash
+php bin/console messenger:consume scheduler_default
+```
+
+For production, use `--time-limit` (in seconds) to ensure periodic restarts:
+
+```cron
+0 * * * * cd /path/to/reader && php bin/console messenger:consume scheduler_default --time-limit=3540 >> var/log/worker.log 2>&1
+```
+
+This runs the worker hourly, with a 59-minute time limit (3540 seconds) to ensure it exits before the next cron run.
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `WORKER_REFRESH_INTERVAL` | 5 minutes | How often feeds are refreshed |
+| `WORKER_CLEANUP_INTERVAL` | 1 day | How often old content is cleaned up |
+
+### Worker Status
+
+The Profile page shows whether the worker is running. This is determined by checking if the heartbeat file was updated within the last 30 seconds.
+
 ## Requirements
 
 - PHP 8.4+
