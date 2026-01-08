@@ -28,7 +28,7 @@ jobs:
               run: composer install --no-dev --no-scripts --optimize-autoloader --no-progress
 
             - name: Build assets
-              run: php bin/console asset-map:compile
+              run: APP_ENV=prod php bin/console asset-map:compile
 
             - name: Setup SSH
               run: |
