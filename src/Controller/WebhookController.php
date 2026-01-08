@@ -26,7 +26,7 @@ class WebhookController extends AbstractController
         private LogEntryRepository $logEntryRepository,
     ) {}
 
-    #[Route("/refresh-feeds", name: "webhook_refresh_feeds", methods: ["POST"])]
+    #[Route("/refresh-feeds", name: "webhook_refresh_feeds", methods: ["GET"])]
     public function refreshFeeds(RefreshFeedsHandler $handler): JsonResponse
     {
         try {
@@ -57,7 +57,7 @@ class WebhookController extends AbstractController
         Route(
             "/cleanup-content",
             name: "webhook_cleanup_content",
-            methods: ["POST"],
+            methods: ["GET"],
         ),
     ]
     public function cleanupContent(CleanupContentHandler $handler): JsonResponse

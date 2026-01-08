@@ -24,7 +24,7 @@ class WebhookControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client->request("POST", "/webhook/refresh-feeds");
+        $client->request("GET", "/webhook/refresh-feeds");
 
         $this->assertResponseStatusCodeSame(401);
     }
@@ -35,7 +35,7 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "POST",
+            "GET",
             "/webhook/refresh-feeds",
             [],
             [],
@@ -54,7 +54,7 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "POST",
+            "GET",
             "/webhook/refresh-feeds",
             [],
             [],
@@ -72,12 +72,12 @@ class WebhookControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function refreshFeedsRequiresPostMethod(): void
+    public function refreshFeedsRequiresGetMethod(): void
     {
         $client = static::createClient();
 
         $client->request(
-            "GET",
+            "POST",
             "/webhook/refresh-feeds",
             [],
             [],
@@ -95,7 +95,7 @@ class WebhookControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client->request("POST", "/webhook/cleanup-content");
+        $client->request("GET", "/webhook/cleanup-content");
 
         $this->assertResponseStatusCodeSame(401);
     }
@@ -106,7 +106,7 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "POST",
+            "GET",
             "/webhook/cleanup-content",
             [],
             [],
@@ -125,7 +125,7 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "POST",
+            "GET",
             "/webhook/cleanup-content",
             [],
             [],
@@ -143,12 +143,12 @@ class WebhookControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function cleanupContentRequiresPostMethod(): void
+    public function cleanupContentRequiresGetMethod(): void
     {
         $client = static::createClient();
 
         $client->request(
-            "GET",
+            "POST",
             "/webhook/cleanup-content",
             [],
             [],
@@ -167,7 +167,7 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "POST",
+            "GET",
             "/webhook/refresh-feeds",
             [],
             [],
@@ -197,7 +197,7 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "POST",
+            "GET",
             "/webhook/cleanup-content",
             [],
             [],
