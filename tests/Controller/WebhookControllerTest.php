@@ -68,7 +68,7 @@ class WebhookControllerTest extends WebTestCase
         $this->assertJson($client->getResponse()->getContent());
 
         $response = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals("ok", $response["status"]);
+        $this->assertEquals("success", $response["status"]);
     }
 
     #[Test]
@@ -139,7 +139,7 @@ class WebhookControllerTest extends WebTestCase
         $this->assertJson($client->getResponse()->getContent());
 
         $response = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals("ok", $response["status"]);
+        $this->assertEquals("success", $response["status"]);
     }
 
     #[Test]

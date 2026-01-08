@@ -37,7 +37,7 @@ class WebhookController extends AbstractController
                 LogEntry::STATUS_SUCCESS,
             );
 
-            return new JsonResponse(["status" => "ok"]);
+            return new JsonResponse(["status" => LogEntry::STATUS_SUCCESS]);
         } catch (\Throwable $e) {
             $this->logEntryRepository->log(
                 LogEntry::CHANNEL_WEBHOOK,
@@ -47,7 +47,10 @@ class WebhookController extends AbstractController
             );
 
             return new JsonResponse(
-                ["status" => "error", "message" => $e->getMessage()],
+                [
+                    "status" => LogEntry::STATUS_ERROR,
+                    "message" => $e->getMessage(),
+                ],
                 500,
             );
         }
@@ -70,7 +73,7 @@ class WebhookController extends AbstractController
                 LogEntry::STATUS_SUCCESS,
             );
 
-            return new JsonResponse(["status" => "ok"]);
+            return new JsonResponse(["status" => LogEntry::STATUS_SUCCESS]);
         } catch (\Throwable $e) {
             $this->logEntryRepository->log(
                 LogEntry::CHANNEL_WEBHOOK,
@@ -80,7 +83,10 @@ class WebhookController extends AbstractController
             );
 
             return new JsonResponse(
-                ["status" => "error", "message" => $e->getMessage()],
+                [
+                    "status" => LogEntry::STATUS_ERROR,
+                    "message" => $e->getMessage(),
+                ],
                 500,
             );
         }
