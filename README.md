@@ -172,24 +172,27 @@ Example cron setup (refresh feeds every 5 minutes):
 */5 * * * * curl -s -X POST -u "webhook:your-secret-password" https://your-reader.com/webhook/refresh-feeds
 ```
 
-### Viewing Logs
+### Viewing Messages
 
-Worker and webhook activity is logged to a database. Use the `reader:logs` command to view recent entries:
+Processed messages are logged to a database. Use the `reader:messages` command to view recent entries:
 
 ```bash
-# Show last 20 log entries
-php bin/console reader:logs
+# Show last 20 messages
+php bin/console reader:messages
 
-# Filter by channel
-php bin/console reader:logs --channel=webhook
-php bin/console reader:logs --channel=worker
+# Filter by message type
+php bin/console reader:messages --type=HeartbeatMessage
+php bin/console reader:messages --type=RefreshFeedsMessage
 
 # Filter by status
-php bin/console reader:logs --status=success
-php bin/console reader:logs --status=error
+php bin/console reader:messages --status=success
+php bin/console reader:messages --status=failed
 
 # Combine filters and set limit
-php bin/console reader:logs -c webhook -s error -l 50
+php bin/console reader:messages -t HeartbeatMessage -s failed -l 50
+
+# Tail mode (continuously display last 10 messages)
+php bin/console reader:messages --tail
 ```
 
 ## Requirements
