@@ -3,29 +3,35 @@
 {% block title %}Preferences | Reader{% endblock %}
 
 {% block preload %}
+    <link rel="preload" href="{{ asset('css/layout.css') }}" as="style">
+    <link rel="preload" href="{{ asset('css/forms.css') }}" as="style">
     <link rel="preload" href="{{ asset('css/preferences.css') }}" as="style">
 {% endblock %}
 
 {% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
     <link rel="stylesheet" href="{{ asset('css/preferences.css') }}">
 {% endblock %}
 
 {% block page_id %}preferences{% endblock %}
 
+{% block page_class %} class="page-container"{% endblock %}
+
 {% block main %}
 
     {% for message in app.flashes('success') %}
-        <p class="success">{{ message }}</p>
+        <p class="flash-success">{{ message }}</p>
     {% endfor %}
 
-    {{ form_start(profileForm, {'attr': {'novalidate': 'novalidate'}}) }}
-    <section>
+    {{ form_start(profileForm, {'attr': {'class': 'form', 'novalidate': 'novalidate'}}) }}
+    <section class="page-section">
         <h2>Profile</h2>
         <div class="form-row">
             {{ form_row(profileForm.username, {'attr': {'autofocus': true}}) }}
             <p>Your email ({{ email }}) can not be changed.</p>
         </div>
-        <div class="profile-links">
+        <div class="form-links">
             <a href="#">Update Password →</a>
             <a href="#">Update Authentication →</a>
         </div>
@@ -35,25 +41,25 @@
     </section>
     {{ form_end(profileForm, {'render_rest': false}) }}
 
-    {{ form_start(preferencesForm, {'attr': {'novalidate': 'novalidate'}}) }}
-    <section>
+    {{ form_start(preferencesForm, {'attr': {'class': 'form', 'novalidate': 'novalidate'}}) }}
+    <section class="page-section">
         <h2>Preferences</h2>
         <div class="form-row">
             {{ form_row(preferencesForm.theme) }}
         </div>
         <div class="form-row">
-            <div class="checkbox-row">
+            <div class="form-checkbox">
                 <input type="checkbox" id="pref-mark-as-read" disabled>
-                <div class="checkbox-content">
+                <div class="form-checkbox__content">
                     <label for="pref-mark-as-read">Mark articles as read when I open them</label>
                     <p>When off, you'll mark articles as read manually.</p>
                 </div>
             </div>
         </div>
         <div class="form-row">
-            <div class="checkbox-row">
+            <div class="form-checkbox">
                 <input type="checkbox" id="pref-next-unread" disabled>
-                <div class="checkbox-content">
+                <div class="form-checkbox__content">
                     <label for="pref-next-unread">After reading, show me the next unread article</label>
                     <p>When off, you'll continue to the next article.</p>
                 </div>
@@ -65,7 +71,7 @@
     </section>
     {{ form_end(preferencesForm, {'render_rest': false}) }}
 
-    <section>
+    <section class="page-section">
         <h2>Status</h2>
         <p>
             {% if workerAlive %}
@@ -87,7 +93,7 @@
         </p>
     </section>
 
-    <section class="section-logout">
+    <section class="page-section section-logout">
         <a href="{{ path('auth_logout') }}" class="button-secondary">Logout</a>
     </section>
 

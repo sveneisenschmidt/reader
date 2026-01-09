@@ -1,0 +1,70 @@
+/* ========================================
+   Layout - Reusable page layout components
+   ======================================== */
+
+/* Page container - centered content layout */
+.page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding: var(--spacing-xl);
+    overflow-y: auto;
+}
+
+/* Constrained width wrapper */
+.page-content {
+    width: 100%;
+
+    @media (min-width: 769px) {
+        max-width: var(--width-form);
+    }
+}
+
+/* Section with heading */
+.page-section {
+    width: 100%;
+    margin-bottom: var(--spacing-xl);
+
+    @media (min-width: 769px) {
+        max-width: var(--width-form);
+    }
+
+    & h2 {
+        font-size: 1rem;
+        margin-bottom: var(--spacing-md);
+        padding-bottom: var(--spacing-sm);
+        border-bottom: 1px solid var(--color-border);
+    }
+}
+
+/* Section with top border (for visual separation) */
+.page-section--bordered {
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--spacing-xl);
+}
+
+/* Flash messages */
+.flash-success {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    background: var(--color-success);
+    color: var(--color-bg);
+
+    @media (min-width: 769px) {
+        max-width: var(--width-form);
+    }
+}
+
+.flash-error {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    background: var(--color-error);
+    color: var(--color-bg);
+
+    @media (min-width: 769px) {
+        max-width: var(--width-form);
+    }
+}

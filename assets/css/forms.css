@@ -1,0 +1,211 @@
+/* ========================================
+   Forms - Reusable form components
+   ======================================== */
+
+/* Form wrapper */
+.form {
+    width: 100%;
+
+    @media (min-width: 769px) {
+        max-width: var(--width-form);
+    }
+}
+
+/* Form row - single field with optional helper text */
+.form-row {
+    margin-bottom: var(--spacing-lg);
+
+    & p {
+        margin-top: var(--spacing-sm);
+    }
+}
+
+/* Form actions - button container */
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+}
+
+/* Form actions aligned right */
+.form-actions--right {
+    justify-content: flex-end;
+}
+
+/* Labels */
+.form label,
+.form-row label {
+    display: block;
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--spacing-xs);
+}
+
+/* Text inputs */
+.form input[type="text"],
+.form input[type="email"],
+.form input[type="password"],
+.form input[type="url"],
+.form input[type="tel"],
+.form input[type="number"],
+.form textarea {
+    width: 100%;
+    padding: var(--spacing-sm);
+    font-family: inherit;
+    font-size: inherit;
+    background: var(--color-bg);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+
+    &:focus {
+        outline: none;
+        border-color: var(--color-link);
+    }
+
+    &:disabled,
+    &[readonly] {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+/* Select */
+.form select {
+    width: 100%;
+    padding: var(--spacing-sm);
+    font-family: inherit;
+    font-size: inherit;
+    background: var(--color-bg);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+
+    &:focus {
+        outline: none;
+        border-color: var(--color-link);
+    }
+}
+
+/* Primary button */
+.form-button,
+.form button[type="submit"] {
+    width: var(--width-button);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--button-primary-bg);
+    color: var(--button-primary-text);
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.5;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--button-primary-hover-bg);
+        color: var(--button-primary-hover-text);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+/* Secondary button */
+.form-button--secondary {
+    background: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+    border: 1px solid var(--button-secondary-border);
+
+    &:hover {
+        background: var(--button-secondary-bg);
+        border-color: var(--button-secondary-hover-border);
+        color: var(--button-secondary-hover-text);
+    }
+}
+
+/* Full width button */
+.form-button--full {
+    width: 100%;
+}
+
+/* Inline input group (input + button side by side) */
+.form-inline {
+    display: flex;
+    gap: var(--spacing-sm);
+
+    & input {
+        flex: 1;
+    }
+
+    & button {
+        flex-shrink: 0;
+    }
+}
+
+/* Checkbox row */
+.form-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+
+    & input[type="checkbox"] {
+        width: auto;
+        margin-top: 0.25rem;
+        cursor: pointer;
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+    }
+
+    & .form-checkbox__content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+
+        & label {
+            cursor: pointer;
+            font-weight: var(--font-weight-medium);
+            margin-bottom: 0;
+        }
+
+        & p {
+            margin: 0;
+            font-weight: normal;
+        }
+    }
+}
+
+/* Error message */
+.form-error {
+    color: var(--color-error);
+    margin-top: var(--spacing-sm);
+}
+
+/* Error list */
+.form-errors {
+    list-style: none;
+    margin-top: var(--spacing-xs);
+
+    & li {
+        color: var(--color-error);
+        font-size: 0.9rem;
+    }
+}
+
+/* Links section (e.g., "Update Password →") */
+.form-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+}
+
+/* Status indicators */
+.status-online {
+    color: var(--color-success);
+}
+
+.status-offline {
+    color: var(--color-error);
+}

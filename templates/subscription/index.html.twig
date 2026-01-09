@@ -3,29 +3,35 @@
 {% block title %}Subscriptions | Reader{% endblock %}
 
 {% block preload %}
+    <link rel="preload" href="{{ asset('css/layout.css') }}" as="style">
+    <link rel="preload" href="{{ asset('css/forms.css') }}" as="style">
     <link rel="preload" href="{{ asset('css/subscriptions.css') }}" as="style">
 {% endblock %}
 
 {% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
     <link rel="stylesheet" href="{{ asset('css/subscriptions.css') }}">
 {% endblock %}
 
 {% block page_id %}subscriptions{% endblock %}
 
+{% block page_class %} class="page-container"{% endblock %}
+
 {% block main %}
 
     {% for message in app.flashes('success') %}
-        <p class="success">{{ message }}</p>
+        <p class="flash-success">{{ message }}</p>
     {% endfor %}
 
-    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    {{ form_start(form, {'attr': {'class': 'form', 'novalidate': 'novalidate'}}) }}
 
-    <section class="new-subscription">
+    <section class="page-section">
         <h2>Add Subscription</h2>
         {{ form_widget(form.new.guid, {'attr': {'hidden': true}}) }}
         {{ form_widget(form.new.name, {'attr': {'hidden': true}}) }}
         <label>Feed URL</label>
-        <div class="subscription-input">
+        <div class="form-inline">
             {{ form_widget(form.new.url, {'attr': {'autofocus': true}}) }}
             {{ form_widget(form.add) }}
         </div>
@@ -34,21 +40,23 @@
     </section>
 
     {% if form.existing|length > 0 %}
-    <section class="existing-subscriptions">
+    <section class="page-section page-section--bordered">
         <h2>Manage Subscriptions</h2>
         {% for subscription in form.existing %}
         <div class="subscription-row">
             {{ form_widget(subscription.guid) }}
             {{ form_widget(subscription.url, {'attr': {'hidden': true}}) }}
-            <div class="subscription-input">
+            <div class="form-inline">
                 {{ form_widget(subscription.name) }}
                 {{ form_widget(subscription.folder, {'attr': {'placeholder': 'Folder'}}) }}
-                {{ form_widget(subscription.remove) }}
+                {{ form_widget(subscription.remove, {'attr': {'class': 'form-button form-button--secondary'}}) }}
             </div>
             <p><a href="{{ subscription.url.vars.value }}" target="_blank" rel="noopener">{{ subscription.url.vars.value }}</a></p>
         </div>
         {% endfor %}
-        {{ form_widget(form.save) }}
+        <div class="form-actions">
+            {{ form_widget(form.save) }}
+        </div>
     </section>
     {% endif %}
 
