@@ -32,6 +32,27 @@ jobs:
             - name: Build assets
               run: php bin/console asset-map:compile
 
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - name: Minify CSS and JS
+              run: |
+                  npm install -g terser cssnano-cli
+
+                  # Minify all JS files in public/assets
+                  find public/assets -name "*.js" -type f | while read file; do
+                    echo "Minifying JS: $file"
+                    terser "$file" --compress --mangle -o "$file"
+                  done
+
+                  # Minify all CSS files in public/assets
+                  find public/assets -name "*.css" -type f | while read file; do
+                    echo "Minifying CSS: $file"
+                    cssnano "$file" "$file"
+                  done
+
             - name: Setup SSH
               run: |
                   mkdir -p ~/.ssh
