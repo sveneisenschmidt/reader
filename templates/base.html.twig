@@ -18,7 +18,7 @@
                 <a href="{{ path_with_filters('feed_index') }}" class="feeds-link">Feeds</a>
             {% endblock %}
             <a href="{{ path_with_filters('subscriptions') }}"{% if app.request.attributes.get('_route') == 'subscriptions' %} class="active"{% endif %}>Subscriptions</a>
-            <a href="{{ path_with_filters('profile') }}"{% if app.request.attributes.get('_route') == 'profile' %} class="active"{% endif %}>Profile</a>
+            <a href="{{ path_with_filters('preferences') }}"{% if app.request.attributes.get('_route') == 'preferences' %} class="active"{% endif %} title="Preferences">⛭</a>
         </nav>
     </header>
 
