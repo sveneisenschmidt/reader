@@ -46,6 +46,17 @@ class StatusIndicator
 
     public function isWebhookAlive(): bool
     {
+        $lastBeat = $this->getWebhookLastBeat();
+
+        if ($lastBeat === null) {
+            return false;
+        }
+
+        return time() - $lastBeat->getTimestamp() <= self::WEBHOOK_MAX_AGE;
+    }
+
+    public function getWebhookLastBeat(): ?\DateTimeImmutable
+    {
         $lastRefresh = $this->processedMessageRepository->getLastSuccessByType(
             RefreshFeedsMessage::class,
         );
@@ -53,24 +64,18 @@ class StatusIndicator
             CleanupContentMessage::class,
         );
 
-        $lastWebhook = null;
         if ($lastRefresh !== null && $lastCleanup !== null) {
-            $lastWebhook =
-                $lastRefresh->getProcessedAt() > $lastCleanup->getProcessedAt()
-                    ? $lastRefresh
-                    : $lastCleanup;
+            return $lastRefresh->getProcessedAt() >
+                $lastCleanup->getProcessedAt()
+                ? $lastRefresh->getProcessedAt()
+                : $lastCleanup->getProcessedAt();
         } elseif ($lastRefresh !== null) {
-            $lastWebhook = $lastRefresh;
+            return $lastRefresh->getProcessedAt();
         } elseif ($lastCleanup !== null) {
-            $lastWebhook = $lastCleanup;
+            return $lastCleanup->getProcessedAt();
         }
 
-        if ($lastWebhook === null) {
-            return false;
-        }
-
-        return $lastWebhook->getProcessedAt()->getTimestamp() >
-            time() - self::WEBHOOK_MAX_AGE;
+        return null;
     }
 
     public function isActive(): bool

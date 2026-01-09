@@ -70,6 +70,7 @@ class PreferencesController extends AbstractController
             "workerAlive" => $this->statusIndicator->isWorkerAlive(),
             "workerLastBeat" => $this->statusIndicator->getWorkerLastBeat(),
             "webhookAlive" => $this->statusIndicator->isWebhookAlive(),
+            "webhookLastBeat" => $this->statusIndicator->getWebhookLastBeat(),
         ]);
     }
 }

@@ -74,7 +74,9 @@
         </p>
         <p>
             {% if webhookAlive %}
-                <span class="status-online">●</span> Webhook online
+                <span class="status-online">●</span> Webhook online ({{ webhookLastBeat|ago }})
+            {% elseif webhookLastBeat %}
+                <span class="status-offline">●</span> Webhook offline ({{ webhookLastBeat|ago }})
             {% else %}
                 <span class="status-offline">●</span> Webhook offline
             {% endif %}
