@@ -29,6 +29,12 @@ class OnboardingController extends AbstractController
     #[Route("/onboarding", name: "onboarding")]
     public function index(Request $request): Response
     {
+        $user = $this->userService->getCurrentUser();
+
+        if ($this->subscriptionService->hasSubscriptions($user->getId())) {
+            return $this->redirectToRoute("feed_index");
+        }
+
         $form = $this->createForm(FirstFeedType::class);
         $form->handleRequest($request);
 

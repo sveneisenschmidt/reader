@@ -35,6 +35,11 @@ class SubscriptionService
         return $this->subscriptionRepository->countByUserId($userId);
     }
 
+    public function hasSubscriptions(int $userId): bool
+    {
+        return $this->countByUser($userId) > 0;
+    }
+
     public function getSubscriptionsWithCounts(
         int $userId,
         array $items = [],

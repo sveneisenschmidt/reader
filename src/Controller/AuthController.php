@@ -36,6 +36,10 @@ class AuthController extends AbstractController
             return $this->redirectToRoute("auth_setup");
         }
 
+        if ($this->getUser()) {
+            return $this->redirectToRoute("feed_index");
+        }
+
         $form = $this->createForm(LoginType::class);
 
         $error = $request->getSession()->get("auth_error");
@@ -50,8 +54,8 @@ class AuthController extends AbstractController
     #[Route("/setup", name: "auth_setup")]
     public function setup(Request $request): Response
     {
-        if ($this->userRepository->hasAnyUser() && $this->appEnv !== "dev") {
-            return $this->redirectToRoute("auth_login");
+        if ($this->userRepository->hasAnyUser()) {
+            return $this->redirectToRoute("feed_index");
         }
 
         $totpSecret = $this->getOrCreateTotpSecret($request);

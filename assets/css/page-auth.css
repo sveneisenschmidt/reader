@@ -53,6 +53,14 @@
             font-weight: var(--font-weight-medium);
         }
 
+        & > div:last-child label {
+            visibility: hidden;
+
+            @media (max-width: 768px) {
+                display: none;
+            }
+        }
+
         & input[type="password"] {
             width: 100%;
             padding: var(--spacing-sm);
