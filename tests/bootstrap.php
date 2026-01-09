@@ -14,7 +14,12 @@ if ($_SERVER["APP_DEBUG"]) {
 
 // Delete test databases to ensure fresh schema on each test run
 $dataDir = dirname(__DIR__) . "/var/data";
-$testDatabases = ["test_users.db", "test_subscriptions.db", "test_content.db"];
+$testDatabases = [
+    "test_users.db",
+    "test_subscriptions.db",
+    "test_content.db",
+    "test_messages.db",
+];
 
 foreach ($testDatabases as $db) {
     $dbPath = $dataDir . "/" . $db;
@@ -39,4 +44,7 @@ passthru(
 );
 passthru(
     "php bin/console doctrine:schema:create --env=test --em=content --quiet 2>/dev/null",
+);
+passthru(
+    "php bin/console doctrine:schema:create --env=test --em=messages --quiet 2>/dev/null",
 );

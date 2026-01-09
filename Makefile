@@ -1,4 +1,4 @@
-.PHONY: dev dev-with-worker stop cache-clear install db-migrate db-reset test check-deps screenshots
+.PHONY: dev dev-with-worker stop cache-clear install db-migrate db-reset test coverage check-deps screenshots
 
 check-deps:
 	@echo "Checking dependencies..."
@@ -31,10 +31,10 @@ db-migrate:
 	php bin/console doctrine:migrations:migrate --em=users --no-interaction
 	php bin/console doctrine:migrations:migrate --em=subscriptions --no-interaction
 	php bin/console doctrine:migrations:migrate --em=content --no-interaction
-	php bin/console doctrine:migrations:migrate --em=logs --no-interaction
+	php bin/console doctrine:migrations:migrate --em=messages --no-interaction
 
 db-reset:
-	rm -f var/data/users.db var/data/subscriptions.db var/data/content.db var/data/logs.db
+	rm -f var/data/*_users.db var/data/*_subscriptions.db var/data/*_content.db var/data/*_messages.db
 	$(MAKE) db-migrate
 	php bin/console cache:pool:clear cache.app
 
@@ -46,11 +46,11 @@ screenshots: check-deps
 	-pkill -f chromedriver 2>/dev/null || true
 	-symfony server:stop 2>/dev/null || true
 	@echo "Resetting dev database..."
-	rm -f var/data/dev_users.db var/data/dev_subscriptions.db var/data/dev_content.db var/data/dev_logs.db
+	rm -f var/data/dev_users.db var/data/dev_subscriptions.db var/data/dev_content.db var/data/dev_messages.db
 	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=users --no-interaction
 	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=subscriptions --no-interaction
 	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=content --no-interaction
-	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=logs --no-interaction
+	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=messages --no-interaction
 	@echo "Starting ChromeDriver..."
 	chromedriver --port=9515 & CHROME_PID=$$!; \
 	sleep 2; \

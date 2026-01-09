@@ -12,6 +12,7 @@ namespace App\MessageHandler;
 use App\Message\RefreshFeedsMessage;
 use App\Repository\Subscriptions\SubscriptionRepository;
 use App\Service\FeedFetcher;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -21,6 +22,7 @@ class RefreshFeedsHandler
     public function __construct(
         private FeedFetcher $feedFetcher,
         private SubscriptionRepository $subscriptionRepository,
+        private EntityManagerInterface $subscriptionsEntityManager,
         private LoggerInterface $logger,
     ) {}
 
@@ -37,7 +39,7 @@ class RefreshFeedsHandler
         foreach ($subscriptions as $subscription) {
             $subscription->updateLastRefreshedAt();
         }
-        $this->subscriptionRepository->getEntityManager()->flush();
+        $this->subscriptionsEntityManager->flush();
 
         $this->logger->info("Feeds refreshed successfully");
     }

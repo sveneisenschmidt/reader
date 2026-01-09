@@ -9,8 +9,10 @@
 
 namespace App\Tests\Controller;
 
-use App\Entity\Logs\LogEntry;
-use App\Repository\Logs\LogEntryRepository;
+use App\Entity\Messages\ProcessedMessage;
+use App\Message\CleanupContentMessage;
+use App\Message\RefreshFeedsMessage;
+use App\Repository\Messages\ProcessedMessageRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -179,16 +181,18 @@ class WebhookControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
 
-        $logEntryRepository = static::getContainer()->get(
-            LogEntryRepository::class,
+        $repository = static::getContainer()->get(
+            ProcessedMessageRepository::class,
         );
-        $lastEntry = $logEntryRepository->getLastByChannelAndAction(
-            LogEntry::CHANNEL_WEBHOOK,
-            "refresh-feeds",
+        $lastEntry = $repository->getLastSuccessByType(
+            RefreshFeedsMessage::class,
         );
 
         $this->assertNotNull($lastEntry);
-        $this->assertEquals(LogEntry::STATUS_SUCCESS, $lastEntry->getStatus());
+        $this->assertEquals(
+            ProcessedMessage::STATUS_SUCCESS,
+            $lastEntry->getStatus(),
+        );
     }
 
     #[Test]
@@ -209,15 +213,17 @@ class WebhookControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
 
-        $logEntryRepository = static::getContainer()->get(
-            LogEntryRepository::class,
+        $repository = static::getContainer()->get(
+            ProcessedMessageRepository::class,
         );
-        $lastEntry = $logEntryRepository->getLastByChannelAndAction(
-            LogEntry::CHANNEL_WEBHOOK,
-            "cleanup-content",
+        $lastEntry = $repository->getLastSuccessByType(
+            CleanupContentMessage::class,
         );
 
         $this->assertNotNull($lastEntry);
-        $this->assertEquals(LogEntry::STATUS_SUCCESS, $lastEntry->getStatus());
+        $this->assertEquals(
+            ProcessedMessage::STATUS_SUCCESS,
+            $lastEntry->getStatus(),
+        );
     }
 }

@@ -9,46 +9,27 @@
 
 namespace App\Controller;
 
-use App\Entity\Logs\LogEntry;
 use App\Message\CleanupContentMessage;
 use App\Message\RefreshFeedsMessage;
-use App\MessageHandler\CleanupContentHandler;
-use App\MessageHandler\RefreshFeedsHandler;
-use App\Repository\Logs\LogEntryRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route("/webhook")]
 class WebhookController extends AbstractController
 {
-    public function __construct(
-        private LogEntryRepository $logEntryRepository,
-    ) {}
-
     #[Route("/refresh-feeds", name: "webhook_refresh_feeds", methods: ["GET"])]
-    public function refreshFeeds(RefreshFeedsHandler $handler): JsonResponse
+    public function refreshFeeds(MessageBusInterface $bus): JsonResponse
     {
         try {
-            $handler(new RefreshFeedsMessage());
-            $this->logEntryRepository->log(
-                LogEntry::CHANNEL_WEBHOOK,
-                "refresh-feeds",
-                LogEntry::STATUS_SUCCESS,
-            );
+            $bus->dispatch(new RefreshFeedsMessage());
 
-            return new JsonResponse(["status" => LogEntry::STATUS_SUCCESS]);
+            return new JsonResponse(["status" => "success"]);
         } catch (\Throwable $e) {
-            $this->logEntryRepository->log(
-                LogEntry::CHANNEL_WEBHOOK,
-                "refresh-feeds",
-                LogEntry::STATUS_ERROR,
-                $e->getMessage(),
-            );
-
             return new JsonResponse(
                 [
-                    "status" => LogEntry::STATUS_ERROR,
+                    "status" => "error",
                     "message" => $e->getMessage(),
                 ],
                 500,
@@ -63,28 +44,16 @@ class WebhookController extends AbstractController
             methods: ["GET"],
         ),
     ]
-    public function cleanupContent(CleanupContentHandler $handler): JsonResponse
+    public function cleanupContent(MessageBusInterface $bus): JsonResponse
     {
         try {
-            $handler(new CleanupContentMessage(olderThanDays: 30));
-            $this->logEntryRepository->log(
-                LogEntry::CHANNEL_WEBHOOK,
-                "cleanup-content",
-                LogEntry::STATUS_SUCCESS,
-            );
+            $bus->dispatch(new CleanupContentMessage(olderThanDays: 30));
 
-            return new JsonResponse(["status" => LogEntry::STATUS_SUCCESS]);
+            return new JsonResponse(["status" => "success"]);
         } catch (\Throwable $e) {
-            $this->logEntryRepository->log(
-                LogEntry::CHANNEL_WEBHOOK,
-                "cleanup-content",
-                LogEntry::STATUS_ERROR,
-                $e->getMessage(),
-            );
-
             return new JsonResponse(
                 [
-                    "status" => LogEntry::STATUS_ERROR,
+                    "status" => "error",
                     "message" => $e->getMessage(),
                 ],
                 500,

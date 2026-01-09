@@ -101,7 +101,7 @@ Reader is designed for single-user, self-hosted use:
 ![Subscriptions](docs/screenshots/subscriptions.png)
 
 ### Profile
-![Profile](docs/screenshots/profile.png)
+![Preferences](docs/screenshots/preferences.png)
 
 ### Mobile
 ![Mobile Feed List](docs/screenshots/feed-mobile-list.png)

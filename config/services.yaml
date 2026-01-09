@@ -16,6 +16,10 @@ services:
             $contentEntityManager: "@doctrine.orm.content_entity_manager"
             $feedContentSanitizer: "@html_sanitizer.sanitizer.app.feed_content_sanitizer"
 
+    App\MessageHandler\RefreshFeedsHandler:
+        arguments:
+            $subscriptionsEntityManager: "@doctrine.orm.subscriptions_entity_manager"
+
     # Repository configurations with correct entity managers
     App\Repository\Users\UserRepository:
         arguments:
@@ -41,7 +45,7 @@ services:
         tags:
             - { name: doctrine.repository_service }
 
-    App\Repository\Logs\LogEntryRepository:
+    App\Repository\Messages\ProcessedMessageRepository:
         arguments:
             $registry: "@doctrine"
         tags:

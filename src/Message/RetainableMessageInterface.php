@@ -9,10 +9,7 @@
 
 namespace App\Message;
 
-class HeartbeatMessage implements RetainableMessageInterface
+interface RetainableMessageInterface
 {
-    public static function getRetentionLimit(): int
-    {
-        return 10;
-    }
+    public static function getRetentionLimit(): int;
 }

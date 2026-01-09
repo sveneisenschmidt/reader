@@ -9,9 +9,10 @@
 
 namespace App\Command;
 
-use App\Entity\Logs\LogEntry;
+use App\Entity\Messages\ProcessedMessage;
 use App\Entity\Users\User;
-use App\Repository\Logs\LogEntryRepository;
+use App\Message\RefreshFeedsMessage;
+use App\Repository\Messages\ProcessedMessageRepository;
 use App\Repository\Users\UserRepository;
 use App\Service\FeedFetcher;
 use App\Service\FeedViewService;
@@ -85,7 +86,7 @@ class CaptureScreenshotsCommand extends Command
         private ReadStatusService $readStatusService,
         private SeenStatusService $seenStatusService,
         private FeedFetcher $feedFetcher,
-        private LogEntryRepository $logEntryRepository,
+        private ProcessedMessageRepository $processedMessageRepository,
     ) {
         parent::__construct();
     }
@@ -283,18 +284,19 @@ class CaptureScreenshotsCommand extends Command
             $this->takeScreenshot("subscriptions");
             $io->success("subscriptions.png");
 
-            // Capture profile
-            $io->section("Capturing Profile");
-            // Create a webhook log entry so "Webhook: Online" is shown
-            $this->logEntryRepository->log(
-                LogEntry::CHANNEL_WEBHOOK,
-                "refresh-feeds",
-                LogEntry::STATUS_SUCCESS,
+            // Capture preferences
+            $io->section("Capturing Preferences");
+            // Create a processed message so "Webhook: Online" is shown
+            $this->processedMessageRepository->save(
+                new ProcessedMessage(
+                    RefreshFeedsMessage::class,
+                    ProcessedMessage::STATUS_SUCCESS,
+                ),
             );
-            $this->driver->get($baseUrl . "/profile");
+            $this->driver->get($baseUrl . "/preferences");
             $this->waitForPage();
-            $this->takeScreenshot("profile");
-            $io->success("profile.png");
+            $this->takeScreenshot("preferences");
+            $io->success("preferences.png");
 
             // Capture mobile screenshots (iPhone 15 portrait)
             // Restart WebDriver with mobile viewport size
@@ -439,15 +441,10 @@ class CaptureScreenshotsCommand extends Command
         $totp = TOTP::createFromSecret($totpSecret);
         $otpCode = $totp->now();
 
-        // Fill OTP inputs
-        $otpInputs = $this->driver->findElements(
-            WebDriverBy::cssSelector(".otp-inputs input"),
-        );
-        foreach (str_split($otpCode) as $i => $digit) {
-            if (isset($otpInputs[$i])) {
-                $otpInputs[$i]->sendKeys($digit);
-            }
-        }
+        // Fill OTP input (single field)
+        $this->driver
+            ->findElement(WebDriverBy::cssSelector(".otp-input"))
+            ->sendKeys($otpCode);
 
         // Submit form
         $this->driver

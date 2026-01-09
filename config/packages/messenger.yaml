@@ -1,5 +1,10 @@
 framework:
     messenger:
+        buses:
+            messenger.bus.default:
+                middleware:
+                    - App\Messenger\Middleware\ProcessedMessageMiddleware
+
         transports:
             sync: "sync://"
 

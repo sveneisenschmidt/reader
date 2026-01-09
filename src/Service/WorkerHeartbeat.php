@@ -9,32 +9,22 @@
 
 namespace App\Service;
 
-use App\Entity\Logs\LogEntry;
-use App\Repository\Logs\LogEntryRepository;
+use App\Message\HeartbeatMessage;
+use App\Repository\Messages\ProcessedMessageRepository;
 
 class WorkerHeartbeat
 {
     public function __construct(
-        private LogEntryRepository $logEntryRepository,
+        private ProcessedMessageRepository $processedMessageRepository,
     ) {}
-
-    public function beat(): void
-    {
-        $this->logEntryRepository->log(
-            LogEntry::CHANNEL_WORKER,
-            "heartbeat",
-            LogEntry::STATUS_SUCCESS,
-        );
-    }
 
     public function getLastBeat(): ?\DateTimeImmutable
     {
-        $entry = $this->logEntryRepository->getLastByChannelAndAction(
-            LogEntry::CHANNEL_WORKER,
-            "heartbeat",
+        $entry = $this->processedMessageRepository->getLastSuccessByType(
+            HeartbeatMessage::class,
         );
 
-        return $entry?->getCreatedAt();
+        return $entry?->getProcessedAt();
     }
 
     public function isAlive(int $maxAge = 30): bool

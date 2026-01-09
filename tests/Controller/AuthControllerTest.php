@@ -69,8 +69,7 @@ class AuthControllerTest extends WebTestCase
         $this->assertSelectorExists('input[name="setup[email]"]');
         $this->assertSelectorExists('input[name="setup[password][first]"]');
         $this->assertSelectorExists('input[name="setup[password][second]"]');
-        $this->assertSelectorExists(".otp-inputs");
-        $this->assertSelectorExists('input[name="setup[otp]"]');
+        $this->assertSelectorExists('input[name="setup[otp]"].otp-input');
     }
 
     #[Test]
@@ -95,16 +94,15 @@ class AuthControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
 
-        // Check OTP input structure
-        $otpInputs = $crawler->filter('.otp-inputs input[type="text"]');
+        // Check OTP input - single field with otp-input class
+        $otpInput = $crawler->filter('input[name="setup[otp]"].otp-input');
         $this->assertEquals(
-            6,
-            $otpInputs->count(),
-            "Should have 6 OTP input fields",
+            1,
+            $otpInput->count(),
+            "Should have OTP input field",
         );
-
-        // Check hidden field for OTP value
-        $this->assertSelectorExists('input[name="setup[otp]"][data-otp-value]');
+        $this->assertEquals("6", $otpInput->attr("maxlength"));
+        $this->assertEquals("numeric", $otpInput->attr("inputmode"));
     }
 
     #[Test]
@@ -148,8 +146,7 @@ class AuthControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('input[name="login[email]"]');
         $this->assertSelectorExists('input[name="login[password]"]');
-        $this->assertSelectorExists(".otp-inputs");
-        $this->assertSelectorExists('input[name="login[otp]"]');
+        $this->assertSelectorExists('input[name="login[otp]"].otp-input');
     }
 
     #[Test]
@@ -214,16 +211,15 @@ class AuthControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
 
-        // Check OTP input structure
-        $otpInputs = $crawler->filter('.otp-inputs input[type="text"]');
+        // Check OTP input - single field with otp-input class
+        $otpInput = $crawler->filter('input[name="login[otp]"].otp-input');
         $this->assertEquals(
-            6,
-            $otpInputs->count(),
-            "Should have 6 OTP input fields",
+            1,
+            $otpInput->count(),
+            "Should have OTP input field",
         );
-
-        // Check hidden field for OTP value
-        $this->assertSelectorExists('input[name="login[otp]"][data-otp-value]');
+        $this->assertEquals("6", $otpInput->attr("maxlength"));
+        $this->assertEquals("numeric", $otpInput->attr("inputmode"));
     }
 
     #[Test]

@@ -11,7 +11,6 @@ namespace App\MessageHandler;
 
 use App\Message\CleanupContentMessage;
 use App\Repository\Content\FeedItemRepository;
-use App\Repository\Logs\LogEntryRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -20,7 +19,6 @@ class CleanupContentHandler
 {
     public function __construct(
         private FeedItemRepository $feedItemRepository,
-        private LogEntryRepository $logEntryRepository,
         private LoggerInterface $logger,
     ) {}
 
@@ -36,11 +34,9 @@ class CleanupContentHandler
         $deletedContent = $this->feedItemRepository->deleteOlderThan(
             $cutoffDate,
         );
-        $deletedLogs = $this->logEntryRepository->deleteOlderThan($cutoffDate);
 
         $this->logger->info("Cleanup completed", [
             "deleted_content" => $deletedContent,
-            "deleted_logs" => $deletedLogs,
         ]);
     }
 }

@@ -9,8 +9,11 @@
 
 namespace App\Service;
 
-use App\Entity\Logs\LogEntry;
-use App\Repository\Logs\LogEntryRepository;
+use App\Entity\Messages\ProcessedMessage;
+use App\Message\CleanupContentMessage;
+use App\Message\HeartbeatMessage;
+use App\Message\RefreshFeedsMessage;
+use App\Repository\Messages\ProcessedMessageRepository;
 
 class StatusIndicator
 {
@@ -18,7 +21,7 @@ class StatusIndicator
     private const WEBHOOK_MAX_AGE = 300;
 
     public function __construct(
-        private LogEntryRepository $logEntryRepository,
+        private ProcessedMessageRepository $processedMessageRepository,
     ) {}
 
     public function isWorkerAlive(): bool
@@ -34,29 +37,40 @@ class StatusIndicator
 
     public function getWorkerLastBeat(): ?\DateTimeImmutable
     {
-        $entry = $this->logEntryRepository->getLastByChannelAndAction(
-            LogEntry::CHANNEL_WORKER,
-            'heartbeat',
+        $entry = $this->processedMessageRepository->getLastSuccessByType(
+            HeartbeatMessage::class,
         );
 
-        return $entry?->getCreatedAt();
+        return $entry?->getProcessedAt();
     }
 
     public function isWebhookAlive(): bool
     {
-        $lastWebhook = $this->logEntryRepository->getLastByChannel(
-            LogEntry::CHANNEL_WEBHOOK,
+        $lastRefresh = $this->processedMessageRepository->getLastSuccessByType(
+            RefreshFeedsMessage::class,
         );
+        $lastCleanup = $this->processedMessageRepository->getLastSuccessByType(
+            CleanupContentMessage::class,
+        );
+
+        $lastWebhook = null;
+        if ($lastRefresh !== null && $lastCleanup !== null) {
+            $lastWebhook =
+                $lastRefresh->getProcessedAt() > $lastCleanup->getProcessedAt()
+                    ? $lastRefresh
+                    : $lastCleanup;
+        } elseif ($lastRefresh !== null) {
+            $lastWebhook = $lastRefresh;
+        } elseif ($lastCleanup !== null) {
+            $lastWebhook = $lastCleanup;
+        }
 
         if ($lastWebhook === null) {
             return false;
         }
 
-        if ($lastWebhook->getStatus() !== LogEntry::STATUS_SUCCESS) {
-            return false;
-        }
-
-        return $lastWebhook->getCreatedAt()->getTimestamp() > time() - self::WEBHOOK_MAX_AGE;
+        return $lastWebhook->getProcessedAt()->getTimestamp() >
+            time() - self::WEBHOOK_MAX_AGE;
     }
 
     public function isActive(): bool

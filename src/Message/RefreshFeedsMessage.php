@@ -9,6 +9,10 @@
 
 namespace App\Message;
 
-class RefreshFeedsMessage
+class RefreshFeedsMessage implements RetainableMessageInterface
 {
+    public static function getRetentionLimit(): int
+    {
+        return 50;
+    }
 }

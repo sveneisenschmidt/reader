@@ -9,8 +9,11 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\Logs\LogEntry;
-use App\Repository\Logs\LogEntryRepository;
+use App\Entity\Messages\ProcessedMessage;
+use App\Message\CleanupContentMessage;
+use App\Message\HeartbeatMessage;
+use App\Message\RefreshFeedsMessage;
+use App\Repository\Messages\ProcessedMessageRepository;
 use App\Service\StatusIndicator;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -20,13 +23,16 @@ class StatusIndicatorTest extends TestCase
     #[Test]
     public function isWorkerAliveReturnsTrueWhenHeartbeatIsRecent(): void
     {
-        $logEntry = $this->createMock(LogEntry::class);
-        $logEntry->method('getCreatedAt')->willReturn(new \DateTimeImmutable());
+        $processedMessage = $this->createMock(ProcessedMessage::class);
+        $processedMessage
+            ->method("getProcessedAt")
+            ->willReturn(new \DateTimeImmutable());
 
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannelAndAction')
-            ->with(LogEntry::CHANNEL_WORKER, 'heartbeat')
-            ->willReturn($logEntry);
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository
+            ->method("getLastSuccessByType")
+            ->with(HeartbeatMessage::class)
+            ->willReturn($processedMessage);
 
         $service = new StatusIndicator($repository);
 
@@ -36,13 +42,16 @@ class StatusIndicatorTest extends TestCase
     #[Test]
     public function isWorkerAliveReturnsFalseWhenHeartbeatIsTooOld(): void
     {
-        $logEntry = $this->createMock(LogEntry::class);
-        $logEntry->method('getCreatedAt')->willReturn(new \DateTimeImmutable('-30 seconds'));
+        $processedMessage = $this->createMock(ProcessedMessage::class);
+        $processedMessage
+            ->method("getProcessedAt")
+            ->willReturn(new \DateTimeImmutable("-30 seconds"));
 
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannelAndAction')
-            ->with(LogEntry::CHANNEL_WORKER, 'heartbeat')
-            ->willReturn($logEntry);
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository
+            ->method("getLastSuccessByType")
+            ->with(HeartbeatMessage::class)
+            ->willReturn($processedMessage);
 
         $service = new StatusIndicator($repository);
 
@@ -52,9 +61,10 @@ class StatusIndicatorTest extends TestCase
     #[Test]
     public function isWorkerAliveReturnsFalseWhenNoHeartbeatExists(): void
     {
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannelAndAction')
-            ->with(LogEntry::CHANNEL_WORKER, 'heartbeat')
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository
+            ->method("getLastSuccessByType")
+            ->with(HeartbeatMessage::class)
             ->willReturn(null);
 
         $service = new StatusIndicator($repository);
@@ -66,13 +76,14 @@ class StatusIndicatorTest extends TestCase
     public function getWorkerLastBeatReturnsTimestampWhenExists(): void
     {
         $timestamp = new \DateTimeImmutable();
-        $logEntry = $this->createMock(LogEntry::class);
-        $logEntry->method('getCreatedAt')->willReturn($timestamp);
+        $processedMessage = $this->createMock(ProcessedMessage::class);
+        $processedMessage->method("getProcessedAt")->willReturn($timestamp);
 
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannelAndAction')
-            ->with(LogEntry::CHANNEL_WORKER, 'heartbeat')
-            ->willReturn($logEntry);
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository
+            ->method("getLastSuccessByType")
+            ->with(HeartbeatMessage::class)
+            ->willReturn($processedMessage);
 
         $service = new StatusIndicator($repository);
 
@@ -82,9 +93,10 @@ class StatusIndicatorTest extends TestCase
     #[Test]
     public function getWorkerLastBeatReturnsNullWhenNoEntry(): void
     {
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannelAndAction')
-            ->with(LogEntry::CHANNEL_WORKER, 'heartbeat')
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository
+            ->method("getLastSuccessByType")
+            ->with(HeartbeatMessage::class)
             ->willReturn(null);
 
         $service = new StatusIndicator($repository);
@@ -93,16 +105,24 @@ class StatusIndicatorTest extends TestCase
     }
 
     #[Test]
-    public function isWebhookAliveReturnsTrueWhenRecentAndSuccessful(): void
+    public function isWebhookAliveReturnsTrueWhenRecentRefreshFeedsExists(): void
     {
-        $logEntry = $this->createMock(LogEntry::class);
-        $logEntry->method('getCreatedAt')->willReturn(new \DateTimeImmutable());
-        $logEntry->method('getStatus')->willReturn(LogEntry::STATUS_SUCCESS);
+        $processedMessage = $this->createMock(ProcessedMessage::class);
+        $processedMessage
+            ->method("getProcessedAt")
+            ->willReturn(new \DateTimeImmutable());
 
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannel')
-            ->with(LogEntry::CHANNEL_WEBHOOK)
-            ->willReturn($logEntry);
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository
+            ->method("getLastSuccessByType")
+            ->willReturnCallback(function (string $type) use (
+                $processedMessage,
+            ) {
+                if ($type === RefreshFeedsMessage::class) {
+                    return $processedMessage;
+                }
+                return null;
+            });
 
         $service = new StatusIndicator($repository);
 
@@ -112,31 +132,22 @@ class StatusIndicatorTest extends TestCase
     #[Test]
     public function isWebhookAliveReturnsFalseWhenTooOld(): void
     {
-        $logEntry = $this->createMock(LogEntry::class);
-        $logEntry->method('getCreatedAt')->willReturn(new \DateTimeImmutable('-10 minutes'));
-        $logEntry->method('getStatus')->willReturn(LogEntry::STATUS_SUCCESS);
+        $processedMessage = $this->createMock(ProcessedMessage::class);
+        $processedMessage
+            ->method("getProcessedAt")
+            ->willReturn(new \DateTimeImmutable("-10 minutes"));
 
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannel')
-            ->with(LogEntry::CHANNEL_WEBHOOK)
-            ->willReturn($logEntry);
-
-        $service = new StatusIndicator($repository);
-
-        $this->assertFalse($service->isWebhookAlive());
-    }
-
-    #[Test]
-    public function isWebhookAliveReturnsFalseWhenStatusIsError(): void
-    {
-        $logEntry = $this->createMock(LogEntry::class);
-        $logEntry->method('getCreatedAt')->willReturn(new \DateTimeImmutable());
-        $logEntry->method('getStatus')->willReturn(LogEntry::STATUS_ERROR);
-
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannel')
-            ->with(LogEntry::CHANNEL_WEBHOOK)
-            ->willReturn($logEntry);
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository
+            ->method("getLastSuccessByType")
+            ->willReturnCallback(function (string $type) use (
+                $processedMessage,
+            ) {
+                if ($type === RefreshFeedsMessage::class) {
+                    return $processedMessage;
+                }
+                return null;
+            });
 
         $service = new StatusIndicator($repository);
 
@@ -146,10 +157,8 @@ class StatusIndicatorTest extends TestCase
     #[Test]
     public function isWebhookAliveReturnsFalseWhenNoWebhookExists(): void
     {
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannel')
-            ->with(LogEntry::CHANNEL_WEBHOOK)
-            ->willReturn(null);
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository->method("getLastSuccessByType")->willReturn(null);
 
         $service = new StatusIndicator($repository);
 
@@ -159,16 +168,20 @@ class StatusIndicatorTest extends TestCase
     #[Test]
     public function isActiveReturnsTrueWhenWorkerIsAlive(): void
     {
-        $workerEntry = $this->createMock(LogEntry::class);
-        $workerEntry->method('getCreatedAt')->willReturn(new \DateTimeImmutable());
+        $workerMessage = $this->createMock(ProcessedMessage::class);
+        $workerMessage
+            ->method("getProcessedAt")
+            ->willReturn(new \DateTimeImmutable());
 
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannelAndAction')
-            ->with(LogEntry::CHANNEL_WORKER, 'heartbeat')
-            ->willReturn($workerEntry);
-        $repository->method('getLastByChannel')
-            ->with(LogEntry::CHANNEL_WEBHOOK)
-            ->willReturn(null);
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository
+            ->method("getLastSuccessByType")
+            ->willReturnCallback(function (string $type) use ($workerMessage) {
+                if ($type === HeartbeatMessage::class) {
+                    return $workerMessage;
+                }
+                return null;
+            });
 
         $service = new StatusIndicator($repository);
 
@@ -178,40 +191,20 @@ class StatusIndicatorTest extends TestCase
     #[Test]
     public function isActiveReturnsTrueWhenWebhookIsAlive(): void
     {
-        $webhookEntry = $this->createMock(LogEntry::class);
-        $webhookEntry->method('getCreatedAt')->willReturn(new \DateTimeImmutable());
-        $webhookEntry->method('getStatus')->willReturn(LogEntry::STATUS_SUCCESS);
+        $webhookMessage = $this->createMock(ProcessedMessage::class);
+        $webhookMessage
+            ->method("getProcessedAt")
+            ->willReturn(new \DateTimeImmutable());
 
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannelAndAction')
-            ->with(LogEntry::CHANNEL_WORKER, 'heartbeat')
-            ->willReturn(null);
-        $repository->method('getLastByChannel')
-            ->with(LogEntry::CHANNEL_WEBHOOK)
-            ->willReturn($webhookEntry);
-
-        $service = new StatusIndicator($repository);
-
-        $this->assertTrue($service->isActive());
-    }
-
-    #[Test]
-    public function isActiveReturnsTrueWhenBothAreAlive(): void
-    {
-        $workerEntry = $this->createMock(LogEntry::class);
-        $workerEntry->method('getCreatedAt')->willReturn(new \DateTimeImmutable());
-
-        $webhookEntry = $this->createMock(LogEntry::class);
-        $webhookEntry->method('getCreatedAt')->willReturn(new \DateTimeImmutable());
-        $webhookEntry->method('getStatus')->willReturn(LogEntry::STATUS_SUCCESS);
-
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannelAndAction')
-            ->with(LogEntry::CHANNEL_WORKER, 'heartbeat')
-            ->willReturn($workerEntry);
-        $repository->method('getLastByChannel')
-            ->with(LogEntry::CHANNEL_WEBHOOK)
-            ->willReturn($webhookEntry);
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository
+            ->method("getLastSuccessByType")
+            ->willReturnCallback(function (string $type) use ($webhookMessage) {
+                if ($type === RefreshFeedsMessage::class) {
+                    return $webhookMessage;
+                }
+                return null;
+            });
 
         $service = new StatusIndicator($repository);
 
@@ -221,13 +214,8 @@ class StatusIndicatorTest extends TestCase
     #[Test]
     public function isActiveReturnsFalseWhenNeitherIsAlive(): void
     {
-        $repository = $this->createMock(LogEntryRepository::class);
-        $repository->method('getLastByChannelAndAction')
-            ->with(LogEntry::CHANNEL_WORKER, 'heartbeat')
-            ->willReturn(null);
-        $repository->method('getLastByChannel')
-            ->with(LogEntry::CHANNEL_WEBHOOK)
-            ->willReturn(null);
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository->method("getLastSuccessByType")->willReturn(null);
 
         $service = new StatusIndicator($repository);
 
