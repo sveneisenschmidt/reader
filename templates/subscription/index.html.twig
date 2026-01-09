@@ -17,6 +17,7 @@
     {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
     <section class="new-subscription">
+        <h2>Add Subscription</h2>
         {{ form_widget(form.new.guid, {'attr': {'hidden': true}}) }}
         {{ form_widget(form.new.name, {'attr': {'hidden': true}}) }}
         <label>Feed URL</label>
@@ -30,6 +31,7 @@
 
     {% if form.existing|length > 0 %}
     <section class="existing-subscriptions">
+        <h2>Manage Subscriptions</h2>
         {% for subscription in form.existing %}
         <div class="subscription-row">
             {{ form_widget(subscription.guid) }}
