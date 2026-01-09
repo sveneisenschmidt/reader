@@ -2,66 +2,50 @@
 
 ## Principles
 
-1. **Thin controllers** - Controllers only handle HTTP, delegate logic to services
-2. **Single responsibility** - Each service handles one domain concern
-3. **Dependency injection** - Use constructor injection, avoid service locator
-4. **Type safety** - Use strict types, typed properties, return types
+- Thin controllers, logic in services
+- Constructor injection
+- Strict types everywhere
 
 ## Directory Structure
 
 ```
 src/
-├── Command/           # CLI commands
-├── Controller/        # HTTP controllers
-├── Entity/            # Doctrine entities
-│   ├── Content/       # Feed content entities
-│   ├── Subscriptions/ # Subscription entities
-│   └── Users/         # User entities
-├── EventListener/     # Doctrine/Symfony event listeners
-├── EventSubscriber/   # Symfony event subscribers
-├── Form/              # Symfony form types
-├── Message/           # Messenger messages
-├── MessageHandler/    # Messenger handlers
-├── Repository/        # Doctrine repositories
+├── Command/
+├── Controller/
+├── Entity/
 │   ├── Content/
+│   ├── Messages/
 │   ├── Subscriptions/
 │   └── Users/
-├── Scheduler/         # Symfony scheduler providers
-├── Security/          # Authenticators, voters
-├── Service/           # Business logic services
-└── Twig/              # Twig extensions
+├── Enum/
+├── EventListener/
+├── EventSubscriber/
+├── Form/
+├── Message/
+├── MessageHandler/
+├── Messenger/
+│   └── Middleware/
+├── Repository/
+│   ├── Content/
+│   ├── Messages/
+│   ├── Subscriptions/
+│   └── Users/
+├── Scheduler/
+├── Security/
+├── Service/
+└── Twig/
 ```
 
-## Naming Conventions
+## Naming
 
-### Controllers
-- Suffix: `Controller`
-- One controller per feature area
-- Examples: `FeedController`, `AuthController`, `SubscriptionController`
+- Controllers: `*Controller`
+- Services: `*Service` or domain-specific (`FeedFetcher`)
+- Repositories: `*Repository`
+- Forms: `*Type`
+- Entities: singular, no suffix
 
-### Services
-- Suffix: `Service`
-- Domain-specific naming
-- Examples: `FeedFetcher`, `TotpService`, `UserRegistrationService`
+## Controllers
 
-### Repositories
-- Suffix: `Repository`
-- Match entity name
-- Examples: `UserRepository`, `FeedItemRepository`
-
-### Form Types
-- Suffix: `Type`
-- Match form purpose
-- Examples: `LoginType`, `SetupType`, `SubscriptionsType`
-
-### Entities
-- No suffix
-- Singular names
-- Examples: `User`, `Subscription`, `FeedItem`
-
-## Controller Guidelines
-
-### Good
 ```php
 #[Route('/login', name: 'auth_login')]
 public function login(Request $request): Response
@@ -74,126 +58,54 @@ public function login(Request $request): Response
 }
 ```
 
-### Bad
+No database queries or business logic in controllers.
+
+## Services
+
 ```php
-#[Route('/login', name: 'auth_login')]
-public function login(Request $request): Response
-{
-    // Don't do validation in controller
-    $email = $request->request->get('email');
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        // ...
-    }
-    
-    // Don't do database queries in controller
-    $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
-}
-```
-
-## Service Guidelines
-
-### Single Responsibility
-```php
-// Good: One service, one purpose
-class TotpService {
-    public function generateSecret(): string { }
-    public function verify(string $secret, string $code): bool { }
-    public function getQrCodeDataUri(string $secret): string { }
-}
-
-// Bad: Mixed responsibilities
-class AuthService {
-    public function login() { }
-    public function register() { }
-    public function sendEmail() { }
-    public function generatePdf() { }
-}
-```
-
-### Constructor Injection
-```php
-// Good
 public function __construct(
     private UserRepository $userRepository,
     private UserPasswordHasherInterface $passwordHasher,
 ) {}
-
-// Bad
-public function register() {
-    $repo = $this->container->get(UserRepository::class);
-}
 ```
 
-## Form Type Guidelines
+One service, one responsibility.
 
-### Use Symfony Validator Constraints
+## Entities
+
+Multiple entity managers by domain:
+- `users` - User, ReadStatus, SeenStatus
+- `subscriptions` - Subscription
+- `content` - FeedItem
+- `messages` - ProcessedMessage
+
+## Forms
+
+Use validator constraints, enable CSRF:
+
 ```php
 ->add('email', EmailType::class, [
     'constraints' => [
-        new Assert\NotBlank(message: 'Email is required.'),
-        new Assert\Email(message: 'Please enter a valid email.'),
+        new Assert\NotBlank(),
+        new Assert\Email(),
     ],
 ])
 ```
 
-### Configure CSRF Protection
-```php
-public function configureOptions(OptionsResolver $resolver): void
-{
-    $resolver->setDefaults([
-        'csrf_protection' => true,
-        'csrf_token_id' => 'unique_form_id',
-    ]);
-}
+## Security
+
+- CSRF on all forms
+- Password hashing via `UserPasswordHasherInterface`
+- TOTP for 2FA
+- Route protection via `access_control` in security.yaml
+
+## Tests
+
+```
+tests/
+├── Controller/   # WebTestCase
+├── Integration/
+└── Unit/
 ```
 
-## Entity Guidelines
-
-### Use Typed Properties
-```php
-#[ORM\Entity]
-class User implements UserInterface
-{
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
-    #[ORM\Column(length: 180, unique: true)]
-    private string $email;
-}
-```
-
-### Implement Interfaces
-- `UserInterface` for users
-- `PasswordAuthenticatedUserInterface` for password auth
-
-## Repository Guidelines
-
-### Custom Query Methods
-```php
-public function findByEmail(string $email): ?User
-{
-    return $this->findOneBy(['email' => $email]);
-}
-
-public function hasAnyUser(): bool
-{
-    return $this->count([]) > 0;
-}
-```
-
-## Security Guidelines
-
-1. **Rate limiting** - Use `symfony/rate-limiter` for login attempts
-2. **CSRF protection** - Enable on all state-changing forms
-3. **Password hashing** - Use `UserPasswordHasherInterface`
-4. **Input validation** - Use Symfony Validator, never trust user input
-5. **TOTP secrets** - Generate locally, never use external services
-
-## Testing
-
-- Unit tests in `tests/Unit/`
-- Integration tests in `tests/Integration/`
-- Controller tests in `tests/Controller/`
-- Use `WebTestCase` for HTTP tests
+Run: `php bin/phpunit`
