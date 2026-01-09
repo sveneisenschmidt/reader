@@ -1,16 +1,9 @@
 /* ========================================
-   #login, #setup - Auth pages
+   Auth pages - Login, Setup specific styles
    ======================================== */
 
 #login,
 #setup {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    padding: var(--spacing-xl);
-    overflow-y: auto;
-
     & > p {
         width: 100%;
         margin-bottom: var(--spacing-lg);
@@ -27,67 +20,23 @@
         color: #fff;
     }
 
-    & form {
+    & button[type="submit"] {
         width: 100%;
+        margin-top: var(--spacing-md);
 
         @media (min-width: 769px) {
-            max-width: var(--width-form);
-        }
-
-        & > label {
-            display: block;
-            margin-bottom: var(--spacing-xs);
-            font-weight: var(--font-weight-medium);
-        }
-
-        & > input[type="text"],
-        & > input[type="password"],
-        & > input[type="email"] {
-            width: 100%;
-            padding: var(--spacing-sm);
-            margin-bottom: var(--spacing-md);
-            font-family: inherit;
-            font-size: inherit;
-            background: var(--color-bg);
-            color: var(--color-text);
-            border: 1px solid var(--color-border);
-
-            &:focus {
-                outline: none;
-                border-color: var(--color-link);
-            }
-        }
-
-        & > button {
-            width: 100%;
-            margin-top: var(--spacing-xl);
-            padding: var(--spacing-button);
-            background: var(--color-text);
-            color: var(--color-bg);
-            border: none;
-            font-family: inherit;
-            font-size: inherit;
-            font-weight: var(--font-weight-medium);
-            cursor: pointer;
-
-            &:hover {
-                opacity: 0.9;
-            }
-
-            @media (min-width: 769px) {
-                width: auto;
-                padding: var(--spacing-button) var(--spacing-xl);
-            }
+            width: auto;
+            padding: var(--spacing-button) var(--spacing-xl);
         }
     }
 }
 
+/* Setup-specific: Password fields side by side */
 #setup {
-    & form > div:first-of-type {
+    & .form-row--passwords {
         display: flex;
         flex-direction: column;
         gap: 0;
-        margin-bottom: var(--spacing-md);
 
         @media (min-width: 769px) {
             flex-direction: row;
@@ -121,11 +70,11 @@
         }
     }
 
-    & form > p {
+    & .form-hint {
         margin-bottom: var(--spacing-md);
     }
 
-    & figure {
+    & .qr-code {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-md);
@@ -142,6 +91,10 @@
             background: #fff;
             padding: var(--spacing-sm);
             margin: 0 auto;
+
+            @media (min-width: 769px) {
+                margin: 0;
+            }
         }
 
         & figcaption {

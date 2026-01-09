@@ -3,11 +3,11 @@
 {% block title %}{% if activeItem %}{{ activeItem.title }} | {{ activeItem.source }} | Reader{% elseif activeFeed %}{% for feed in feeds %}{% if feed.sguid == activeFeed %}{{ feed.name }} | Reader{% endif %}{% endfor %}{% else %}Reader{% endif %}{% endblock %}
 
 {% block preload %}
-    <link rel="preload" href="{{ asset('css/feed.css') }}" as="style">
+    <link rel="preload" href="{{ asset('css/page-feed.css') }}" as="style">
 {% endblock %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="{{ asset('css/feed.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/page-feed.css') }}">
 {% endblock %}
 
 {% block body_class %}{% if app.request.attributes.get('_route') in ['feed_item', 'feed_item_filtered'] %} class="has-active-item"{% endif %}{% endblock %}

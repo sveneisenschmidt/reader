@@ -471,11 +471,11 @@ class CaptureScreenshotsCommand extends Command
         $urlInput->clear();
         $urlInput->sendKeys($feedUrl);
 
-        // Click subscribe button
+        // Click subscribe button (first section's submit button)
         $this->driver
             ->findElement(
                 WebDriverBy::cssSelector(
-                    '.new-subscription button[type="submit"]',
+                    '.page-section:first-of-type button[type="submit"]',
                 ),
             )
             ->click();
@@ -509,7 +509,7 @@ class CaptureScreenshotsCommand extends Command
             // Save immediately
             $saveButton = $this->driver->findElements(
                 WebDriverBy::cssSelector(
-                    '.existing-subscriptions > button[type="submit"]',
+                    '.page-section--bordered .form-actions button[type="submit"]',
                 ),
             );
             if (count($saveButton) > 0) {

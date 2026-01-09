@@ -109,8 +109,8 @@
     }
 }
 
-/* Secondary button */
-.form-button--secondary {
+/* Secondary button in forms */
+.form button.btn-secondary {
     background: var(--button-secondary-bg);
     color: var(--button-secondary-text);
     border: 1px solid var(--button-secondary-border);

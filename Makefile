@@ -11,7 +11,7 @@ check-deps:
 install:
 	composer install
 
-dev: cache-clear
+dev: stop cache-clear
 	symfony serve --no-tls --allow-all-ip
 
 dev-with-worker:

@@ -6,17 +6,21 @@
     <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
     <title>{% block title %}Reader{% endblock %}</title>
-    <link rel="preload" href="{{ asset('css/base.css') }}" as="style">
-    <link rel="preload" href="{{ asset('css/auth.css') }}" as="style">
-    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <link rel="preload" href="{{ asset('css/shared-base.css') }}" as="style">
+    <link rel="preload" href="{{ asset('css/shared-layout.css') }}" as="style">
+    <link rel="preload" href="{{ asset('css/shared-forms.css') }}" as="style">
+    <link rel="preload" href="{{ asset('css/page-auth.css') }}" as="style">
+    <link rel="stylesheet" href="{{ asset('css/shared-base.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/shared-layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/shared-forms.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/page-auth.css') }}">
 </head>
 <body>
     <header>
         <h1>{% block header %}{% endblock %}</h1>
     </header>
 
-    <main id="{% block page_id %}{% endblock %}">
+    <main id="{% block page_id %}{% endblock %}" class="page-container">
         <p>{% block intro %}{% endblock %}</p>
 
         {% if error is defined and error %}

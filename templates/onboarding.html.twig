@@ -3,15 +3,15 @@
 {% block title %}Onboarding | Reader{% endblock %}
 
 {% block preload %}
-    <link rel="preload" href="{{ asset('css/layout.css') }}" as="style">
-    <link rel="preload" href="{{ asset('css/forms.css') }}" as="style">
-    <link rel="preload" href="{{ asset('css/onboarding.css') }}" as="style">
+    <link rel="preload" href="{{ asset('css/shared-layout.css') }}" as="style">
+    <link rel="preload" href="{{ asset('css/shared-forms.css') }}" as="style">
+    <link rel="preload" href="{{ asset('css/page-onboarding.css') }}" as="style">
 {% endblock %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/onboarding.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/shared-layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/shared-forms.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/page-onboarding.css') }}">
 {% endblock %}
 
 {% block page_id %}onboarding{% endblock %}

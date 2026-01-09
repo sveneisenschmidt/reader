@@ -3,15 +3,15 @@
 {% block title %}Subscriptions | Reader{% endblock %}
 
 {% block preload %}
-    <link rel="preload" href="{{ asset('css/layout.css') }}" as="style">
-    <link rel="preload" href="{{ asset('css/forms.css') }}" as="style">
-    <link rel="preload" href="{{ asset('css/subscriptions.css') }}" as="style">
+    <link rel="preload" href="{{ asset('css/shared-layout.css') }}" as="style">
+    <link rel="preload" href="{{ asset('css/shared-forms.css') }}" as="style">
+    <link rel="preload" href="{{ asset('css/page-subscriptions.css') }}" as="style">
 {% endblock %}
 
 {% block stylesheets %}
-    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/subscriptions.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/shared-layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/shared-forms.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/page-subscriptions.css') }}">
 {% endblock %}
 
 {% block page_id %}subscriptions{% endblock %}
@@ -49,7 +49,7 @@
             <div class="form-inline">
                 {{ form_widget(subscription.name) }}
                 {{ form_widget(subscription.folder, {'attr': {'placeholder': 'Folder'}}) }}
-                {{ form_widget(subscription.remove, {'attr': {'class': 'form-button form-button--secondary'}}) }}
+                {{ form_widget(subscription.remove, {'attr': {'class': 'btn-secondary'}}) }}
             </div>
             <p><a href="{{ subscription.url.vars.value }}" target="_blank" rel="noopener">{{ subscription.url.vars.value }}</a></p>
         </div>
