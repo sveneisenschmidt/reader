@@ -2,6 +2,10 @@
 
 {% block title %}Subscriptions | Reader{% endblock %}
 
+{% block preload %}
+    <link rel="preload" href="{{ asset('css/subscriptions.css') }}" as="style">
+{% endblock %}
+
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('css/subscriptions.css') }}">
 {% endblock %}
