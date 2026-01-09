@@ -115,7 +115,7 @@ Reader uses a background worker to automatically refresh feeds and clean up old 
 
 | Task | Description |
 |------|-------------|
-| Heartbeat | Updates `var/worker_heartbeat` file to indicate the worker is alive |
+| Heartbeat | Logs a heartbeat entry to the database to indicate the worker is alive |
 | Refresh Feeds | Fetches new articles from all subscribed feeds |
 | Cleanup Content | Deletes articles older than 30 days |
 

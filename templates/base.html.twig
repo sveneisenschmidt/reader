@@ -27,6 +27,7 @@
     </main>
 
     <footer>
+        <span class="status-indicator {{ status_is_active() ? 'status-active' : 'status-inactive' }}"></span>
         {% set refreshTime = last_refresh() %}
         {% if refreshTime %}
         <form action="{{ path_with_filters('feed_refresh') }}" method="post" class="inline" data-refresh-form>
@@ -40,6 +41,5 @@
 
     {% block scripts %}{% endblock %}
     <script src="{{ asset('js/refresh.js') }}"></script>
-    <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
 </body>
 </html>
