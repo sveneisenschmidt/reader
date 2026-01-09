@@ -84,7 +84,7 @@ class SubscriptionControllerTest extends WebTestCase
         $crawler = $client->request("GET", "/subscriptions");
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists(".existing-subscriptions");
+        $this->assertSelectorExists(".page-section--bordered");
         $this->assertSelectorExists('button[name="subscriptions[save]"]');
     }
 
@@ -120,8 +120,8 @@ class SubscriptionControllerTest extends WebTestCase
         $this->assertResponseRedirects("/subscriptions");
         $client->followRedirect();
 
-        $this->assertSelectorExists("p.success");
-        $this->assertSelectorTextContains("p.success", "Feed added");
+        $this->assertSelectorExists("p.flash-success");
+        $this->assertSelectorTextContains("p.flash-success", "Feed added");
     }
 
     #[Test]
@@ -159,8 +159,8 @@ class SubscriptionControllerTest extends WebTestCase
         $this->assertResponseRedirects("/subscriptions");
         $client->followRedirect();
 
-        $this->assertSelectorExists("p.success");
-        $this->assertSelectorTextContains("p.success", "Feed removed");
+        $this->assertSelectorExists("p.flash-success");
+        $this->assertSelectorTextContains("p.flash-success", "Feed removed");
     }
 
     #[Test]
@@ -181,8 +181,8 @@ class SubscriptionControllerTest extends WebTestCase
         $this->assertResponseRedirects("/subscriptions");
         $client->followRedirect();
 
-        $this->assertSelectorExists("p.success");
-        $this->assertSelectorTextContains("p.success", "Feed updated");
+        $this->assertSelectorExists("p.flash-success");
+        $this->assertSelectorTextContains("p.flash-success", "Feed updated");
     }
 
     #[Test]
