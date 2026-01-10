@@ -10,6 +10,8 @@
 
 namespace App\Tests\Security;
 
+use App\Entity\Users\User;
+use App\Repository\Users\UserRepository;
 use App\Security\AppAuthenticator;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -17,6 +19,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 
@@ -116,10 +119,10 @@ class AppAuthenticatorTest extends KernelTestCase
         // Ensure a user exists
         $container = static::getContainer();
         $userRepository = $container->get(
-            \App\Repository\Users\UserRepository::class,
+            UserRepository::class,
         );
         if (!$userRepository->hasAnyUser()) {
-            $user = new \App\Entity\Users\User('test@example.com');
+            $user = new User('test@example.com');
             $user->setEmail('test@example.com');
             $user->setPassword('hashedpassword');
             $userRepository->save($user);
@@ -149,5 +152,34 @@ class AppAuthenticatorTest extends KernelTestCase
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertStringContainsString('/setup', $response->getTargetUrl());
+    }
+
+    #[Test]
+    public function authenticateThrowsExceptionWhenUserHasNoTotpSecret(): void
+    {
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $passwordHasher = $container->get(UserPasswordHasherInterface::class);
+
+        // Create user without TOTP secret
+        $user = new User('no-totp@example.com');
+        $user->setEmail('no-totp@example.com');
+        $user->setPassword(
+            $passwordHasher->hashPassword($user, 'testpassword'),
+        );
+        $user->setTotpSecret(null);
+        $userRepository->save($user);
+
+        $request = Request::create('/login', 'POST');
+        $request->request->set('login', [
+            'email' => 'no-totp@example.com',
+            'password' => 'testpassword',
+            'otp' => '123456',
+        ]);
+
+        $this->expectException(CustomUserMessageAuthenticationException::class);
+        $this->expectExceptionMessage('Invalid credentials.');
+
+        $this->authenticator->authenticate($request);
     }
 }
