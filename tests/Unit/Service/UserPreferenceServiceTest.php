@@ -68,7 +68,7 @@ class UserPreferenceServiceTest extends TestCase
     }
 
     #[Test]
-    public function isAutoMarkAsReadEnabledReturnsTrueWhenEnabled(): void
+    public function isPullToRefreshEnabledReturnsTrueByDefault(): void
     {
         $userId = 1;
 
@@ -76,16 +76,16 @@ class UserPreferenceServiceTest extends TestCase
         $repository
             ->expects($this->once())
             ->method('isEnabled')
-            ->with($userId, UserPreference::AUTO_MARK_AS_READ)
+            ->with($userId, UserPreference::PULL_TO_REFRESH, true)
             ->willReturn(true);
 
         $service = new UserPreferenceService($repository);
 
-        $this->assertTrue($service->isAutoMarkAsReadEnabled($userId));
+        $this->assertTrue($service->isPullToRefreshEnabled($userId));
     }
 
     #[Test]
-    public function isAutoMarkAsReadEnabledReturnsFalseWhenDisabled(): void
+    public function isPullToRefreshEnabledReturnsFalseWhenDisabled(): void
     {
         $userId = 1;
 
@@ -93,16 +93,16 @@ class UserPreferenceServiceTest extends TestCase
         $repository
             ->expects($this->once())
             ->method('isEnabled')
-            ->with($userId, UserPreference::AUTO_MARK_AS_READ)
+            ->with($userId, UserPreference::PULL_TO_REFRESH, true)
             ->willReturn(false);
 
         $service = new UserPreferenceService($repository);
 
-        $this->assertFalse($service->isAutoMarkAsReadEnabled($userId));
+        $this->assertFalse($service->isPullToRefreshEnabled($userId));
     }
 
     #[Test]
-    public function setAutoMarkAsReadCallsRepository(): void
+    public function setPullToRefreshCallsRepository(): void
     {
         $userId = 1;
 
@@ -110,10 +110,10 @@ class UserPreferenceServiceTest extends TestCase
         $repository
             ->expects($this->once())
             ->method('setEnabled')
-            ->with($userId, UserPreference::AUTO_MARK_AS_READ, true);
+            ->with($userId, UserPreference::PULL_TO_REFRESH, false);
 
         $service = new UserPreferenceService($repository);
-        $service->setAutoMarkAsRead($userId, true);
+        $service->setPullToRefresh($userId, false);
     }
 
     #[Test]
@@ -128,14 +128,14 @@ class UserPreferenceServiceTest extends TestCase
             ->with($userId)
             ->willReturn([
                 UserPreference::SHOW_NEXT_UNREAD => true,
-                UserPreference::AUTO_MARK_AS_READ => true,
+                UserPreference::PULL_TO_REFRESH => false,
             ]);
 
         $service = new UserPreferenceService($repository);
         $result = $service->getAllPreferences($userId);
 
         $this->assertTrue($result[UserPreference::SHOW_NEXT_UNREAD]);
-        $this->assertTrue($result[UserPreference::AUTO_MARK_AS_READ]);
+        $this->assertFalse($result[UserPreference::PULL_TO_REFRESH]);
     }
 
     #[Test]
@@ -154,6 +154,6 @@ class UserPreferenceServiceTest extends TestCase
         $result = $service->getAllPreferences($userId);
 
         $this->assertFalse($result[UserPreference::SHOW_NEXT_UNREAD]);
-        $this->assertFalse($result[UserPreference::AUTO_MARK_AS_READ]);
+        $this->assertTrue($result[UserPreference::PULL_TO_REFRESH]);
     }
 }

@@ -35,16 +35,11 @@ class PreferencesType extends AbstractType
                 ],
             ])
             ->add('showNextUnread', CheckboxType::class, [
-                'label' => 'When marking as read, skip already read articles',
+                'label' => 'Skip already read articles when marking as read',
                 'required' => false,
-            ])
-            ->add('autoMarkAsRead', CheckboxType::class, [
-                'label' => 'Automatically mark articles as read after 5 seconds',
-                'required' => false,
-                'disabled' => true,
             ])
             ->add('pullToRefresh', CheckboxType::class, [
-                'label' => 'Enable pull to refresh',
+                'label' => 'Pull down to refresh feeds',
                 'required' => false,
             ])
             ->add('save', SubmitType::class, [

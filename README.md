@@ -76,7 +76,7 @@ Click the gear icon in the header to access your preferences:
 
 - **Theme** - Choose between Auto, Light, or Dark mode
 - **Skip read articles** - When marking an article as read, automatically jump to the next unread article instead of the next in the list
-- **Auto mark as read** - Automatically mark articles as read after viewing them for 5 seconds
+- **Pull to refresh** - Enable or disable the pull-down gesture to refresh feeds
 - **Worker Status** - Shows if background refresh is running
 
 ## Security

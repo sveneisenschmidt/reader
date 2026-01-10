@@ -52,16 +52,16 @@
                 {{ form_widget(preferencesForm.showNextUnread) }}
                 <div class="form-checkbox__content">
                     {{ form_label(preferencesForm.showNextUnread) }}
-                    <p>When off, you'll continue to the next article in the list.</p>
+                    <p>When disabled, you'll continue to the next article in the list.</p>
                 </div>
             </div>
         </div>
         <div class="form-row">
             <div class="form-checkbox">
-                {{ form_widget(preferencesForm.autoMarkAsRead) }}
+                {{ form_widget(preferencesForm.pullToRefresh) }}
                 <div class="form-checkbox__content">
-                    {{ form_label(preferencesForm.autoMarkAsRead) }}
-                    <p>Articles will be marked as read automatically when viewing them.</p>
+                    {{ form_label(preferencesForm.pullToRefresh) }}
+                    <p>When disabled, you can only refresh using the button in the footer.</p>
                 </div>
             </div>
         </div>

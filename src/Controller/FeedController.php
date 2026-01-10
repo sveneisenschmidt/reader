@@ -360,9 +360,6 @@ class FeedController extends AbstractController
             );
         }
 
-        $autoMarkAsRead = $this->userPreferenceService->isAutoMarkAsReadEnabled(
-            $user->getId(),
-        );
         $pullToRefresh = $this->userPreferenceService->isPullToRefreshEnabled(
             $user->getId(),
         );
@@ -375,7 +372,6 @@ class FeedController extends AbstractController
             'activeFeed' => $sguid,
             'unread' => $unread,
             'limit' => $limit,
-            'autoMarkAsRead' => $autoMarkAsRead,
             'pullToRefresh' => $pullToRefresh,
         ]);
     }

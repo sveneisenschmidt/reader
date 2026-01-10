@@ -49,7 +49,6 @@ class PreferencesController extends AbstractController
         $preferencesForm = $this->createForm(PreferencesType::class, [
             'theme' => $user->getTheme(),
             'showNextUnread' => $userPrefs[UserPreference::SHOW_NEXT_UNREAD],
-            'autoMarkAsRead' => $userPrefs[UserPreference::AUTO_MARK_AS_READ],
             'pullToRefresh' => $userPrefs[UserPreference::PULL_TO_REFRESH],
         ]);
 
@@ -73,10 +72,6 @@ class PreferencesController extends AbstractController
             $this->userPreferenceService->setShowNextUnread(
                 $userId,
                 $data['showNextUnread'],
-            );
-            $this->userPreferenceService->setAutoMarkAsRead(
-                $userId,
-                $data['autoMarkAsRead'],
             );
             $this->userPreferenceService->setPullToRefresh(
                 $userId,
