@@ -139,5 +139,7 @@
     <script src="{{ asset('js/auto-mark-read.js') }}"></script>
     {% endif %}
     {% endif %}
+    {% if pullToRefresh %}
     <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
+    {% endif %}
 {% endblock %}

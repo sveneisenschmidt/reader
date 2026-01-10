@@ -42,6 +42,10 @@ class PreferencesType extends AbstractType
                 'label' => 'Automatically mark articles as read after 5 seconds',
                 'required' => false,
             ])
+            ->add('pullToRefresh', CheckboxType::class, [
+                'label' => 'Enable pull to refresh',
+                'required' => false,
+            ])
             ->add('save', SubmitType::class, [
                 'label' => 'Save',
             ]);

@@ -363,6 +363,9 @@ class FeedController extends AbstractController
         $autoMarkAsRead = $this->userPreferenceService->isAutoMarkAsReadEnabled(
             $user->getId(),
         );
+        $pullToRefresh = $this->userPreferenceService->isPullToRefreshEnabled(
+            $user->getId(),
+        );
 
         return $this->render('feed/index.html.twig', [
             'feeds' => $viewData['feeds'],
@@ -373,6 +376,7 @@ class FeedController extends AbstractController
             'unread' => $unread,
             'limit' => $limit,
             'autoMarkAsRead' => $autoMarkAsRead,
+            'pullToRefresh' => $pullToRefresh,
         ]);
     }
 

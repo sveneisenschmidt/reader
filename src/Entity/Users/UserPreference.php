@@ -25,6 +25,7 @@ class UserPreference
 {
     public const SHOW_NEXT_UNREAD = 'show_next_unread';
     public const AUTO_MARK_AS_READ = 'auto_mark_as_read';
+    public const PULL_TO_REFRESH = 'pull_to_refresh';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

@@ -24,25 +24,35 @@ class UserPreferenceRepository extends ServiceEntityRepository
         parent::__construct($registry, UserPreference::class);
     }
 
-    public function isEnabled(int $userId, string $preferenceKey): bool
-    {
+    public function isEnabled(
+        int $userId,
+        string $preferenceKey,
+        bool $default = false,
+    ): bool {
         $preference = $this->findOneBy([
             'userId' => $userId,
             'preferenceKey' => $preferenceKey,
         ]);
 
-        return $preference?->isEnabled() ?? false;
+        return $preference?->isEnabled() ?? $default;
     }
 
-    public function setEnabled(int $userId, string $preferenceKey, bool $isEnabled): void
-    {
+    public function setEnabled(
+        int $userId,
+        string $preferenceKey,
+        bool $isEnabled,
+    ): void {
         $preference = $this->findOneBy([
             'userId' => $userId,
             'preferenceKey' => $preferenceKey,
         ]);
 
         if ($preference === null) {
-            $preference = new UserPreference($userId, $preferenceKey, $isEnabled);
+            $preference = new UserPreference(
+                $userId,
+                $preferenceKey,
+                $isEnabled,
+            );
             $this->getEntityManager()->persist($preference);
         } else {
             $preference->setEnabled($isEnabled);

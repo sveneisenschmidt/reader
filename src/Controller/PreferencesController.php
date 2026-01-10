@@ -50,6 +50,7 @@ class PreferencesController extends AbstractController
             'theme' => $user->getTheme(),
             'showNextUnread' => $userPrefs[UserPreference::SHOW_NEXT_UNREAD],
             'autoMarkAsRead' => $userPrefs[UserPreference::AUTO_MARK_AS_READ],
+            'pullToRefresh' => $userPrefs[UserPreference::PULL_TO_REFRESH],
         ]);
 
         $profileForm->handleRequest($request);
@@ -76,6 +77,10 @@ class PreferencesController extends AbstractController
             $this->userPreferenceService->setAutoMarkAsRead(
                 $userId,
                 $data['autoMarkAsRead'],
+            );
+            $this->userPreferenceService->setPullToRefresh(
+                $userId,
+                $data['pullToRefresh'],
             );
 
             $this->addFlash('success', 'Preferences saved.');

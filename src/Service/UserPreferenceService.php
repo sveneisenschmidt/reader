@@ -55,6 +55,24 @@ class UserPreferenceService
         );
     }
 
+    public function isPullToRefreshEnabled(int $userId): bool
+    {
+        return $this->userPreferenceRepository->isEnabled(
+            $userId,
+            UserPreference::PULL_TO_REFRESH,
+            true,
+        );
+    }
+
+    public function setPullToRefresh(int $userId, bool $enabled): void
+    {
+        $this->userPreferenceRepository->setEnabled(
+            $userId,
+            UserPreference::PULL_TO_REFRESH,
+            $enabled,
+        );
+    }
+
     #[Returns('array<string, bool>')]
     public function getAllPreferences(int $userId): array
     {
@@ -63,6 +81,7 @@ class UserPreferenceService
         return [
             UserPreference::SHOW_NEXT_UNREAD => $prefs[UserPreference::SHOW_NEXT_UNREAD] ?? false,
             UserPreference::AUTO_MARK_AS_READ => $prefs[UserPreference::AUTO_MARK_AS_READ] ?? false,
+            UserPreference::PULL_TO_REFRESH => $prefs[UserPreference::PULL_TO_REFRESH] ?? true,
         ];
     }
 }
