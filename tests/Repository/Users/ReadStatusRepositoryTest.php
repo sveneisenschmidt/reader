@@ -21,7 +21,9 @@ class ReadStatusRepositoryTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->repository = static::getContainer()->get(ReadStatusRepository::class);
+        $this->repository = static::getContainer()->get(
+            ReadStatusRepository::class,
+        );
     }
 
     #[Test]
@@ -38,5 +40,30 @@ class ReadStatusRepositoryTest extends KernelTestCase
         $result = $this->repository->deleteByFeedItemGuids(1, []);
 
         $this->assertEquals(0, $result);
+    }
+
+    #[Test]
+    public function markAsReadIsIdempotent(): void
+    {
+        $userId = 1;
+        $feedItemGuid = 'test-guid-idempotent';
+
+        $this->repository->markAsRead($userId, $feedItemGuid);
+        $this->repository->markAsRead($userId, $feedItemGuid);
+
+        $this->assertTrue($this->repository->isRead($userId, $feedItemGuid));
+    }
+
+    #[Test]
+    public function markAsReadCreatesRecord(): void
+    {
+        $userId = 1;
+        $feedItemGuid = 'test-guid-new';
+
+        $this->assertFalse($this->repository->isRead($userId, $feedItemGuid));
+
+        $this->repository->markAsRead($userId, $feedItemGuid);
+
+        $this->assertTrue($this->repository->isRead($userId, $feedItemGuid));
     }
 }

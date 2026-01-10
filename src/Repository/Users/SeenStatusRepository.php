@@ -27,31 +27,22 @@ class SeenStatusRepository extends ServiceEntityRepository
 
     public function markAsSeen(int $userId, string $feedItemGuid): void
     {
-        $existing = $this->findOneBy([
-            'userId' => $userId,
-            'feedItemGuid' => $feedItemGuid,
-        ]);
-
-        if ($existing === null) {
-            $seenStatus = new SeenStatus($userId, $feedItemGuid);
-            $this->getEntityManager()->persist($seenStatus);
-            $this->getEntityManager()->flush();
-        }
+        $conn = $this->getEntityManager()->getConnection();
+        $conn->executeStatement(
+            'INSERT OR IGNORE INTO seen_status (user_id, feed_item_guid, seen_at) VALUES (?, ?, ?)',
+            [
+                $userId,
+                $feedItemGuid,
+                new \DateTimeImmutable()->format('Y-m-d H:i:s'),
+            ],
+        );
     }
 
     #[Param(feedItemGuids: 'list<string>')]
     public function markManyAsSeen(int $userId, array $feedItemGuids): void
     {
-        $existingGuids = $this->getSeenGuidsForUser($userId, $feedItemGuids);
-        $newGuids = array_diff($feedItemGuids, $existingGuids);
-
-        foreach ($newGuids as $guid) {
-            $seenStatus = new SeenStatus($userId, $guid);
-            $this->getEntityManager()->persist($seenStatus);
-        }
-
-        if (count($newGuids) > 0) {
-            $this->getEntityManager()->flush();
+        foreach ($feedItemGuids as $guid) {
+            $this->markAsSeen($userId, $guid);
         }
     }
 

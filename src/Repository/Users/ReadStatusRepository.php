@@ -27,16 +27,15 @@ class ReadStatusRepository extends ServiceEntityRepository
 
     public function markAsRead(int $userId, string $feedItemGuid): void
     {
-        $existing = $this->findOneBy([
-            'userId' => $userId,
-            'feedItemGuid' => $feedItemGuid,
-        ]);
-
-        if ($existing === null) {
-            $readStatus = new ReadStatus($userId, $feedItemGuid);
-            $this->getEntityManager()->persist($readStatus);
-            $this->getEntityManager()->flush();
-        }
+        $conn = $this->getEntityManager()->getConnection();
+        $conn->executeStatement(
+            'INSERT OR IGNORE INTO read_status (user_id, feed_item_guid, read_at) VALUES (?, ?, ?)',
+            [
+                $userId,
+                $feedItemGuid,
+                new \DateTimeImmutable()->format('Y-m-d H:i:s'),
+            ],
+        );
     }
 
     public function markAsUnread(int $userId, string $feedItemGuid): void
@@ -76,29 +75,9 @@ class ReadStatusRepository extends ServiceEntityRepository
     #[Param(feedItemGuids: 'list<string>')]
     public function markManyAsRead(int $userId, array $feedItemGuids): void
     {
-        if (empty($feedItemGuids)) {
-            return;
+        foreach ($feedItemGuids as $guid) {
+            $this->markAsRead($userId, $guid);
         }
-
-        $existingGuids = $this->createQueryBuilder('r')
-            ->select('r.feedItemGuid')
-            ->where('r.userId = :userId')
-            ->andWhere('r.feedItemGuid IN (:guids)')
-            ->setParameter('userId', $userId)
-            ->setParameter('guids', $feedItemGuids)
-            ->getQuery()
-            ->getScalarResult();
-
-        $existingGuids = array_column($existingGuids, 'feedItemGuid');
-        $newGuids = array_diff($feedItemGuids, $existingGuids);
-
-        $em = $this->getEntityManager();
-        foreach ($newGuids as $guid) {
-            $readStatus = new ReadStatus($userId, $guid);
-            $em->persist($readStatus);
-        }
-
-        $em->flush();
     }
 
     #[Param(feedItemGuids: 'list<string>')]

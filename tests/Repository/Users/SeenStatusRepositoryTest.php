@@ -21,7 +21,9 @@ class SeenStatusRepositoryTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->repository = static::getContainer()->get(SeenStatusRepository::class);
+        $this->repository = static::getContainer()->get(
+            SeenStatusRepository::class,
+        );
     }
 
     #[Test]
@@ -30,5 +32,30 @@ class SeenStatusRepositoryTest extends KernelTestCase
         $result = $this->repository->deleteByFeedItemGuids(1, []);
 
         $this->assertEquals(0, $result);
+    }
+
+    #[Test]
+    public function markAsSeenIsIdempotent(): void
+    {
+        $userId = 1;
+        $feedItemGuid = 'test-guid-idempotent';
+
+        $this->repository->markAsSeen($userId, $feedItemGuid);
+        $this->repository->markAsSeen($userId, $feedItemGuid);
+
+        $this->assertTrue($this->repository->isSeen($userId, $feedItemGuid));
+    }
+
+    #[Test]
+    public function markAsSeenCreatesRecord(): void
+    {
+        $userId = 1;
+        $feedItemGuid = 'test-guid-new';
+
+        $this->assertFalse($this->repository->isSeen($userId, $feedItemGuid));
+
+        $this->repository->markAsSeen($userId, $feedItemGuid);
+
+        $this->assertTrue($this->repository->isSeen($userId, $feedItemGuid));
     }
 }
