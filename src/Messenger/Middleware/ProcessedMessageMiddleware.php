@@ -14,6 +14,7 @@ use App\Entity\Messages\ProcessedMessage;
 use App\Enum\MessageSource;
 use App\Message\RetainableMessageInterface;
 use App\Message\SourceAwareMessageInterface;
+use App\Messenger\Stamp\ProcessedMessageStamp;
 use App\Repository\Messages\ProcessedMessageRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Messenger\Envelope;
@@ -30,6 +31,11 @@ class ProcessedMessageMiddleware implements MiddlewareInterface
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
+        // Skip if already processed
+        if ($envelope->last(ProcessedMessageStamp::class) !== null) {
+            return $stack->next()->handle($envelope, $stack);
+        }
+
         $message = $envelope->getMessage();
         $retentionLimit =
             $message instanceof RetainableMessageInterface
@@ -50,7 +56,7 @@ class ProcessedMessageMiddleware implements MiddlewareInterface
                 $source,
             );
 
-            return $result;
+            return $result->with(new ProcessedMessageStamp());
         } catch (\Throwable $e) {
             $this->saveProcessedMessage(
                 get_class($message),
