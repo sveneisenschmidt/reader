@@ -3,6 +3,8 @@
    ======================================== */
 
 #subscriptions {
+    --width-content: 768px;
+
     & .form-row p a {
         word-break: break-all;
     }

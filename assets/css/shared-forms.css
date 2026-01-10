@@ -7,7 +7,7 @@
     width: 100%;
 
     @media (width >= 769px) {
-        max-width: var(--width-form);
+        max-width: var(--width-content);
     }
 }
 
@@ -138,6 +138,29 @@
 
     & button {
         flex-shrink: 0;
+    }
+}
+
+/* Radio button group (inline) */
+.form-row input[type="radio"] {
+    width: auto;
+    margin-right: var(--spacing-xs);
+}
+
+.form-row > div:has(input[type="radio"]) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+
+    & > div {
+        display: flex;
+        align-items: center;
+
+        & label {
+            font-weight: normal;
+            margin-bottom: 0;
+            cursor: pointer;
+        }
     }
 }
 

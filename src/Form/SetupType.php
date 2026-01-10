@@ -38,7 +38,6 @@ class SetupType extends AbstractType
                 ],
                 'attr' => [
                     'placeholder' => 'you@example.com',
-                    'autofocus' => true,
                 ],
             ])
             ->add('password', RepeatedType::class, [

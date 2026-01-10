@@ -32,7 +32,6 @@ class FirstFeedType extends AbstractType
             ],
             'attr' => [
                 'placeholder' => 'https://sven.eisenschmidt.website/index.xml',
-                'autofocus' => true,
             ],
         ]);
     }

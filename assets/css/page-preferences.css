@@ -3,6 +3,8 @@
    ======================================== */
 
 #preferences {
+    --width-content: 768px;
+
     & .section-logout {
         display: flex;
         justify-content: flex-start;

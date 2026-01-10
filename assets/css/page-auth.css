@@ -9,7 +9,7 @@
         margin-bottom: var(--spacing-lg);
 
         @media (width >= 769px) {
-            max-width: var(--width-form);
+            max-width: var(--width-content);
         }
     }
 

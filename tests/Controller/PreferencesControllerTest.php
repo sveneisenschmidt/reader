@@ -22,7 +22,7 @@ class PreferencesControllerTest extends WebTestCase
     public function preferencesPageRedirectsWhenNotAuthenticated(): void
     {
         $client = static::createClient();
-        $client->request("GET", "/preferences");
+        $client->request('GET', '/preferences');
 
         $this->assertResponseRedirects();
     }
@@ -33,10 +33,10 @@ class PreferencesControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $client->request("GET", "/preferences");
+        $client->request('GET', '/preferences');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists("main#preferences");
+        $this->assertSelectorExists('main#preferences');
     }
 
     #[Test]
@@ -45,7 +45,7 @@ class PreferencesControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $client->request("GET", "/preferences");
+        $client->request('GET', '/preferences');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('input[name="profile[username]"]');
@@ -58,7 +58,7 @@ class PreferencesControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $client->request("GET", "/preferences");
+        $client->request('GET', '/preferences');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists(
@@ -72,12 +72,12 @@ class PreferencesControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $client->request("GET", "/preferences");
+        $client->request('GET', '/preferences');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains(
-            "main#preferences",
-            "test@example.com",
+            'main#preferences',
+            'test@example.com',
         );
     }
 
@@ -87,10 +87,10 @@ class PreferencesControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $client->request("GET", "/preferences");
+        $client->request('GET', '/preferences');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists(".status-indicator");
+        $this->assertSelectorExists('.status-indicator');
     }
 
     #[Test]
@@ -99,7 +99,7 @@ class PreferencesControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $client->request("GET", "/preferences");
+        $client->request('GET', '/preferences');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('a[href="/logout"]');
@@ -111,7 +111,7 @@ class PreferencesControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $client->request("GET", "/preferences");
+        $client->request('GET', '/preferences');
 
         $this->assertSelectorExists('input[name="profile[_token]"]');
     }
@@ -122,7 +122,7 @@ class PreferencesControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $client->request("GET", "/preferences");
+        $client->request('GET', '/preferences');
 
         $this->assertSelectorExists('input[name="preferences[_token]"]');
     }
@@ -133,17 +133,17 @@ class PreferencesControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $crawler = $client->request("GET", "/preferences");
+        $crawler = $client->request('GET', '/preferences');
 
-        $form = $crawler->selectButton("profile[save]")->form();
-        $form["profile[username]"] = "test@example.com"; // Keep same as original
+        $form = $crawler->selectButton('profile[save]')->form();
+        $form['profile[username]'] = 'test@example.com'; // Keep same as original
 
         $client->submit($form);
 
-        $this->assertResponseRedirects("/preferences");
+        $this->assertResponseRedirects('/preferences');
 
         $client->followRedirect();
-        $this->assertSelectorExists(".flash-success");
+        $this->assertSelectorExists('.flash-success');
     }
 
     #[Test]
@@ -152,17 +152,17 @@ class PreferencesControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $crawler = $client->request("GET", "/preferences");
+        $crawler = $client->request('GET', '/preferences');
 
-        $form = $crawler->selectButton("preferences[save]")->form();
-        $form["preferences[theme]"] = "auto"; // Keep same as default
+        $form = $crawler->selectButton('preferences[save]')->form();
+        $form['preferences[theme]'] = 'auto'; // Keep same as default
 
         $client->submit($form);
 
-        $this->assertResponseRedirects("/preferences");
+        $this->assertResponseRedirects('/preferences');
 
         $client->followRedirect();
-        $this->assertSelectorExists(".flash-success");
+        $this->assertSelectorExists('.flash-success');
     }
 
     #[Test]
@@ -171,14 +171,14 @@ class PreferencesControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $crawler = $client->request("GET", "/preferences");
+        $crawler = $client->request('GET', '/preferences');
 
-        $form = $crawler->selectButton("profile[save]")->form();
-        $form["profile[username]"] = "";
+        $form = $crawler->selectButton('profile[save]')->form();
+        $form['profile[username]'] = '';
 
         $client->submit($form);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSelectorExists(".form-error");
+        $this->assertSelectorExists('.form-error');
     }
 }

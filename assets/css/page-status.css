@@ -3,6 +3,8 @@
    ======================================== */
 
 #status {
+    --width-content: 768px;
+
     & .status-table {
         width: 100%;
         border-collapse: collapse;

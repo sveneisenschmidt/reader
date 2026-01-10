@@ -37,7 +37,6 @@ class LoginType extends AbstractType
                 ],
                 'attr' => [
                     'placeholder' => 'you@example.com',
-                    'autofocus' => true,
                 ],
             ])
             ->add('password', PasswordType::class, [

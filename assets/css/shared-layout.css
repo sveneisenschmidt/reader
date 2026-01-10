@@ -17,7 +17,7 @@
     width: 100%;
 
     @media (width >= 769px) {
-        max-width: var(--width-form);
+        max-width: var(--width-content);
     }
 }
 
@@ -27,7 +27,7 @@
     margin-bottom: var(--spacing-xl);
 
     @media (width >= 769px) {
-        max-width: var(--width-form);
+        max-width: var(--width-content);
     }
 
     & h2 {
@@ -53,7 +53,7 @@
     color: var(--color-bg);
 
     @media (width >= 769px) {
-        max-width: var(--width-form);
+        max-width: var(--width-content);
     }
 }
 
@@ -65,6 +65,6 @@
     color: var(--color-bg);
 
     @media (width >= 769px) {
-        max-width: var(--width-form);
+        max-width: var(--width-content);
     }
 }
