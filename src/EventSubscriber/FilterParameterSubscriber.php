@@ -19,6 +19,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class FilterParameterSubscriber implements EventSubscriberInterface
 {
+    public const DEFAULT_LIMIT = 50;
+
     #[Returns('array<string, string>')]
     public static function getSubscribedEvents(): array
     {
@@ -66,8 +68,8 @@ class FilterParameterSubscriber implements EventSubscriberInterface
             $filters['unread'] = '1';
         }
 
-        $limit = $request->query->getInt('limit', 50);
-        if ($limit !== 50) {
+        $limit = $request->query->getInt('limit', self::DEFAULT_LIMIT);
+        if ($limit !== self::DEFAULT_LIMIT) {
             $filters['limit'] = $limit;
         }
 

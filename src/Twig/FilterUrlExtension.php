@@ -10,6 +10,7 @@
 
 namespace App\Twig;
 
+use App\EventSubscriber\FilterParameterSubscriber;
 use PhpStaticAnalysis\Attributes\Param;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -43,7 +44,10 @@ class FilterUrlExtension extends AbstractExtension
             'unread' => $request->query->getBoolean('unread', false)
                 ? '1'
                 : '0',
-            'limit' => $request->query->getInt('limit', 50),
+            'limit' => $request->query->getInt(
+                'limit',
+                FilterParameterSubscriber::DEFAULT_LIMIT,
+            ),
         ];
 
         $merged = array_merge($current, $params);
@@ -52,7 +56,7 @@ class FilterUrlExtension extends AbstractExtension
         if ($merged['unread'] === '0' || $merged['unread'] === 0) {
             unset($merged['unread']);
         }
-        if ($merged['limit'] === 50) {
+        if ($merged['limit'] === FilterParameterSubscriber::DEFAULT_LIMIT) {
             unset($merged['limit']);
         }
 
@@ -73,8 +77,11 @@ class FilterUrlExtension extends AbstractExtension
             $filters['unread'] = '1';
         }
 
-        $limit = $request->query->getInt('limit', 50);
-        if ($limit !== 50) {
+        $limit = $request->query->getInt(
+            'limit',
+            FilterParameterSubscriber::DEFAULT_LIMIT,
+        );
+        if ($limit !== FilterParameterSubscriber::DEFAULT_LIMIT) {
             $filters['limit'] = $limit;
         }
 

@@ -10,6 +10,7 @@
 
 namespace App\Controller;
 
+use App\EventSubscriber\FilterParameterSubscriber;
 use App\Service\FeedViewService;
 use App\Service\ReadStatusService;
 use App\Service\SeenStatusService;
@@ -163,6 +164,11 @@ class FeedController extends AbstractController
             return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
         }
 
+        $limit = $request->query->getInt(
+            'limit',
+            FilterParameterSubscriber::DEFAULT_LIMIT,
+        );
+
         $nextFguid = $this->userPreferenceService->isShowNextUnreadEnabled(
             $userId,
         )
@@ -170,8 +176,14 @@ class FeedController extends AbstractController
                 $userId,
                 null,
                 $fguid,
+                $limit,
             )
-            : $this->feedViewService->findNextItemGuid($userId, null, $fguid);
+            : $this->feedViewService->findNextItemGuid(
+                $userId,
+                null,
+                $fguid,
+                $limit,
+            );
 
         return $nextFguid
             ? $this->redirectToRoute('feed_item', ['fguid' => $nextFguid])
@@ -240,6 +252,11 @@ class FeedController extends AbstractController
             ]);
         }
 
+        $limit = $request->query->getInt(
+            'limit',
+            FilterParameterSubscriber::DEFAULT_LIMIT,
+        );
+
         $nextFguid = $this->userPreferenceService->isShowNextUnreadEnabled(
             $userId,
         )
@@ -247,8 +264,14 @@ class FeedController extends AbstractController
                 $userId,
                 $sguid,
                 $fguid,
+                $limit,
             )
-            : $this->feedViewService->findNextItemGuid($userId, $sguid, $fguid);
+            : $this->feedViewService->findNextItemGuid(
+                $userId,
+                $sguid,
+                $fguid,
+                $limit,
+            );
 
         return $nextFguid
             ? $this->redirectToRoute('feed_item_filtered', [
@@ -317,7 +340,10 @@ class FeedController extends AbstractController
     ): Response {
         $user = $this->userService->getCurrentUser();
         $unread = $request->query->getBoolean('unread', false);
-        $limit = $request->query->getInt('limit', 50);
+        $limit = $request->query->getInt(
+            'limit',
+            FilterParameterSubscriber::DEFAULT_LIMIT,
+        );
 
         $viewData = $this->feedViewService->getViewData(
             $user->getId(),

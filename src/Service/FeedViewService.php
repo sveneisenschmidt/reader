@@ -10,6 +10,7 @@
 
 namespace App\Service;
 
+use App\EventSubscriber\FilterParameterSubscriber;
 use PhpStaticAnalysis\Attributes\Param;
 use PhpStaticAnalysis\Attributes\Returns;
 
@@ -29,7 +30,7 @@ class FeedViewService
         ?string $sguid = null,
         ?string $fguid = null,
         bool $unreadOnly = false,
-        int $limit = 50,
+        int $limit = FilterParameterSubscriber::DEFAULT_LIMIT,
     ): array {
         $allItems = $this->loadEnrichedItems($userId);
         $feeds = $this->subscriptionService->getSubscriptionsWithCounts(
@@ -111,8 +112,13 @@ class FeedViewService
         int $userId,
         ?string $sguid,
         string $currentGuid,
+        int $limit = 0,
     ): ?string {
         $items = $this->getFilteredItems($userId, $sguid);
+
+        if ($limit > 0) {
+            $items = array_slice($items, 0, $limit);
+        }
 
         $found = false;
         foreach ($items as $item) {
@@ -131,12 +137,17 @@ class FeedViewService
         int $userId,
         ?string $sguid,
         string $currentGuid,
+        int $limit = 0,
     ): ?string {
         $items = $this->getFilteredItems($userId, $sguid);
         $items = $this->readStatusService->enrichItemsWithReadStatus(
             $items,
             $userId,
         );
+
+        if ($limit > 0) {
+            $items = array_slice($items, 0, $limit);
+        }
 
         $found = false;
         foreach ($items as $item) {

@@ -359,6 +359,76 @@ class FeedViewServiceTest extends TestCase
         $this->assertEquals('guid3', $result);
     }
 
+    #[Test]
+    public function findNextItemGuidRespectsLimit(): void
+    {
+        $userId = 1;
+
+        $subscriptionService = $this->createStub(SubscriptionService::class);
+        $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
+
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
+        $feedFetcher
+            ->method('getAllItems')
+            ->willReturn([
+                ['guid' => 'guid1', 'sguid' => 'sguid1'],
+                ['guid' => 'guid2', 'sguid' => 'sguid1'],
+                ['guid' => 'guid3', 'sguid' => 'sguid1'],
+            ]);
+
+        $service = new FeedViewService(
+            $feedFetcher,
+            $subscriptionService,
+            $this->createStub(ReadStatusService::class),
+            $this->createStub(SeenStatusService::class),
+        );
+
+        // With limit of 2, guid3 is outside the limit
+        $result = $service->findNextItemGuid($userId, null, 'guid2', 2);
+
+        $this->assertNull($result);
+    }
+
+    #[Test]
+    public function findNextUnreadItemGuidRespectsLimit(): void
+    {
+        $userId = 1;
+
+        $subscriptionService = $this->createStub(SubscriptionService::class);
+        $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
+
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
+        $feedFetcher
+            ->method('getAllItems')
+            ->willReturn([
+                ['guid' => 'guid1', 'sguid' => 'sguid1'],
+                ['guid' => 'guid2', 'sguid' => 'sguid1'],
+                ['guid' => 'guid3', 'sguid' => 'sguid1'],
+            ]);
+
+        $readStatusService = $this->createStub(ReadStatusService::class);
+        $readStatusService
+            ->method('enrichItemsWithReadStatus')
+            ->willReturnCallback(
+                fn ($items) => array_map(
+                    fn ($item) => array_merge($item, ['isRead' => false]),
+                    $items,
+                ),
+            );
+
+        $service = new FeedViewService(
+            $feedFetcher,
+            $subscriptionService,
+            $readStatusService,
+            $this->createStub(SeenStatusService::class),
+        );
+
+        // With limit of 2, guid3 is outside the limit even though it's unread
+        $result = $service->findNextUnreadItemGuid($userId, null, 'guid2', 2);
+
+        $this->assertNull($result);
+    }
+
     private function createServiceWithEnrichedItems(): FeedViewService
     {
         $subscriptionService = $this->createStub(SubscriptionService::class);
