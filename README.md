@@ -210,7 +210,7 @@ make install
 make db-migrate
 
 # Create dev test user (dev environment only)
-make db-dev-user-create
+make db-create-dev-user
 
 # Start development server (without worker)
 make dev
@@ -221,7 +221,7 @@ make dev-with-worker
 
 ### Dev Test User
 
-The `make db-dev-user-create` command creates a test user for development:
+The `make db-create-dev-user` command creates a test user for development:
 
 - **Email:** dev@localhost.arpa
 - **Password:** devdevdev
