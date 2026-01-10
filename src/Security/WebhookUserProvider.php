@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -12,7 +13,6 @@ namespace App\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -21,7 +21,8 @@ class WebhookUserProvider implements UserProviderInterface
     public function __construct(
         #[Autowire(env: 'WEBHOOK_USER')] private string $webhookUser,
         #[Autowire(env: 'WEBHOOK_PASSWORD')] private string $webhookPassword,
-    ) {}
+    ) {
+    }
 
     public function loadUserByIdentifier(string $identifier): UserInterface
     {

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -12,9 +13,9 @@ namespace App\Entity\Messages;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: \App\Repository\Messages\ProcessedMessageRepository::class)]
-#[ORM\Table(name: "processed_messages")]
-#[ORM\Index(name: "idx_message_type", columns: ["message_type"])]
-#[ORM\Index(name: "idx_processed_at", columns: ["processed_at"])]
+#[ORM\Table(name: 'processed_messages')]
+#[ORM\Index(name: 'idx_message_type', columns: ['message_type'])]
+#[ORM\Index(name: 'idx_processed_at', columns: ['processed_at'])]
 class ProcessedMessage
 {
     public const STATUS_SUCCESS = 'success';
@@ -22,19 +23,19 @@ class ProcessedMessage
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $messageType;
 
-    #[ORM\Column(type: "string", length: 20)]
+    #[ORM\Column(type: 'string', length: 20)]
     private string $status;
 
-    #[ORM\Column(type: "text", nullable: true)]
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $errorMessage = null;
 
-    #[ORM\Column(type: "datetime_immutable")]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $processedAt;
 
     public function __construct(

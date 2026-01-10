@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -11,8 +12,8 @@ namespace App\Tests\Unit\Repository\Messages;
 
 use App\Entity\Messages\ProcessedMessage;
 use App\Repository\Messages\ProcessedMessageRepository;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ProcessedMessageRepositoryTest extends KernelTestCase
 {
@@ -130,7 +131,7 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
     #[Test]
     public function findByTypeRespectsLimit(): void
     {
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 5; ++$i) {
             $this->repository->save(new ProcessedMessage(
                 'App\Message\TestMessage',
                 ProcessedMessage::STATUS_SUCCESS,
@@ -145,7 +146,7 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
     #[Test]
     public function savePrunesOldMessagesWhenRetentionLimitSet(): void
     {
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 5; ++$i) {
             $this->repository->save(new ProcessedMessage(
                 'App\Message\TestMessage',
                 ProcessedMessage::STATUS_SUCCESS,
@@ -168,7 +169,7 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
     #[Test]
     public function savePrunesOnlyMessagesOfSameType(): void
     {
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 5; ++$i) {
             $this->repository->save(new ProcessedMessage(
                 'App\Message\TypeA',
                 ProcessedMessage::STATUS_SUCCESS,

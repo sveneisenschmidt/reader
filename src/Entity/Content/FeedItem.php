@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -16,38 +17,38 @@ use Doctrine\ORM\Mapping as ORM;
         repositoryClass: \App\Repository\Content\FeedItemRepository::class,
     ),
 ]
-#[ORM\Table(name: "feed_item")]
-#[ORM\Index(name: "idx_feed_guid", columns: ["feed_guid"])]
-#[ORM\Index(name: "idx_published_at", columns: ["published_at"])]
+#[ORM\Table(name: 'feed_item')]
+#[ORM\Index(name: 'idx_feed_guid', columns: ['feed_guid'])]
+#[ORM\Index(name: 'idx_published_at', columns: ['published_at'])]
 class FeedItem
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: "string", length: 16, unique: true)]
+    #[ORM\Column(type: 'string', length: 16, unique: true)]
     private string $guid;
 
-    #[ORM\Column(type: "string", length: 16)]
+    #[ORM\Column(type: 'string', length: 16)]
     private string $feedGuid;
 
-    #[ORM\Column(type: "string", length: 500)]
+    #[ORM\Column(type: 'string', length: 500)]
     private string $title;
 
-    #[ORM\Column(type: "string", length: 1000)]
+    #[ORM\Column(type: 'string', length: 1000)]
     private string $link;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $source;
 
-    #[ORM\Column(type: "text")]
+    #[ORM\Column(type: 'text')]
     private string $excerpt;
 
-    #[ORM\Column(type: "datetime_immutable")]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $publishedAt;
 
-    #[ORM\Column(type: "datetime_immutable")]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $fetchedAt;
 
     public function __construct(
@@ -92,6 +93,7 @@ class FeedItem
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
         return $this;
     }
 
@@ -103,6 +105,7 @@ class FeedItem
     public function setLink(string $link): self
     {
         $this->link = $link;
+
         return $this;
     }
 
@@ -114,6 +117,7 @@ class FeedItem
     public function setSource(string $source): self
     {
         $this->source = $source;
+
         return $this;
     }
 
@@ -125,6 +129,7 @@ class FeedItem
     public function setExcerpt(string $excerpt): self
     {
         $this->excerpt = $excerpt;
+
         return $this;
     }
 
@@ -141,19 +146,20 @@ class FeedItem
     public function updateFetchedAt(): self
     {
         $this->fetchedAt = new \DateTimeImmutable();
+
         return $this;
     }
 
     public function toArray(): array
     {
         return [
-            "guid" => $this->guid,
-            "sguid" => $this->feedGuid,
-            "title" => $this->title,
-            "link" => $this->link,
-            "source" => $this->source,
-            "excerpt" => $this->excerpt,
-            "date" => $this->publishedAt,
+            'guid' => $this->guid,
+            'sguid' => $this->feedGuid,
+            'title' => $this->title,
+            'link' => $this->link,
+            'source' => $this->source,
+            'excerpt' => $this->excerpt,
+            'date' => $this->publishedAt,
         ];
     }
 }

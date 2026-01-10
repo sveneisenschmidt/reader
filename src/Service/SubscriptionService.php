@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -23,7 +24,8 @@ class SubscriptionService
         private ReadStatusRepository $readStatusRepository,
         private SeenStatusRepository $seenStatusRepository,
         private FeedFetcher $feedFetcher,
-    ) {}
+    ) {
+    }
 
     public function getSubscriptionsForUser(int $userId): array
     {
@@ -50,8 +52,8 @@ class SubscriptionService
         // Count unread items per subscription
         $unreadCounts = [];
         foreach ($items as $item) {
-            if (!isset($item["isRead"]) || !$item["isRead"]) {
-                $sguid = $item["sguid"] ?? "";
+            if (!isset($item['isRead']) || !$item['isRead']) {
+                $sguid = $item['sguid'] ?? '';
                 $unreadCounts[$sguid] = ($unreadCounts[$sguid] ?? 0) + 1;
             }
         }
@@ -59,11 +61,11 @@ class SubscriptionService
         foreach ($subscriptions as $subscription) {
             $sguid = $subscription->getGuid();
             $result[] = [
-                "sguid" => $sguid,
-                "name" => $subscription->getName(),
-                "url" => $subscription->getUrl(),
-                "count" => $unreadCounts[$sguid] ?? 0,
-                "folder" => $subscription->getFolder(),
+                'sguid' => $sguid,
+                'name' => $subscription->getName(),
+                'url' => $subscription->getUrl(),
+                'count' => $unreadCounts[$sguid] ?? 0,
+                'folder' => $subscription->getFolder(),
             ];
         }
 
@@ -73,13 +75,15 @@ class SubscriptionService
     public function getFeedUrls(int $userId): array
     {
         $subscriptions = $this->getSubscriptionsForUser($userId);
-        return array_map(fn(Subscription $s) => $s->getUrl(), $subscriptions);
+
+        return array_map(fn (Subscription $s) => $s->getUrl(), $subscriptions);
     }
 
     public function getFeedGuids(int $userId): array
     {
         $subscriptions = $this->getSubscriptionsForUser($userId);
-        return array_map(fn(Subscription $s) => $s->getGuid(), $subscriptions);
+
+        return array_map(fn (Subscription $s) => $s->getGuid(), $subscriptions);
     }
 
     public function addSubscription(int $userId, string $url): Subscription
@@ -140,7 +144,7 @@ class SubscriptionService
         if ($subscription) {
             $subscription->setName($name);
             $subscription->setFolder($folder);
-            $this->subscriptionRepository->getEntityManager()->flush();
+            $this->subscriptionRepository->flush();
         }
     }
 
@@ -163,9 +167,10 @@ class SubscriptionService
         }
 
         return array_map(function ($item) use ($nameMap) {
-            if (isset($nameMap[$item["sguid"]])) {
-                $item["source"] = $nameMap[$item["sguid"]];
+            if (isset($nameMap[$item['sguid']])) {
+                $item['source'] = $nameMap[$item['sguid']];
             }
+
             return $item;
         }, $items);
     }
@@ -183,6 +188,6 @@ class SubscriptionService
     public function updateRefreshTimestamp(Subscription $subscription): void
     {
         $subscription->updateLastRefreshedAt();
-        $this->subscriptionRepository->getEntityManager()->flush();
+        $this->subscriptionRepository->flush();
     }
 }

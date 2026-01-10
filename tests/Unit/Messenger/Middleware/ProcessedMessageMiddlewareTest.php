@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -33,26 +34,26 @@ class ProcessedMessageMiddlewareTest extends TestCase
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
             ->expects($this->once())
-            ->method("save")
+            ->method('save')
             ->with(
                 $this->callback(function (ProcessedMessage $pm) {
-                    return $pm->getMessageType() === HeartbeatMessage::class &&
-                        $pm->getStatus() === ProcessedMessage::STATUS_SUCCESS &&
-                        $pm->getErrorMessage() === null;
+                    return $pm->getMessageType() === HeartbeatMessage::class
+                        && $pm->getStatus() === ProcessedMessage::STATUS_SUCCESS
+                        && $pm->getErrorMessage() === null;
                 }),
                 HeartbeatMessage::getRetentionLimit(),
             );
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->method("isOpen")->willReturn(true);
+        $em->method('isOpen')->willReturn(true);
 
         $registry = $this->createMock(ManagerRegistry::class);
-        $registry->method("getManager")->with("messages")->willReturn($em);
+        $registry->method('getManager')->with('messages')->willReturn($em);
 
         $stack = $this->createMock(StackInterface::class);
         $nextMiddleware = $this->createMock(MiddlewareInterface::class);
-        $nextMiddleware->method("handle")->willReturn($envelope);
-        $stack->method("next")->willReturn($nextMiddleware);
+        $nextMiddleware->method('handle')->willReturn($envelope);
+        $stack->method('next')->willReturn($nextMiddleware);
 
         $middleware = new ProcessedMessageMiddleware($registry, $repository);
         $result = $middleware->handle($envelope, $stack);
@@ -65,37 +66,37 @@ class ProcessedMessageMiddlewareTest extends TestCase
     {
         $message = new RefreshFeedsMessage();
         $envelope = new Envelope($message);
-        $exception = new \RuntimeException("Test error");
+        $exception = new \RuntimeException('Test error');
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
             ->expects($this->once())
-            ->method("save")
+            ->method('save')
             ->with(
                 $this->callback(function (ProcessedMessage $pm) {
                     return $pm->getMessageType() ===
-                        RefreshFeedsMessage::class &&
-                        $pm->getStatus() === ProcessedMessage::STATUS_FAILED &&
-                        $pm->getErrorMessage() === "Test error";
+                        RefreshFeedsMessage::class
+                        && $pm->getStatus() === ProcessedMessage::STATUS_FAILED
+                        && $pm->getErrorMessage() === 'Test error';
                 }),
                 RefreshFeedsMessage::getRetentionLimit(),
             );
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->method("isOpen")->willReturn(true);
+        $em->method('isOpen')->willReturn(true);
 
         $registry = $this->createMock(ManagerRegistry::class);
-        $registry->method("getManager")->with("messages")->willReturn($em);
+        $registry->method('getManager')->with('messages')->willReturn($em);
 
         $stack = $this->createMock(StackInterface::class);
         $nextMiddleware = $this->createMock(MiddlewareInterface::class);
-        $nextMiddleware->method("handle")->willThrowException($exception);
-        $stack->method("next")->willReturn($nextMiddleware);
+        $nextMiddleware->method('handle')->willThrowException($exception);
+        $stack->method('next')->willReturn($nextMiddleware);
 
         $middleware = new ProcessedMessageMiddleware($registry, $repository);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage("Test error");
+        $this->expectExceptionMessage('Test error');
 
         $middleware->handle($envelope, $stack);
     }
@@ -109,19 +110,19 @@ class ProcessedMessageMiddlewareTest extends TestCase
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
             ->expects($this->once())
-            ->method("save")
+            ->method('save')
             ->with($this->isInstanceOf(ProcessedMessage::class), null);
 
         $em = $this->createMock(EntityManagerInterface::class);
-        $em->method("isOpen")->willReturn(true);
+        $em->method('isOpen')->willReturn(true);
 
         $registry = $this->createMock(ManagerRegistry::class);
-        $registry->method("getManager")->with("messages")->willReturn($em);
+        $registry->method('getManager')->with('messages')->willReturn($em);
 
         $stack = $this->createMock(StackInterface::class);
         $nextMiddleware = $this->createMock(MiddlewareInterface::class);
-        $nextMiddleware->method("handle")->willReturn($envelope);
-        $stack->method("next")->willReturn($nextMiddleware);
+        $nextMiddleware->method('handle')->willReturn($envelope);
+        $stack->method('next')->willReturn($nextMiddleware);
 
         $middleware = new ProcessedMessageMiddleware($registry, $repository);
         $middleware->handle($envelope, $stack);
@@ -134,28 +135,28 @@ class ProcessedMessageMiddlewareTest extends TestCase
         $envelope = new Envelope($message);
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
-        $repository->expects($this->once())->method("save");
+        $repository->expects($this->once())->method('save');
 
         $closedEm = $this->createMock(EntityManagerInterface::class);
-        $closedEm->method("isOpen")->willReturn(false);
+        $closedEm->method('isOpen')->willReturn(false);
 
         $openEm = $this->createMock(EntityManagerInterface::class);
-        $openEm->method("isOpen")->willReturn(true);
+        $openEm->method('isOpen')->willReturn(true);
 
         $registry = $this->createMock(ManagerRegistry::class);
         $registry
-            ->method("getManager")
-            ->with("messages")
+            ->method('getManager')
+            ->with('messages')
             ->willReturn($closedEm);
         $registry
             ->expects($this->once())
-            ->method("resetManager")
-            ->with("messages");
+            ->method('resetManager')
+            ->with('messages');
 
         $stack = $this->createMock(StackInterface::class);
         $nextMiddleware = $this->createMock(MiddlewareInterface::class);
-        $nextMiddleware->method("handle")->willReturn($envelope);
-        $stack->method("next")->willReturn($nextMiddleware);
+        $nextMiddleware->method('handle')->willReturn($envelope);
+        $stack->method('next')->willReturn($nextMiddleware);
 
         $middleware = new ProcessedMessageMiddleware($registry, $repository);
         $middleware->handle($envelope, $stack);

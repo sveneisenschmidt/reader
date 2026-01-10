@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -16,7 +17,8 @@ class WorkerHeartbeat
 {
     public function __construct(
         private ProcessedMessageRepository $processedMessageRepository,
-    ) {}
+    ) {
+    }
 
     public function getLastBeat(): ?\DateTimeImmutable
     {

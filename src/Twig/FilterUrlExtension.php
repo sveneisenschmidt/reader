@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -19,37 +20,38 @@ class FilterUrlExtension extends AbstractExtension
     public function __construct(
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
-    ) {}
+    ) {
+    }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction("filter_url", [$this, "filterUrl"]),
-            new TwigFunction("path_with_filters", [$this, "pathWithFilters"]),
+            new TwigFunction('filter_url', [$this, 'filterUrl']),
+            new TwigFunction('path_with_filters', [$this, 'pathWithFilters']),
         ];
     }
 
     public function filterUrl(array $params = []): string
     {
         $request = $this->requestStack->getCurrentRequest();
-        $route = $request->attributes->get("_route");
-        $routeParams = $request->attributes->get("_route_params", []);
+        $route = $request->attributes->get('_route');
+        $routeParams = $request->attributes->get('_route_params', []);
 
         $current = [
-            "unread" => $request->query->getBoolean("unread", false)
-                ? "1"
-                : "0",
-            "limit" => $request->query->getInt("limit", 50),
+            'unread' => $request->query->getBoolean('unread', false)
+                ? '1'
+                : '0',
+            'limit' => $request->query->getInt('limit', 50),
         ];
 
         $merged = array_merge($current, $params);
 
         // Remove default values to keep URLs clean
-        if ($merged["unread"] === "0" || $merged["unread"] === 0) {
-            unset($merged["unread"]);
+        if ($merged['unread'] === '0' || $merged['unread'] === 0) {
+            unset($merged['unread']);
         }
-        if ($merged["limit"] === 50) {
-            unset($merged["limit"]);
+        if ($merged['limit'] === 50) {
+            unset($merged['limit']);
         }
 
         return $this->urlGenerator->generate(
@@ -64,13 +66,13 @@ class FilterUrlExtension extends AbstractExtension
 
         $filters = [];
 
-        if ($request->query->getBoolean("unread", false)) {
-            $filters["unread"] = "1";
+        if ($request->query->getBoolean('unread', false)) {
+            $filters['unread'] = '1';
         }
 
-        $limit = $request->query->getInt("limit", 50);
+        $limit = $request->query->getInt('limit', 50);
         if ($limit !== 50) {
-            $filters["limit"] = $limit;
+            $filters['limit'] = $limit;
         }
 
         return $this->urlGenerator->generate(

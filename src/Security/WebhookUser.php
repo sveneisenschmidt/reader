@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -17,7 +18,8 @@ class WebhookUser implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct(
         private string $username,
         private string $password,
-    ) {}
+    ) {
+    }
 
     public function getUserIdentifier(): string
     {
@@ -31,8 +33,10 @@ class WebhookUser implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        return ["ROLE_WEBHOOK"];
+        return ['ROLE_WEBHOOK'];
     }
 
-    public function eraseCredentials(): void {}
+    public function eraseCredentials(): void
+    {
+    }
 }

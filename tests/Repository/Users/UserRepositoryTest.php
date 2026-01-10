@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -9,7 +10,6 @@
 
 namespace App\Tests\Repository\Users;
 
-use App\Entity\Users\User;
 use App\Repository\Users\UserRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -27,7 +27,7 @@ class UserRepositoryTest extends KernelTestCase
     #[Test]
     public function findByUsernameReturnsNullWhenNotFound(): void
     {
-        $result = $this->repository->findByUsername("nonexistent_user_12345");
+        $result = $this->repository->findByUsername('nonexistent_user_12345');
 
         $this->assertNull($result);
     }
@@ -35,7 +35,7 @@ class UserRepositoryTest extends KernelTestCase
     #[Test]
     public function findByEmailReturnsNullWhenNotFound(): void
     {
-        $result = $this->repository->findByEmail("nonexistent@example.com");
+        $result = $this->repository->findByEmail('nonexistent@example.com');
 
         $this->assertNull($result);
     }
@@ -51,18 +51,18 @@ class UserRepositoryTest extends KernelTestCase
     #[Test]
     public function upgradePasswordUpdatesUserPassword(): void
     {
-        $user = $this->repository->findByUsername("test@example.com");
+        $user = $this->repository->findByUsername('test@example.com');
 
         if ($user === null) {
-            $this->markTestSkipped("Test user not found");
+            $this->markTestSkipped('Test user not found');
         }
 
         $originalPassword = $user->getPassword();
-        $newPassword = "new_hashed_password_" . time();
+        $newPassword = 'new_hashed_password_'.time();
 
         $this->repository->upgradePassword($user, $newPassword);
 
-        $updatedUser = $this->repository->findByUsername("test@example.com");
+        $updatedUser = $this->repository->findByUsername('test@example.com');
         $this->assertEquals($newPassword, $updatedUser->getPassword());
 
         // Restore original password
@@ -77,7 +77,7 @@ class UserRepositoryTest extends KernelTestCase
         );
 
         // Should not throw - just returns early
-        $this->repository->upgradePassword($mockUser, "new_password");
+        $this->repository->upgradePassword($mockUser, 'new_password');
 
         $this->assertTrue(true);
     }

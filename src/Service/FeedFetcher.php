@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -25,16 +26,17 @@ class FeedFetcher
         private HtmlSanitizerInterface $feedContentSanitizer,
         private LoggerInterface $logger,
         private FeedParser $feedParser,
-    ) {}
+    ) {
+    }
 
     public function fetchAndPersistFeed(string $url): array
     {
-        $response = $this->httpClient->request("GET", $url);
+        $response = $this->httpClient->request('GET', $url);
         $content = $response->getContent();
         $feedData = $this->feedParser->parse($content, $url);
 
-        $feedData["items"] = $this->sanitizeItems($feedData["items"]);
-        $this->persistFeedItems($feedData["items"]);
+        $feedData['items'] = $this->sanitizeItems($feedData['items']);
+        $this->persistFeedItems($feedData['items']);
 
         return $feedData;
     }
@@ -42,41 +44,42 @@ class FeedFetcher
     private function sanitizeItems(array $items): array
     {
         return array_map(function ($item) {
-            $item["excerpt"] = $this->cleanExcerpt($item["excerpt"]);
+            $item['excerpt'] = $this->cleanExcerpt($item['excerpt']);
+
             return $item;
         }, $items);
     }
 
     private function persistFeedItems(array $items): void
     {
-        $twoDaysAgo = new \DateTimeImmutable("-48 hours");
+        $twoDaysAgo = new \DateTimeImmutable('-48 hours');
 
         foreach ($items as $itemData) {
             $existing = $this->feedItemRepository->findByGuid(
-                $itemData["guid"],
+                $itemData['guid'],
             );
 
             $publishedAt =
-                $itemData["date"] instanceof \DateTimeImmutable
-                    ? $itemData["date"]
-                    : \DateTimeImmutable::createFromMutable($itemData["date"]);
+                $itemData['date'] instanceof \DateTimeImmutable
+                    ? $itemData['date']
+                    : \DateTimeImmutable::createFromMutable($itemData['date']);
 
             if ($existing === null) {
                 $feedItem = new FeedItem(
-                    $itemData["guid"],
-                    $itemData["feedGuid"],
-                    $itemData["title"],
-                    $itemData["link"],
-                    $itemData["source"],
-                    $itemData["excerpt"],
+                    $itemData['guid'],
+                    $itemData['feedGuid'],
+                    $itemData['title'],
+                    $itemData['link'],
+                    $itemData['source'],
+                    $itemData['excerpt'],
                     $publishedAt,
                 );
                 $this->contentEntityManager->persist($feedItem);
             } elseif ($existing->getPublishedAt() > $twoDaysAgo) {
-                $existing->setTitle($itemData["title"]);
-                $existing->setLink($itemData["link"]);
-                $existing->setSource($itemData["source"]);
-                $existing->setExcerpt($itemData["excerpt"]);
+                $existing->setTitle($itemData['title']);
+                $existing->setLink($itemData['link']);
+                $existing->setSource($itemData['source']);
+                $existing->setExcerpt($itemData['excerpt']);
             }
         }
 
@@ -87,7 +90,7 @@ class FeedFetcher
     {
         $responses = [];
         foreach ($feedUrls as $feedUrl) {
-            $responses[$feedUrl] = $this->httpClient->request("GET", $feedUrl);
+            $responses[$feedUrl] = $this->httpClient->request('GET', $feedUrl);
         }
 
         $count = 0;
@@ -95,13 +98,13 @@ class FeedFetcher
             try {
                 $content = $response->getContent();
                 $feedData = $this->feedParser->parse($content, $feedUrl);
-                $feedData["items"] = $this->sanitizeItems($feedData["items"]);
-                $this->persistFeedItems($feedData["items"]);
-                $count += count($feedData["items"]);
+                $feedData['items'] = $this->sanitizeItems($feedData['items']);
+                $this->persistFeedItems($feedData['items']);
+                $count += count($feedData['items']);
             } catch (\Exception $e) {
-                $this->logger->error("Failed to fetch feed", [
-                    "url" => $feedUrl,
-                    "error" => $e->getMessage(),
+                $this->logger->error('Failed to fetch feed', [
+                    'url' => $feedUrl,
+                    'error' => $e->getMessage(),
                 ]);
                 continue;
             }
@@ -113,12 +116,14 @@ class FeedFetcher
     public function getAllItems(array $feedGuids): array
     {
         $feedItems = $this->feedItemRepository->findByFeedGuids($feedGuids);
-        return array_map(fn(FeedItem $item) => $item->toArray(), $feedItems);
+
+        return array_map(fn (FeedItem $item) => $item->toArray(), $feedItems);
     }
 
     public function getItemByGuid(string $guid): ?array
     {
         $feedItem = $this->feedItemRepository->findByGuid($guid);
+
         return $feedItem?->toArray();
     }
 
@@ -129,15 +134,17 @@ class FeedFetcher
 
     private function cleanExcerpt(string $text): string
     {
-        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, "UTF-8");
+        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $text = $this->feedContentSanitizer->sanitize($text);
+
         return trim($text);
     }
 
     public function getFeedTitle(string $url): string
     {
         $feedData = $this->fetchAndPersistFeed($url);
-        return $feedData["title"];
+
+        return $feedData['title'];
     }
 
     public function getItemCountForFeed(string $feedGuid): int
@@ -148,18 +155,18 @@ class FeedFetcher
     public function validateFeedUrl(string $url): ?string
     {
         try {
-            $response = $this->httpClient->request("GET", $url, [
-                "timeout" => 10,
+            $response = $this->httpClient->request('GET', $url, [
+                'timeout' => 10,
             ]);
             $content = $response->getContent();
 
             if (!$this->feedParser->isValid($content)) {
-                return "URL is not a valid RSS or Atom feed";
+                return 'URL is not a valid RSS or Atom feed';
             }
 
             return null;
         } catch (\Exception $e) {
-            return "Could not fetch URL: " . $e->getMessage();
+            return 'Could not fetch URL: '.$e->getMessage();
         }
     }
 }

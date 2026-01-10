@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -22,7 +23,8 @@ class ProcessedMessageMiddleware implements MiddlewareInterface
     public function __construct(
         private ManagerRegistry $registry,
         private ProcessedMessageRepository $repository,
-    ) {}
+    ) {
+    }
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
@@ -59,10 +61,10 @@ class ProcessedMessageMiddleware implements MiddlewareInterface
         ?string $errorMessage,
         ?int $retentionLimit,
     ): void {
-        $em = $this->registry->getManager("messages");
+        $em = $this->registry->getManager('messages');
 
         if (!$em->isOpen()) {
-            $this->registry->resetManager("messages");
+            $this->registry->resetManager('messages');
         }
 
         $processedMessage = new ProcessedMessage(

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -24,15 +25,16 @@ class OnboardingController extends AbstractController
         private UserService $userService,
         private SubscriptionService $subscriptionService,
         private FeedFetcher $feedFetcher,
-    ) {}
+    ) {
+    }
 
-    #[Route("/onboarding", name: "onboarding")]
+    #[Route('/onboarding', name: 'onboarding')]
     public function index(Request $request): Response
     {
         $user = $this->userService->getCurrentUser();
 
         if ($this->subscriptionService->hasSubscriptions($user->getId())) {
-            return $this->redirectToRoute("feed_index");
+            return $this->redirectToRoute('feed_index');
         }
 
         $form = $this->createForm(FirstFeedType::class);
@@ -40,12 +42,12 @@ class OnboardingController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $feedUrl = $data["feedUrl"];
+            $feedUrl = $data['feedUrl'];
 
             $error = $this->feedFetcher->validateFeedUrl($feedUrl);
             if ($error !== null) {
                 $form
-                    ->get("feedUrl")
+                    ->get('feedUrl')
                     ->addError(new \Symfony\Component\Form\FormError($error));
             } else {
                 $user = $this->userService->getCurrentUser();
@@ -59,12 +61,12 @@ class OnboardingController extends AbstractController
                     $user->getId(),
                 );
 
-                return $this->redirectToRoute("feed_index");
+                return $this->redirectToRoute('feed_index');
             }
         }
 
-        return $this->render("onboarding.html.twig", [
-            "form" => $form,
+        return $this->render('onboarding.html.twig', [
+            'form' => $form,
         ]);
     }
 }

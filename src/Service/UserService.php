@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -15,14 +16,17 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class UserService
 {
-    public function __construct(private Security $security) {}
+    public function __construct(private Security $security)
+    {
+    }
 
     public function getCurrentUser(): User
     {
         $user = $this->security->getUser();
         if (!$user instanceof User) {
-            throw new AccessDeniedException("User not authenticated");
+            throw new AccessDeniedException('User not authenticated');
         }
+
         return $user;
     }
 }

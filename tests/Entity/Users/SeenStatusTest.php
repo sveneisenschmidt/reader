@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -18,17 +19,17 @@ class SeenStatusTest extends TestCase
     #[Test]
     public function constructorSetsProperties(): void
     {
-        $seenStatus = new SeenStatus(42, "abc123");
+        $seenStatus = new SeenStatus(42, 'abc123');
 
         $this->assertEquals(42, $seenStatus->getUserId());
-        $this->assertEquals("abc123", $seenStatus->getFeedItemGuid());
+        $this->assertEquals('abc123', $seenStatus->getFeedItemGuid());
         $this->assertInstanceOf(\DateTimeImmutable::class, $seenStatus->getSeenAt());
     }
 
     #[Test]
     public function getIdReturnsNullForNewEntity(): void
     {
-        $seenStatus = new SeenStatus(1, "guid");
+        $seenStatus = new SeenStatus(1, 'guid');
 
         $this->assertNull($seenStatus->getId());
     }
@@ -37,7 +38,7 @@ class SeenStatusTest extends TestCase
     public function seenAtIsSetToCurrentTime(): void
     {
         $before = new \DateTimeImmutable();
-        $seenStatus = new SeenStatus(1, "guid");
+        $seenStatus = new SeenStatus(1, 'guid');
         $after = new \DateTimeImmutable();
 
         $this->assertGreaterThanOrEqual($before, $seenStatus->getSeenAt());

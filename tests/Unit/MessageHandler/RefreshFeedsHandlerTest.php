@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -26,33 +27,33 @@ class RefreshFeedsHandlerTest extends TestCase
     {
         $subscription1 = $this->createMock(Subscription::class);
         $subscription1
-            ->method("getUrl")
-            ->willReturn("https://example.com/feed1.xml");
-        $subscription1->expects($this->once())->method("updateLastRefreshedAt");
+            ->method('getUrl')
+            ->willReturn('https://example.com/feed1.xml');
+        $subscription1->expects($this->once())->method('updateLastRefreshedAt');
 
         $subscription2 = $this->createMock(Subscription::class);
         $subscription2
-            ->method("getUrl")
-            ->willReturn("https://example.com/feed2.xml");
-        $subscription2->expects($this->once())->method("updateLastRefreshedAt");
+            ->method('getUrl')
+            ->willReturn('https://example.com/feed2.xml');
+        $subscription2->expects($this->once())->method('updateLastRefreshedAt');
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects($this->once())->method("flush");
+        $entityManager->expects($this->once())->method('flush');
 
         $subscriptionRepository = $this->createMock(
             SubscriptionRepository::class,
         );
         $subscriptionRepository
-            ->method("findAll")
+            ->method('findAll')
             ->willReturn([$subscription1, $subscription2]);
 
         $feedFetcher = $this->createMock(FeedFetcher::class);
         $feedFetcher
             ->expects($this->once())
-            ->method("refreshAllFeeds")
+            ->method('refreshAllFeeds')
             ->with([
-                "https://example.com/feed1.xml",
-                "https://example.com/feed2.xml",
+                'https://example.com/feed1.xml',
+                'https://example.com/feed2.xml',
             ]);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -70,17 +71,17 @@ class RefreshFeedsHandlerTest extends TestCase
     public function handlesEmptySubscriptions(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects($this->once())->method("flush");
+        $entityManager->expects($this->once())->method('flush');
 
         $subscriptionRepository = $this->createMock(
             SubscriptionRepository::class,
         );
-        $subscriptionRepository->method("findAll")->willReturn([]);
+        $subscriptionRepository->method('findAll')->willReturn([]);
 
         $feedFetcher = $this->createMock(FeedFetcher::class);
         $feedFetcher
             ->expects($this->once())
-            ->method("refreshAllFeeds")
+            ->method('refreshAllFeeds')
             ->with([]);
 
         $logger = $this->createMock(LoggerInterface::class);
@@ -102,29 +103,29 @@ class RefreshFeedsHandlerTest extends TestCase
         $subscriptionRepository = $this->createMock(
             SubscriptionRepository::class,
         );
-        $subscriptionRepository->method("findAll")->willReturn([]);
+        $subscriptionRepository->method('findAll')->willReturn([]);
 
         $feedFetcher = $this->createMock(FeedFetcher::class);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger
             ->expects($this->exactly(2))
-            ->method("info")
+            ->method('info')
             ->willReturnCallback(function (
                 string $message,
                 array $context = [],
             ) {
                 static $callCount = 0;
-                $callCount++;
+                ++$callCount;
 
                 if ($callCount === 1) {
-                    $this->assertEquals("Refreshing feeds", $message);
-                    $this->assertEquals(["count" => 0], $context);
+                    $this->assertEquals('Refreshing feeds', $message);
+                    $this->assertEquals(['count' => 0], $context);
                 }
 
                 if ($callCount === 2) {
                     $this->assertEquals(
-                        "Feeds refreshed successfully",
+                        'Feeds refreshed successfully',
                         $message,
                     );
                 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -41,20 +42,20 @@ class RefreshTimestampExtensionTest extends TestCase
         $functions = $this->extension->getFunctions();
 
         $this->assertCount(1, $functions);
-        $this->assertEquals("last_refresh", $functions[0]->getName());
+        $this->assertEquals('last_refresh', $functions[0]->getName());
     }
 
     #[Test]
     public function getLastRefreshReturnsTimestampFromSubscriptionService(): void
     {
         $user = $this->createMock(User::class);
-        $user->method("getId")->willReturn(1);
+        $user->method('getId')->willReturn(1);
 
-        $expectedTime = new \DateTimeImmutable("2024-01-15 12:00:00");
+        $expectedTime = new \DateTimeImmutable('2024-01-15 12:00:00');
 
-        $this->userService->method("getCurrentUser")->willReturn($user);
+        $this->userService->method('getCurrentUser')->willReturn($user);
         $this->subscriptionService
-            ->method("getOldestRefreshTime")
+            ->method('getOldestRefreshTime')
             ->with(1)
             ->willReturn($expectedTime);
 
@@ -67,11 +68,11 @@ class RefreshTimestampExtensionTest extends TestCase
     public function getLastRefreshReturnsNullWhenNoSubscriptions(): void
     {
         $user = $this->createMock(User::class);
-        $user->method("getId")->willReturn(1);
+        $user->method('getId')->willReturn(1);
 
-        $this->userService->method("getCurrentUser")->willReturn($user);
+        $this->userService->method('getCurrentUser')->willReturn($user);
         $this->subscriptionService
-            ->method("getOldestRefreshTime")
+            ->method('getOldestRefreshTime')
             ->with(1)
             ->willReturn(null);
 

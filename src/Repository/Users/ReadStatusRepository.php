@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -23,8 +24,8 @@ class ReadStatusRepository extends ServiceEntityRepository
     public function markAsRead(int $userId, string $feedItemGuid): void
     {
         $existing = $this->findOneBy([
-            "userId" => $userId,
-            "feedItemGuid" => $feedItemGuid,
+            'userId' => $userId,
+            'feedItemGuid' => $feedItemGuid,
         ]);
 
         if ($existing === null) {
@@ -37,8 +38,8 @@ class ReadStatusRepository extends ServiceEntityRepository
     public function markAsUnread(int $userId, string $feedItemGuid): void
     {
         $existing = $this->findOneBy([
-            "userId" => $userId,
-            "feedItemGuid" => $feedItemGuid,
+            'userId' => $userId,
+            'feedItemGuid' => $feedItemGuid,
         ]);
 
         if ($existing !== null) {
@@ -50,21 +51,21 @@ class ReadStatusRepository extends ServiceEntityRepository
     public function isRead(int $userId, string $feedItemGuid): bool
     {
         return $this->findOneBy([
-            "userId" => $userId,
-            "feedItemGuid" => $feedItemGuid,
+            'userId' => $userId,
+            'feedItemGuid' => $feedItemGuid,
         ]) !== null;
     }
 
     public function getReadGuidsForUser(int $userId): array
     {
-        $results = $this->createQueryBuilder("r")
-            ->select("r.feedItemGuid")
-            ->where("r.userId = :userId")
-            ->setParameter("userId", $userId)
+        $results = $this->createQueryBuilder('r')
+            ->select('r.feedItemGuid')
+            ->where('r.userId = :userId')
+            ->setParameter('userId', $userId)
             ->getQuery()
             ->getScalarResult();
 
-        return array_column($results, "feedItemGuid");
+        return array_column($results, 'feedItemGuid');
     }
 
     public function markManyAsRead(int $userId, array $feedItemGuids): void
@@ -73,16 +74,16 @@ class ReadStatusRepository extends ServiceEntityRepository
             return;
         }
 
-        $existingGuids = $this->createQueryBuilder("r")
-            ->select("r.feedItemGuid")
-            ->where("r.userId = :userId")
-            ->andWhere("r.feedItemGuid IN (:guids)")
-            ->setParameter("userId", $userId)
-            ->setParameter("guids", $feedItemGuids)
+        $existingGuids = $this->createQueryBuilder('r')
+            ->select('r.feedItemGuid')
+            ->where('r.userId = :userId')
+            ->andWhere('r.feedItemGuid IN (:guids)')
+            ->setParameter('userId', $userId)
+            ->setParameter('guids', $feedItemGuids)
             ->getQuery()
             ->getScalarResult();
 
-        $existingGuids = array_column($existingGuids, "feedItemGuid");
+        $existingGuids = array_column($existingGuids, 'feedItemGuid');
         $newGuids = array_diff($feedItemGuids, $existingGuids);
 
         $em = $this->getEntityManager();
@@ -102,12 +103,12 @@ class ReadStatusRepository extends ServiceEntityRepository
             return 0;
         }
 
-        return $this->createQueryBuilder("r")
+        return $this->createQueryBuilder('r')
             ->delete()
-            ->where("r.userId = :userId")
-            ->andWhere("r.feedItemGuid IN (:guids)")
-            ->setParameter("userId", $userId)
-            ->setParameter("guids", $feedItemGuids)
+            ->where('r.userId = :userId')
+            ->andWhere('r.feedItemGuid IN (:guids)')
+            ->setParameter('userId', $userId)
+            ->setParameter('guids', $feedItemGuids)
             ->getQuery()
             ->execute();
     }

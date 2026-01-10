@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -21,7 +22,7 @@ class SqliteWalListener
         $connection = $event->getConnection();
 
         if ($connection->getDatabasePlatform() instanceof SQLitePlatform) {
-            $connection->executeStatement("PRAGMA journal_mode=WAL");
+            $connection->executeStatement('PRAGMA journal_mode=WAL');
         }
     }
 }

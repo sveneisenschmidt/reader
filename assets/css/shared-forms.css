@@ -6,7 +6,7 @@
 .form {
     width: 100%;
 
-    @media (min-width: 769px) {
+    @media (width >= 769px) {
         max-width: var(--width-form);
     }
 }

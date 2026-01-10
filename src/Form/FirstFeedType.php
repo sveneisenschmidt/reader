@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -21,15 +22,15 @@ class FirstFeedType extends AbstractType
         FormBuilderInterface $builder,
         array $options,
     ): void {
-        $builder->add("feedUrl", UrlType::class, [
-            "label" => "Feed URL",
-            "constraints" => [
-                new Assert\NotBlank(message: "Please enter a feed URL."),
-                new Assert\Url(message: "Please enter a valid URL."),
+        $builder->add('feedUrl', UrlType::class, [
+            'label' => 'Feed URL',
+            'constraints' => [
+                new Assert\NotBlank(message: 'Please enter a feed URL.'),
+                new Assert\Url(message: 'Please enter a valid URL.'),
             ],
-            "attr" => [
-                "placeholder" => "https://sven.eisenschmidt.website/index.xml",
-                "autofocus" => true,
+            'attr' => [
+                'placeholder' => 'https://sven.eisenschmidt.website/index.xml',
+                'autofocus' => true,
             ],
         ]);
     }
@@ -37,8 +38,8 @@ class FirstFeedType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            "csrf_protection" => true,
-            "csrf_token_id" => "first_feed",
+            'csrf_protection' => true,
+            'csrf_token_id' => 'first_feed',
         ]);
     }
 }

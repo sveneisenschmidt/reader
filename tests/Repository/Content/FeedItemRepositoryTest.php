@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -28,7 +29,7 @@ class FeedItemRepositoryTest extends KernelTestCase
 
     private function createFeedItem(
         string $guid,
-        string $feedGuid = "testfeed1234567",
+        string $feedGuid = 'testfeed1234567',
         ?\DateTimeImmutable $publishedAt = null,
     ): FeedItem {
         return new FeedItem(
@@ -36,7 +37,7 @@ class FeedItemRepositoryTest extends KernelTestCase
             $feedGuid,
             "Test Item $guid",
             "https://example.com/$guid",
-            "Test Source",
+            'Test Source',
             "Test excerpt for $guid",
             $publishedAt ?? new \DateTimeImmutable(),
         );
@@ -45,7 +46,7 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function findByGuidReturnsNullWhenNotFound(): void
     {
-        $result = $this->repository->findByGuid("nonexistent12345");
+        $result = $this->repository->findByGuid('nonexistent12345');
 
         $this->assertNull($result);
     }
@@ -53,19 +54,19 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function findByGuidReturnsFeedItem(): void
     {
-        $feedItem = $this->createFeedItem("testguid12345678");
+        $feedItem = $this->createFeedItem('testguid12345678');
         $this->repository->upsert($feedItem);
 
-        $result = $this->repository->findByGuid("testguid12345678");
+        $result = $this->repository->findByGuid('testguid12345678');
 
         $this->assertNotNull($result);
-        $this->assertEquals("testguid12345678", $result->getGuid());
+        $this->assertEquals('testguid12345678', $result->getGuid());
     }
 
     #[Test]
     public function findByFeedGuidReturnsEmptyArrayWhenNoItems(): void
     {
-        $result = $this->repository->findByFeedGuid("nonexistentfeed1");
+        $result = $this->repository->findByFeedGuid('nonexistentfeed1');
 
         $this->assertIsArray($result);
         $this->assertEmpty($result);
@@ -74,16 +75,16 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function findByFeedGuidReturnsItemsOrderedByDate(): void
     {
-        $feedGuid = "orderedfeed12345";
+        $feedGuid = 'orderedfeed12345';
         $older = $this->createFeedItem(
-            "olderitem1234567",
+            'olderitem1234567',
             $feedGuid,
-            new \DateTimeImmutable("-1 day"),
+            new \DateTimeImmutable('-1 day'),
         );
         $newer = $this->createFeedItem(
-            "neweritem1234567",
+            'neweritem1234567',
             $feedGuid,
-            new \DateTimeImmutable("now"),
+            new \DateTimeImmutable('now'),
         );
 
         $this->repository->upsert($older);
@@ -92,8 +93,8 @@ class FeedItemRepositoryTest extends KernelTestCase
         $result = $this->repository->findByFeedGuid($feedGuid);
 
         $this->assertCount(2, $result);
-        $this->assertEquals("neweritem1234567", $result[0]->getGuid());
-        $this->assertEquals("olderitem1234567", $result[1]->getGuid());
+        $this->assertEquals('neweritem1234567', $result[0]->getGuid());
+        $this->assertEquals('olderitem1234567', $result[1]->getGuid());
     }
 
     #[Test]
@@ -116,11 +117,11 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function findByFeedGuidsReturnsItemsForMultipleFeeds(): void
     {
-        $feedGuid1 = "multifeed1234567";
-        $feedGuid2 = "multifeed2345678";
+        $feedGuid1 = 'multifeed1234567';
+        $feedGuid2 = 'multifeed2345678';
 
-        $item1 = $this->createFeedItem("multiitem12345678", $feedGuid1);
-        $item2 = $this->createFeedItem("multiitem23456789", $feedGuid2);
+        $item1 = $this->createFeedItem('multiitem12345678', $feedGuid1);
+        $item2 = $this->createFeedItem('multiitem23456789', $feedGuid2);
 
         $this->repository->upsert($item1);
         $this->repository->upsert($item2);
@@ -133,81 +134,81 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function upsertCreatesNewItem(): void
     {
-        $feedItem = $this->createFeedItem("newupsertitem123");
+        $feedItem = $this->createFeedItem('newupsertitem123');
 
         $this->repository->upsert($feedItem);
 
-        $result = $this->repository->findByGuid("newupsertitem123");
+        $result = $this->repository->findByGuid('newupsertitem123');
         $this->assertNotNull($result);
-        $this->assertEquals("Test Item newupsertitem123", $result->getTitle());
+        $this->assertEquals('Test Item newupsertitem123', $result->getTitle());
     }
 
     #[Test]
     public function upsertUpdatesExistingItem(): void
     {
-        $feedItem = $this->createFeedItem("updateitem123456");
+        $feedItem = $this->createFeedItem('updateitem123456');
         $this->repository->upsert($feedItem);
 
         // Create updated version
         $updatedItem = new FeedItem(
-            "updateitem123456",
-            "testfeed1234567",
-            "Updated Title",
-            "https://example.com/updated",
-            "Updated Source",
-            "Updated excerpt",
+            'updateitem123456',
+            'testfeed1234567',
+            'Updated Title',
+            'https://example.com/updated',
+            'Updated Source',
+            'Updated excerpt',
             new \DateTimeImmutable(),
         );
 
         $this->repository->upsert($updatedItem);
 
-        $result = $this->repository->findByGuid("updateitem123456");
-        $this->assertEquals("Updated Title", $result->getTitle());
-        $this->assertEquals("https://example.com/updated", $result->getLink());
+        $result = $this->repository->findByGuid('updateitem123456');
+        $this->assertEquals('Updated Title', $result->getTitle());
+        $this->assertEquals('https://example.com/updated', $result->getLink());
     }
 
     #[Test]
     public function upsertBatchCreatesMultipleItems(): void
     {
         $items = [
-            $this->createFeedItem("batchitem1234567"),
-            $this->createFeedItem("batchitem2345678"),
-            $this->createFeedItem("batchitem3456789"),
+            $this->createFeedItem('batchitem1234567'),
+            $this->createFeedItem('batchitem2345678'),
+            $this->createFeedItem('batchitem3456789'),
         ];
 
         $this->repository->upsertBatch($items);
 
-        $this->assertNotNull($this->repository->findByGuid("batchitem1234567"));
-        $this->assertNotNull($this->repository->findByGuid("batchitem2345678"));
-        $this->assertNotNull($this->repository->findByGuid("batchitem3456789"));
+        $this->assertNotNull($this->repository->findByGuid('batchitem1234567'));
+        $this->assertNotNull($this->repository->findByGuid('batchitem2345678'));
+        $this->assertNotNull($this->repository->findByGuid('batchitem3456789'));
     }
 
     #[Test]
     public function upsertBatchUpdatesExistingItems(): void
     {
-        $original = $this->createFeedItem("batchupdate12345");
+        $original = $this->createFeedItem('batchupdate12345');
         $this->repository->upsert($original);
 
         $updated = new FeedItem(
-            "batchupdate12345",
-            "testfeed1234567",
-            "Batch Updated Title",
-            "https://example.com/batch-updated",
-            "Test Source",
-            "Test excerpt",
+            'batchupdate12345',
+            'testfeed1234567',
+            'Batch Updated Title',
+            'https://example.com/batch-updated',
+            'Test Source',
+            'Test excerpt',
             new \DateTimeImmutable(),
         );
 
         $this->repository->upsertBatch([$updated]);
 
-        $result = $this->repository->findByGuid("batchupdate12345");
-        $this->assertEquals("Batch Updated Title", $result->getTitle());
+        $result = $this->repository->findByGuid('batchupdate12345');
+        $this->assertEquals('Batch Updated Title', $result->getTitle());
     }
 
     #[Test]
     public function getItemCountByFeedGuidReturnsZeroForEmpty(): void
     {
-        $count = $this->repository->getItemCountByFeedGuid("emptyfeed1234567");
+        $count = $this->repository->getItemCountByFeedGuid('emptyfeed1234567');
 
         $this->assertEquals(0, $count);
     }
@@ -215,9 +216,9 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function getItemCountByFeedGuidReturnsCorrectCount(): void
     {
-        $feedGuid = "countfeed1234567";
-        $this->repository->upsert($this->createFeedItem("count1234567890a", $feedGuid));
-        $this->repository->upsert($this->createFeedItem("count1234567890b", $feedGuid));
+        $feedGuid = 'countfeed1234567';
+        $this->repository->upsert($this->createFeedItem('count1234567890a', $feedGuid));
+        $this->repository->upsert($this->createFeedItem('count1234567890b', $feedGuid));
 
         $count = $this->repository->getItemCountByFeedGuid($feedGuid);
 
@@ -227,16 +228,16 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function deleteOlderThanRemovesOldItems(): void
     {
-        $feedGuid = "deletefeed123456";
+        $feedGuid = 'deletefeed123456';
         $oldItem = $this->createFeedItem(
-            "olditem123456789",
+            'olditem123456789',
             $feedGuid,
-            new \DateTimeImmutable("-30 days"),
+            new \DateTimeImmutable('-30 days'),
         );
         $this->repository->upsert($oldItem);
 
         $deleted = $this->repository->deleteOlderThan(
-            new \DateTimeImmutable("-7 days"),
+            new \DateTimeImmutable('-7 days'),
         );
 
         $this->assertGreaterThanOrEqual(0, $deleted);
@@ -245,7 +246,7 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function getGuidsByFeedGuidReturnsEmptyForNoItems(): void
     {
-        $guids = $this->repository->getGuidsByFeedGuid("noguidsfeed12345");
+        $guids = $this->repository->getGuidsByFeedGuid('noguidsfeed12345');
 
         $this->assertIsArray($guids);
         $this->assertEmpty($guids);
@@ -254,22 +255,22 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function getGuidsByFeedGuidReturnsGuids(): void
     {
-        $feedGuid = "guidsfeed1234567";
-        $this->repository->upsert($this->createFeedItem("guidsitem1234567", $feedGuid));
-        $this->repository->upsert($this->createFeedItem("guidsitem2345678", $feedGuid));
+        $feedGuid = 'guidsfeed1234567';
+        $this->repository->upsert($this->createFeedItem('guidsitem1234567', $feedGuid));
+        $this->repository->upsert($this->createFeedItem('guidsitem2345678', $feedGuid));
 
         $guids = $this->repository->getGuidsByFeedGuid($feedGuid);
 
-        $this->assertContains("guidsitem1234567", $guids);
-        $this->assertContains("guidsitem2345678", $guids);
+        $this->assertContains('guidsitem1234567', $guids);
+        $this->assertContains('guidsitem2345678', $guids);
     }
 
     #[Test]
     public function deleteByFeedGuidRemovesAllItemsForFeed(): void
     {
-        $feedGuid = "deletebyfeed1234";
-        $this->repository->upsert($this->createFeedItem("delbyfeed1234567", $feedGuid));
-        $this->repository->upsert($this->createFeedItem("delbyfeed2345678", $feedGuid));
+        $feedGuid = 'deletebyfeed1234';
+        $this->repository->upsert($this->createFeedItem('delbyfeed1234567', $feedGuid));
+        $this->repository->upsert($this->createFeedItem('delbyfeed2345678', $feedGuid));
 
         $deleted = $this->repository->deleteByFeedGuid($feedGuid);
 

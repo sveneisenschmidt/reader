@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -20,23 +21,24 @@ class CleanupContentHandler
     public function __construct(
         private FeedItemRepository $feedItemRepository,
         private LoggerInterface $logger,
-    ) {}
+    ) {
+    }
 
     public function __invoke(CleanupContentMessage $message): void
     {
         $cutoffDate = new \DateTimeImmutable("-{$message->olderThanDays} days");
 
-        $this->logger->info("Cleaning up old content", [
-            "older_than_days" => $message->olderThanDays,
-            "cutoff_date" => $cutoffDate->format("Y-m-d"),
+        $this->logger->info('Cleaning up old content', [
+            'older_than_days' => $message->olderThanDays,
+            'cutoff_date' => $cutoffDate->format('Y-m-d'),
         ]);
 
         $deletedContent = $this->feedItemRepository->deleteOlderThan(
             $cutoffDate,
         );
 
-        $this->logger->info("Cleanup completed", [
-            "deleted_content" => $deletedContent,
+        $this->logger->info('Cleanup completed', [
+            'deleted_content' => $deletedContent,
         ]);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -20,12 +21,12 @@ class ReadStatusServiceTest extends TestCase
     public function markAsReadDelegatesToRepository(): void
     {
         $userId = 1;
-        $guid = "item-guid";
+        $guid = 'item-guid';
 
         $repository = $this->createMock(ReadStatusRepository::class);
         $repository
             ->expects($this->once())
-            ->method("markAsRead")
+            ->method('markAsRead')
             ->with($userId, $guid);
 
         $service = new ReadStatusService($repository);
@@ -36,12 +37,12 @@ class ReadStatusServiceTest extends TestCase
     public function markAsUnreadDelegatesToRepository(): void
     {
         $userId = 1;
-        $guid = "item-guid";
+        $guid = 'item-guid';
 
         $repository = $this->createMock(ReadStatusRepository::class);
         $repository
             ->expects($this->once())
-            ->method("markAsUnread")
+            ->method('markAsUnread')
             ->with($userId, $guid);
 
         $service = new ReadStatusService($repository);
@@ -52,12 +53,12 @@ class ReadStatusServiceTest extends TestCase
     public function markManyAsReadDelegatesToRepository(): void
     {
         $userId = 1;
-        $guids = ["guid1", "guid2", "guid3"];
+        $guids = ['guid1', 'guid2', 'guid3'];
 
         $repository = $this->createMock(ReadStatusRepository::class);
         $repository
             ->expects($this->once())
-            ->method("markManyAsRead")
+            ->method('markManyAsRead')
             ->with($userId, $guids);
 
         $service = new ReadStatusService($repository);
@@ -68,10 +69,10 @@ class ReadStatusServiceTest extends TestCase
     public function isReadReturnsRepositoryResult(): void
     {
         $userId = 1;
-        $guid = "item-guid";
+        $guid = 'item-guid';
 
         $repository = $this->createStub(ReadStatusRepository::class);
-        $repository->method("isRead")->willReturn(true);
+        $repository->method('isRead')->willReturn(true);
 
         $service = new ReadStatusService($repository);
 
@@ -82,10 +83,10 @@ class ReadStatusServiceTest extends TestCase
     public function getReadGuidsForUserReturnsRepositoryResult(): void
     {
         $userId = 1;
-        $guids = ["guid1", "guid2"];
+        $guids = ['guid1', 'guid2'];
 
         $repository = $this->createStub(ReadStatusRepository::class);
-        $repository->method("getReadGuidsForUser")->willReturn($guids);
+        $repository->method('getReadGuidsForUser')->willReturn($guids);
 
         $service = new ReadStatusService($repository);
         $result = $service->getReadGuidsForUser($userId);
@@ -97,23 +98,23 @@ class ReadStatusServiceTest extends TestCase
     public function enrichItemsWithReadStatusMarksReadItems(): void
     {
         $userId = 1;
-        $readGuids = ["guid1", "guid3"];
+        $readGuids = ['guid1', 'guid3'];
 
         $repository = $this->createStub(ReadStatusRepository::class);
-        $repository->method("getReadGuidsForUser")->willReturn($readGuids);
+        $repository->method('getReadGuidsForUser')->willReturn($readGuids);
 
         $items = [
-            ["guid" => "guid1", "title" => "Item 1"],
-            ["guid" => "guid2", "title" => "Item 2"],
-            ["guid" => "guid3", "title" => "Item 3"],
+            ['guid' => 'guid1', 'title' => 'Item 1'],
+            ['guid' => 'guid2', 'title' => 'Item 2'],
+            ['guid' => 'guid3', 'title' => 'Item 3'],
         ];
 
         $service = new ReadStatusService($repository);
         $result = $service->enrichItemsWithReadStatus($items, $userId);
 
-        $this->assertTrue($result[0]["isRead"]);
-        $this->assertFalse($result[1]["isRead"]);
-        $this->assertTrue($result[2]["isRead"]);
+        $this->assertTrue($result[0]['isRead']);
+        $this->assertFalse($result[1]['isRead']);
+        $this->assertTrue($result[2]['isRead']);
     }
 
     #[Test]
@@ -122,18 +123,18 @@ class ReadStatusServiceTest extends TestCase
         $userId = 1;
 
         $repository = $this->createStub(ReadStatusRepository::class);
-        $repository->method("getReadGuidsForUser")->willReturn([]);
+        $repository->method('getReadGuidsForUser')->willReturn([]);
 
         $items = [
-            ["guid" => "guid1", "title" => "Item 1"],
-            ["guid" => "guid2", "title" => "Item 2"],
+            ['guid' => 'guid1', 'title' => 'Item 1'],
+            ['guid' => 'guid2', 'title' => 'Item 2'],
         ];
 
         $service = new ReadStatusService($repository);
         $result = $service->enrichItemsWithReadStatus($items, $userId);
 
-        $this->assertFalse($result[0]["isRead"]);
-        $this->assertFalse($result[1]["isRead"]);
+        $this->assertFalse($result[0]['isRead']);
+        $this->assertFalse($result[1]['isRead']);
     }
 
     #[Test]
@@ -142,7 +143,7 @@ class ReadStatusServiceTest extends TestCase
         $userId = 1;
 
         $repository = $this->createStub(ReadStatusRepository::class);
-        $repository->method("getReadGuidsForUser")->willReturn(["guid1"]);
+        $repository->method('getReadGuidsForUser')->willReturn(['guid1']);
 
         $service = new ReadStatusService($repository);
         $result = $service->enrichItemsWithReadStatus([], $userId);

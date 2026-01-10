@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -36,14 +37,14 @@ class ReadStatusServiceTest extends KernelTestCase
         $userRepository = $container->get(UserRepository::class);
         $passwordHasher = $container->get(UserPasswordHasherInterface::class);
 
-        $user = $userRepository->findByUsername("readstatus_test@example.com");
+        $user = $userRepository->findByUsername('readstatus_test@example.com');
         if (!$user) {
-            $user = new User("readstatus_test@example.com");
-            $user->setEmail("readstatus_test@example.com");
+            $user = new User('readstatus_test@example.com');
+            $user->setEmail('readstatus_test@example.com');
             $user->setPassword(
-                $passwordHasher->hashPassword($user, "testpassword"),
+                $passwordHasher->hashPassword($user, 'testpassword'),
             );
-            $user->setTotpSecret("JBSWY3DPEHPK3PXP");
+            $user->setTotpSecret('JBSWY3DPEHPK3PXP');
             $userRepository->save($user);
         }
 
@@ -53,7 +54,7 @@ class ReadStatusServiceTest extends KernelTestCase
     #[Test]
     public function markAsReadAndIsRead(): void
     {
-        $guid = "testitm_" . uniqid();
+        $guid = 'testitm_'.uniqid();
 
         $this->assertFalse($this->service->isRead($this->testUserId, $guid));
 
@@ -65,7 +66,7 @@ class ReadStatusServiceTest extends KernelTestCase
     #[Test]
     public function markAsUnread(): void
     {
-        $guid = "unread_" . uniqid();
+        $guid = 'unread_'.uniqid();
 
         $this->service->markAsRead($this->testUserId, $guid);
         $this->assertTrue($this->service->isRead($this->testUserId, $guid));
@@ -78,9 +79,9 @@ class ReadStatusServiceTest extends KernelTestCase
     public function markManyAsRead(): void
     {
         $guids = [
-            "many1_" . uniqid(),
-            "many2_" . uniqid(),
-            "many3_" . uniqid(),
+            'many1_'.uniqid(),
+            'many2_'.uniqid(),
+            'many3_'.uniqid(),
         ];
 
         foreach ($guids as $guid) {
@@ -97,8 +98,8 @@ class ReadStatusServiceTest extends KernelTestCase
     #[Test]
     public function getReadGuidsForUser(): void
     {
-        $guid1 = "getguids1_" . uniqid();
-        $guid2 = "getguids2_" . uniqid();
+        $guid1 = 'getguids1_'.uniqid();
+        $guid2 = 'getguids2_'.uniqid();
 
         $this->service->markAsRead($this->testUserId, $guid1);
         $this->service->markAsRead($this->testUserId, $guid2);
@@ -112,14 +113,14 @@ class ReadStatusServiceTest extends KernelTestCase
     #[Test]
     public function enrichItemsWithReadStatus(): void
     {
-        $readGuid = "enrich_read_" . uniqid();
-        $unreadGuid = "enrich_unread_" . uniqid();
+        $readGuid = 'enrich_read_'.uniqid();
+        $unreadGuid = 'enrich_unread_'.uniqid();
 
         $this->service->markAsRead($this->testUserId, $readGuid);
 
         $items = [
-            ["guid" => $readGuid, "title" => "Read Item"],
-            ["guid" => $unreadGuid, "title" => "Unread Item"],
+            ['guid' => $readGuid, 'title' => 'Read Item'],
+            ['guid' => $unreadGuid, 'title' => 'Unread Item'],
         ];
 
         $enrichedItems = $this->service->enrichItemsWithReadStatus(
@@ -127,7 +128,7 @@ class ReadStatusServiceTest extends KernelTestCase
             $this->testUserId,
         );
 
-        $this->assertTrue($enrichedItems[0]["isRead"]);
-        $this->assertFalse($enrichedItems[1]["isRead"]);
+        $this->assertTrue($enrichedItems[0]['isRead']);
+        $this->assertFalse($enrichedItems[1]['isRead']);
     }
 }

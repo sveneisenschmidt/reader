@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -34,13 +35,13 @@ class FilterUrlExtensionTest extends TestCase
     }
 
     private function createMockRequest(
-        string $route = "feed_index",
+        string $route = 'feed_index',
         array $routeParams = [],
         array $queryParams = [],
     ): Request {
-        $request = Request::create("/", "GET", $queryParams);
-        $request->attributes->set("_route", $route);
-        $request->attributes->set("_route_params", $routeParams);
+        $request = Request::create('/', 'GET', $queryParams);
+        $request->attributes->set('_route', $route);
+        $request->attributes->set('_route_params', $routeParams);
 
         return $request;
     }
@@ -52,189 +53,189 @@ class FilterUrlExtensionTest extends TestCase
 
         $this->assertCount(2, $functions);
 
-        $names = array_map(fn($f) => $f->getName(), $functions);
-        $this->assertContains("filter_url", $names);
-        $this->assertContains("path_with_filters", $names);
+        $names = array_map(fn ($f) => $f->getName(), $functions);
+        $this->assertContains('filter_url', $names);
+        $this->assertContains('path_with_filters', $names);
     }
 
     #[Test]
     public function filterUrlGeneratesUrlWithCurrentFilters(): void
     {
-        $request = $this->createMockRequest("feed_index", [], ["unread" => "1"]);
-        $this->requestStack->method("getCurrentRequest")->willReturn($request);
+        $request = $this->createMockRequest('feed_index', [], ['unread' => '1']);
+        $this->requestStack->method('getCurrentRequest')->willReturn($request);
 
         $this->urlGenerator
             ->expects($this->once())
-            ->method("generate")
-            ->with("feed_index", ["unread" => "1"])
-            ->willReturn("/?unread=1");
+            ->method('generate')
+            ->with('feed_index', ['unread' => '1'])
+            ->willReturn('/?unread=1');
 
         $result = $this->extension->filterUrl();
 
-        $this->assertEquals("/?unread=1", $result);
+        $this->assertEquals('/?unread=1', $result);
     }
 
     #[Test]
     public function filterUrlMergesNewParams(): void
     {
-        $request = $this->createMockRequest("feed_index");
-        $this->requestStack->method("getCurrentRequest")->willReturn($request);
+        $request = $this->createMockRequest('feed_index');
+        $this->requestStack->method('getCurrentRequest')->willReturn($request);
 
         $this->urlGenerator
             ->expects($this->once())
-            ->method("generate")
-            ->with("feed_index", ["unread" => "1"])
-            ->willReturn("/?unread=1");
+            ->method('generate')
+            ->with('feed_index', ['unread' => '1'])
+            ->willReturn('/?unread=1');
 
-        $result = $this->extension->filterUrl(["unread" => "1"]);
+        $result = $this->extension->filterUrl(['unread' => '1']);
 
-        $this->assertEquals("/?unread=1", $result);
+        $this->assertEquals('/?unread=1', $result);
     }
 
     #[Test]
     public function filterUrlRemovesDefaultValues(): void
     {
-        $request = $this->createMockRequest("feed_index");
-        $this->requestStack->method("getCurrentRequest")->willReturn($request);
+        $request = $this->createMockRequest('feed_index');
+        $this->requestStack->method('getCurrentRequest')->willReturn($request);
 
         $this->urlGenerator
             ->expects($this->once())
-            ->method("generate")
-            ->with("feed_index", [])
-            ->willReturn("/");
+            ->method('generate')
+            ->with('feed_index', [])
+            ->willReturn('/');
 
-        $result = $this->extension->filterUrl(["unread" => "0", "limit" => 50]);
+        $result = $this->extension->filterUrl(['unread' => '0', 'limit' => 50]);
 
-        $this->assertEquals("/", $result);
+        $this->assertEquals('/', $result);
     }
 
     #[Test]
     public function filterUrlPreservesRouteParams(): void
     {
         $request = $this->createMockRequest(
-            "subscription_show",
-            ["sguid" => "abc123"],
+            'subscription_show',
+            ['sguid' => 'abc123'],
         );
-        $this->requestStack->method("getCurrentRequest")->willReturn($request);
+        $this->requestStack->method('getCurrentRequest')->willReturn($request);
 
         $this->urlGenerator
             ->expects($this->once())
-            ->method("generate")
-            ->with("subscription_show", ["sguid" => "abc123", "unread" => "1"])
-            ->willReturn("/s/abc123?unread=1");
+            ->method('generate')
+            ->with('subscription_show', ['sguid' => 'abc123', 'unread' => '1'])
+            ->willReturn('/s/abc123?unread=1');
 
-        $result = $this->extension->filterUrl(["unread" => "1"]);
+        $result = $this->extension->filterUrl(['unread' => '1']);
 
-        $this->assertEquals("/s/abc123?unread=1", $result);
+        $this->assertEquals('/s/abc123?unread=1', $result);
     }
 
     #[Test]
     public function filterUrlPreservesNonDefaultLimit(): void
     {
-        $request = $this->createMockRequest("feed_index", [], ["limit" => "100"]);
-        $this->requestStack->method("getCurrentRequest")->willReturn($request);
+        $request = $this->createMockRequest('feed_index', [], ['limit' => '100']);
+        $this->requestStack->method('getCurrentRequest')->willReturn($request);
 
         $this->urlGenerator
             ->expects($this->once())
-            ->method("generate")
-            ->with("feed_index", ["limit" => 100])
-            ->willReturn("/?limit=100");
+            ->method('generate')
+            ->with('feed_index', ['limit' => 100])
+            ->willReturn('/?limit=100');
 
         $result = $this->extension->filterUrl();
 
-        $this->assertEquals("/?limit=100", $result);
+        $this->assertEquals('/?limit=100', $result);
     }
 
     #[Test]
     public function pathWithFiltersGeneratesPathWithCurrentFilters(): void
     {
-        $request = $this->createMockRequest("feed_index", [], ["unread" => "1"]);
-        $this->requestStack->method("getCurrentRequest")->willReturn($request);
+        $request = $this->createMockRequest('feed_index', [], ['unread' => '1']);
+        $this->requestStack->method('getCurrentRequest')->willReturn($request);
 
         $this->urlGenerator
             ->expects($this->once())
-            ->method("generate")
-            ->with("feed_item", ["fguid" => "abc123", "unread" => "1"])
-            ->willReturn("/f/abc123?unread=1");
+            ->method('generate')
+            ->with('feed_item', ['fguid' => 'abc123', 'unread' => '1'])
+            ->willReturn('/f/abc123?unread=1');
 
-        $result = $this->extension->pathWithFilters("feed_item", [
-            "fguid" => "abc123",
+        $result = $this->extension->pathWithFilters('feed_item', [
+            'fguid' => 'abc123',
         ]);
 
-        $this->assertEquals("/f/abc123?unread=1", $result);
+        $this->assertEquals('/f/abc123?unread=1', $result);
     }
 
     #[Test]
     public function pathWithFiltersDoesNotIncludeUnreadWhenFalse(): void
     {
-        $request = $this->createMockRequest("feed_index");
-        $this->requestStack->method("getCurrentRequest")->willReturn($request);
+        $request = $this->createMockRequest('feed_index');
+        $this->requestStack->method('getCurrentRequest')->willReturn($request);
 
         $this->urlGenerator
             ->expects($this->once())
-            ->method("generate")
-            ->with("feed_item", ["fguid" => "abc123"])
-            ->willReturn("/f/abc123");
+            ->method('generate')
+            ->with('feed_item', ['fguid' => 'abc123'])
+            ->willReturn('/f/abc123');
 
-        $result = $this->extension->pathWithFilters("feed_item", [
-            "fguid" => "abc123",
+        $result = $this->extension->pathWithFilters('feed_item', [
+            'fguid' => 'abc123',
         ]);
 
-        $this->assertEquals("/f/abc123", $result);
+        $this->assertEquals('/f/abc123', $result);
     }
 
     #[Test]
     public function pathWithFiltersIncludesNonDefaultLimit(): void
     {
-        $request = $this->createMockRequest("feed_index", [], ["limit" => "25"]);
-        $this->requestStack->method("getCurrentRequest")->willReturn($request);
+        $request = $this->createMockRequest('feed_index', [], ['limit' => '25']);
+        $this->requestStack->method('getCurrentRequest')->willReturn($request);
 
         $this->urlGenerator
             ->expects($this->once())
-            ->method("generate")
-            ->with("feed_item", ["fguid" => "abc123", "limit" => 25])
-            ->willReturn("/f/abc123?limit=25");
+            ->method('generate')
+            ->with('feed_item', ['fguid' => 'abc123', 'limit' => 25])
+            ->willReturn('/f/abc123?limit=25');
 
-        $result = $this->extension->pathWithFilters("feed_item", [
-            "fguid" => "abc123",
+        $result = $this->extension->pathWithFilters('feed_item', [
+            'fguid' => 'abc123',
         ]);
 
-        $this->assertEquals("/f/abc123?limit=25", $result);
+        $this->assertEquals('/f/abc123?limit=25', $result);
     }
 
     #[Test]
     public function pathWithFiltersDoesNotIncludeDefaultLimit(): void
     {
-        $request = $this->createMockRequest("feed_index", [], ["limit" => "50"]);
-        $this->requestStack->method("getCurrentRequest")->willReturn($request);
+        $request = $this->createMockRequest('feed_index', [], ['limit' => '50']);
+        $this->requestStack->method('getCurrentRequest')->willReturn($request);
 
         $this->urlGenerator
             ->expects($this->once())
-            ->method("generate")
-            ->with("feed_item", ["fguid" => "abc123"])
-            ->willReturn("/f/abc123");
+            ->method('generate')
+            ->with('feed_item', ['fguid' => 'abc123'])
+            ->willReturn('/f/abc123');
 
-        $result = $this->extension->pathWithFilters("feed_item", [
-            "fguid" => "abc123",
+        $result = $this->extension->pathWithFilters('feed_item', [
+            'fguid' => 'abc123',
         ]);
 
-        $this->assertEquals("/f/abc123", $result);
+        $this->assertEquals('/f/abc123', $result);
     }
 
     #[Test]
     public function filterUrlHandlesZeroAsIntegerForUnread(): void
     {
-        $request = $this->createMockRequest("feed_index");
-        $this->requestStack->method("getCurrentRequest")->willReturn($request);
+        $request = $this->createMockRequest('feed_index');
+        $this->requestStack->method('getCurrentRequest')->willReturn($request);
 
         $this->urlGenerator
             ->expects($this->once())
-            ->method("generate")
-            ->with("feed_index", [])
-            ->willReturn("/");
+            ->method('generate')
+            ->with('feed_index', [])
+            ->willReturn('/');
 
-        $result = $this->extension->filterUrl(["unread" => 0]);
+        $result = $this->extension->filterUrl(['unread' => 0]);
 
-        $this->assertEquals("/", $result);
+        $this->assertEquals('/', $result);
     }
 }

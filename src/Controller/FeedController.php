@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -32,29 +33,30 @@ class FeedController extends AbstractController
         private SeenStatusService $seenStatusService,
         private FeedViewService $feedViewService,
         private CsrfTokenManagerInterface $csrfTokenManager,
-    ) {}
+    ) {
+    }
 
-    #[Route("/", name: "feed_index")]
+    #[Route('/', name: 'feed_index')]
     public function index(Request $request): Response
     {
         $user = $this->userService->getCurrentUser();
         if ($this->subscriptionService->countByUser($user->getId()) === 0) {
-            return $this->redirectToRoute("onboarding");
+            return $this->redirectToRoute('onboarding');
         }
 
         return $this->renderFeedView($request);
     }
 
-    #[Route("/refresh", name: "feed_refresh", methods: ["POST"])]
+    #[Route('/refresh', name: 'feed_refresh', methods: ['POST'])]
     public function refresh(Request $request): Response
     {
-        $this->validateCsrfToken($request, "refresh");
+        $this->validateCsrfToken($request, 'refresh');
         $user = $this->userService->getCurrentUser();
         $feedUrls = $this->subscriptionService->getFeedUrls($user->getId());
         $this->feedFetcher->refreshAllFeeds($feedUrls);
         $this->subscriptionService->updateRefreshTimestamps($user->getId());
 
-        $referer = $request->headers->get("referer");
+        $referer = $request->headers->get('referer');
         if ($referer) {
             $refererHost = parse_url($referer, PHP_URL_HOST);
             $currentHost = $request->getHost();
@@ -63,14 +65,14 @@ class FeedController extends AbstractController
             }
         }
 
-        return $this->redirectToRoute("feed_index");
+        return $this->redirectToRoute('feed_index');
     }
 
     #[
         Route(
-            "/f/{fguid}",
-            name: "feed_item",
-            requirements: ["fguid" => "[a-f0-9]{16}"],
+            '/f/{fguid}',
+            name: 'feed_item',
+            requirements: ['fguid' => '[a-f0-9]{16}'],
         ),
     ]
     public function item(Request $request, string $fguid): Response
@@ -80,9 +82,9 @@ class FeedController extends AbstractController
 
     #[
         Route(
-            "/s/{sguid}",
-            name: "subscription_show",
-            requirements: ["sguid" => "[a-f0-9]{16}"],
+            '/s/{sguid}',
+            name: 'subscription_show',
+            requirements: ['sguid' => '[a-f0-9]{16}'],
         ),
     ]
     public function subscription(Request $request, string $sguid): Response
@@ -92,11 +94,11 @@ class FeedController extends AbstractController
 
     #[
         Route(
-            "/s/{sguid}/f/{fguid}",
-            name: "feed_item_filtered",
+            '/s/{sguid}/f/{fguid}',
+            name: 'feed_item_filtered',
             requirements: [
-                "sguid" => "[a-f0-9]{16}",
-                "fguid" => "[a-f0-9]{16}",
+                'sguid' => '[a-f0-9]{16}',
+                'fguid' => '[a-f0-9]{16}',
             ],
         ),
     ]
@@ -108,31 +110,31 @@ class FeedController extends AbstractController
         return $this->renderFeedView($request, $sguid, $fguid);
     }
 
-    #[Route("/mark-all-read", name: "feed_mark_all_read", methods: ["POST"])]
+    #[Route('/mark-all-read', name: 'feed_mark_all_read', methods: ['POST'])]
     public function markAllAsRead(Request $request): Response
     {
-        $this->validateCsrfToken($request, "mark_all_read");
+        $this->validateCsrfToken($request, 'mark_all_read');
         $user = $this->userService->getCurrentUser();
         $guids = $this->feedViewService->getAllItemGuids($user->getId());
         $this->readStatusService->markManyAsRead($user->getId(), $guids);
         $this->seenStatusService->markManyAsSeen($user->getId(), $guids);
 
-        return $this->redirectToRoute("feed_index");
+        return $this->redirectToRoute('feed_index');
     }
 
     #[
         Route(
-            "/s/{sguid}/mark-all-read",
-            name: "subscription_mark_all_read",
-            requirements: ["sguid" => "[a-f0-9]{16}"],
-            methods: ["POST"],
+            '/s/{sguid}/mark-all-read',
+            name: 'subscription_mark_all_read',
+            requirements: ['sguid' => '[a-f0-9]{16}'],
+            methods: ['POST'],
         ),
     ]
     public function markAllAsReadForSubscription(
         Request $request,
         string $sguid,
     ): Response {
-        $this->validateCsrfToken($request, "mark_all_read");
+        $this->validateCsrfToken($request, 'mark_all_read');
         $user = $this->userService->getCurrentUser();
         $guids = $this->feedViewService->getItemGuidsForSubscription(
             $user->getId(),
@@ -141,20 +143,20 @@ class FeedController extends AbstractController
         $this->readStatusService->markManyAsRead($user->getId(), $guids);
         $this->seenStatusService->markManyAsSeen($user->getId(), $guids);
 
-        return $this->redirectToRoute("subscription_show", ["sguid" => $sguid]);
+        return $this->redirectToRoute('subscription_show', ['sguid' => $sguid]);
     }
 
     #[
         Route(
-            "/f/{fguid}/read",
-            name: "feed_item_mark_read",
-            requirements: ["fguid" => "[a-f0-9]{16}"],
-            methods: ["POST"],
+            '/f/{fguid}/read',
+            name: 'feed_item_mark_read',
+            requirements: ['fguid' => '[a-f0-9]{16}'],
+            methods: ['POST'],
         ),
     ]
     public function markAsRead(Request $request, string $fguid): Response
     {
-        $this->validateCsrfToken($request, "mark_read");
+        $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsRead($user->getId(), $fguid);
 
@@ -165,53 +167,53 @@ class FeedController extends AbstractController
         );
 
         return $nextFguid
-            ? $this->redirectToRoute("feed_item", ["fguid" => $nextFguid])
-            : $this->redirectToRoute("feed_index");
+            ? $this->redirectToRoute('feed_item', ['fguid' => $nextFguid])
+            : $this->redirectToRoute('feed_index');
     }
 
     #[
         Route(
-            "/f/{fguid}/unread",
-            name: "feed_item_mark_unread",
-            requirements: ["fguid" => "[a-f0-9]{16}"],
-            methods: ["POST"],
+            '/f/{fguid}/unread',
+            name: 'feed_item_mark_unread',
+            requirements: ['fguid' => '[a-f0-9]{16}'],
+            methods: ['POST'],
         ),
     ]
     public function markAsUnread(Request $request, string $fguid): Response
     {
-        $this->validateCsrfToken($request, "mark_read");
+        $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsUnread($user->getId(), $fguid);
 
-        return $this->redirectToRoute("feed_item", ["fguid" => $fguid]);
+        return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
     }
 
     #[
         Route(
-            "/f/{fguid}/read-stay",
-            name: "feed_item_mark_read_stay",
-            requirements: ["fguid" => "[a-f0-9]{16}"],
-            methods: ["POST"],
+            '/f/{fguid}/read-stay',
+            name: 'feed_item_mark_read_stay',
+            requirements: ['fguid' => '[a-f0-9]{16}'],
+            methods: ['POST'],
         ),
     ]
     public function markAsReadStay(Request $request, string $fguid): Response
     {
-        $this->validateCsrfToken($request, "mark_read");
+        $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsRead($user->getId(), $fguid);
 
-        return $this->redirectToRoute("feed_item", ["fguid" => $fguid]);
+        return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
     }
 
     #[
         Route(
-            "/s/{sguid}/f/{fguid}/read",
-            name: "feed_item_filtered_mark_read",
+            '/s/{sguid}/f/{fguid}/read',
+            name: 'feed_item_filtered_mark_read',
             requirements: [
-                "sguid" => "[a-f0-9]{16}",
-                "fguid" => "[a-f0-9]{16}",
+                'sguid' => '[a-f0-9]{16}',
+                'fguid' => '[a-f0-9]{16}',
             ],
-            methods: ["POST"],
+            methods: ['POST'],
         ),
     ]
     public function markAsReadFiltered(
@@ -219,7 +221,7 @@ class FeedController extends AbstractController
         string $sguid,
         string $fguid,
     ): Response {
-        $this->validateCsrfToken($request, "mark_read");
+        $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsRead($user->getId(), $fguid);
 
@@ -230,22 +232,22 @@ class FeedController extends AbstractController
         );
 
         return $nextFguid
-            ? $this->redirectToRoute("feed_item_filtered", [
-                "sguid" => $sguid,
-                "fguid" => $nextFguid,
+            ? $this->redirectToRoute('feed_item_filtered', [
+                'sguid' => $sguid,
+                'fguid' => $nextFguid,
             ])
-            : $this->redirectToRoute("subscription_show", ["sguid" => $sguid]);
+            : $this->redirectToRoute('subscription_show', ['sguid' => $sguid]);
     }
 
     #[
         Route(
-            "/s/{sguid}/f/{fguid}/unread",
-            name: "feed_item_filtered_mark_unread",
+            '/s/{sguid}/f/{fguid}/unread',
+            name: 'feed_item_filtered_mark_unread',
             requirements: [
-                "sguid" => "[a-f0-9]{16}",
-                "fguid" => "[a-f0-9]{16}",
+                'sguid' => '[a-f0-9]{16}',
+                'fguid' => '[a-f0-9]{16}',
             ],
-            methods: ["POST"],
+            methods: ['POST'],
         ),
     ]
     public function markAsUnreadFiltered(
@@ -253,25 +255,25 @@ class FeedController extends AbstractController
         string $sguid,
         string $fguid,
     ): Response {
-        $this->validateCsrfToken($request, "mark_read");
+        $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsUnread($user->getId(), $fguid);
 
-        return $this->redirectToRoute("feed_item_filtered", [
-            "sguid" => $sguid,
-            "fguid" => $fguid,
+        return $this->redirectToRoute('feed_item_filtered', [
+            'sguid' => $sguid,
+            'fguid' => $fguid,
         ]);
     }
 
     #[
         Route(
-            "/s/{sguid}/f/{fguid}/read-stay",
-            name: "feed_item_filtered_mark_read_stay",
+            '/s/{sguid}/f/{fguid}/read-stay',
+            name: 'feed_item_filtered_mark_read_stay',
             requirements: [
-                "sguid" => "[a-f0-9]{16}",
-                "fguid" => "[a-f0-9]{16}",
+                'sguid' => '[a-f0-9]{16}',
+                'fguid' => '[a-f0-9]{16}',
             ],
-            methods: ["POST"],
+            methods: ['POST'],
         ),
     ]
     public function markAsReadFilteredStay(
@@ -279,13 +281,13 @@ class FeedController extends AbstractController
         string $sguid,
         string $fguid,
     ): Response {
-        $this->validateCsrfToken($request, "mark_read");
+        $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsRead($user->getId(), $fguid);
 
-        return $this->redirectToRoute("feed_item_filtered", [
-            "sguid" => $sguid,
-            "fguid" => $fguid,
+        return $this->redirectToRoute('feed_item_filtered', [
+            'sguid' => $sguid,
+            'fguid' => $fguid,
         ]);
     }
 
@@ -295,8 +297,8 @@ class FeedController extends AbstractController
         ?string $fguid = null,
     ): Response {
         $user = $this->userService->getCurrentUser();
-        $unread = $request->query->getBoolean("unread", false);
-        $limit = $request->query->getInt("limit", 50);
+        $unread = $request->query->getBoolean('unread', false);
+        $limit = $request->query->getInt('limit', 50);
 
         $viewData = $this->feedViewService->getViewData(
             $user->getId(),
@@ -306,29 +308,29 @@ class FeedController extends AbstractController
             $limit,
         );
 
-        if ($viewData["activeItem"]) {
+        if ($viewData['activeItem']) {
             $this->seenStatusService->markAsSeen(
                 $user->getId(),
-                $viewData["activeItem"]["guid"],
+                $viewData['activeItem']['guid'],
             );
         }
 
-        return $this->render("feed/index.html.twig", [
-            "feeds" => $viewData["feeds"],
-            "items" => $viewData["items"],
-            "allItemsCount" => $viewData["allItemsCount"],
-            "activeItem" => $viewData["activeItem"],
-            "activeFeed" => $sguid,
-            "unread" => $unread,
-            "limit" => $limit,
+        return $this->render('feed/index.html.twig', [
+            'feeds' => $viewData['feeds'],
+            'items' => $viewData['items'],
+            'allItemsCount' => $viewData['allItemsCount'],
+            'activeItem' => $viewData['activeItem'],
+            'activeFeed' => $sguid,
+            'unread' => $unread,
+            'limit' => $limit,
         ]);
     }
 
     private function validateCsrfToken(Request $request, string $tokenId): void
     {
-        $token = new CsrfToken($tokenId, $request->request->get("_token"));
+        $token = new CsrfToken($tokenId, $request->request->get('_token'));
         if (!$this->csrfTokenManager->isTokenValid($token)) {
-            throw $this->createAccessDeniedException("Invalid CSRF token.");
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
         }
     }
 }

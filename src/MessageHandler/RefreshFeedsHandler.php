@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -24,14 +25,15 @@ class RefreshFeedsHandler
         private SubscriptionRepository $subscriptionRepository,
         private EntityManagerInterface $subscriptionsEntityManager,
         private LoggerInterface $logger,
-    ) {}
+    ) {
+    }
 
     public function __invoke(RefreshFeedsMessage $message): void
     {
         $subscriptions = $this->subscriptionRepository->findAll();
-        $urls = array_map(fn($s) => $s->getUrl(), $subscriptions);
+        $urls = array_map(fn ($s) => $s->getUrl(), $subscriptions);
 
-        $this->logger->info("Refreshing feeds", ["count" => count($urls)]);
+        $this->logger->info('Refreshing feeds', ['count' => count($urls)]);
 
         $this->feedFetcher->refreshAllFeeds($urls);
 
@@ -41,6 +43,6 @@ class RefreshFeedsHandler
         }
         $this->subscriptionsEntityManager->flush();
 
-        $this->logger->info("Feeds refreshed successfully");
+        $this->logger->info('Feeds refreshed successfully');
     }
 }

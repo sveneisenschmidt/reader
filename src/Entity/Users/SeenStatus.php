@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -6,7 +7,6 @@
  *
  * SPDX-License-Identifier: MIT
  */
-
 
 namespace App\Entity\Users;
 
@@ -17,27 +17,27 @@ use Doctrine\ORM\Mapping as ORM;
         repositoryClass: \App\Repository\Users\SeenStatusRepository::class,
     ),
 ]
-#[ORM\Table(name: "seen_status")]
+#[ORM\Table(name: 'seen_status')]
 #[
     ORM\UniqueConstraint(
-        name: "user_feed_item_seen",
-        columns: ["user_id", "feed_item_guid"],
+        name: 'user_feed_item_seen',
+        columns: ['user_id', 'feed_item_guid'],
     ),
 ]
 class SeenStatus
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private int $userId;
 
-    #[ORM\Column(type: "string", length: 16)]
+    #[ORM\Column(type: 'string', length: 16)]
     private string $feedItemGuid;
 
-    #[ORM\Column(type: "datetime_immutable")]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $seenAt;
 
     public function __construct(int $userId, string $feedItemGuid)

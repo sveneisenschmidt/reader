@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -22,20 +23,20 @@ class FeedItemRepository extends ServiceEntityRepository
 
     public function findByGuid(string $guid): ?FeedItem
     {
-        return $this->findOneBy(["guid" => $guid]);
+        return $this->findOneBy(['guid' => $guid]);
     }
 
     public function findByFeedGuid(string $feedGuid): array
     {
         return $this->findBy(
-            ["feedGuid" => $feedGuid],
-            ["publishedAt" => "DESC"],
+            ['feedGuid' => $feedGuid],
+            ['publishedAt' => 'DESC'],
         );
     }
 
     public function findAllOrderedByDate(): array
     {
-        return $this->findBy([], ["publishedAt" => "DESC"]);
+        return $this->findBy([], ['publishedAt' => 'DESC']);
     }
 
     public function findByFeedGuids(array $feedGuids): array
@@ -44,10 +45,10 @@ class FeedItemRepository extends ServiceEntityRepository
             return [];
         }
 
-        return $this->createQueryBuilder("f")
-            ->where("f.feedGuid IN (:feedGuids)")
-            ->setParameter("feedGuids", $feedGuids)
-            ->orderBy("f.publishedAt", "DESC")
+        return $this->createQueryBuilder('f')
+            ->where('f.feedGuid IN (:feedGuids)')
+            ->setParameter('feedGuids', $feedGuids)
+            ->orderBy('f.publishedAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
@@ -90,37 +91,37 @@ class FeedItemRepository extends ServiceEntityRepository
 
     public function getItemCountByFeedGuid(string $feedGuid): int
     {
-        return $this->count(["feedGuid" => $feedGuid]);
+        return $this->count(['feedGuid' => $feedGuid]);
     }
 
     public function deleteOlderThan(\DateTimeInterface $date): int
     {
-        return $this->createQueryBuilder("f")
+        return $this->createQueryBuilder('f')
             ->delete()
-            ->where("f.publishedAt < :date")
-            ->setParameter("date", $date)
+            ->where('f.publishedAt < :date')
+            ->setParameter('date', $date)
             ->getQuery()
             ->execute();
     }
 
     public function getGuidsByFeedGuid(string $feedGuid): array
     {
-        $results = $this->createQueryBuilder("f")
-            ->select("f.guid")
-            ->where("f.feedGuid = :feedGuid")
-            ->setParameter("feedGuid", $feedGuid)
+        $results = $this->createQueryBuilder('f')
+            ->select('f.guid')
+            ->where('f.feedGuid = :feedGuid')
+            ->setParameter('feedGuid', $feedGuid)
             ->getQuery()
             ->getScalarResult();
 
-        return array_column($results, "guid");
+        return array_column($results, 'guid');
     }
 
     public function deleteByFeedGuid(string $feedGuid): int
     {
-        return $this->createQueryBuilder("f")
+        return $this->createQueryBuilder('f')
             ->delete()
-            ->where("f.feedGuid = :feedGuid")
-            ->setParameter("feedGuid", $feedGuid)
+            ->where('f.feedGuid = :feedGuid')
+            ->setParameter('feedGuid', $feedGuid)
             ->getQuery()
             ->execute();
     }

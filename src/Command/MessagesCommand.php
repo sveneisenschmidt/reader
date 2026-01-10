@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -11,16 +12,16 @@ namespace App\Command;
 
 use App\Entity\Messages\ProcessedMessage;
 use App\Repository\Messages\ProcessedMessageRepository;
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 
 #[CodeCoverageIgnore]
-#[AsCommand(name: "reader:messages", description: "Display processed messages")]
+#[AsCommand(name: 'reader:messages', description: 'Display processed messages')]
 class MessagesCommand extends Command
 {
     public function __construct(
@@ -32,33 +33,33 @@ class MessagesCommand extends Command
     protected function configure(): void
     {
         $this->addOption(
-            "type",
-            "t",
+            'type',
+            't',
             InputOption::VALUE_REQUIRED,
-            "Filter by message type (e.g. HeartbeatMessage)",
+            'Filter by message type (e.g. HeartbeatMessage)',
         )
             ->addOption(
-                "status",
-                "s",
+                'status',
+                's',
                 InputOption::VALUE_REQUIRED,
                 sprintf(
-                    "Filter by status (%s, %s)",
+                    'Filter by status (%s, %s)',
                     ProcessedMessage::STATUS_SUCCESS,
                     ProcessedMessage::STATUS_FAILED,
                 ),
             )
             ->addOption(
-                "limit",
-                "l",
+                'limit',
+                'l',
                 InputOption::VALUE_REQUIRED,
-                "Number of entries to show",
+                'Number of entries to show',
                 20,
             )
             ->addOption(
-                "tail",
-                "f",
+                'tail',
+                'f',
                 InputOption::VALUE_NONE,
-                "Continuously display last 10 messages with stats header",
+                'Continuously display last 10 messages with stats header',
             );
     }
 
@@ -68,7 +69,7 @@ class MessagesCommand extends Command
     ): int {
         $io = new SymfonyStyle($input, $output);
 
-        if ($input->getOption("tail")) {
+        if ($input->getOption('tail')) {
             return $this->executeTail($io);
         }
 
@@ -77,31 +78,32 @@ class MessagesCommand extends Command
 
     private function executeList(InputInterface $input, SymfonyStyle $io): int
     {
-        $type = $input->getOption("type");
-        $status = $input->getOption("status");
-        $limit = (int) $input->getOption("limit");
+        $type = $input->getOption('type');
+        $status = $input->getOption('status');
+        $limit = (int) $input->getOption('limit');
 
         $criteria = [];
         if ($type) {
-            $criteria["messageType"] = $type;
+            $criteria['messageType'] = $type;
         }
         if ($status) {
-            $criteria["status"] = $status;
+            $criteria['status'] = $status;
         }
 
         $entries = $this->processedMessageRepository->findBy(
             $criteria,
-            ["processedAt" => "DESC"],
+            ['processedAt' => 'DESC'],
             $limit,
         );
 
         if (empty($entries)) {
-            $io->info("No processed messages found.");
+            $io->info('No processed messages found.');
+
             return Command::SUCCESS;
         }
 
         $io->table(
-            ["Time", "Type", "Status", "Error"],
+            ['Time', 'Type', 'Status', 'Error'],
             $this->formatRows($entries),
         );
 
@@ -117,20 +119,20 @@ class MessagesCommand extends Command
             $counts = $this->processedMessageRepository->getCountsByType();
             $statsLine = [];
             foreach ($counts as $type => $count) {
-                $shortType = substr($type, strrpos($type, "\\") + 1);
-                $statsLine[] = sprintf("%s: %d", $shortType, $count);
+                $shortType = substr($type, strrpos($type, '\\') + 1);
+                $statsLine[] = sprintf('%s: %d', $shortType, $count);
             }
 
             $output .=
-                "Messages: " .
-                (empty($statsLine) ? "none" : implode(" | ", $statsLine)) .
+                'Messages: '.
+                (empty($statsLine) ? 'none' : implode(' | ', $statsLine)).
                 "\n";
-            $output .= str_repeat("-", 80) . "\n\n";
+            $output .= str_repeat('-', 80)."\n\n";
 
             // Get last 10 entries
             $entries = $this->processedMessageRepository->findBy(
                 [],
-                ["processedAt" => "DESC"],
+                ['processedAt' => 'DESC'],
                 10,
             );
 
@@ -139,32 +141,32 @@ class MessagesCommand extends Command
             } else {
                 $output .= sprintf(
                     "%-19s  %-25s  %-8s  %s\n",
-                    "Time",
-                    "Type",
-                    "Status",
-                    "Error",
+                    'Time',
+                    'Type',
+                    'Status',
+                    'Error',
                 );
                 $output .= sprintf(
                     "%-19s  %-25s  %-8s  %s\n",
-                    str_repeat("-", 19),
-                    str_repeat("-", 25),
-                    str_repeat("-", 8),
-                    str_repeat("-", 25),
+                    str_repeat('-', 19),
+                    str_repeat('-', 25),
+                    str_repeat('-', 8),
+                    str_repeat('-', 25),
                 );
 
                 foreach ($entries as $entry) {
                     $shortType = substr(
                         $entry->getMessageType(),
-                        strrpos($entry->getMessageType(), "\\") + 1,
+                        strrpos($entry->getMessageType(), '\\') + 1,
                     );
                     $output .= sprintf(
                         "%-19s  %-25s  %-8s  %s\n",
-                        $entry->getProcessedAt()->format("Y-m-d H:i:s"),
+                        $entry->getProcessedAt()->format('Y-m-d H:i:s'),
                         $shortType,
                         $entry->getStatus(),
                         $entry->getErrorMessage()
                             ? substr($entry->getErrorMessage(), 0, 25)
-                            : "",
+                            : '',
                     );
                 }
             }
@@ -176,6 +178,7 @@ class MessagesCommand extends Command
 
     /**
      * @param ProcessedMessage[] $entries
+     *
      * @return array<array<string>>
      */
     private function formatRows(array $entries): array
@@ -184,17 +187,18 @@ class MessagesCommand extends Command
         foreach ($entries as $entry) {
             $shortType = substr(
                 $entry->getMessageType(),
-                strrpos($entry->getMessageType(), "\\") + 1,
+                strrpos($entry->getMessageType(), '\\') + 1,
             );
             $rows[] = [
-                $entry->getProcessedAt()->format("Y-m-d H:i:s"),
+                $entry->getProcessedAt()->format('Y-m-d H:i:s'),
                 $shortType,
                 $entry->getStatus(),
                 $entry->getErrorMessage()
                     ? substr($entry->getErrorMessage(), 0, 50)
-                    : "",
+                    : '',
             ];
         }
+
         return $rows;
     }
 }

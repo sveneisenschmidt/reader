@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -27,10 +28,10 @@ class FeedViewServiceTest extends TestCase
 
         $result = $service->getViewData($userId);
 
-        $this->assertArrayHasKey("feeds", $result);
-        $this->assertArrayHasKey("items", $result);
-        $this->assertArrayHasKey("allItemsCount", $result);
-        $this->assertArrayHasKey("activeItem", $result);
+        $this->assertArrayHasKey('feeds', $result);
+        $this->assertArrayHasKey('items', $result);
+        $this->assertArrayHasKey('allItemsCount', $result);
+        $this->assertArrayHasKey('activeItem', $result);
     }
 
     #[Test]
@@ -39,11 +40,11 @@ class FeedViewServiceTest extends TestCase
         $userId = 1;
         $service = $this->createServiceWithEnrichedItems();
 
-        $result = $service->getViewData($userId, "sguid1");
+        $result = $service->getViewData($userId, 'sguid1');
 
-        $this->assertCount(2, $result["items"]);
-        foreach ($result["items"] as $item) {
-            $this->assertEquals("sguid1", $item["sguid"]);
+        $this->assertCount(2, $result['items']);
+        foreach ($result['items'] as $item) {
+            $this->assertEquals('sguid1', $item['sguid']);
         }
     }
 
@@ -55,8 +56,8 @@ class FeedViewServiceTest extends TestCase
 
         $result = $service->getViewData($userId, null, null, true);
 
-        foreach ($result["items"] as $item) {
-            $this->assertFalse($item["isRead"]);
+        foreach ($result['items'] as $item) {
+            $this->assertFalse($item['isRead']);
         }
     }
 
@@ -68,7 +69,7 @@ class FeedViewServiceTest extends TestCase
 
         $result = $service->getViewData($userId, null, null, false, 2);
 
-        $this->assertCount(2, $result["items"]);
+        $this->assertCount(2, $result['items']);
     }
 
     #[Test]
@@ -77,10 +78,10 @@ class FeedViewServiceTest extends TestCase
         $userId = 1;
         $service = $this->createServiceWithEnrichedItems();
 
-        $result = $service->getViewData($userId, null, "guid2");
+        $result = $service->getViewData($userId, null, 'guid2');
 
-        $this->assertNotNull($result["activeItem"]);
-        $this->assertEquals("guid2", $result["activeItem"]["guid"]);
+        $this->assertNotNull($result['activeItem']);
+        $this->assertEquals('guid2', $result['activeItem']['guid']);
     }
 
     #[Test]
@@ -89,9 +90,9 @@ class FeedViewServiceTest extends TestCase
         $userId = 1;
         $service = $this->createServiceWithEnrichedItems();
 
-        $result = $service->getViewData($userId, null, "unknown-guid");
+        $result = $service->getViewData($userId, null, 'unknown-guid');
 
-        $this->assertNull($result["activeItem"]);
+        $this->assertNull($result['activeItem']);
     }
 
     #[Test]
@@ -100,12 +101,12 @@ class FeedViewServiceTest extends TestCase
         $userId = 1;
 
         $subscriptionService = $this->createStub(SubscriptionService::class);
-        $subscriptionService->method("getFeedGuids")->willReturn(["sguid1"]);
+        $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
 
         $feedFetcher = $this->createStub(FeedFetcher::class);
         $feedFetcher
-            ->method("getAllItems")
-            ->willReturn([["guid" => "guid1"], ["guid" => "guid2"]]);
+            ->method('getAllItems')
+            ->willReturn([['guid' => 'guid1'], ['guid' => 'guid2']]);
 
         $service = new FeedViewService(
             $feedFetcher,
@@ -116,7 +117,7 @@ class FeedViewServiceTest extends TestCase
 
         $result = $service->getAllItemGuids($userId);
 
-        $this->assertEquals(["guid1", "guid2"], $result);
+        $this->assertEquals(['guid1', 'guid2'], $result);
     }
 
     #[Test]
@@ -126,16 +127,16 @@ class FeedViewServiceTest extends TestCase
 
         $subscriptionService = $this->createStub(SubscriptionService::class);
         $subscriptionService
-            ->method("getFeedGuids")
-            ->willReturn(["sguid1", "sguid2"]);
+            ->method('getFeedGuids')
+            ->willReturn(['sguid1', 'sguid2']);
 
         $feedFetcher = $this->createStub(FeedFetcher::class);
         $feedFetcher
-            ->method("getAllItems")
+            ->method('getAllItems')
             ->willReturn([
-                ["guid" => "guid1", "sguid" => "sguid1"],
-                ["guid" => "guid2", "sguid" => "sguid2"],
-                ["guid" => "guid3", "sguid" => "sguid1"],
+                ['guid' => 'guid1', 'sguid' => 'sguid1'],
+                ['guid' => 'guid2', 'sguid' => 'sguid2'],
+                ['guid' => 'guid3', 'sguid' => 'sguid1'],
             ]);
 
         $service = new FeedViewService(
@@ -145,9 +146,9 @@ class FeedViewServiceTest extends TestCase
             $this->createStub(SeenStatusService::class),
         );
 
-        $result = $service->getItemGuidsForSubscription($userId, "sguid1");
+        $result = $service->getItemGuidsForSubscription($userId, 'sguid1');
 
-        $this->assertEquals(["guid1", "guid3"], $result);
+        $this->assertEquals(['guid1', 'guid3'], $result);
     }
 
     #[Test]
@@ -156,15 +157,15 @@ class FeedViewServiceTest extends TestCase
         $userId = 1;
 
         $subscriptionService = $this->createStub(SubscriptionService::class);
-        $subscriptionService->method("getFeedGuids")->willReturn(["sguid1"]);
+        $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
 
         $feedFetcher = $this->createStub(FeedFetcher::class);
         $feedFetcher
-            ->method("getAllItems")
+            ->method('getAllItems')
             ->willReturn([
-                ["guid" => "guid1", "sguid" => "sguid1"],
-                ["guid" => "guid2", "sguid" => "sguid1"],
-                ["guid" => "guid3", "sguid" => "sguid1"],
+                ['guid' => 'guid1', 'sguid' => 'sguid1'],
+                ['guid' => 'guid2', 'sguid' => 'sguid1'],
+                ['guid' => 'guid3', 'sguid' => 'sguid1'],
             ]);
 
         $service = new FeedViewService(
@@ -174,9 +175,9 @@ class FeedViewServiceTest extends TestCase
             $this->createStub(SeenStatusService::class),
         );
 
-        $result = $service->findNextItemGuid($userId, null, "guid1");
+        $result = $service->findNextItemGuid($userId, null, 'guid1');
 
-        $this->assertEquals("guid2", $result);
+        $this->assertEquals('guid2', $result);
     }
 
     #[Test]
@@ -185,14 +186,14 @@ class FeedViewServiceTest extends TestCase
         $userId = 1;
 
         $subscriptionService = $this->createStub(SubscriptionService::class);
-        $subscriptionService->method("getFeedGuids")->willReturn(["sguid1"]);
+        $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
 
         $feedFetcher = $this->createStub(FeedFetcher::class);
         $feedFetcher
-            ->method("getAllItems")
+            ->method('getAllItems')
             ->willReturn([
-                ["guid" => "guid1", "sguid" => "sguid1"],
-                ["guid" => "guid2", "sguid" => "sguid1"],
+                ['guid' => 'guid1', 'sguid' => 'sguid1'],
+                ['guid' => 'guid2', 'sguid' => 'sguid1'],
             ]);
 
         $service = new FeedViewService(
@@ -202,7 +203,7 @@ class FeedViewServiceTest extends TestCase
             $this->createStub(SeenStatusService::class),
         );
 
-        $result = $service->findNextItemGuid($userId, null, "guid2");
+        $result = $service->findNextItemGuid($userId, null, 'guid2');
 
         $this->assertNull($result);
     }
@@ -214,16 +215,16 @@ class FeedViewServiceTest extends TestCase
 
         $subscriptionService = $this->createStub(SubscriptionService::class);
         $subscriptionService
-            ->method("getFeedGuids")
-            ->willReturn(["sguid1", "sguid2"]);
+            ->method('getFeedGuids')
+            ->willReturn(['sguid1', 'sguid2']);
 
         $feedFetcher = $this->createStub(FeedFetcher::class);
         $feedFetcher
-            ->method("getAllItems")
+            ->method('getAllItems')
             ->willReturn([
-                ["guid" => "guid1", "sguid" => "sguid1"],
-                ["guid" => "guid2", "sguid" => "sguid2"],
-                ["guid" => "guid3", "sguid" => "sguid1"],
+                ['guid' => 'guid1', 'sguid' => 'sguid1'],
+                ['guid' => 'guid2', 'sguid' => 'sguid2'],
+                ['guid' => 'guid3', 'sguid' => 'sguid1'],
             ]);
 
         $service = new FeedViewService(
@@ -233,41 +234,41 @@ class FeedViewServiceTest extends TestCase
             $this->createStub(SeenStatusService::class),
         );
 
-        $result = $service->findNextItemGuid($userId, "sguid1", "guid1");
+        $result = $service->findNextItemGuid($userId, 'sguid1', 'guid1');
 
-        $this->assertEquals("guid3", $result);
+        $this->assertEquals('guid3', $result);
     }
 
     private function createServiceWithEnrichedItems(): FeedViewService
     {
         $subscriptionService = $this->createStub(SubscriptionService::class);
         $subscriptionService
-            ->method("getFeedGuids")
-            ->willReturn(["sguid1", "sguid2"]);
+            ->method('getFeedGuids')
+            ->willReturn(['sguid1', 'sguid2']);
         $subscriptionService
-            ->method("enrichItemsWithSubscriptionNames")
-            ->willReturnCallback(fn($items) => $items);
+            ->method('enrichItemsWithSubscriptionNames')
+            ->willReturnCallback(fn ($items) => $items);
         $subscriptionService
-            ->method("getSubscriptionsWithCounts")
+            ->method('getSubscriptionsWithCounts')
             ->willReturn([]);
 
         $feedFetcher = $this->createStub(FeedFetcher::class);
         $feedFetcher
-            ->method("getAllItems")
+            ->method('getAllItems')
             ->willReturn([
-                ["guid" => "guid1", "sguid" => "sguid1"],
-                ["guid" => "guid2", "sguid" => "sguid1"],
-                ["guid" => "guid3", "sguid" => "sguid2"],
-                ["guid" => "guid4", "sguid" => "sguid2"],
+                ['guid' => 'guid1', 'sguid' => 'sguid1'],
+                ['guid' => 'guid2', 'sguid' => 'sguid1'],
+                ['guid' => 'guid3', 'sguid' => 'sguid2'],
+                ['guid' => 'guid4', 'sguid' => 'sguid2'],
             ]);
 
         $readStatusService = $this->createStub(ReadStatusService::class);
         $readStatusService
-            ->method("enrichItemsWithReadStatus")
+            ->method('enrichItemsWithReadStatus')
             ->willReturnCallback(
-                fn($items) => array_map(
-                    fn($item, $i) => array_merge($item, [
-                        "isRead" => $i % 2 === 0,
+                fn ($items) => array_map(
+                    fn ($item, $i) => array_merge($item, [
+                        'isRead' => $i % 2 === 0,
                     ]),
                     $items,
                     array_keys($items),
@@ -276,10 +277,10 @@ class FeedViewServiceTest extends TestCase
 
         $seenStatusService = $this->createStub(SeenStatusService::class);
         $seenStatusService
-            ->method("enrichItemsWithSeenStatus")
+            ->method('enrichItemsWithSeenStatus')
             ->willReturnCallback(
-                fn($items) => array_map(
-                    fn($item) => array_merge($item, ["isNew" => false]),
+                fn ($items) => array_map(
+                    fn ($item) => array_merge($item, ['isNew' => false]),
                     $items,
                 ),
             );

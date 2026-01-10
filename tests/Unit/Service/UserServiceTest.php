@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -12,7 +13,6 @@ namespace App\Tests\Unit\Service;
 use App\Entity\Users\User;
 use App\Service\UserService;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -24,7 +24,7 @@ class UserServiceTest extends TestCase
     {
         $user = $this->createStub(User::class);
         $security = $this->createStub(Security::class);
-        $security->method("getUser")->willReturn($user);
+        $security->method('getUser')->willReturn($user);
 
         $service = new UserService($security);
         $result = $service->getCurrentUser();
@@ -36,7 +36,7 @@ class UserServiceTest extends TestCase
     public function getCurrentUserThrowsWhenNotAuthenticated(): void
     {
         $security = $this->createStub(Security::class);
-        $security->method("getUser")->willReturn(null);
+        $security->method('getUser')->willReturn(null);
 
         $service = new UserService($security);
 

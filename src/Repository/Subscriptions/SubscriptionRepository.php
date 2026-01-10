@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -22,7 +23,7 @@ class SubscriptionRepository extends ServiceEntityRepository
 
     public function findByUserId(int $userId): array
     {
-        return $this->findBy(["userId" => $userId], ["createdAt" => "ASC"]);
+        return $this->findBy(['userId' => $userId], ['createdAt' => 'ASC']);
     }
 
     public function findByUserIdAndGuid(
@@ -30,16 +31,16 @@ class SubscriptionRepository extends ServiceEntityRepository
         string $guid,
     ): ?Subscription {
         return $this->findOneBy([
-            "userId" => $userId,
-            "guid" => $guid,
+            'userId' => $userId,
+            'guid' => $guid,
         ]);
     }
 
     public function findByUserIdAndUrl(int $userId, string $url): ?Subscription
     {
         return $this->findOneBy([
-            "userId" => $userId,
-            "url" => $url,
+            'userId' => $userId,
+            'url' => $url,
         ]);
     }
 
@@ -113,21 +114,21 @@ class SubscriptionRepository extends ServiceEntityRepository
 
     public function hasAnyForUser(int $userId): bool
     {
-        return $this->count(["userId" => $userId]) > 0;
+        return $this->count(['userId' => $userId]) > 0;
     }
 
     public function countByUserId(int $userId): int
     {
-        return $this->count(["userId" => $userId]);
+        return $this->count(['userId' => $userId]);
     }
 
     public function getOldestRefreshTime(int $userId): ?\DateTimeImmutable
     {
-        $result = $this->createQueryBuilder("s")
-            ->select("MIN(s.lastRefreshedAt)")
-            ->where("s.userId = :userId")
-            ->andWhere("s.lastRefreshedAt IS NOT NULL")
-            ->setParameter("userId", $userId)
+        $result = $this->createQueryBuilder('s')
+            ->select('MIN(s.lastRefreshedAt)')
+            ->where('s.userId = :userId')
+            ->andWhere('s.lastRefreshedAt IS NOT NULL')
+            ->setParameter('userId', $userId)
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -136,5 +137,16 @@ class SubscriptionRepository extends ServiceEntityRepository
         }
 
         return new \DateTimeImmutable($result);
+    }
+
+    public function flush(): void
+    {
+        $this->getEntityManager()->flush();
+    }
+
+    public function save(Subscription $subscription): void
+    {
+        $this->getEntityManager()->persist($subscription);
+        $this->getEntityManager()->flush();
     }
 }

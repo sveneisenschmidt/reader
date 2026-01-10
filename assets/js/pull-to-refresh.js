@@ -141,7 +141,6 @@
                         MAX_PULL,
                         (overscroll - 20) / RESISTANCE,
                     );
-                    const progress = Math.min(distance / THRESHOLD, 1);
                     canTrigger = distance >= THRESHOLD;
                     updateIndicator(distance, canTrigger);
                 }

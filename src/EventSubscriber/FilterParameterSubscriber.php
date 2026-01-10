@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -19,7 +20,7 @@ class FilterParameterSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::RESPONSE => "onKernelResponse",
+            KernelEvents::RESPONSE => 'onKernelResponse',
         ];
     }
 
@@ -41,15 +42,15 @@ class FilterParameterSubscriber implements EventSubscriberInterface
         $parsedUrl = parse_url($targetUrl);
 
         $existingQuery = [];
-        if (isset($parsedUrl["query"])) {
-            parse_str($parsedUrl["query"], $existingQuery);
+        if (isset($parsedUrl['query'])) {
+            parse_str($parsedUrl['query'], $existingQuery);
         }
 
         $mergedQuery = array_merge($filters, $existingQuery);
         $newQuery = http_build_query($mergedQuery);
 
         $newUrl =
-            ($parsedUrl["path"] ?? "/") . ($newQuery ? "?" . $newQuery : "");
+            ($parsedUrl['path'] ?? '/').($newQuery ? '?'.$newQuery : '');
         $response->setTargetUrl($newUrl);
     }
 
@@ -57,13 +58,13 @@ class FilterParameterSubscriber implements EventSubscriberInterface
     {
         $filters = [];
 
-        if ($request->query->getBoolean("unread", false)) {
-            $filters["unread"] = "1";
+        if ($request->query->getBoolean('unread', false)) {
+            $filters['unread'] = '1';
         }
 
-        $limit = $request->query->getInt("limit", 50);
+        $limit = $request->query->getInt('limit', 50);
         if ($limit !== 50) {
-            $filters["limit"] = $limit;
+            $filters['limit'] = $limit;
         }
 
         return $filters;

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -9,7 +10,6 @@
 
 namespace App\Service;
 
-use App\Entity\Messages\ProcessedMessage;
 use App\Message\CleanupContentMessage;
 use App\Message\HeartbeatMessage;
 use App\Message\RefreshFeedsMessage;
@@ -22,7 +22,8 @@ class StatusIndicator
 
     public function __construct(
         private ProcessedMessageRepository $processedMessageRepository,
-    ) {}
+    ) {
+    }
 
     public function isWorkerAlive(): bool
     {

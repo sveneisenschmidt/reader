@@ -12,7 +12,7 @@
     & button[type="submit"] {
         width: 100%;
 
-        @media (min-width: 769px) {
+        @media (width >= 769px) {
             width: auto;
             padding: var(--spacing-button) var(--spacing-xl);
         }

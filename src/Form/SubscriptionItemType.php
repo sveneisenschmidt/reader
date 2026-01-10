@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -24,44 +25,44 @@ class SubscriptionItemType extends AbstractType
         FormBuilderInterface $builder,
         array $options,
     ): void {
-        $isExisting = $options["is_existing"];
+        $isExisting = $options['is_existing'];
 
-        $builder->add("guid", HiddenType::class);
+        $builder->add('guid', HiddenType::class);
 
         if ($isExisting) {
             $builder
-                ->add("url", TextType::class, [
-                    "label" => "URL",
-                    "disabled" => true,
-                    "attr" => ["readonly" => true],
+                ->add('url', TextType::class, [
+                    'label' => 'URL',
+                    'disabled' => true,
+                    'attr' => ['readonly' => true],
                 ])
-                ->add("remove", SubmitType::class, [
-                    "label" => "Remove",
+                ->add('remove', SubmitType::class, [
+                    'label' => 'Remove',
                 ]);
         } else {
-            $builder->add("url", UrlType::class, [
-                "label" => "Subscribe to new feed",
-                "required" => false,
-                "constraints" => [
-                    new Assert\Url(message: "Please enter a valid URL"),
+            $builder->add('url', UrlType::class, [
+                'label' => 'Subscribe to new feed',
+                'required' => false,
+                'constraints' => [
+                    new Assert\Url(message: 'Please enter a valid URL'),
                 ],
-                "attr" => ["placeholder" => "https://example.com/feed.xml"],
+                'attr' => ['placeholder' => 'https://example.com/feed.xml'],
             ]);
         }
 
-        $builder->add("name", TextType::class, [
-            "label" => "Name",
-            "required" => $isExisting,
-            "attr" => $isExisting
+        $builder->add('name', TextType::class, [
+            'label' => 'Name',
+            'required' => $isExisting,
+            'attr' => $isExisting
                 ? []
-                : ["placeholder" => "Feed name (auto-detected)"],
+                : ['placeholder' => 'Feed name (auto-detected)'],
         ]);
 
         if ($isExisting) {
-            $builder->add("folder", TextType::class, [
-                "label" => "Folder",
-                "required" => false,
-                "attr" => ["placeholder" => "Optional folder name"],
+            $builder->add('folder', TextType::class, [
+                'label' => 'Folder',
+                'required' => false,
+                'attr' => ['placeholder' => 'Optional folder name'],
             ]);
         }
     }
@@ -69,7 +70,7 @@ class SubscriptionItemType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            "is_existing" => false,
+            'is_existing' => false,
         ]);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -16,34 +17,34 @@ use Doctrine\ORM\Mapping as ORM;
         repositoryClass: \App\Repository\Subscriptions\SubscriptionRepository::class,
     ),
 ]
-#[ORM\Table(name: "subscription")]
-#[ORM\UniqueConstraint(name: "user_url", columns: ["user_id", "url"])]
+#[ORM\Table(name: 'subscription')]
+#[ORM\UniqueConstraint(name: 'user_url', columns: ['user_id', 'url'])]
 class Subscription
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private int $userId;
 
-    #[ORM\Column(type: "string", length: 500)]
+    #[ORM\Column(type: 'string', length: 500)]
     private string $url;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $name;
 
-    #[ORM\Column(type: "string", length: 16)]
+    #[ORM\Column(type: 'string', length: 16)]
     private string $guid;
 
-    #[ORM\Column(type: "datetime_immutable")]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: "datetime_immutable", nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $lastRefreshedAt = null;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $folder = null;
 
     public function __construct(
@@ -77,6 +78,7 @@ class Subscription
     public function setUrl(string $url): self
     {
         $this->url = $url;
+
         return $this;
     }
 
@@ -88,6 +90,7 @@ class Subscription
     public function setName(string $name): self
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -109,6 +112,7 @@ class Subscription
     public function updateLastRefreshedAt(): self
     {
         $this->lastRefreshedAt = new \DateTimeImmutable();
+
         return $this;
     }
 
@@ -120,6 +124,7 @@ class Subscription
     public function setFolder(?string $folder): self
     {
         $this->folder = $folder;
+
         return $this;
     }
 }

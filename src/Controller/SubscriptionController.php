@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -25,9 +26,10 @@ class SubscriptionController extends AbstractController
         private SubscriptionService $subscriptionService,
         private UserService $userService,
         private FeedFetcher $feedFetcher,
-    ) {}
+    ) {
+    }
 
-    #[Route("/subscriptions", name: "subscriptions")]
+    #[Route('/subscriptions', name: 'subscriptions')]
     public function index(Request $request): Response
     {
         $user = $this->userService->getCurrentUser();
@@ -38,16 +40,16 @@ class SubscriptionController extends AbstractController
         $existingData = [];
         foreach ($subscriptions as $subscription) {
             $existingData[] = [
-                "guid" => $subscription->getGuid(),
-                "url" => $subscription->getUrl(),
-                "name" => $subscription->getName(),
-                "folder" => $subscription->getFolder(),
+                'guid' => $subscription->getGuid(),
+                'url' => $subscription->getUrl(),
+                'name' => $subscription->getName(),
+                'folder' => $subscription->getFolder(),
             ];
         }
 
         $form = $this->createForm(SubscriptionsType::class, [
-            "existing" => $existingData,
-            "new" => ["guid" => "", "url" => "", "name" => ""],
+            'existing' => $existingData,
+            'new' => ['guid' => '', 'url' => '', 'name' => ''],
         ]);
 
         $form->handleRequest($request);
@@ -56,57 +58,58 @@ class SubscriptionController extends AbstractController
             $data = $form->getData();
 
             // Check if a remove button was clicked
-            foreach ($form->get("existing") as $index => $subscriptionForm) {
-                if ($subscriptionForm->get("remove")->isClicked()) {
-                    $guid = $data["existing"][$index]["guid"];
+            foreach ($form->get('existing') as $index => $subscriptionForm) {
+                if ($subscriptionForm->get('remove')->isClicked()) {
+                    $guid = $data['existing'][$index]['guid'];
                     $this->subscriptionService->removeSubscription(
                         $user->getId(),
                         $guid,
                     );
-                    $this->addFlash("success", "Feed removed.");
-                    return $this->redirectToRoute("subscriptions");
+                    $this->addFlash('success', 'Feed removed.');
+
+                    return $this->redirectToRoute('subscriptions');
                 }
             }
 
             $hasError = false;
 
             // Handle new subscription
-            $newData = $data["new"];
-            if (!empty($newData["url"])) {
+            $newData = $data['new'];
+            if (!empty($newData['url'])) {
                 // Check if feed already exists
                 $existingUrls = array_map(
-                    fn($s) => $s->getUrl(),
+                    fn ($s) => $s->getUrl(),
                     $subscriptions,
                 );
-                if (in_array($newData["url"], $existingUrls)) {
+                if (in_array($newData['url'], $existingUrls)) {
                     $form
-                        ->get("new")
-                        ->get("url")
+                        ->get('new')
+                        ->get('url')
                         ->addError(
-                            new FormError("This feed is already subscribed."),
+                            new FormError('This feed is already subscribed.'),
                         );
                     $hasError = true;
                 } else {
                     $error = $this->feedFetcher->validateFeedUrl(
-                        $newData["url"],
+                        $newData['url'],
                     );
                     if ($error !== null) {
                         $form
-                            ->get("new")
-                            ->get("url")
+                            ->get('new')
+                            ->get('url')
                             ->addError(new FormError($error));
                         $hasError = true;
                     } else {
                         $subscription = $this->subscriptionService->addSubscription(
                             $user->getId(),
-                            $newData["url"],
+                            $newData['url'],
                         );
                         // Feed content is already fetched by addSubscription (via getFeedTitle)
                         // Just update the refresh timestamp for this subscription
                         $this->subscriptionService->updateRefreshTimestamp(
                             $subscription,
                         );
-                        $this->addFlash("success", "Feed added.");
+                        $this->addFlash('success', 'Feed added.');
                     }
                 }
             }
@@ -114,8 +117,8 @@ class SubscriptionController extends AbstractController
             // Handle existing subscriptions updates
             if (!$hasError) {
                 $updatedCount = 0;
-                foreach ($data["existing"] as $item) {
-                    $guid = $item["guid"];
+                foreach ($data['existing'] as $item) {
+                    $guid = $item['guid'];
 
                     $subscription = $this->subscriptionService->getSubscriptionByGuid(
                         $user->getId(),
@@ -124,38 +127,38 @@ class SubscriptionController extends AbstractController
 
                     if ($subscription) {
                         $nameChanged =
-                            $item["name"] !== $subscription->getName();
+                            $item['name'] !== $subscription->getName();
                         $folderChanged =
-                            ($item["folder"] ?? null) !==
+                            ($item['folder'] ?? null) !==
                             $subscription->getFolder();
 
                         if ($nameChanged || $folderChanged) {
                             $this->subscriptionService->updateSubscription(
                                 $user->getId(),
                                 $guid,
-                                $item["name"],
-                                $item["folder"] ?? null,
+                                $item['name'],
+                                $item['folder'] ?? null,
                             );
-                            $updatedCount++;
+                            ++$updatedCount;
                         }
                     }
                 }
 
                 if ($updatedCount > 0) {
                     $this->addFlash(
-                        "success",
+                        'success',
                         $updatedCount === 1
-                            ? "Feed updated."
-                            : "Feeds updated.",
+                            ? 'Feed updated.'
+                            : 'Feeds updated.',
                     );
                 }
 
-                return $this->redirectToRoute("subscriptions");
+                return $this->redirectToRoute('subscriptions');
             }
         }
 
-        return $this->render("subscription/index.html.twig", [
-            "form" => $form,
+        return $this->render('subscription/index.html.twig', [
+            'form' => $form,
         ]);
     }
 }

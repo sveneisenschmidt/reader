@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -10,7 +11,6 @@
 namespace App\Tests\Unit\Service;
 
 use App\Entity\Messages\ProcessedMessage;
-use App\Message\CleanupContentMessage;
 use App\Message\HeartbeatMessage;
 use App\Message\RefreshFeedsMessage;
 use App\Repository\Messages\ProcessedMessageRepository;
@@ -25,12 +25,12 @@ class StatusIndicatorTest extends TestCase
     {
         $processedMessage = $this->createMock(ProcessedMessage::class);
         $processedMessage
-            ->method("getProcessedAt")
+            ->method('getProcessedAt')
             ->willReturn(new \DateTimeImmutable());
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
-            ->method("getLastSuccessByType")
+            ->method('getLastSuccessByType')
             ->with(HeartbeatMessage::class)
             ->willReturn($processedMessage);
 
@@ -44,12 +44,12 @@ class StatusIndicatorTest extends TestCase
     {
         $processedMessage = $this->createMock(ProcessedMessage::class);
         $processedMessage
-            ->method("getProcessedAt")
-            ->willReturn(new \DateTimeImmutable("-30 seconds"));
+            ->method('getProcessedAt')
+            ->willReturn(new \DateTimeImmutable('-30 seconds'));
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
-            ->method("getLastSuccessByType")
+            ->method('getLastSuccessByType')
             ->with(HeartbeatMessage::class)
             ->willReturn($processedMessage);
 
@@ -63,7 +63,7 @@ class StatusIndicatorTest extends TestCase
     {
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
-            ->method("getLastSuccessByType")
+            ->method('getLastSuccessByType')
             ->with(HeartbeatMessage::class)
             ->willReturn(null);
 
@@ -77,11 +77,11 @@ class StatusIndicatorTest extends TestCase
     {
         $timestamp = new \DateTimeImmutable();
         $processedMessage = $this->createMock(ProcessedMessage::class);
-        $processedMessage->method("getProcessedAt")->willReturn($timestamp);
+        $processedMessage->method('getProcessedAt')->willReturn($timestamp);
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
-            ->method("getLastSuccessByType")
+            ->method('getLastSuccessByType')
             ->with(HeartbeatMessage::class)
             ->willReturn($processedMessage);
 
@@ -95,7 +95,7 @@ class StatusIndicatorTest extends TestCase
     {
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
-            ->method("getLastSuccessByType")
+            ->method('getLastSuccessByType')
             ->with(HeartbeatMessage::class)
             ->willReturn(null);
 
@@ -109,18 +109,19 @@ class StatusIndicatorTest extends TestCase
     {
         $processedMessage = $this->createMock(ProcessedMessage::class);
         $processedMessage
-            ->method("getProcessedAt")
+            ->method('getProcessedAt')
             ->willReturn(new \DateTimeImmutable());
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
-            ->method("getLastSuccessByType")
+            ->method('getLastSuccessByType')
             ->willReturnCallback(function (string $type) use (
                 $processedMessage,
             ) {
                 if ($type === RefreshFeedsMessage::class) {
                     return $processedMessage;
                 }
+
                 return null;
             });
 
@@ -134,18 +135,19 @@ class StatusIndicatorTest extends TestCase
     {
         $processedMessage = $this->createMock(ProcessedMessage::class);
         $processedMessage
-            ->method("getProcessedAt")
-            ->willReturn(new \DateTimeImmutable("-10 minutes"));
+            ->method('getProcessedAt')
+            ->willReturn(new \DateTimeImmutable('-10 minutes'));
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
-            ->method("getLastSuccessByType")
+            ->method('getLastSuccessByType')
             ->willReturnCallback(function (string $type) use (
                 $processedMessage,
             ) {
                 if ($type === RefreshFeedsMessage::class) {
                     return $processedMessage;
                 }
+
                 return null;
             });
 
@@ -158,7 +160,7 @@ class StatusIndicatorTest extends TestCase
     public function isWebhookAliveReturnsFalseWhenNoWebhookExists(): void
     {
         $repository = $this->createMock(ProcessedMessageRepository::class);
-        $repository->method("getLastSuccessByType")->willReturn(null);
+        $repository->method('getLastSuccessByType')->willReturn(null);
 
         $service = new StatusIndicator($repository);
 
@@ -170,16 +172,17 @@ class StatusIndicatorTest extends TestCase
     {
         $workerMessage = $this->createMock(ProcessedMessage::class);
         $workerMessage
-            ->method("getProcessedAt")
+            ->method('getProcessedAt')
             ->willReturn(new \DateTimeImmutable());
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
-            ->method("getLastSuccessByType")
+            ->method('getLastSuccessByType')
             ->willReturnCallback(function (string $type) use ($workerMessage) {
                 if ($type === HeartbeatMessage::class) {
                     return $workerMessage;
                 }
+
                 return null;
             });
 
@@ -193,16 +196,17 @@ class StatusIndicatorTest extends TestCase
     {
         $webhookMessage = $this->createMock(ProcessedMessage::class);
         $webhookMessage
-            ->method("getProcessedAt")
+            ->method('getProcessedAt')
             ->willReturn(new \DateTimeImmutable());
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
-            ->method("getLastSuccessByType")
+            ->method('getLastSuccessByType')
             ->willReturnCallback(function (string $type) use ($webhookMessage) {
                 if ($type === RefreshFeedsMessage::class) {
                     return $webhookMessage;
                 }
+
                 return null;
             });
 
@@ -215,7 +219,7 @@ class StatusIndicatorTest extends TestCase
     public function isActiveReturnsFalseWhenNeitherIsAlive(): void
     {
         $repository = $this->createMock(ProcessedMessageRepository::class);
-        $repository->method("getLastSuccessByType")->willReturn(null);
+        $repository->method('getLastSuccessByType')->willReturn(null);
 
         $service = new StatusIndicator($repository);
 

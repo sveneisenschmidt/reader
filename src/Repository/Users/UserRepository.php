@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -12,11 +13,10 @@ namespace App\Repository\Users;
 use App\Entity\Users\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 
-class UserRepository extends ServiceEntityRepository implements
-    PasswordUpgraderInterface
+class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -25,12 +25,12 @@ class UserRepository extends ServiceEntityRepository implements
 
     public function findByUsername(string $username): ?User
     {
-        return $this->findOneBy(["username" => $username]);
+        return $this->findOneBy(['username' => $username]);
     }
 
     public function findByEmail(string $email): ?User
     {
-        return $this->findOneBy(["email" => $email]);
+        return $this->findOneBy(['email' => $email]);
     }
 
     public function hasAnyUser(): bool

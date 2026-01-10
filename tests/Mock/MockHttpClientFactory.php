@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -19,27 +20,27 @@ class MockHttpClientFactory
         array $options = [],
     ): MockResponse {
         // Return invalid content for URLs containing "invalid-feed"
-        if (str_contains($url, "invalid-feed")) {
-            return new MockResponse("<html><body>Not a feed</body></html>", [
-                "http_code" => 200,
-                "response_headers" => ["Content-Type" => "text/html"],
+        if (str_contains($url, 'invalid-feed')) {
+            return new MockResponse('<html><body>Not a feed</body></html>', [
+                'http_code' => 200,
+                'response_headers' => ['Content-Type' => 'text/html'],
             ]);
         }
 
         // Return error for URLs containing "error-feed"
-        if (str_contains($url, "error-feed")) {
-            return new MockResponse("", [
-                "http_code" => 500,
-                "response_headers" => [],
+        if (str_contains($url, 'error-feed')) {
+            return new MockResponse('', [
+                'http_code' => 500,
+                'response_headers' => [],
             ]);
         }
 
-        $fixturesPath = __DIR__ . "/../Fixtures";
-        $feedContent = file_get_contents($fixturesPath . "/valid-feed.xml");
+        $fixturesPath = __DIR__.'/../Fixtures';
+        $feedContent = file_get_contents($fixturesPath.'/valid-feed.xml');
 
         return new MockResponse($feedContent, [
-            "http_code" => 200,
-            "response_headers" => ["Content-Type" => "application/rss+xml"],
+            'http_code' => 200,
+            'response_headers' => ['Content-Type' => 'application/rss+xml'],
         ]);
     }
 }

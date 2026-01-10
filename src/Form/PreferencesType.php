@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -22,16 +23,16 @@ class PreferencesType extends AbstractType
         array $options,
     ): void {
         $builder
-            ->add("theme", ChoiceType::class, [
-                "label" => "Theme",
-                "choices" => [
-                    "Auto" => "auto",
-                    "Light" => "light",
-                    "Dark" => "dark",
+            ->add('theme', ChoiceType::class, [
+                'label' => 'Theme',
+                'choices' => [
+                    'Auto' => 'auto',
+                    'Light' => 'light',
+                    'Dark' => 'dark',
                 ],
             ])
-            ->add("save", SubmitType::class, [
-                "label" => "Save",
+            ->add('save', SubmitType::class, [
+                'label' => 'Save',
             ]);
     }
 

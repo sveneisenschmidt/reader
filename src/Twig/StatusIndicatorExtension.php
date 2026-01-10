@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -17,7 +18,8 @@ class StatusIndicatorExtension extends AbstractExtension
 {
     public function __construct(
         private StatusIndicator $statusIndicator,
-    ) {}
+    ) {
+    }
 
     public function getFunctions(): array
     {

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -24,37 +25,37 @@ class LoginType extends AbstractType
         array $options,
     ): void {
         $builder
-            ->add("email", EmailType::class, [
-                "label" => "Email",
-                "constraints" => [
-                    new Assert\NotBlank(message: "Email is required."),
+            ->add('email', EmailType::class, [
+                'label' => 'Email',
+                'constraints' => [
+                    new Assert\NotBlank(message: 'Email is required.'),
                     new Assert\Email(
-                        message: "Please enter a valid email address.",
+                        message: 'Please enter a valid email address.',
                     ),
                 ],
-                "attr" => [
-                    "placeholder" => "you@example.com",
-                    "autofocus" => true,
+                'attr' => [
+                    'placeholder' => 'you@example.com',
+                    'autofocus' => true,
                 ],
             ])
-            ->add("password", PasswordType::class, [
-                "label" => "Password",
-                "constraints" => [
-                    new Assert\NotBlank(message: "Password is required."),
+            ->add('password', PasswordType::class, [
+                'label' => 'Password',
+                'constraints' => [
+                    new Assert\NotBlank(message: 'Password is required.'),
                 ],
-                "attr" => [
-                    "placeholder" => "Your password",
+                'attr' => [
+                    'placeholder' => 'Your password',
                 ],
             ])
-            ->add("otp", TextType::class, [
-                "label" => "Authenticator Code",
-                "constraints" => [
+            ->add('otp', TextType::class, [
+                'label' => 'Authenticator Code',
+                'constraints' => [
                     new Assert\NotBlank(
-                        message: "Authenticator code is required.",
+                        message: 'Authenticator code is required.',
                     ),
                     new Assert\Regex(
                         pattern: '/^\d{6}$/',
-                        message: "Authenticator code must be 6 digits.",
+                        message: 'Authenticator code must be 6 digits.',
                     ),
                 ],
             ]);
@@ -63,8 +64,8 @@ class LoginType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            "csrf_protection" => true,
-            "csrf_token_id" => "authenticate",
+            'csrf_protection' => true,
+            'csrf_token_id' => 'authenticate',
         ]);
     }
 }

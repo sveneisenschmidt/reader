@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -17,7 +18,7 @@ use OTPHP\TOTP;
 
 class TotpService
 {
-    private const LABEL = "Reader";
+    private const LABEL = 'Reader';
 
     public function generateSecret(): string
     {
@@ -46,7 +47,7 @@ class TotpService
         $builder = new Builder(
             writer: new PngWriter(),
             data: $uri,
-            encoding: new Encoding("UTF-8"),
+            encoding: new Encoding('UTF-8'),
             errorCorrectionLevel: ErrorCorrectionLevel::Medium,
             size: 200,
             margin: 0,

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -21,7 +22,7 @@ class OnboardingControllerTest extends WebTestCase
     public function onboardingPageRedirectsWhenNotAuthenticated(): void
     {
         $client = static::createClient();
-        $client->request("GET", "/onboarding");
+        $client->request('GET', '/onboarding');
 
         $this->assertResponseRedirects();
     }
@@ -33,7 +34,7 @@ class OnboardingControllerTest extends WebTestCase
         $this->loginAsTestUser($client);
         $this->deleteAllSubscriptionsForTestUser();
 
-        $client->request("GET", "/onboarding");
+        $client->request('GET', '/onboarding');
 
         $this->assertResponseIsSuccessful();
     }
@@ -45,9 +46,9 @@ class OnboardingControllerTest extends WebTestCase
         $this->loginAsTestUser($client);
         $this->createTestSubscription();
 
-        $client->request("GET", "/onboarding");
+        $client->request('GET', '/onboarding');
 
-        $this->assertResponseRedirects("/");
+        $this->assertResponseRedirects('/');
     }
 
     #[Test]
@@ -57,10 +58,10 @@ class OnboardingControllerTest extends WebTestCase
         $this->loginAsTestUser($client);
         $this->deleteAllSubscriptionsForTestUser();
 
-        $client->request("GET", "/onboarding");
+        $client->request('GET', '/onboarding');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists("form");
+        $this->assertSelectorExists('form');
         $this->assertSelectorExists('input[name="first_feed[feedUrl]"]');
     }
 
@@ -71,7 +72,7 @@ class OnboardingControllerTest extends WebTestCase
         $this->loginAsTestUser($client);
         $this->deleteAllSubscriptionsForTestUser();
 
-        $client->request("GET", "/onboarding");
+        $client->request('GET', '/onboarding');
 
         $this->assertSelectorExists('input[name="first_feed[_token]"]');
     }
@@ -83,14 +84,14 @@ class OnboardingControllerTest extends WebTestCase
         $this->loginAsTestUser($client);
         $this->deleteAllSubscriptionsForTestUser();
 
-        $crawler = $client->request("GET", "/onboarding");
+        $crawler = $client->request('GET', '/onboarding');
 
-        $form = $crawler->selectButton("Subscribe")->form();
-        $form["first_feed[feedUrl]"] = "https://example.com/feed.xml";
+        $form = $crawler->selectButton('Subscribe')->form();
+        $form['first_feed[feedUrl]'] = 'https://example.com/feed.xml';
 
         $client->submit($form);
 
-        $this->assertResponseRedirects("/");
+        $this->assertResponseRedirects('/');
     }
 
     #[Test]
@@ -100,15 +101,15 @@ class OnboardingControllerTest extends WebTestCase
         $this->loginAsTestUser($client);
         $this->deleteAllSubscriptionsForTestUser();
 
-        $crawler = $client->request("GET", "/onboarding");
+        $crawler = $client->request('GET', '/onboarding');
 
-        $form = $crawler->selectButton("Subscribe")->form();
-        $form["first_feed[feedUrl]"] = "not-a-valid-url";
+        $form = $crawler->selectButton('Subscribe')->form();
+        $form['first_feed[feedUrl]'] = 'not-a-valid-url';
 
         $client->submit($form);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSelectorExists(".form-error");
+        $this->assertSelectorExists('.form-error');
     }
 
     #[Test]
@@ -118,15 +119,15 @@ class OnboardingControllerTest extends WebTestCase
         $this->loginAsTestUser($client);
         $this->deleteAllSubscriptionsForTestUser();
 
-        $crawler = $client->request("GET", "/onboarding");
+        $crawler = $client->request('GET', '/onboarding');
 
-        $form = $crawler->selectButton("Subscribe")->form();
-        $form["first_feed[feedUrl]"] = "";
+        $form = $crawler->selectButton('Subscribe')->form();
+        $form['first_feed[feedUrl]'] = '';
 
         $client->submit($form);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSelectorExists(".form-error");
+        $this->assertSelectorExists('.form-error');
     }
 
     #[Test]
@@ -136,14 +137,14 @@ class OnboardingControllerTest extends WebTestCase
         $this->loginAsTestUser($client);
         $this->deleteAllSubscriptionsForTestUser();
 
-        $crawler = $client->request("GET", "/onboarding");
+        $crawler = $client->request('GET', '/onboarding');
 
-        $form = $crawler->selectButton("Subscribe")->form();
-        $form["first_feed[feedUrl]"] = "https://example.com/invalid-feed.xml";
+        $form = $crawler->selectButton('Subscribe')->form();
+        $form['first_feed[feedUrl]'] = 'https://example.com/invalid-feed.xml';
 
         $client->submit($form);
 
         $this->assertResponseStatusCodeSame(422);
-        $this->assertSelectorExists(".form-error");
+        $this->assertSelectorExists('.form-error');
     }
 }

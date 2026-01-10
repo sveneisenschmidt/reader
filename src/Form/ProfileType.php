@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -23,17 +24,17 @@ class ProfileType extends AbstractType
         array $options,
     ): void {
         $builder
-            ->add("username", TextType::class, [
-                "label" => "Username",
-                "constraints" => [
-                    new NotBlank(message: "Username is required"),
+            ->add('username', TextType::class, [
+                'label' => 'Username',
+                'constraints' => [
+                    new NotBlank(message: 'Username is required'),
                 ],
-                "attr" => [
-                    "placeholder" => "Your username",
+                'attr' => [
+                    'placeholder' => 'Your username',
                 ],
             ])
-            ->add("save", SubmitType::class, [
-                "label" => "Save",
+            ->add('save', SubmitType::class, [
+                'label' => 'Save',
             ]);
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -26,6 +27,7 @@ class CleanupContentHandlerTest extends TestCase
             ->method('deleteOlderThan')
             ->with($this->callback(function (\DateTimeInterface $date) {
                 $expected = new \DateTimeImmutable('-30 days');
+
                 return abs($date->getTimestamp() - $expected->getTimestamp()) < 5;
             }))
             ->willReturn(10);
@@ -45,6 +47,7 @@ class CleanupContentHandlerTest extends TestCase
             ->method('deleteOlderThan')
             ->with($this->callback(function (\DateTimeInterface $date) {
                 $expected = new \DateTimeImmutable('-7 days');
+
                 return abs($date->getTimestamp() - $expected->getTimestamp()) < 5;
             }))
             ->willReturn(5);
@@ -66,7 +69,7 @@ class CleanupContentHandlerTest extends TestCase
             ->method('info')
             ->willReturnCallback(function (string $message, array $context) {
                 static $callCount = 0;
-                $callCount++;
+                ++$callCount;
 
                 if ($callCount === 1) {
                     $this->assertEquals('Cleaning up old content', $message);

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -6,7 +7,6 @@
  *
  * SPDX-License-Identifier: MIT
  */
-
 
 namespace App\Service;
 
@@ -16,7 +16,8 @@ class SeenStatusService
 {
     public function __construct(
         private SeenStatusRepository $seenStatusRepository,
-    ) {}
+    ) {
+    }
 
     public function markAsSeen(int $userId, string $feedItemGuid): void
     {
@@ -45,6 +46,7 @@ class SeenStatusService
 
         return array_map(function ($item) use ($seenGuids) {
             $item['isNew'] = !in_array($item['guid'], $seenGuids, true);
+
             return $item;
         }, $items);
     }

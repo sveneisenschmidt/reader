@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -16,19 +17,18 @@ use App\Repository\Messages\ProcessedMessageRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
 class WebhookControllerTest extends WebTestCase
 {
-    private const WEBHOOK_USER = "webhook_test";
-    private const WEBHOOK_PASSWORD = "webhook_secret";
+    private const WEBHOOK_USER = 'webhook_test';
+    private const WEBHOOK_PASSWORD = 'webhook_secret';
 
     #[Test]
     public function refreshFeedsRequiresAuthentication(): void
     {
         $client = static::createClient();
 
-        $client->request("GET", "/webhook/refresh-feeds");
+        $client->request('GET', '/webhook/refresh-feeds');
 
         $this->assertResponseStatusCodeSame(401);
     }
@@ -39,13 +39,13 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "GET",
-            "/webhook/refresh-feeds",
+            'GET',
+            '/webhook/refresh-feeds',
             [],
             [],
             [
-                "PHP_AUTH_USER" => "invalid",
-                "PHP_AUTH_PW" => "invalid",
+                'PHP_AUTH_USER' => 'invalid',
+                'PHP_AUTH_PW' => 'invalid',
             ],
         );
 
@@ -58,13 +58,13 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "GET",
-            "/webhook/refresh-feeds",
+            'GET',
+            '/webhook/refresh-feeds',
             [],
             [],
             [
-                "PHP_AUTH_USER" => self::WEBHOOK_USER,
-                "PHP_AUTH_PW" => self::WEBHOOK_PASSWORD,
+                'PHP_AUTH_USER' => self::WEBHOOK_USER,
+                'PHP_AUTH_PW' => self::WEBHOOK_PASSWORD,
             ],
         );
 
@@ -72,7 +72,7 @@ class WebhookControllerTest extends WebTestCase
         $this->assertJson($client->getResponse()->getContent());
 
         $response = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals("success", $response["status"]);
+        $this->assertEquals('success', $response['status']);
     }
 
     #[Test]
@@ -81,13 +81,13 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "POST",
-            "/webhook/refresh-feeds",
+            'POST',
+            '/webhook/refresh-feeds',
             [],
             [],
             [
-                "PHP_AUTH_USER" => self::WEBHOOK_USER,
-                "PHP_AUTH_PW" => self::WEBHOOK_PASSWORD,
+                'PHP_AUTH_USER' => self::WEBHOOK_USER,
+                'PHP_AUTH_PW' => self::WEBHOOK_PASSWORD,
             ],
         );
 
@@ -99,7 +99,7 @@ class WebhookControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $client->request("GET", "/webhook/cleanup-content");
+        $client->request('GET', '/webhook/cleanup-content');
 
         $this->assertResponseStatusCodeSame(401);
     }
@@ -110,13 +110,13 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "GET",
-            "/webhook/cleanup-content",
+            'GET',
+            '/webhook/cleanup-content',
             [],
             [],
             [
-                "PHP_AUTH_USER" => "invalid",
-                "PHP_AUTH_PW" => "invalid",
+                'PHP_AUTH_USER' => 'invalid',
+                'PHP_AUTH_PW' => 'invalid',
             ],
         );
 
@@ -129,13 +129,13 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "GET",
-            "/webhook/cleanup-content",
+            'GET',
+            '/webhook/cleanup-content',
             [],
             [],
             [
-                "PHP_AUTH_USER" => self::WEBHOOK_USER,
-                "PHP_AUTH_PW" => self::WEBHOOK_PASSWORD,
+                'PHP_AUTH_USER' => self::WEBHOOK_USER,
+                'PHP_AUTH_PW' => self::WEBHOOK_PASSWORD,
             ],
         );
 
@@ -143,7 +143,7 @@ class WebhookControllerTest extends WebTestCase
         $this->assertJson($client->getResponse()->getContent());
 
         $response = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals("success", $response["status"]);
+        $this->assertEquals('success', $response['status']);
     }
 
     #[Test]
@@ -152,13 +152,13 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "POST",
-            "/webhook/cleanup-content",
+            'POST',
+            '/webhook/cleanup-content',
             [],
             [],
             [
-                "PHP_AUTH_USER" => self::WEBHOOK_USER,
-                "PHP_AUTH_PW" => self::WEBHOOK_PASSWORD,
+                'PHP_AUTH_USER' => self::WEBHOOK_USER,
+                'PHP_AUTH_PW' => self::WEBHOOK_PASSWORD,
             ],
         );
 
@@ -171,13 +171,13 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "GET",
-            "/webhook/refresh-feeds",
+            'GET',
+            '/webhook/refresh-feeds',
             [],
             [],
             [
-                "PHP_AUTH_USER" => self::WEBHOOK_USER,
-                "PHP_AUTH_PW" => self::WEBHOOK_PASSWORD,
+                'PHP_AUTH_USER' => self::WEBHOOK_USER,
+                'PHP_AUTH_PW' => self::WEBHOOK_PASSWORD,
             ],
         );
 
@@ -203,13 +203,13 @@ class WebhookControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request(
-            "GET",
-            "/webhook/cleanup-content",
+            'GET',
+            '/webhook/cleanup-content',
             [],
             [],
             [
-                "PHP_AUTH_USER" => self::WEBHOOK_USER,
-                "PHP_AUTH_PW" => self::WEBHOOK_PASSWORD,
+                'PHP_AUTH_USER' => self::WEBHOOK_USER,
+                'PHP_AUTH_PW' => self::WEBHOOK_PASSWORD,
             ],
         );
 
@@ -236,26 +236,26 @@ class WebhookControllerTest extends WebTestCase
 
         $mockBus = $this->createMock(MessageBusInterface::class);
         $mockBus
-            ->method("dispatch")
-            ->willThrowException(new \RuntimeException("Test error"));
+            ->method('dispatch')
+            ->willThrowException(new \RuntimeException('Test error'));
 
         static::getContainer()->set(MessageBusInterface::class, $mockBus);
 
         $client->request(
-            "GET",
-            "/webhook/refresh-feeds",
+            'GET',
+            '/webhook/refresh-feeds',
             [],
             [],
             [
-                "PHP_AUTH_USER" => self::WEBHOOK_USER,
-                "PHP_AUTH_PW" => self::WEBHOOK_PASSWORD,
+                'PHP_AUTH_USER' => self::WEBHOOK_USER,
+                'PHP_AUTH_PW' => self::WEBHOOK_PASSWORD,
             ],
         );
 
         $this->assertResponseStatusCodeSame(500);
         $response = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals("error", $response["status"]);
-        $this->assertEquals("Test error", $response["message"]);
+        $this->assertEquals('error', $response['status']);
+        $this->assertEquals('Test error', $response['message']);
     }
 
     #[Test]
@@ -265,25 +265,25 @@ class WebhookControllerTest extends WebTestCase
 
         $mockBus = $this->createMock(MessageBusInterface::class);
         $mockBus
-            ->method("dispatch")
-            ->willThrowException(new \RuntimeException("Cleanup failed"));
+            ->method('dispatch')
+            ->willThrowException(new \RuntimeException('Cleanup failed'));
 
         static::getContainer()->set(MessageBusInterface::class, $mockBus);
 
         $client->request(
-            "GET",
-            "/webhook/cleanup-content",
+            'GET',
+            '/webhook/cleanup-content',
             [],
             [],
             [
-                "PHP_AUTH_USER" => self::WEBHOOK_USER,
-                "PHP_AUTH_PW" => self::WEBHOOK_PASSWORD,
+                'PHP_AUTH_USER' => self::WEBHOOK_USER,
+                'PHP_AUTH_PW' => self::WEBHOOK_PASSWORD,
             ],
         );
 
         $this->assertResponseStatusCodeSame(500);
         $response = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals("error", $response["status"]);
-        $this->assertEquals("Cleanup failed", $response["message"]);
+        $this->assertEquals('error', $response['status']);
+        $this->assertEquals('Cleanup failed', $response['message']);
     }
 }

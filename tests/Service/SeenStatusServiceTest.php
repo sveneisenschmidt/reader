@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -36,14 +37,14 @@ class SeenStatusServiceTest extends KernelTestCase
         $userRepository = $container->get(UserRepository::class);
         $passwordHasher = $container->get(UserPasswordHasherInterface::class);
 
-        $user = $userRepository->findByUsername("seenstatus_test@example.com");
+        $user = $userRepository->findByUsername('seenstatus_test@example.com');
         if (!$user) {
-            $user = new User("seenstatus_test@example.com");
-            $user->setEmail("seenstatus_test@example.com");
+            $user = new User('seenstatus_test@example.com');
+            $user->setEmail('seenstatus_test@example.com');
             $user->setPassword(
-                $passwordHasher->hashPassword($user, "testpassword"),
+                $passwordHasher->hashPassword($user, 'testpassword'),
             );
-            $user->setTotpSecret("JBSWY3DPEHPK3PXP");
+            $user->setTotpSecret('JBSWY3DPEHPK3PXP');
             $userRepository->save($user);
         }
 
@@ -53,7 +54,7 @@ class SeenStatusServiceTest extends KernelTestCase
     #[Test]
     public function markAsSeenAndIsSeen(): void
     {
-        $guid = "seen_" . uniqid();
+        $guid = 'seen_'.uniqid();
 
         $this->assertFalse($this->service->isSeen($this->testUserId, $guid));
 
@@ -66,9 +67,9 @@ class SeenStatusServiceTest extends KernelTestCase
     public function markManyAsSeen(): void
     {
         $guids = [
-            "manyseen1_" . uniqid(),
-            "manyseen2_" . uniqid(),
-            "manyseen3_" . uniqid(),
+            'manyseen1_'.uniqid(),
+            'manyseen2_'.uniqid(),
+            'manyseen3_'.uniqid(),
         ];
 
         foreach ($guids as $guid) {
@@ -85,8 +86,8 @@ class SeenStatusServiceTest extends KernelTestCase
     #[Test]
     public function getSeenGuidsForUser(): void
     {
-        $guid1 = "getseenguids1_" . uniqid();
-        $guid2 = "getseenguids2_" . uniqid();
+        $guid1 = 'getseenguids1_'.uniqid();
+        $guid2 = 'getseenguids2_'.uniqid();
 
         $this->service->markAsSeen($this->testUserId, $guid1);
         $this->service->markAsSeen($this->testUserId, $guid2);
@@ -100,9 +101,9 @@ class SeenStatusServiceTest extends KernelTestCase
     #[Test]
     public function getSeenGuidsForUserWithFilter(): void
     {
-        $guid1 = "filterseen1_" . uniqid();
-        $guid2 = "filterseen2_" . uniqid();
-        $guid3 = "filterseen3_" . uniqid();
+        $guid1 = 'filterseen1_'.uniqid();
+        $guid2 = 'filterseen2_'.uniqid();
+        $guid3 = 'filterseen3_'.uniqid();
 
         $this->service->markAsSeen($this->testUserId, $guid1);
         $this->service->markAsSeen($this->testUserId, $guid2);
@@ -121,14 +122,14 @@ class SeenStatusServiceTest extends KernelTestCase
     #[Test]
     public function enrichItemsWithSeenStatus(): void
     {
-        $seenGuid = "enrich_seen_" . uniqid();
-        $newGuid = "enrich_new_" . uniqid();
+        $seenGuid = 'enrich_seen_'.uniqid();
+        $newGuid = 'enrich_new_'.uniqid();
 
         $this->service->markAsSeen($this->testUserId, $seenGuid);
 
         $items = [
-            ["guid" => $seenGuid, "title" => "Seen Item"],
-            ["guid" => $newGuid, "title" => "New Item"],
+            ['guid' => $seenGuid, 'title' => 'Seen Item'],
+            ['guid' => $newGuid, 'title' => 'New Item'],
         ];
 
         $enrichedItems = $this->service->enrichItemsWithSeenStatus(
@@ -136,7 +137,7 @@ class SeenStatusServiceTest extends KernelTestCase
             $this->testUserId,
         );
 
-        $this->assertFalse($enrichedItems[0]["isNew"]);
-        $this->assertTrue($enrichedItems[1]["isNew"]);
+        $this->assertFalse($enrichedItems[0]['isNew']);
+        $this->assertTrue($enrichedItems[1]['isNew']);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -22,29 +23,29 @@ class SubscriptionsType extends AbstractType
         array $options,
     ): void {
         $builder
-            ->add("existing", CollectionType::class, [
-                "entry_type" => SubscriptionItemType::class,
-                "entry_options" => ["is_existing" => true],
-                "allow_delete" => true,
-                "label" => false,
+            ->add('existing', CollectionType::class, [
+                'entry_type' => SubscriptionItemType::class,
+                'entry_options' => ['is_existing' => true],
+                'allow_delete' => true,
+                'label' => false,
             ])
-            ->add("new", SubscriptionItemType::class, [
-                "is_existing" => false,
-                "label" => false,
-                "required" => false,
+            ->add('new', SubscriptionItemType::class, [
+                'is_existing' => false,
+                'label' => false,
+                'required' => false,
             ])
-            ->add("save", SubmitType::class, [
-                "label" => "Update",
+            ->add('save', SubmitType::class, [
+                'label' => 'Update',
             ])
-            ->add("add", SubmitType::class, [
-                "label" => "Subscribe",
+            ->add('add', SubmitType::class, [
+                'label' => 'Subscribe',
             ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            "csrf_protection" => true,
+            'csrf_protection' => true,
         ]);
     }
 }

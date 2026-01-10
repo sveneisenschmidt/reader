@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -28,14 +29,14 @@ trait AuthenticatedTestTrait
         $userRepository = $container->get(UserRepository::class);
         $passwordHasher = $container->get(UserPasswordHasherInterface::class);
 
-        $user = $userRepository->findByUsername("test@example.com");
+        $user = $userRepository->findByUsername('test@example.com');
         if (!$user) {
-            $user = new User("test@example.com");
-            $user->setEmail("test@example.com");
+            $user = new User('test@example.com');
+            $user->setEmail('test@example.com');
             $user->setPassword(
-                $passwordHasher->hashPassword($user, "testpassword"),
+                $passwordHasher->hashPassword($user, 'testpassword'),
             );
-            $user->setTotpSecret("JBSWY3DPEHPK3PXP");
+            $user->setTotpSecret('JBSWY3DPEHPK3PXP');
             $userRepository->save($user);
         }
 
@@ -46,7 +47,7 @@ trait AuthenticatedTestTrait
     }
 
     private function createTestSubscription(
-        string $guid = "0123456789abcdef",
+        string $guid = '0123456789abcdef',
         bool $withRefreshTimestamp = true,
     ): Subscription {
         $container = static::getContainer();
@@ -61,19 +62,20 @@ trait AuthenticatedTestTrait
 
         if ($existing) {
             if (
-                $withRefreshTimestamp &&
-                $existing->getLastRefreshedAt() === null
+                $withRefreshTimestamp
+                && $existing->getLastRefreshedAt() === null
             ) {
                 $existing->updateLastRefreshedAt();
                 $subscriptionRepository->getEntityManager()->flush();
             }
+
             return $existing;
         }
 
         $subscription = $subscriptionRepository->addSubscription(
             $this->testUser->getId(),
-            "https://example.com/feed.xml",
-            "Test Feed",
+            'https://example.com/feed.xml',
+            'Test Feed',
             $guid,
         );
 
@@ -111,8 +113,8 @@ trait AuthenticatedTestTrait
     }
 
     private function createTestFeedItem(
-        string $feedGuid = "0123456789abcdef",
-        string $itemGuid = "fedcba9876543210",
+        string $feedGuid = '0123456789abcdef',
+        string $itemGuid = 'fedcba9876543210',
     ): FeedItem {
         $container = static::getContainer();
         $feedItemRepository = $container->get(FeedItemRepository::class);
@@ -125,10 +127,10 @@ trait AuthenticatedTestTrait
         $feedItem = new FeedItem(
             $itemGuid,
             $feedGuid,
-            "Test Feed Item",
-            "https://example.com/item",
-            "Test Feed",
-            "<p>This is a test feed item excerpt.</p>",
+            'Test Feed Item',
+            'https://example.com/item',
+            'Test Feed',
+            '<p>This is a test feed item excerpt.</p>',
             new \DateTimeImmutable(),
         );
 

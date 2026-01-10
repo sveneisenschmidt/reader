@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -19,16 +20,18 @@ class RefreshTimestampExtension extends AbstractExtension
     public function __construct(
         private SubscriptionService $subscriptionService,
         private UserService $userService,
-    ) {}
+    ) {
+    }
 
     public function getFunctions(): array
     {
-        return [new TwigFunction("last_refresh", [$this, "getLastRefresh"])];
+        return [new TwigFunction('last_refresh', [$this, 'getLastRefresh'])];
     }
 
     public function getLastRefresh(): ?\DateTimeImmutable
     {
         $user = $this->userService->getCurrentUser();
+
         return $this->subscriptionService->getOldestRefreshTime($user->getId());
     }
 }

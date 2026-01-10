@@ -50,9 +50,6 @@
                         }
                     }
                 }
-
-                & span:last-child {
-                }
             }
         }
 
@@ -245,7 +242,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgb(0 0 0 / 80%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -275,7 +272,7 @@
    Responsive
    ======================================== */
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
     #feed {
         display: block;
         overflow-y: auto;

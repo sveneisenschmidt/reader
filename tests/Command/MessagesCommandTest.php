@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -26,7 +27,7 @@ class MessagesCommandTest extends KernelTestCase
         $kernel = self::bootKernel();
         $application = new Application($kernel);
 
-        $command = $application->find("reader:messages");
+        $command = $application->find('reader:messages');
         $this->commandTester = new CommandTester($command);
 
         $this->repository = static::getContainer()->get(
@@ -48,7 +49,7 @@ class MessagesCommandTest extends KernelTestCase
         $this->commandTester->execute([]);
 
         $this->assertStringContainsString(
-            "No processed messages found",
+            'No processed messages found',
             $this->commandTester->getDisplay(),
         );
     }
@@ -64,8 +65,8 @@ class MessagesCommandTest extends KernelTestCase
         $this->commandTester->execute([]);
 
         $output = $this->commandTester->getDisplay();
-        $this->assertStringContainsString("RefreshFeedsMessage", $output);
-        $this->assertStringContainsString("success", $output);
+        $this->assertStringContainsString('RefreshFeedsMessage', $output);
+        $this->assertStringContainsString('success', $output);
     }
 
     #[Test]
@@ -80,11 +81,11 @@ class MessagesCommandTest extends KernelTestCase
             ProcessedMessage::STATUS_SUCCESS,
         ));
 
-        $this->commandTester->execute(["--type" => 'App\Message\RefreshFeedsMessage']);
+        $this->commandTester->execute(['--type' => 'App\Message\RefreshFeedsMessage']);
 
         $output = $this->commandTester->getDisplay();
-        $this->assertStringContainsString("RefreshFeedsMessage", $output);
-        $this->assertStringNotContainsString("HeartbeatMessage", $output);
+        $this->assertStringContainsString('RefreshFeedsMessage', $output);
+        $this->assertStringNotContainsString('HeartbeatMessage', $output);
     }
 
     #[Test]
@@ -97,33 +98,33 @@ class MessagesCommandTest extends KernelTestCase
         $this->repository->save(new ProcessedMessage(
             'App\Message\CleanupContentMessage',
             ProcessedMessage::STATUS_FAILED,
-            "Some error",
+            'Some error',
         ));
 
-        $this->commandTester->execute(["--status" => "failed"]);
+        $this->commandTester->execute(['--status' => 'failed']);
 
         $output = $this->commandTester->getDisplay();
-        $this->assertStringContainsString("failed", $output);
-        $this->assertStringContainsString("CleanupContentMessage", $output);
-        $this->assertStringNotContainsString("RefreshFeedsMessage", $output);
+        $this->assertStringContainsString('failed', $output);
+        $this->assertStringContainsString('CleanupContentMessage', $output);
+        $this->assertStringNotContainsString('RefreshFeedsMessage', $output);
     }
 
     #[Test]
     public function commandRespectsLimit(): void
     {
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 5; ++$i) {
             $this->repository->save(new ProcessedMessage(
-                'App\Message\HeartbeatMessage' . $i,
+                'App\Message\HeartbeatMessage'.$i,
                 ProcessedMessage::STATUS_SUCCESS,
             ));
         }
 
-        $this->commandTester->execute(["--limit" => "2"]);
+        $this->commandTester->execute(['--limit' => '2']);
 
         $output = $this->commandTester->getDisplay();
-        $this->assertStringContainsString("HeartbeatMessage4", $output);
-        $this->assertStringContainsString("HeartbeatMessage3", $output);
-        $this->assertStringNotContainsString("HeartbeatMessage0", $output);
+        $this->assertStringContainsString('HeartbeatMessage4', $output);
+        $this->assertStringContainsString('HeartbeatMessage3', $output);
+        $this->assertStringNotContainsString('HeartbeatMessage0', $output);
     }
 
     #[Test]
@@ -136,22 +137,22 @@ class MessagesCommandTest extends KernelTestCase
         $this->repository->save(new ProcessedMessage(
             'App\Message\RefreshFeedsMessage',
             ProcessedMessage::STATUS_FAILED,
-            "Error message",
+            'Error message',
         ));
         $this->repository->save(new ProcessedMessage(
             'App\Message\HeartbeatMessage',
             ProcessedMessage::STATUS_FAILED,
-            "Worker error",
+            'Worker error',
         ));
 
         $this->commandTester->execute([
-            "--type" => 'App\Message\RefreshFeedsMessage',
-            "--status" => "failed",
+            '--type' => 'App\Message\RefreshFeedsMessage',
+            '--status' => 'failed',
         ]);
 
         $output = $this->commandTester->getDisplay();
-        $this->assertStringContainsString("RefreshFeedsMessage", $output);
-        $this->assertStringContainsString("failed", $output);
-        $this->assertStringNotContainsString("HeartbeatMessage", $output);
+        $this->assertStringContainsString('RefreshFeedsMessage', $output);
+        $this->assertStringContainsString('failed', $output);
+        $this->assertStringNotContainsString('HeartbeatMessage', $output);
     }
 }

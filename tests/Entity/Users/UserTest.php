@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -18,16 +19,16 @@ class UserTest extends TestCase
     #[Test]
     public function constructorSetsUsername(): void
     {
-        $user = new User("testuser");
+        $user = new User('testuser');
 
-        $this->assertEquals("testuser", $user->getUsername());
+        $this->assertEquals('testuser', $user->getUsername());
     }
 
     #[Test]
     public function constructorSetsCreatedAt(): void
     {
         $before = new \DateTimeImmutable();
-        $user = new User("testuser");
+        $user = new User('testuser');
         $after = new \DateTimeImmutable();
 
         $this->assertGreaterThanOrEqual($before, $user->getCreatedAt());
@@ -37,7 +38,7 @@ class UserTest extends TestCase
     #[Test]
     public function getIdReturnsNullForNewUser(): void
     {
-        $user = new User("testuser");
+        $user = new User('testuser');
 
         $this->assertNull($user->getId());
     }
@@ -45,33 +46,33 @@ class UserTest extends TestCase
     #[Test]
     public function setUsernameUpdatesUsername(): void
     {
-        $user = new User("original");
-        $result = $user->setUsername("updated");
+        $user = new User('original');
+        $result = $user->setUsername('updated');
 
-        $this->assertEquals("updated", $user->getUsername());
+        $this->assertEquals('updated', $user->getUsername());
         $this->assertSame($user, $result);
     }
 
     #[Test]
     public function getUserIdentifierReturnsUsername(): void
     {
-        $user = new User("testuser");
+        $user = new User('testuser');
 
-        $this->assertEquals("testuser", $user->getUserIdentifier());
+        $this->assertEquals('testuser', $user->getUserIdentifier());
     }
 
     #[Test]
     public function getRolesReturnsUserRole(): void
     {
-        $user = new User("testuser");
+        $user = new User('testuser');
 
-        $this->assertEquals(["ROLE_USER"], $user->getRoles());
+        $this->assertEquals(['ROLE_USER'], $user->getRoles());
     }
 
     #[Test]
     public function emailIsNullByDefault(): void
     {
-        $user = new User("testuser");
+        $user = new User('testuser');
 
         $this->assertNull($user->getEmail());
     }
@@ -79,17 +80,17 @@ class UserTest extends TestCase
     #[Test]
     public function setEmailUpdatesEmail(): void
     {
-        $user = new User("testuser");
-        $result = $user->setEmail("test@example.com");
+        $user = new User('testuser');
+        $result = $user->setEmail('test@example.com');
 
-        $this->assertEquals("test@example.com", $user->getEmail());
+        $this->assertEquals('test@example.com', $user->getEmail());
         $this->assertSame($user, $result);
     }
 
     #[Test]
     public function passwordIsNullByDefault(): void
     {
-        $user = new User("testuser");
+        $user = new User('testuser');
 
         $this->assertNull($user->getPassword());
     }
@@ -97,17 +98,17 @@ class UserTest extends TestCase
     #[Test]
     public function setPasswordUpdatesPassword(): void
     {
-        $user = new User("testuser");
-        $result = $user->setPassword("hashedpassword");
+        $user = new User('testuser');
+        $result = $user->setPassword('hashedpassword');
 
-        $this->assertEquals("hashedpassword", $user->getPassword());
+        $this->assertEquals('hashedpassword', $user->getPassword());
         $this->assertSame($user, $result);
     }
 
     #[Test]
     public function totpSecretIsNullByDefault(): void
     {
-        $user = new User("testuser");
+        $user = new User('testuser');
 
         $this->assertNull($user->getTotpSecret());
     }
@@ -115,40 +116,40 @@ class UserTest extends TestCase
     #[Test]
     public function setTotpSecretUpdatesTotpSecret(): void
     {
-        $user = new User("testuser");
-        $result = $user->setTotpSecret("JBSWY3DPEHPK3PXP");
+        $user = new User('testuser');
+        $result = $user->setTotpSecret('JBSWY3DPEHPK3PXP');
 
-        $this->assertEquals("JBSWY3DPEHPK3PXP", $user->getTotpSecret());
+        $this->assertEquals('JBSWY3DPEHPK3PXP', $user->getTotpSecret());
         $this->assertSame($user, $result);
     }
 
     #[Test]
     public function themeDefaultsToAuto(): void
     {
-        $user = new User("testuser");
+        $user = new User('testuser');
 
-        $this->assertEquals("auto", $user->getTheme());
+        $this->assertEquals('auto', $user->getTheme());
     }
 
     #[Test]
     public function setThemeUpdatesTheme(): void
     {
-        $user = new User("testuser");
-        $result = $user->setTheme("dark");
+        $user = new User('testuser');
+        $result = $user->setTheme('dark');
 
-        $this->assertEquals("dark", $user->getTheme());
+        $this->assertEquals('dark', $user->getTheme());
         $this->assertSame($user, $result);
     }
 
     #[Test]
     public function eraseCredentialsDoesNothing(): void
     {
-        $user = new User("testuser");
-        $user->setPassword("secret");
+        $user = new User('testuser');
+        $user->setPassword('secret');
 
         $user->eraseCredentials();
 
         // Password should still be set (eraseCredentials is a no-op)
-        $this->assertEquals("secret", $user->getPassword());
+        $this->assertEquals('secret', $user->getPassword());
     }
 }

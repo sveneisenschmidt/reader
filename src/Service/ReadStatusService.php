@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -15,7 +16,8 @@ class ReadStatusService
 {
     public function __construct(
         private ReadStatusRepository $readStatusRepository,
-    ) {}
+    ) {
+    }
 
     public function markAsRead(int $userId, string $feedItemGuid): void
     {
@@ -47,7 +49,8 @@ class ReadStatusService
         $readGuids = $this->getReadGuidsForUser($userId);
 
         return array_map(function ($item) use ($readGuids) {
-            $item["isRead"] = in_array($item["guid"], $readGuids, true);
+            $item['isRead'] = in_array($item['guid'], $readGuids, true);
+
             return $item;
         }, $items);
     }

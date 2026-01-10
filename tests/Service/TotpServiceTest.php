@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -39,7 +40,7 @@ class TotpServiceTest extends TestCase
 
         // Base32 characters
         $this->assertMatchesRegularExpression(
-            "/^[A-Z2-7]+$/",
+            '/^[A-Z2-7]+$/',
             $secret,
         );
     }
@@ -70,9 +71,9 @@ class TotpServiceTest extends TestCase
     {
         $secret = $this->totpService->generateSecret();
 
-        $this->assertFalse($this->totpService->verify($secret, "000000"));
-        $this->assertFalse($this->totpService->verify($secret, "123456"));
-        $this->assertFalse($this->totpService->verify($secret, "999999"));
+        $this->assertFalse($this->totpService->verify($secret, '000000'));
+        $this->assertFalse($this->totpService->verify($secret, '123456'));
+        $this->assertFalse($this->totpService->verify($secret, '999999'));
     }
 
     #[Test]
@@ -80,7 +81,7 @@ class TotpServiceTest extends TestCase
     {
         $secret = $this->totpService->generateSecret();
 
-        $this->assertFalse($this->totpService->verify($secret, ""));
+        $this->assertFalse($this->totpService->verify($secret, ''));
     }
 
     #[Test]
@@ -90,9 +91,9 @@ class TotpServiceTest extends TestCase
 
         $uri = $this->totpService->getProvisioningUri($secret);
 
-        $this->assertStringStartsWith("otpauth://totp/", $uri);
-        $this->assertStringContainsString("Reader", $uri);
-        $this->assertStringContainsString("secret=", $uri);
+        $this->assertStringStartsWith('otpauth://totp/', $uri);
+        $this->assertStringContainsString('Reader', $uri);
+        $this->assertStringContainsString('secret=', $uri);
     }
 
     #[Test]
@@ -112,7 +113,7 @@ class TotpServiceTest extends TestCase
 
         $dataUri = $this->totpService->getQrCodeDataUri($secret);
 
-        $this->assertStringStartsWith("data:image/png;base64,", $dataUri);
+        $this->assertStringStartsWith('data:image/png;base64,', $dataUri);
     }
 
     #[Test]
@@ -123,7 +124,7 @@ class TotpServiceTest extends TestCase
         $dataUri = $this->totpService->getQrCodeDataUri($secret);
 
         // Extract base64 part
-        $base64 = str_replace("data:image/png;base64,", "", $dataUri);
+        $base64 = str_replace('data:image/png;base64,', '', $dataUri);
 
         // Verify it's valid base64 by decoding it
         $decoded = base64_decode($base64, true);
@@ -139,7 +140,7 @@ class TotpServiceTest extends TestCase
         $dataUri = $this->totpService->getQrCodeDataUri($secret);
 
         // Extract and decode base64
-        $base64 = str_replace("data:image/png;base64,", "", $dataUri);
+        $base64 = str_replace('data:image/png;base64,', '', $dataUri);
         $imageData = base64_decode($base64, true);
 
         // PNG magic bytes: 89 50 4E 47 0D 0A 1A 0A

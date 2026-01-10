@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -37,8 +38,8 @@ class ProcessedMessageRepository extends ServiceEntityRepository
     public function getLastByType(string $type): ?ProcessedMessage
     {
         return $this->findOneBy(
-            ["messageType" => $type],
-            ["processedAt" => "DESC"],
+            ['messageType' => $type],
+            ['processedAt' => 'DESC'],
         );
     }
 
@@ -46,42 +47,42 @@ class ProcessedMessageRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(
             [
-                "messageType" => $type,
-                "status" => ProcessedMessage::STATUS_SUCCESS,
+                'messageType' => $type,
+                'status' => ProcessedMessage::STATUS_SUCCESS,
             ],
-            ["processedAt" => "DESC"],
+            ['processedAt' => 'DESC'],
         );
     }
 
     public function findByType(string $type, int $limit = 100): array
     {
         return $this->findBy(
-            ["messageType" => $type],
-            ["processedAt" => "DESC"],
+            ['messageType' => $type],
+            ['processedAt' => 'DESC'],
             $limit,
         );
     }
 
     public function pruneByType(string $type, int $keep): void
     {
-        $idsToKeep = $this->createQueryBuilder("m")
-            ->select("m.id")
-            ->where("m.messageType = :type")
-            ->setParameter("type", $type)
-            ->orderBy("m.processedAt", "DESC")
+        $idsToKeep = $this->createQueryBuilder('m')
+            ->select('m.id')
+            ->where('m.messageType = :type')
+            ->setParameter('type', $type)
+            ->orderBy('m.processedAt', 'DESC')
             ->setMaxResults($keep)
             ->getQuery()
             ->getSingleColumnResult();
 
         $qb = $this->getOpenEntityManager()
             ->createQueryBuilder()
-            ->delete(ProcessedMessage::class, "m")
-            ->where("m.messageType = :type")
-            ->setParameter("type", $type);
+            ->delete(ProcessedMessage::class, 'm')
+            ->where('m.messageType = :type')
+            ->setParameter('type', $type);
 
         if (!empty($idsToKeep)) {
-            $qb->andWhere("m.id NOT IN (:ids)")->setParameter(
-                "ids",
+            $qb->andWhere('m.id NOT IN (:ids)')->setParameter(
+                'ids',
                 $idsToKeep,
             );
         }
@@ -94,16 +95,16 @@ class ProcessedMessageRepository extends ServiceEntityRepository
      */
     public function getCountsByType(): array
     {
-        $result = $this->createQueryBuilder("m")
-            ->select("m.messageType, COUNT(m.id) as cnt")
-            ->groupBy("m.messageType")
-            ->orderBy("m.messageType", "ASC")
+        $result = $this->createQueryBuilder('m')
+            ->select('m.messageType, COUNT(m.id) as cnt')
+            ->groupBy('m.messageType')
+            ->orderBy('m.messageType', 'ASC')
             ->getQuery()
             ->getResult();
 
         $counts = [];
         foreach ($result as $row) {
-            $counts[$row["messageType"]] = (int) $row["cnt"];
+            $counts[$row['messageType']] = (int) $row['cnt'];
         }
 
         return $counts;
@@ -112,12 +113,12 @@ class ProcessedMessageRepository extends ServiceEntityRepository
     private function getOpenEntityManager(): EntityManagerInterface
     {
         /** @var EntityManagerInterface $em */
-        $em = $this->registry->getManager("messages");
+        $em = $this->registry->getManager('messages');
 
         if (!$em->isOpen()) {
-            $this->registry->resetManager("messages");
+            $this->registry->resetManager('messages');
             /** @var EntityManagerInterface $em */
-            $em = $this->registry->getManager("messages");
+            $em = $this->registry->getManager('messages');
         }
 
         return $em;

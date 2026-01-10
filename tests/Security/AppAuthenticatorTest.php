@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -34,7 +35,7 @@ class AppAuthenticatorTest extends KernelTestCase
     #[Test]
     public function supportsReturnsTrueForLoginPost(): void
     {
-        $request = Request::create("/login", "POST");
+        $request = Request::create('/login', 'POST');
 
         $this->assertTrue($this->authenticator->supports($request));
     }
@@ -42,7 +43,7 @@ class AppAuthenticatorTest extends KernelTestCase
     #[Test]
     public function supportsReturnsFalseForLoginGet(): void
     {
-        $request = Request::create("/login", "GET");
+        $request = Request::create('/login', 'GET');
 
         $this->assertFalse($this->authenticator->supports($request));
     }
@@ -50,7 +51,7 @@ class AppAuthenticatorTest extends KernelTestCase
     #[Test]
     public function supportsReturnsFalseForOtherPaths(): void
     {
-        $request = Request::create("/other", "POST");
+        $request = Request::create('/other', 'POST');
 
         $this->assertFalse($this->authenticator->supports($request));
     }
@@ -58,7 +59,7 @@ class AppAuthenticatorTest extends KernelTestCase
     #[Test]
     public function supportsReturnsFalseForOtherMethods(): void
     {
-        $request = Request::create("/login", "PUT");
+        $request = Request::create('/login', 'PUT');
 
         $this->assertFalse($this->authenticator->supports($request));
     }
@@ -66,34 +67,34 @@ class AppAuthenticatorTest extends KernelTestCase
     #[Test]
     public function onAuthenticationSuccessRedirectsToFeedIndex(): void
     {
-        $request = Request::create("/login", "POST");
+        $request = Request::create('/login', 'POST');
         $user = $this->createMock(
             \Symfony\Component\Security\Core\User\UserInterface::class,
         );
-        $user->method("getRoles")->willReturn(["ROLE_USER"]);
-        $user->method("getUserIdentifier")->willReturn("testuser");
+        $user->method('getRoles')->willReturn(['ROLE_USER']);
+        $user->method('getUserIdentifier')->willReturn('testuser');
 
-        $token = new UsernamePasswordToken($user, "main", ["ROLE_USER"]);
+        $token = new UsernamePasswordToken($user, 'main', ['ROLE_USER']);
 
         $response = $this->authenticator->onAuthenticationSuccess(
             $request,
             $token,
-            "main",
+            'main',
         );
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertStringContainsString("/", $response->getTargetUrl());
+        $this->assertStringContainsString('/', $response->getTargetUrl());
     }
 
     #[Test]
     public function onAuthenticationFailureRedirectsToLogin(): void
     {
-        $request = Request::create("/login", "POST");
+        $request = Request::create('/login', 'POST');
         $session = new Session(new MockArraySessionStorage());
         $request->setSession($session);
 
         $exception = new CustomUserMessageAuthenticationException(
-            "Invalid credentials.",
+            'Invalid credentials.',
         );
 
         $response = $this->authenticator->onAuthenticationFailure(
@@ -102,10 +103,10 @@ class AppAuthenticatorTest extends KernelTestCase
         );
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertStringContainsString("/login", $response->getTargetUrl());
+        $this->assertStringContainsString('/login', $response->getTargetUrl());
         $this->assertEquals(
-            "Invalid credentials.",
-            $session->get("auth_error"),
+            'Invalid credentials.',
+            $session->get('auth_error'),
         );
     }
 
@@ -118,18 +119,18 @@ class AppAuthenticatorTest extends KernelTestCase
             \App\Repository\Users\UserRepository::class,
         );
         if (!$userRepository->hasAnyUser()) {
-            $user = new \App\Entity\Users\User("test@example.com");
-            $user->setEmail("test@example.com");
-            $user->setPassword("hashedpassword");
+            $user = new \App\Entity\Users\User('test@example.com');
+            $user->setEmail('test@example.com');
+            $user->setPassword('hashedpassword');
             $userRepository->save($user);
         }
 
-        $request = Request::create("/protected", "GET");
+        $request = Request::create('/protected', 'GET');
 
         $response = $this->authenticator->start($request);
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertStringContainsString("/login", $response->getTargetUrl());
+        $this->assertStringContainsString('/login', $response->getTargetUrl());
     }
 
     #[Test]
@@ -137,16 +138,16 @@ class AppAuthenticatorTest extends KernelTestCase
     {
         // Clear all users
         $container = static::getContainer();
-        $entityManager = $container->get("doctrine.orm.entity_manager");
+        $entityManager = $container->get('doctrine.orm.entity_manager');
         $entityManager
             ->createQuery("DELETE FROM App\Entity\Users\User")
             ->execute();
 
-        $request = Request::create("/protected", "GET");
+        $request = Request::create('/protected', 'GET');
 
         $response = $this->authenticator->start($request);
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
-        $this->assertStringContainsString("/setup", $response->getTargetUrl());
+        $this->assertStringContainsString('/setup', $response->getTargetUrl());
     }
 }

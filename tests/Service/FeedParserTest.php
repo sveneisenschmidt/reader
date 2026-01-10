@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -41,17 +42,17 @@ class FeedParserTest extends TestCase
 </rss>
 XML;
 
-        $result = $this->parser->parse($rss, "https://example.com/feed.xml");
+        $result = $this->parser->parse($rss, 'https://example.com/feed.xml');
 
-        $this->assertEquals("Test Feed", $result["title"]);
-        $this->assertCount(1, $result["items"]);
-        $this->assertEquals("Test Item", $result["items"][0]["title"]);
+        $this->assertEquals('Test Feed', $result['title']);
+        $this->assertCount(1, $result['items']);
+        $this->assertEquals('Test Item', $result['items'][0]['title']);
         $this->assertEquals(
-            "https://example.com/item1",
-            $result["items"][0]["link"],
+            'https://example.com/item1',
+            $result['items'][0]['link'],
         );
-        $this->assertEquals("Test description", $result["items"][0]["excerpt"]);
-        $this->assertEquals("Test Feed", $result["items"][0]["source"]);
+        $this->assertEquals('Test description', $result['items'][0]['excerpt']);
+        $this->assertEquals('Test Feed', $result['items'][0]['source']);
     }
 
     #[Test]
@@ -71,32 +72,32 @@ XML;
 </feed>
 XML;
 
-        $result = $this->parser->parse($atom, "https://example.com/atom.xml");
+        $result = $this->parser->parse($atom, 'https://example.com/atom.xml');
 
-        $this->assertEquals("Atom Feed", $result["title"]);
-        $this->assertCount(1, $result["items"]);
-        $this->assertEquals("Atom Entry", $result["items"][0]["title"]);
+        $this->assertEquals('Atom Feed', $result['title']);
+        $this->assertCount(1, $result['items']);
+        $this->assertEquals('Atom Entry', $result['items'][0]['title']);
     }
 
     #[Test]
     public function parseInvalidFeedReturnsEmptyResult(): void
     {
         $result = $this->parser->parse(
-            "not valid xml",
-            "https://example.com/feed.xml",
+            'not valid xml',
+            'https://example.com/feed.xml',
         );
 
-        $this->assertEquals("", $result["title"]);
-        $this->assertEmpty($result["items"]);
+        $this->assertEquals('', $result['title']);
+        $this->assertEmpty($result['items']);
     }
 
     #[Test]
     public function parseEmptyContentReturnsEmptyResult(): void
     {
-        $result = $this->parser->parse("", "https://example.com/feed.xml");
+        $result = $this->parser->parse('', 'https://example.com/feed.xml');
 
-        $this->assertEquals("", $result["title"]);
-        $this->assertEmpty($result["items"]);
+        $this->assertEquals('', $result['title']);
+        $this->assertEmpty($result['items']);
     }
 
     #[Test]
@@ -130,29 +131,29 @@ XML;
     #[Test]
     public function isValidReturnsFalseForInvalidContent(): void
     {
-        $this->assertFalse($this->parser->isValid("not xml"));
+        $this->assertFalse($this->parser->isValid('not xml'));
     }
 
     #[Test]
     public function isValidReturnsFalseForEmptyContent(): void
     {
-        $this->assertFalse($this->parser->isValid(""));
+        $this->assertFalse($this->parser->isValid(''));
     }
 
     #[Test]
     public function createGuidGenerates16CharHash(): void
     {
-        $guid = $this->parser->createGuid("https://example.com/item");
+        $guid = $this->parser->createGuid('https://example.com/item');
 
         $this->assertEquals(16, strlen($guid));
-        $this->assertMatchesRegularExpression("/^[a-f0-9]{16}$/", $guid);
+        $this->assertMatchesRegularExpression('/^[a-f0-9]{16}$/', $guid);
     }
 
     #[Test]
     public function createGuidIsDeterministic(): void
     {
-        $guid1 = $this->parser->createGuid("https://example.com/item");
-        $guid2 = $this->parser->createGuid("https://example.com/item");
+        $guid1 = $this->parser->createGuid('https://example.com/item');
+        $guid2 = $this->parser->createGuid('https://example.com/item');
 
         $this->assertEquals($guid1, $guid2);
     }
@@ -160,8 +161,8 @@ XML;
     #[Test]
     public function createGuidDiffersForDifferentInputs(): void
     {
-        $guid1 = $this->parser->createGuid("https://example.com/item1");
-        $guid2 = $this->parser->createGuid("https://example.com/item2");
+        $guid1 = $this->parser->createGuid('https://example.com/item1');
+        $guid2 = $this->parser->createGuid('https://example.com/item2');
 
         $this->assertNotEquals($guid1, $guid2);
     }
@@ -183,18 +184,18 @@ XML;
 </rss>
 XML;
 
-        $result = $this->parser->parse($rss, "https://example.com/feed.xml");
+        $result = $this->parser->parse($rss, 'https://example.com/feed.xml');
 
         $this->assertStringStartsWith(
-            "This is the description",
-            $result["items"][0]["title"],
+            'This is the description',
+            $result['items'][0]['title'],
         );
     }
 
     #[Test]
     public function parseItemWithLongExcerptTruncatesTitle(): void
     {
-        $longDescription = str_repeat("a", 100);
+        $longDescription = str_repeat('a', 100);
         $rss = <<<XML
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
@@ -209,10 +210,10 @@ XML;
 </rss>
 XML;
 
-        $result = $this->parser->parse($rss, "https://example.com/feed.xml");
+        $result = $this->parser->parse($rss, 'https://example.com/feed.xml');
 
-        $this->assertEquals(53, strlen($result["items"][0]["title"])); // 50 + "..."
-        $this->assertStringEndsWith("...", $result["items"][0]["title"]);
+        $this->assertEquals(53, strlen($result['items'][0]['title'])); // 50 + "..."
+        $this->assertStringEndsWith('...', $result['items'][0]['title']);
     }
 
     #[Test]
@@ -230,9 +231,9 @@ XML;
 </rss>
 XML;
 
-        $result = $this->parser->parse($rss, "https://example.com/feed.xml");
+        $result = $this->parser->parse($rss, 'https://example.com/feed.xml');
 
-        $this->assertEquals("Untitled", $result["items"][0]["title"]);
+        $this->assertEquals('Untitled', $result['items'][0]['title']);
     }
 
     #[Test]
@@ -252,9 +253,9 @@ XML;
 </rss>
 XML;
 
-        $result = $this->parser->parse($rss, "https://example.com/feed.xml");
+        $result = $this->parser->parse($rss, 'https://example.com/feed.xml');
 
-        $this->assertEquals("Bold text", $result["items"][0]["title"]);
+        $this->assertEquals('Bold text', $result['items'][0]['title']);
     }
 
     #[Test]
@@ -274,11 +275,11 @@ XML;
 </rss>
 XML;
 
-        $result = $this->parser->parse($rss, "https://example.com/feed.xml");
+        $result = $this->parser->parse($rss, 'https://example.com/feed.xml');
 
         $this->assertStringContainsString(
             '"Test"',
-            $result["items"][0]["title"],
+            $result['items'][0]['title'],
         );
     }
 
@@ -306,12 +307,12 @@ XML;
 </rss>
 XML;
 
-        $result = $this->parser->parse($rss, "https://example.com/feed.xml");
+        $result = $this->parser->parse($rss, 'https://example.com/feed.xml');
 
-        $this->assertCount(3, $result["items"]);
-        $this->assertEquals("Item 1", $result["items"][0]["title"]);
-        $this->assertEquals("Item 2", $result["items"][1]["title"]);
-        $this->assertEquals("Item 3", $result["items"][2]["title"]);
+        $this->assertCount(3, $result['items']);
+        $this->assertEquals('Item 1', $result['items'][0]['title']);
+        $this->assertEquals('Item 2', $result['items'][1]['title']);
+        $this->assertEquals('Item 3', $result['items'][2]['title']);
     }
 
     #[Test]
@@ -331,9 +332,9 @@ XML;
 </feed>
 XML;
 
-        $result = $this->parser->parse($atom, "https://example.com/atom.xml");
+        $result = $this->parser->parse($atom, 'https://example.com/atom.xml');
 
-        $this->assertNotEmpty($result["items"][0]["excerpt"]);
+        $this->assertNotEmpty($result['items'][0]['excerpt']);
     }
 
     #[Test]
@@ -353,10 +354,10 @@ XML;
 </rss>
 XML;
 
-        $result = $this->parser->parse($rss, "https://example.com/feed.xml");
+        $result = $this->parser->parse($rss, 'https://example.com/feed.xml');
 
         // The guid should be created based on the id when link is missing
-        $this->assertNotEmpty($result["items"][0]["guid"]);
+        $this->assertNotEmpty($result['items'][0]['guid']);
     }
 
     #[Test]
@@ -374,9 +375,9 @@ XML;
 </rss>
 XML;
 
-        $result = $this->parser->parse($rss, "https://example.com/feed.xml");
+        $result = $this->parser->parse($rss, 'https://example.com/feed.xml');
 
-        $this->assertEquals("", $result["title"]);
+        $this->assertEquals('', $result['title']);
     }
 
     #[Test]
@@ -396,11 +397,11 @@ XML;
 </feed>
 XML;
 
-        $result = $this->parser->parse($atom, "https://example.com/atom.xml");
+        $result = $this->parser->parse($atom, 'https://example.com/atom.xml');
 
         $this->assertInstanceOf(
             \DateTimeInterface::class,
-            $result["items"][0]["date"],
+            $result['items'][0]['date'],
         );
     }
 
@@ -420,11 +421,11 @@ XML;
 </feed>
 XML;
 
-        $result = $this->parser->parse($atom, "https://example.com/atom.xml");
+        $result = $this->parser->parse($atom, 'https://example.com/atom.xml');
 
         $this->assertInstanceOf(
             \DateTimeInterface::class,
-            $result["items"][0]["date"],
+            $result['items'][0]['date'],
         );
     }
 
@@ -444,11 +445,11 @@ XML;
 </rss>
 XML;
 
-        $before = new \DateTime("now");
-        $result = $this->parser->parse($rss, "https://example.com/feed.xml");
-        $after = new \DateTime("now");
+        $before = new \DateTime('now');
+        $result = $this->parser->parse($rss, 'https://example.com/feed.xml');
+        $after = new \DateTime('now');
 
-        $itemDate = $result["items"][0]["date"];
+        $itemDate = $result['items'][0]['date'];
         $this->assertInstanceOf(\DateTimeInterface::class, $itemDate);
         $this->assertGreaterThanOrEqual($before, $itemDate);
         $this->assertLessThanOrEqual($after, $itemDate);
@@ -474,11 +475,11 @@ XML;
 </rss>
 XML;
 
-        $result = $this->parser->parse($rss, "https://example.com/feed.xml");
+        $result = $this->parser->parse($rss, 'https://example.com/feed.xml');
 
         $this->assertEquals(
-            $result["items"][0]["feedGuid"],
-            $result["items"][1]["feedGuid"],
+            $result['items'][0]['feedGuid'],
+            $result['items'][1]['feedGuid'],
         );
     }
 }

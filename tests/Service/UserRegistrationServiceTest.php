@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of Reader.
  *
@@ -31,9 +32,9 @@ class UserRegistrationServiceTest extends KernelTestCase
     #[Test]
     public function registerCreatesUserWithHashedPassword(): void
     {
-        $email = "newuser_" . uniqid() . "@example.com";
-        $password = "testpassword123";
-        $totpSecret = "JBSWY3DPEHPK3PXP";
+        $email = 'newuser_'.uniqid().'@example.com';
+        $password = 'testpassword123';
+        $totpSecret = 'JBSWY3DPEHPK3PXP';
 
         $user = $this->service->register($email, $password, $totpSecret);
 
@@ -47,9 +48,9 @@ class UserRegistrationServiceTest extends KernelTestCase
     #[Test]
     public function registerPersistsUserToDatabase(): void
     {
-        $email = "persisted_" . uniqid() . "@example.com";
-        $password = "testpassword123";
-        $totpSecret = "JBSWY3DPEHPK3PXP";
+        $email = 'persisted_'.uniqid().'@example.com';
+        $password = 'testpassword123';
+        $totpSecret = 'JBSWY3DPEHPK3PXP';
 
         $user = $this->service->register($email, $password, $totpSecret);
 
