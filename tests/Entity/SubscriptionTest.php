@@ -11,6 +11,7 @@
 namespace App\Tests\Entity;
 
 use App\Entity\Subscriptions\Subscription;
+use App\Enum\SubscriptionStatus;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -32,7 +33,10 @@ class SubscriptionTest extends TestCase
         $subscription = $this->createSubscription();
 
         $this->assertEquals(1, $subscription->getUserId());
-        $this->assertEquals('https://example.com/feed.xml', $subscription->getUrl());
+        $this->assertEquals(
+            'https://example.com/feed.xml',
+            $subscription->getUrl(),
+        );
         $this->assertEquals('Example Feed', $subscription->getName());
         $this->assertEquals('abc123def456789', $subscription->getGuid());
     }
@@ -71,7 +75,10 @@ class SubscriptionTest extends TestCase
 
         $result = $subscription->setUrl('https://new.example.com/feed.xml');
 
-        $this->assertEquals('https://new.example.com/feed.xml', $subscription->getUrl());
+        $this->assertEquals(
+            'https://new.example.com/feed.xml',
+            $subscription->getUrl(),
+        );
         $this->assertSame($subscription, $result);
     }
 
@@ -96,8 +103,14 @@ class SubscriptionTest extends TestCase
         $after = new \DateTimeImmutable();
 
         $this->assertNotNull($subscription->getLastRefreshedAt());
-        $this->assertGreaterThanOrEqual($before, $subscription->getLastRefreshedAt());
-        $this->assertLessThanOrEqual($after, $subscription->getLastRefreshedAt());
+        $this->assertGreaterThanOrEqual(
+            $before,
+            $subscription->getLastRefreshedAt(),
+        );
+        $this->assertLessThanOrEqual(
+            $after,
+            $subscription->getLastRefreshedAt(),
+        );
         $this->assertSame($subscription, $result);
     }
 
@@ -130,5 +143,41 @@ class SubscriptionTest extends TestCase
 
         $this->assertNull($subscription->getFolder());
         $this->assertSame($subscription, $result);
+    }
+
+    #[Test]
+    public function statusIsPendingInitially(): void
+    {
+        $subscription = $this->createSubscription();
+
+        $this->assertEquals(
+            SubscriptionStatus::Pending,
+            $subscription->getStatus(),
+        );
+    }
+
+    #[Test]
+    public function setStatusUpdatesStatus(): void
+    {
+        $subscription = $this->createSubscription();
+
+        $result = $subscription->setStatus(SubscriptionStatus::Success);
+
+        $this->assertEquals(
+            SubscriptionStatus::Success,
+            $subscription->getStatus(),
+        );
+        $this->assertSame($subscription, $result);
+    }
+
+    #[Test]
+    public function setStatusAcceptsAllStatusValues(): void
+    {
+        $subscription = $this->createSubscription();
+
+        foreach (SubscriptionStatus::cases() as $status) {
+            $subscription->setStatus($status);
+            $this->assertEquals($status, $subscription->getStatus());
+        }
     }
 }
