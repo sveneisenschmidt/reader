@@ -323,6 +323,10 @@ class FeedController extends AbstractController
             );
         }
 
+        $autoMarkAsRead = $this->userPreferenceService->isAutoMarkAsReadEnabled(
+            $user->getId(),
+        );
+
         return $this->render('feed/index.html.twig', [
             'feeds' => $viewData['feeds'],
             'items' => $viewData['items'],
@@ -331,6 +335,7 @@ class FeedController extends AbstractController
             'activeFeed' => $sguid,
             'unread' => $unread,
             'limit' => $limit,
+            'autoMarkAsRead' => $autoMarkAsRead,
         ]);
     }
 

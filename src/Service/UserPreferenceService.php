@@ -38,6 +38,23 @@ class UserPreferenceService
         );
     }
 
+    public function isAutoMarkAsReadEnabled(int $userId): bool
+    {
+        return $this->userPreferenceRepository->isEnabled(
+            $userId,
+            UserPreference::AUTO_MARK_AS_READ,
+        );
+    }
+
+    public function setAutoMarkAsRead(int $userId, bool $enabled): void
+    {
+        $this->userPreferenceRepository->setEnabled(
+            $userId,
+            UserPreference::AUTO_MARK_AS_READ,
+            $enabled,
+        );
+    }
+
     #[Returns('array<string, bool>')]
     public function getAllPreferences(int $userId): array
     {
@@ -45,6 +62,7 @@ class UserPreferenceService
 
         return [
             UserPreference::SHOW_NEXT_UNREAD => $prefs[UserPreference::SHOW_NEXT_UNREAD] ?? false,
+            UserPreference::AUTO_MARK_AS_READ => $prefs[UserPreference::AUTO_MARK_AS_READ] ?? false,
         ];
     }
 }

@@ -18,7 +18,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-#[Template("TData", "mixed")]
+#[Template('TData', 'mixed')]
 class PreferencesType extends AbstractType
 {
     public function buildForm(
@@ -26,20 +26,24 @@ class PreferencesType extends AbstractType
         array $options,
     ): void {
         $builder
-            ->add("theme", ChoiceType::class, [
-                "label" => "Theme",
-                "choices" => [
-                    "Auto" => "auto",
-                    "Light" => "light",
-                    "Dark" => "dark",
+            ->add('theme', ChoiceType::class, [
+                'label' => 'Theme',
+                'choices' => [
+                    'Auto' => 'auto',
+                    'Light' => 'light',
+                    'Dark' => 'dark',
                 ],
             ])
-            ->add("showNextUnread", CheckboxType::class, [
-                "label" => "When marking as read, skip already read articles",
-                "required" => false,
+            ->add('showNextUnread', CheckboxType::class, [
+                'label' => 'When marking as read, skip already read articles',
+                'required' => false,
             ])
-            ->add("save", SubmitType::class, [
-                "label" => "Save",
+            ->add('autoMarkAsRead', CheckboxType::class, [
+                'label' => 'Automatically mark articles as read after 5 seconds',
+                'required' => false,
+            ])
+            ->add('save', SubmitType::class, [
+                'label' => 'Save',
             ]);
     }
 

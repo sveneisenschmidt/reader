@@ -24,6 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
 class UserPreference
 {
     public const SHOW_NEXT_UNREAD = 'show_next_unread';
+    public const AUTO_MARK_AS_READ = 'auto_mark_as_read';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

@@ -68,6 +68,55 @@ class UserPreferenceServiceTest extends TestCase
     }
 
     #[Test]
+    public function isAutoMarkAsReadEnabledReturnsTrueWhenEnabled(): void
+    {
+        $userId = 1;
+
+        $repository = $this->createMock(UserPreferenceRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('isEnabled')
+            ->with($userId, UserPreference::AUTO_MARK_AS_READ)
+            ->willReturn(true);
+
+        $service = new UserPreferenceService($repository);
+
+        $this->assertTrue($service->isAutoMarkAsReadEnabled($userId));
+    }
+
+    #[Test]
+    public function isAutoMarkAsReadEnabledReturnsFalseWhenDisabled(): void
+    {
+        $userId = 1;
+
+        $repository = $this->createMock(UserPreferenceRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('isEnabled')
+            ->with($userId, UserPreference::AUTO_MARK_AS_READ)
+            ->willReturn(false);
+
+        $service = new UserPreferenceService($repository);
+
+        $this->assertFalse($service->isAutoMarkAsReadEnabled($userId));
+    }
+
+    #[Test]
+    public function setAutoMarkAsReadCallsRepository(): void
+    {
+        $userId = 1;
+
+        $repository = $this->createMock(UserPreferenceRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('setEnabled')
+            ->with($userId, UserPreference::AUTO_MARK_AS_READ, true);
+
+        $service = new UserPreferenceService($repository);
+        $service->setAutoMarkAsRead($userId, true);
+    }
+
+    #[Test]
     public function getAllPreferencesReturnsAllPreferences(): void
     {
         $userId = 1;
@@ -79,12 +128,14 @@ class UserPreferenceServiceTest extends TestCase
             ->with($userId)
             ->willReturn([
                 UserPreference::SHOW_NEXT_UNREAD => true,
+                UserPreference::AUTO_MARK_AS_READ => true,
             ]);
 
         $service = new UserPreferenceService($repository);
         $result = $service->getAllPreferences($userId);
 
         $this->assertTrue($result[UserPreference::SHOW_NEXT_UNREAD]);
+        $this->assertTrue($result[UserPreference::AUTO_MARK_AS_READ]);
     }
 
     #[Test]
@@ -103,5 +154,6 @@ class UserPreferenceServiceTest extends TestCase
         $result = $service->getAllPreferences($userId);
 
         $this->assertFalse($result[UserPreference::SHOW_NEXT_UNREAD]);
+        $this->assertFalse($result[UserPreference::AUTO_MARK_AS_READ]);
     }
 }

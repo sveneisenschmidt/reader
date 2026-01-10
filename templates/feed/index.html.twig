@@ -126,7 +126,7 @@
                     <button type="submit" class="btn-link">Mark as unread</button>
                 </form>
             {% else %}
-                <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_read', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_read', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
+                <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_read', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_read', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline" data-auto-mark-read-form>
                     <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
                     <button type="submit" class="btn-link">Mark as read</button>
                 </form>
@@ -134,6 +134,9 @@
         </footer>
     </article>
     <script src="{{ asset('js/external-links.js') }}"></script>
+    {% if autoMarkAsRead %}
+    <script src="{{ asset('js/auto-mark-read.js') }}"></script>
+    {% endif %}
     {% endif %}
     <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
 {% endblock %}
