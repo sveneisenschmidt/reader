@@ -30,20 +30,22 @@
         <h2>Add Subscription</h2>
         {{ form_widget(form.new.guid, {'attr': {'hidden': true}}) }}
         {{ form_widget(form.new.name, {'attr': {'hidden': true}}) }}
-        <label>Feed URL</label>
-        <div class="form-inline">
-            {{ form_widget(form.new.url, {'attr': {'autofocus': true}}) }}
-            {{ form_widget(form.add) }}
+        <div class="form-row">
+            <label>Feed URL</label>
+            <div class="form-inline">
+                {{ form_widget(form.new.url, {'attr': {'autofocus': true}}) }}
+                {{ form_widget(form.add) }}
+            </div>
+            {{ form_errors(form.new.url) }}
+            <p>Name is auto-detected from the feed. You can customize it later.</p>
         </div>
-        {{ form_errors(form.new.url) }}
-        <p>Name is auto-detected from the feed. You can customize it later.</p>
     </section>
 
     {% if form.existing|length > 0 %}
     <section class="page-section page-section--bordered">
         <h2>Manage Subscriptions</h2>
         {% for subscription in form.existing %}
-        <div class="subscription-row">
+        <div class="form-row">
             {{ form_widget(subscription.guid) }}
             {{ form_widget(subscription.url, {'attr': {'hidden': true}}) }}
             <div class="form-inline">

@@ -27,7 +27,9 @@
     </div>
     {{ form_errors(form.password) }}
 
-    <p class="form-hint">Scan with your authenticator app or enter the code manually. Then enter the verification code below.</p>
+    <div class="form-row">
+        <p>Scan with your authenticator app or enter the code manually. Then enter the verification code below.</p>
+    </div>
 
     <figure class="qr-code">
         <img src="{{ totp_qr_data_uri }}" alt="QR Code">

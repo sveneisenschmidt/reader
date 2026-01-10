@@ -78,10 +78,6 @@
         }
     }
 
-    & .form-hint {
-        margin-bottom: var(--spacing-md);
-    }
-
     & .qr-code {
         display: flex;
         flex-direction: column;

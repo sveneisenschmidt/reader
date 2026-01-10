@@ -38,7 +38,7 @@ Load order: `shared-base` → `shared-layout` → `shared-forms` → `page-*`
 - `.form-inline` - input + button horizontal
 - `.form-checkbox` - checkbox with label
 - `.form-error`, `.form-errors`
-- `.form-links`, `.form-hint`
+- `.form-links`
 
 ### Buttons
 - `.btn-link` - looks like link
