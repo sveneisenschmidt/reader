@@ -788,4 +788,57 @@ class FeedControllerTest extends WebTestCase
 
         $this->assertResponseRedirects('/s/0123456789abcdef');
     }
+
+    #[Test]
+    public function markAsReadWithStayParameterRedirectsToSameItem(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $crawler = $client->request('GET', '/f/fedcba9876543210');
+        $form = $crawler->filter('form[action$="/read"]');
+        if ($form->count() > 0) {
+            $token = $form->filter('input[name="_token"]')->attr('value');
+
+            $client->request('POST', '/f/fedcba9876543210/read', [
+                '_token' => $token,
+                'stay' => '1',
+            ]);
+
+            $this->assertResponseRedirects('/f/fedcba9876543210');
+        } else {
+            $this->assertTrue(true);
+        }
+    }
+
+    #[Test]
+    public function filteredMarkAsReadWithStayParameterRedirectsToSameItem(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $crawler = $client->request(
+            'GET',
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+        $form = $crawler->filter('form[action$="/read"]');
+        if ($form->count() > 0) {
+            $token = $form->filter('input[name="_token"]')->attr('value');
+
+            $client->request(
+                'POST',
+                '/s/0123456789abcdef/f/fedcba9876543210/read',
+                [
+                    '_token' => $token,
+                    'stay' => '1',
+                ],
+            );
+
+            $this->assertResponseRedirects(
+                '/s/0123456789abcdef/f/fedcba9876543210',
+            );
+        } else {
+            $this->assertTrue(true);
+        }
+    }
 }

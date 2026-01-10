@@ -159,6 +159,10 @@ class FeedController extends AbstractController
         $userId = $user->getId();
         $this->readStatusService->markAsRead($userId, $fguid);
 
+        if ($request->request->get('stay') === '1') {
+            return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
+        }
+
         $nextFguid = $this->userPreferenceService->isShowNextUnreadEnabled(
             $userId,
         )
@@ -228,6 +232,13 @@ class FeedController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $userId = $user->getId();
         $this->readStatusService->markAsRead($userId, $fguid);
+
+        if ($request->request->get('stay') === '1') {
+            return $this->redirectToRoute('feed_item_filtered', [
+                'sguid' => $sguid,
+                'fguid' => $fguid,
+            ]);
+        }
 
         $nextFguid = $this->userPreferenceService->isShowNextUnreadEnabled(
             $userId,

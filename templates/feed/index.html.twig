@@ -128,13 +128,14 @@
             {% else %}
                 <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_read', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_read', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline" data-auto-mark-read-form>
                     <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
+                    <input type="hidden" name="stay" value="0" data-auto-mark-read-stay>
                     <button type="submit" class="btn-link">Mark as read</button>
                 </form>
             {% endif %}
         </footer>
     </article>
     <script src="{{ asset('js/external-links.js') }}"></script>
-    {% if autoMarkAsRead %}
+    {% if autoMarkAsRead and not activeItem.isRead %}
     <script src="{{ asset('js/auto-mark-read.js') }}"></script>
     {% endif %}
     {% endif %}

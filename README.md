@@ -70,11 +70,13 @@ Use the filters in the sidebar:
 - **Show unread** - Hide articles you've already read
 - **25 / 50 / 99+** - Limit how many articles are shown
 
-### Profile Settings
+### Preferences
 
-Click **Profile** in the header to change your settings:
+Click the gear icon in the header to access your preferences:
 
 - **Theme** - Choose between Auto, Light, or Dark mode
+- **Skip read articles** - When marking an article as read, automatically jump to the next unread article instead of the next in the list
+- **Auto mark as read** - Automatically mark articles as read after viewing them for 5 seconds
 - **Worker Status** - Shows if background refresh is running
 
 ## Security
