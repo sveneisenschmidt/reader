@@ -112,14 +112,7 @@ class FeedViewService
         ?string $sguid,
         string $currentGuid,
     ): ?string {
-        $sguids = $this->subscriptionService->getFeedGuids($userId);
-        $items = $this->feedPersistenceService->getAllItems($sguids);
-
-        if ($sguid) {
-            $items = array_values(
-                array_filter($items, fn ($item) => $item['sguid'] === $sguid),
-            );
-        }
+        $items = $this->getFilteredItems($userId, $sguid);
 
         $found = false;
         foreach ($items as $item) {
@@ -132,6 +125,45 @@ class FeedViewService
         }
 
         return null;
+    }
+
+    public function findNextUnreadItemGuid(
+        int $userId,
+        ?string $sguid,
+        string $currentGuid,
+    ): ?string {
+        $items = $this->getFilteredItems($userId, $sguid);
+        $items = $this->readStatusService->enrichItemsWithReadStatus(
+            $items,
+            $userId,
+        );
+
+        $found = false;
+        foreach ($items as $item) {
+            if ($found && !$item['isRead']) {
+                return $item['guid'];
+            }
+            if ($item['guid'] === $currentGuid) {
+                $found = true;
+            }
+        }
+
+        return null;
+    }
+
+    #[Returns('list<array<string, mixed>>')]
+    private function getFilteredItems(int $userId, ?string $sguid): array
+    {
+        $sguids = $this->subscriptionService->getFeedGuids($userId);
+        $items = $this->feedPersistenceService->getAllItems($sguids);
+
+        if ($sguid) {
+            $items = array_values(
+                array_filter($items, fn ($item) => $item['sguid'] === $sguid),
+            );
+        }
+
+        return $items;
     }
 
     #[Param(items: 'list<array<string, mixed>>')]

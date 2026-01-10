@@ -14,6 +14,7 @@ use App\Service\FeedViewService;
 use App\Service\ReadStatusService;
 use App\Service\SeenStatusService;
 use App\Service\SubscriptionService;
+use App\Service\UserPreferenceService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +31,7 @@ class FeedController extends AbstractController
         private ReadStatusService $readStatusService,
         private SeenStatusService $seenStatusService,
         private FeedViewService $feedViewService,
+        private UserPreferenceService $userPreferenceService,
         private CsrfTokenManagerInterface $csrfTokenManager,
     ) {
     }
@@ -154,13 +156,18 @@ class FeedController extends AbstractController
     {
         $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
-        $this->readStatusService->markAsRead($user->getId(), $fguid);
+        $userId = $user->getId();
+        $this->readStatusService->markAsRead($userId, $fguid);
 
-        $nextFguid = $this->feedViewService->findNextItemGuid(
-            $user->getId(),
-            null,
-            $fguid,
-        );
+        $nextFguid = $this->userPreferenceService->isShowNextUnreadEnabled(
+            $userId,
+        )
+            ? $this->feedViewService->findNextUnreadItemGuid(
+                $userId,
+                null,
+                $fguid,
+            )
+            : $this->feedViewService->findNextItemGuid($userId, null, $fguid);
 
         return $nextFguid
             ? $this->redirectToRoute('feed_item', ['fguid' => $nextFguid])
@@ -219,13 +226,18 @@ class FeedController extends AbstractController
     ): Response {
         $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
-        $this->readStatusService->markAsRead($user->getId(), $fguid);
+        $userId = $user->getId();
+        $this->readStatusService->markAsRead($userId, $fguid);
 
-        $nextFguid = $this->feedViewService->findNextItemGuid(
-            $user->getId(),
-            $sguid,
-            $fguid,
-        );
+        $nextFguid = $this->userPreferenceService->isShowNextUnreadEnabled(
+            $userId,
+        )
+            ? $this->feedViewService->findNextUnreadItemGuid(
+                $userId,
+                $sguid,
+                $fguid,
+            )
+            : $this->feedViewService->findNextItemGuid($userId, $sguid, $fguid);
 
         return $nextFguid
             ? $this->redirectToRoute('feed_item_filtered', [

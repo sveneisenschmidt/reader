@@ -36,10 +36,9 @@ class SubscriptionService
         private FeedReaderService $feedReaderService,
         private FeedContentService $feedContentService,
         private LoggerInterface $logger,
-    ) {
-    }
+    ) {}
 
-    #[Returns('list<Subscription>')]
+    #[Returns("list<Subscription>")]
     public function getSubscriptionsForUser(int $userId): array
     {
         return $this->subscriptionRepository->findByUserId($userId);
@@ -55,8 +54,8 @@ class SubscriptionService
         return $this->countByUser($userId) > 0;
     }
 
-    #[Param(items: 'list<array<string, mixed>>')]
-    #[Returns('list<array<string, mixed>>')]
+    #[Param(items: "list<array<string, mixed>>")]
+    #[Returns("list<array<string, mixed>>")]
     public function getSubscriptionsWithCounts(
         int $userId,
         array $items = [],
@@ -67,8 +66,8 @@ class SubscriptionService
         // Count unread items per subscription
         $unreadCounts = [];
         foreach ($items as $item) {
-            if (!isset($item['isRead']) || !$item['isRead']) {
-                $sguid = $item['sguid'] ?? '';
+            if (!isset($item["isRead"]) || !$item["isRead"]) {
+                $sguid = $item["sguid"] ?? "";
                 $unreadCounts[$sguid] = ($unreadCounts[$sguid] ?? 0) + 1;
             }
         }
@@ -76,42 +75,42 @@ class SubscriptionService
         foreach ($subscriptions as $subscription) {
             $sguid = $subscription->getGuid();
             $result[] = [
-                'sguid' => $sguid,
-                'name' => $subscription->getName(),
-                'url' => $subscription->getUrl(),
-                'count' => $unreadCounts[$sguid] ?? 0,
-                'folder' => $subscription->getFolder(),
+                "sguid" => $sguid,
+                "name" => $subscription->getName(),
+                "url" => $subscription->getUrl(),
+                "count" => $unreadCounts[$sguid] ?? 0,
+                "folder" => $subscription->getFolder(),
             ];
         }
 
         return $result;
     }
 
-    #[Returns('list<string>')]
+    #[Returns("list<string>")]
     public function getFeedUrls(int $userId): array
     {
         $subscriptions = $this->getSubscriptionsForUser($userId);
 
-        return array_map(fn (Subscription $s) => $s->getUrl(), $subscriptions);
+        return array_map(fn(Subscription $s) => $s->getUrl(), $subscriptions);
     }
 
-    #[Returns('list<string>')]
+    #[Returns("list<string>")]
     public function getFeedGuids(int $userId): array
     {
         $subscriptions = $this->getSubscriptionsForUser($userId);
 
-        return array_map(fn (Subscription $s) => $s->getGuid(), $subscriptions);
+        return array_map(fn(Subscription $s) => $s->getGuid(), $subscriptions);
     }
 
     public function addSubscription(int $userId, string $url): Subscription
     {
-        $title = $this->feedReaderService->getFeedTitle($url);
+        $feedData = $this->feedReaderService->fetchAndPersistFeed($url);
         $guid = $this->feedContentService->createGuid($url);
 
         return $this->subscriptionRepository->addSubscription(
             $userId,
             $url,
-            $title,
+            $feedData["title"],
             $guid,
         );
     }
@@ -172,8 +171,8 @@ class SubscriptionService
         return $this->subscriptionRepository->findByGuid($userId, $guid);
     }
 
-    #[Param(items: 'list<array<string, mixed>>')]
-    #[Returns('list<array<string, mixed>>')]
+    #[Param(items: "list<array<string, mixed>>")]
+    #[Returns("list<array<string, mixed>>")]
     public function enrichItemsWithSubscriptionNames(
         array $items,
         int $userId,
@@ -186,8 +185,8 @@ class SubscriptionService
         }
 
         return array_map(function ($item) use ($nameMap) {
-            if (isset($nameMap[$item['sguid']])) {
-                $item['source'] = $nameMap[$item['sguid']];
+            if (isset($nameMap[$item["sguid"]])) {
+                $item["source"] = $nameMap[$item["sguid"]];
             }
 
             return $item;
@@ -215,36 +214,36 @@ class SubscriptionService
                 $feedData = $this->feedReaderService->fetchAndPersistFeed(
                     $subscription->getUrl(),
                 );
-                $count += count($feedData['items']);
+                $count += count($feedData["items"]);
                 $subscription->updateLastRefreshedAt();
                 $subscription->setStatus(SubscriptionStatus::Success);
                 $this->subscriptionRepository->flush();
-            } catch (HttpRequestException|NotFoundException|ServerErrorException $e) {
-                $status = str_contains($e->getMessage(), 'timed out')
+            } catch (HttpRequestException | NotFoundException | ServerErrorException $e) {
+                $status = str_contains($e->getMessage(), "timed out")
                     ? SubscriptionStatus::Timeout
                     : SubscriptionStatus::Unreachable;
                 $subscription->setStatus($status);
                 $this->subscriptionRepository->flush();
-                $this->logger->error('Failed to refresh subscription', [
-                    'url' => $subscription->getUrl(),
-                    'status' => $status->value,
-                    'error' => $e->getMessage(),
+                $this->logger->error("Failed to refresh subscription", [
+                    "url" => $subscription->getUrl(),
+                    "status" => $status->value,
+                    "error" => $e->getMessage(),
                 ]);
-            } catch (NoAccurateParserException|UnsupportedFormatException|MissingFieldsException $e) {
+            } catch (NoAccurateParserException | UnsupportedFormatException | MissingFieldsException $e) {
                 $subscription->setStatus(SubscriptionStatus::Invalid);
                 $this->subscriptionRepository->flush();
-                $this->logger->error('Failed to refresh subscription', [
-                    'url' => $subscription->getUrl(),
-                    'status' => SubscriptionStatus::Invalid->value,
-                    'error' => $e->getMessage(),
+                $this->logger->error("Failed to refresh subscription", [
+                    "url" => $subscription->getUrl(),
+                    "status" => SubscriptionStatus::Invalid->value,
+                    "error" => $e->getMessage(),
                 ]);
             } catch (\Exception $e) {
                 $subscription->setStatus(SubscriptionStatus::Unreachable);
                 $this->subscriptionRepository->flush();
-                $this->logger->error('Failed to refresh subscription', [
-                    'url' => $subscription->getUrl(),
-                    'status' => SubscriptionStatus::Unreachable->value,
-                    'error' => $e->getMessage(),
+                $this->logger->error("Failed to refresh subscription", [
+                    "url" => $subscription->getUrl(),
+                    "status" => SubscriptionStatus::Unreachable->value,
+                    "error" => $e->getMessage(),
                 ]);
             }
         }

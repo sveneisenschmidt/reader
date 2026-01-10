@@ -1,0 +1,50 @@
+<?php
+
+/*
+ * This file is part of Reader.
+ *
+ * (c) Sven Eisenschmidt <sven.eisenschmidt@gmail.com>
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+namespace App\Service;
+
+use App\Entity\Users\UserPreference;
+use App\Repository\Users\UserPreferenceRepository;
+use PhpStaticAnalysis\Attributes\Returns;
+
+class UserPreferenceService
+{
+    public function __construct(
+        private UserPreferenceRepository $userPreferenceRepository,
+    ) {
+    }
+
+    public function isShowNextUnreadEnabled(int $userId): bool
+    {
+        return $this->userPreferenceRepository->isEnabled(
+            $userId,
+            UserPreference::SHOW_NEXT_UNREAD,
+        );
+    }
+
+    public function setShowNextUnread(int $userId, bool $enabled): void
+    {
+        $this->userPreferenceRepository->setEnabled(
+            $userId,
+            UserPreference::SHOW_NEXT_UNREAD,
+            $enabled,
+        );
+    }
+
+    #[Returns('array<string, bool>')]
+    public function getAllPreferences(int $userId): array
+    {
+        $prefs = $this->userPreferenceRepository->getAllForUser($userId);
+
+        return [
+            UserPreference::SHOW_NEXT_UNREAD => $prefs[UserPreference::SHOW_NEXT_UNREAD] ?? false,
+        ];
+    }
+}

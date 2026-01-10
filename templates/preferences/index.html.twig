@@ -49,19 +49,10 @@
         </div>
         <div class="form-row">
             <div class="form-checkbox">
-                <input type="checkbox" id="pref-mark-as-read" disabled>
+                {{ form_widget(preferencesForm.showNextUnread) }}
                 <div class="form-checkbox__content">
-                    <label for="pref-mark-as-read">Mark articles as read when I open them</label>
-                    <p>When off, you'll mark articles as read manually.</p>
-                </div>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-checkbox">
-                <input type="checkbox" id="pref-next-unread" disabled>
-                <div class="form-checkbox__content">
-                    <label for="pref-next-unread">After reading, show me the next unread article</label>
-                    <p>When off, you'll continue to the next article.</p>
+                    {{ form_label(preferencesForm.showNextUnread) }}
+                    <p>When off, you'll continue to the next article in the list.</p>
                 </div>
             </div>
         </div>

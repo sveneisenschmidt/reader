@@ -12,12 +12,13 @@ namespace App\Form;
 
 use PhpStaticAnalysis\Attributes\Template;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-#[Template('TData', 'mixed')]
+#[Template("TData", "mixed")]
 class PreferencesType extends AbstractType
 {
     public function buildForm(
@@ -25,16 +26,20 @@ class PreferencesType extends AbstractType
         array $options,
     ): void {
         $builder
-            ->add('theme', ChoiceType::class, [
-                'label' => 'Theme',
-                'choices' => [
-                    'Auto' => 'auto',
-                    'Light' => 'light',
-                    'Dark' => 'dark',
+            ->add("theme", ChoiceType::class, [
+                "label" => "Theme",
+                "choices" => [
+                    "Auto" => "auto",
+                    "Light" => "light",
+                    "Dark" => "dark",
                 ],
             ])
-            ->add('save', SubmitType::class, [
-                'label' => 'Save',
+            ->add("showNextUnread", CheckboxType::class, [
+                "label" => "When marking as read, skip already read articles",
+                "required" => false,
+            ])
+            ->add("save", SubmitType::class, [
+                "label" => "Save",
             ]);
     }
 

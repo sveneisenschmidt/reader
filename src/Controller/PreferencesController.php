@@ -11,9 +11,11 @@
 namespace App\Controller;
 
 use App\Entity\Users\User;
+use App\Entity\Users\UserPreference;
 use App\Form\PreferencesType;
 use App\Form\ProfileType;
 use App\Service\StatusIndicator;
+use App\Service\UserPreferenceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,6 +29,7 @@ class PreferencesController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private StatusIndicator $statusIndicator,
+        private UserPreferenceService $userPreferenceService,
     ) {
     }
 
@@ -35,6 +38,9 @@ class PreferencesController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+        $userId = (int) $user->getId();
+
+        $userPrefs = $this->userPreferenceService->getAllPreferences($userId);
 
         $profileForm = $this->createForm(ProfileType::class, [
             'username' => $user->getUsername(),
@@ -42,6 +48,7 @@ class PreferencesController extends AbstractController
 
         $preferencesForm = $this->createForm(PreferencesType::class, [
             'theme' => $user->getTheme(),
+            'showNextUnread' => $userPrefs[UserPreference::SHOW_NEXT_UNREAD],
         ]);
 
         $profileForm->handleRequest($request);
@@ -60,6 +67,12 @@ class PreferencesController extends AbstractController
             $data = $preferencesForm->getData();
             $user->setTheme($data['theme']);
             $this->entityManager->flush();
+
+            $this->userPreferenceService->setShowNextUnread(
+                $userId,
+                $data['showNextUnread'],
+            );
+
             $this->addFlash('success', 'Preferences saved.');
 
             return $this->redirectToRoute('preferences');
