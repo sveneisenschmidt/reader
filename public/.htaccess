@@ -7,9 +7,11 @@
 
 # Compression: Brotli (preferred) with gzip fallback
 <IfModule mod_brotli.c>
+    SetOutputFilter BROTLI_COMPRESS
     AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/xml text/css application/javascript application/json font/ttf font/woff font/woff2
 </IfModule>
 <IfModule mod_deflate.c>
+    SetOutputFilter DEFLATE
     AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json font/ttf font/woff font/woff2
 </IfModule>
 
