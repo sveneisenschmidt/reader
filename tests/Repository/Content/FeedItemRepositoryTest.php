@@ -106,6 +106,57 @@ class FeedItemRepositoryTest extends KernelTestCase
     }
 
     #[Test]
+    public function findByGuidsReturnsEmptyArrayForEmptyInput(): void
+    {
+        $result = $this->repository->findByGuids([]);
+
+        $this->assertSame([], $result);
+    }
+
+    #[Test]
+    public function findByGuidsReturnsIndexedByGuid(): void
+    {
+        $feedGuid = 'findbyguids12345';
+        $item1 = $this->createFeedItem('guiditem12345678', $feedGuid);
+        $item2 = $this->createFeedItem('guiditem23456789', $feedGuid);
+        $this->repository->upsert($item1);
+        $this->repository->upsert($item2);
+
+        $result = $this->repository->findByGuids([
+            'guiditem12345678',
+            'guiditem23456789',
+        ]);
+
+        $this->assertArrayHasKey('guiditem12345678', $result);
+        $this->assertArrayHasKey('guiditem23456789', $result);
+        $this->assertEquals(
+            'Test Item guiditem12345678',
+            $result['guiditem12345678']->getTitle(),
+        );
+        $this->assertEquals(
+            'Test Item guiditem23456789',
+            $result['guiditem23456789']->getTitle(),
+        );
+    }
+
+    #[Test]
+    public function findByGuidsReturnsOnlyExistingItems(): void
+    {
+        $feedGuid = 'findbyguids23456';
+        $item = $this->createFeedItem('existingitem1234', $feedGuid);
+        $this->repository->upsert($item);
+
+        $result = $this->repository->findByGuids([
+            'existingitem1234',
+            'nonexistent12345',
+        ]);
+
+        $this->assertCount(1, $result);
+        $this->assertArrayHasKey('existingitem1234', $result);
+        $this->assertArrayNotHasKey('nonexistent12345', $result);
+    }
+
+    #[Test]
     public function findByFeedGuidsReturnsEmptyForEmptyInput(): void
     {
         $result = $this->repository->findByFeedGuids([]);
@@ -168,6 +219,15 @@ class FeedItemRepositoryTest extends KernelTestCase
     }
 
     #[Test]
+    public function upsertBatchHandlesEmptyArray(): void
+    {
+        // Should not throw any error
+        $this->repository->upsertBatch([]);
+
+        $this->assertTrue(true);
+    }
+
+    #[Test]
     public function upsertBatchCreatesMultipleItems(): void
     {
         $items = [
@@ -217,8 +277,12 @@ class FeedItemRepositoryTest extends KernelTestCase
     public function getItemCountByFeedGuidReturnsCorrectCount(): void
     {
         $feedGuid = 'countfeed1234567';
-        $this->repository->upsert($this->createFeedItem('count1234567890a', $feedGuid));
-        $this->repository->upsert($this->createFeedItem('count1234567890b', $feedGuid));
+        $this->repository->upsert(
+            $this->createFeedItem('count1234567890a', $feedGuid),
+        );
+        $this->repository->upsert(
+            $this->createFeedItem('count1234567890b', $feedGuid),
+        );
 
         $count = $this->repository->getItemCountByFeedGuid($feedGuid);
 
@@ -256,8 +320,12 @@ class FeedItemRepositoryTest extends KernelTestCase
     public function getGuidsByFeedGuidReturnsGuids(): void
     {
         $feedGuid = 'guidsfeed1234567';
-        $this->repository->upsert($this->createFeedItem('guidsitem1234567', $feedGuid));
-        $this->repository->upsert($this->createFeedItem('guidsitem2345678', $feedGuid));
+        $this->repository->upsert(
+            $this->createFeedItem('guidsitem1234567', $feedGuid),
+        );
+        $this->repository->upsert(
+            $this->createFeedItem('guidsitem2345678', $feedGuid),
+        );
 
         $guids = $this->repository->getGuidsByFeedGuid($feedGuid);
 
@@ -269,8 +337,12 @@ class FeedItemRepositoryTest extends KernelTestCase
     public function deleteByFeedGuidRemovesAllItemsForFeed(): void
     {
         $feedGuid = 'deletebyfeed1234';
-        $this->repository->upsert($this->createFeedItem('delbyfeed1234567', $feedGuid));
-        $this->repository->upsert($this->createFeedItem('delbyfeed2345678', $feedGuid));
+        $this->repository->upsert(
+            $this->createFeedItem('delbyfeed1234567', $feedGuid),
+        );
+        $this->repository->upsert(
+            $this->createFeedItem('delbyfeed2345678', $feedGuid),
+        );
 
         $deleted = $this->repository->deleteByFeedGuid($feedGuid);
 

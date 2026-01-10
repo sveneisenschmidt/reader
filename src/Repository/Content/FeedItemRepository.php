@@ -30,6 +30,28 @@ class FeedItemRepository extends ServiceEntityRepository
         return $this->findOneBy(['guid' => $guid]);
     }
 
+    #[Param(guids: 'list<string>')]
+    #[Returns('array<string, FeedItem>')]
+    public function findByGuids(array $guids): array
+    {
+        if (empty($guids)) {
+            return [];
+        }
+
+        $items = $this->createQueryBuilder('f')
+            ->where('f.guid IN (:guids)')
+            ->setParameter('guids', $guids)
+            ->getQuery()
+            ->getResult();
+
+        $result = [];
+        foreach ($items as $item) {
+            $result[$item->getGuid()] = $item;
+        }
+
+        return $result;
+    }
+
     #[Returns('list<FeedItem>')]
     public function findByFeedGuid(string $feedGuid): array
     {
@@ -81,8 +103,15 @@ class FeedItemRepository extends ServiceEntityRepository
     #[Param(feedItems: 'list<FeedItem>')]
     public function upsertBatch(array $feedItems): void
     {
+        if (empty($feedItems)) {
+            return;
+        }
+
+        $guids = array_map(fn ($item) => $item->getGuid(), $feedItems);
+        $existingItems = $this->findByGuids($guids);
+
         foreach ($feedItems as $feedItem) {
-            $existing = $this->findByGuid($feedItem->getGuid());
+            $existing = $existingItems[$feedItem->getGuid()] ?? null;
 
             if ($existing !== null) {
                 $existing->setTitle($feedItem->getTitle());
