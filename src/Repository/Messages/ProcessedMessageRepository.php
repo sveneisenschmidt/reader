@@ -128,12 +128,14 @@ class ProcessedMessageRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array<string, array<string|null, int>>
+     * @return array<string, array<string|null, array{count: int, lastProcessedAt: \DateTimeImmutable}>>
      */
     public function getCountsByTypeAndSource(): array
     {
         $result = $this->createQueryBuilder('m')
-            ->select('m.messageType, m.source, COUNT(m.id) as cnt')
+            ->select(
+                'm.messageType, m.source, COUNT(m.id) as cnt, MAX(m.processedAt) as lastProcessedAt',
+            )
             ->groupBy('m.messageType, m.source')
             ->orderBy('m.messageType', 'ASC')
             ->addOrderBy('m.source', 'ASC')
@@ -147,7 +149,12 @@ class ProcessedMessageRepository extends ServiceEntityRepository
             if (!isset($counts[$type])) {
                 $counts[$type] = [];
             }
-            $counts[$type][$source] = (int) $row['cnt'];
+            $counts[$type][$source] = [
+                'count' => (int) $row['cnt'],
+                'lastProcessedAt' => new \DateTimeImmutable(
+                    $row['lastProcessedAt'],
+                ),
+            ];
         }
 
         return $counts;

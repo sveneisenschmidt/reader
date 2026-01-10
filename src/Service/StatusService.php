@@ -116,7 +116,7 @@ class StatusService
     }
 
     /**
-     * @return array<string, array<string|null, int>>
+     * @return array<string, array<string|null, array{count: int, lastProcessedAt: \DateTimeImmutable}>>
      */
     public function getProcessedMessageCountsBySource(): array
     {

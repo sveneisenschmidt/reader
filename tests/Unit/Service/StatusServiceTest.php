@@ -130,17 +130,20 @@ class StatusServiceTest extends TestCase
         $readStatusRepository = $this->createMock(ReadStatusRepository::class);
         $seenStatusRepository = $this->createMock(SeenStatusRepository::class);
 
+        $now = new \DateTimeImmutable();
         $processedMessageRepository = $this->createMock(
             ProcessedMessageRepository::class,
         );
         $processedMessageRepository
             ->method('getCountsByTypeAndSource')
             ->willReturn([
-                'App\\Message\\HeartbeatMessage' => ['worker' => 100],
+                'App\\Message\\HeartbeatMessage' => [
+                    'worker' => ['count' => 100, 'lastProcessedAt' => $now],
+                ],
                 'App\\Message\\RefreshFeedsMessage' => [
-                    'worker' => 30,
-                    'webhook' => 15,
-                    'manual' => 5,
+                    'worker' => ['count' => 30, 'lastProcessedAt' => $now],
+                    'webhook' => ['count' => 15, 'lastProcessedAt' => $now],
+                    'manual' => ['count' => 5, 'lastProcessedAt' => $now],
                 ],
             ]);
 
@@ -156,19 +159,19 @@ class StatusServiceTest extends TestCase
 
         $this->assertSame(
             100,
-            $result['App\\Message\\HeartbeatMessage']['worker'],
+            $result['App\\Message\\HeartbeatMessage']['worker']['count'],
         );
         $this->assertSame(
             30,
-            $result['App\\Message\\RefreshFeedsMessage']['worker'],
+            $result['App\\Message\\RefreshFeedsMessage']['worker']['count'],
         );
         $this->assertSame(
             15,
-            $result['App\\Message\\RefreshFeedsMessage']['webhook'],
+            $result['App\\Message\\RefreshFeedsMessage']['webhook']['count'],
         );
         $this->assertSame(
             5,
-            $result['App\\Message\\RefreshFeedsMessage']['manual'],
+            $result['App\\Message\\RefreshFeedsMessage']['manual']['count'],
         );
     }
 }

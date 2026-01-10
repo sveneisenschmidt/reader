@@ -103,20 +103,22 @@
                     <th>Message Type</th>
                     <th>Source</th>
                     <th>Count</th>
+                    <th>Last Processed</th>
                 </tr>
             </thead>
             <tbody>
                 {% for type, sources in messageCountsBySource %}
-                    {% for source, count in sources %}
+                    {% for source, data in sources %}
                 <tr>
                     <td>{{ type|split('\\')|last }}</td>
                     <td>{{ source|default('-') }}</td>
-                    <td>{{ count }}</td>
+                    <td>{{ data.count }}</td>
+                    <td>{{ data.lastProcessedAt|ago }}</td>
                 </tr>
                     {% endfor %}
                 {% else %}
                 <tr>
-                    <td colspan="3">No processed messages yet.</td>
+                    <td colspan="4">No processed messages yet.</td>
                 </tr>
                 {% endfor %}
             </tbody>
