@@ -6,6 +6,13 @@
 - Constructor injection
 - Strict types everywhere
 
+## Code Style
+
+- Use **single quotes** (`'`) for strings, not double quotes (`"`)
+- String concatenation: use `.` with spaces (e.g., `'Hello ' . $name`)
+- Arrow functions: space before parenthesis (e.g., `fn ($x) => $x + 1`)
+- Run `php vendor/bin/php-cs-fixer fix` to auto-format code
+
 ## Directory Structure
 
 ```

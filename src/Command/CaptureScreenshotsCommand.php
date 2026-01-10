@@ -12,6 +12,7 @@ namespace App\Command;
 
 use App\Entity\Messages\ProcessedMessage;
 use App\Entity\Users\User;
+use App\Enum\MessageSource;
 use App\Message\RefreshFeedsMessage;
 use App\Repository\Messages\ProcessedMessageRepository;
 use App\Repository\Users\UserRepository;
@@ -296,6 +297,8 @@ class CaptureScreenshotsCommand extends Command
                 new ProcessedMessage(
                     RefreshFeedsMessage::class,
                     ProcessedMessage::STATUS_SUCCESS,
+                    null,
+                    MessageSource::Webhook,
                 ),
             );
             $this->driver->get($baseUrl.'/preferences');

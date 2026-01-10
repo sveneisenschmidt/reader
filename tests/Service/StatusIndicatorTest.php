@@ -11,6 +11,7 @@
 namespace App\Tests\Service;
 
 use App\Entity\Messages\ProcessedMessage;
+use App\Enum\MessageSource;
 use App\Message\CleanupContentMessage;
 use App\Message\HeartbeatMessage;
 use App\Message\RefreshFeedsMessage;
@@ -119,9 +120,12 @@ class StatusIndicatorTest extends TestCase
         $message = $this->createProcessedMessage($recentTime);
 
         $this->repository
-            ->method('getLastSuccessByType')
-            ->willReturnCallback(function ($type) use ($message) {
-                if ($type === RefreshFeedsMessage::class) {
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturnCallback(function ($type, $source) use ($message) {
+                if (
+                    $type === RefreshFeedsMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $message;
                 }
 
@@ -138,9 +142,12 @@ class StatusIndicatorTest extends TestCase
         $message = $this->createProcessedMessage($recentTime);
 
         $this->repository
-            ->method('getLastSuccessByType')
-            ->willReturnCallback(function ($type) use ($message) {
-                if ($type === CleanupContentMessage::class) {
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturnCallback(function ($type, $source) use ($message) {
+                if (
+                    $type === CleanupContentMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $message;
                 }
 
@@ -157,9 +164,12 @@ class StatusIndicatorTest extends TestCase
         $message = $this->createProcessedMessage($oldTime);
 
         $this->repository
-            ->method('getLastSuccessByType')
-            ->willReturnCallback(function ($type) use ($message) {
-                if ($type === RefreshFeedsMessage::class) {
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturnCallback(function ($type, $source) use ($message) {
+                if (
+                    $type === RefreshFeedsMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $message;
                 }
 
@@ -172,7 +182,9 @@ class StatusIndicatorTest extends TestCase
     #[Test]
     public function isWebhookAliveReturnsFalseWhenNoActivity(): void
     {
-        $this->repository->method('getLastSuccessByType')->willReturn(null);
+        $this->repository
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturn(null);
 
         $this->assertFalse($this->statusIndicator->isWebhookAlive());
     }
@@ -186,15 +198,21 @@ class StatusIndicatorTest extends TestCase
         $newerMessage = $this->createProcessedMessage($newerTime);
 
         $this->repository
-            ->method('getLastSuccessByType')
-            ->willReturnCallback(function ($type) use (
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturnCallback(function ($type, $source) use (
                 $olderMessage,
                 $newerMessage,
             ) {
-                if ($type === RefreshFeedsMessage::class) {
+                if (
+                    $type === RefreshFeedsMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $olderMessage;
                 }
-                if ($type === CleanupContentMessage::class) {
+                if (
+                    $type === CleanupContentMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $newerMessage;
                 }
 
@@ -214,9 +232,12 @@ class StatusIndicatorTest extends TestCase
         $message = $this->createProcessedMessage($time);
 
         $this->repository
-            ->method('getLastSuccessByType')
-            ->willReturnCallback(function ($type) use ($message) {
-                if ($type === RefreshFeedsMessage::class) {
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturnCallback(function ($type, $source) use ($message) {
+                if (
+                    $type === RefreshFeedsMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $message;
                 }
 
@@ -236,9 +257,12 @@ class StatusIndicatorTest extends TestCase
         $message = $this->createProcessedMessage($time);
 
         $this->repository
-            ->method('getLastSuccessByType')
-            ->willReturnCallback(function ($type) use ($message) {
-                if ($type === CleanupContentMessage::class) {
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturnCallback(function ($type, $source) use ($message) {
+                if (
+                    $type === CleanupContentMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $message;
                 }
 
@@ -254,7 +278,9 @@ class StatusIndicatorTest extends TestCase
     #[Test]
     public function getWebhookLastBeatReturnsNullWhenNoActivity(): void
     {
-        $this->repository->method('getLastSuccessByType')->willReturn(null);
+        $this->repository
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturn(null);
 
         $this->assertNull($this->statusIndicator->getWebhookLastBeat());
     }
@@ -285,9 +311,12 @@ class StatusIndicatorTest extends TestCase
         $message = $this->createProcessedMessage($recentTime);
 
         $this->repository
-            ->method('getLastSuccessByType')
-            ->willReturnCallback(function ($type) use ($message) {
-                if ($type === RefreshFeedsMessage::class) {
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturnCallback(function ($type, $source) use ($message) {
+                if (
+                    $type === RefreshFeedsMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $message;
                 }
 
@@ -301,6 +330,9 @@ class StatusIndicatorTest extends TestCase
     public function isActiveReturnsFalseWhenNothingAlive(): void
     {
         $this->repository->method('getLastSuccessByType')->willReturn(null);
+        $this->repository
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturn(null);
 
         $this->assertFalse($this->statusIndicator->isActive());
     }
@@ -314,15 +346,21 @@ class StatusIndicatorTest extends TestCase
         $newerMessage = $this->createProcessedMessage($newerTime);
 
         $this->repository
-            ->method('getLastSuccessByType')
-            ->willReturnCallback(function ($type) use (
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturnCallback(function ($type, $source) use (
                 $olderMessage,
                 $newerMessage,
             ) {
-                if ($type === RefreshFeedsMessage::class) {
+                if (
+                    $type === RefreshFeedsMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $newerMessage; // refresh is newer
                 }
-                if ($type === CleanupContentMessage::class) {
+                if (
+                    $type === CleanupContentMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $olderMessage;
                 }
 

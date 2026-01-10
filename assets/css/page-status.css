@@ -1,0 +1,35 @@
+/* ========================================
+   #status - Status page
+   ======================================== */
+
+#status {
+    & .status-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+
+        & th,
+        & td {
+            padding: var(--spacing-sm);
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        & th {
+            font-weight: var(--font-weight-medium);
+            background: var(--color-bg-muted);
+        }
+
+        & tfoot th {
+            border-top: 2px solid var(--color-border);
+        }
+
+        & tbody tr:hover {
+            background: var(--color-bg-muted);
+        }
+    }
+
+    & .status-pending {
+        color: var(--color-orange);
+    }
+}

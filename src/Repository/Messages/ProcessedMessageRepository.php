@@ -11,6 +11,7 @@
 namespace App\Repository\Messages;
 
 use App\Entity\Messages\ProcessedMessage;
+use App\Enum\MessageSource;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -52,6 +53,20 @@ class ProcessedMessageRepository extends ServiceEntityRepository
             [
                 'messageType' => $type,
                 'status' => ProcessedMessage::STATUS_SUCCESS,
+            ],
+            ['processedAt' => 'DESC'],
+        );
+    }
+
+    public function getLastSuccessByTypeAndSource(
+        string $type,
+        MessageSource $source,
+    ): ?ProcessedMessage {
+        return $this->findOneBy(
+            [
+                'messageType' => $type,
+                'status' => ProcessedMessage::STATUS_SUCCESS,
+                'source' => $source->value,
             ],
             ['processedAt' => 'DESC'],
         );
@@ -107,6 +122,32 @@ class ProcessedMessageRepository extends ServiceEntityRepository
         $counts = [];
         foreach ($result as $row) {
             $counts[$row['messageType']] = (int) $row['cnt'];
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @return array<string, array<string|null, int>>
+     */
+    public function getCountsByTypeAndSource(): array
+    {
+        $result = $this->createQueryBuilder('m')
+            ->select('m.messageType, m.source, COUNT(m.id) as cnt')
+            ->groupBy('m.messageType, m.source')
+            ->orderBy('m.messageType', 'ASC')
+            ->addOrderBy('m.source', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $counts = [];
+        foreach ($result as $row) {
+            $type = $row['messageType'];
+            $source = $row['source'];
+            if (!isset($counts[$type])) {
+                $counts[$type] = [];
+            }
+            $counts[$type][$source] = (int) $row['cnt'];
         }
 
         return $counts;

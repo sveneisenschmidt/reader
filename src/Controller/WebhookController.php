@@ -10,6 +10,7 @@
 
 namespace App\Controller;
 
+use App\Enum\MessageSource;
 use App\Message\CleanupContentMessage;
 use App\Message\RefreshFeedsMessage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,7 +25,7 @@ class WebhookController extends AbstractController
     public function refreshFeeds(MessageBusInterface $bus): JsonResponse
     {
         try {
-            $bus->dispatch(new RefreshFeedsMessage());
+            $bus->dispatch(new RefreshFeedsMessage(MessageSource::Webhook));
 
             return new JsonResponse(['status' => 'success']);
         } catch (\Throwable $e) {

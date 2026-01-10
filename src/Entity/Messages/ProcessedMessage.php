@@ -10,12 +10,18 @@
 
 namespace App\Entity\Messages;
 
+use App\Enum\MessageSource;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: \App\Repository\Messages\ProcessedMessageRepository::class)]
+#[
+    ORM\Entity(
+        repositoryClass: \App\Repository\Messages\ProcessedMessageRepository::class,
+    ),
+]
 #[ORM\Table(name: 'processed_messages')]
 #[ORM\Index(name: 'idx_message_type', columns: ['message_type'])]
 #[ORM\Index(name: 'idx_processed_at', columns: ['processed_at'])]
+#[ORM\Index(name: 'idx_source', columns: ['source'])]
 class ProcessedMessage
 {
     public const STATUS_SUCCESS = 'success';
@@ -38,14 +44,19 @@ class ProcessedMessage
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $processedAt;
 
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $source = null;
+
     public function __construct(
         string $messageType,
         string $status,
         ?string $errorMessage = null,
+        ?MessageSource $source = null,
     ) {
         $this->messageType = $messageType;
         $this->status = $status;
         $this->errorMessage = $errorMessage;
+        $this->source = $source?->value;
         $this->processedAt = new \DateTimeImmutable();
     }
 
@@ -72,5 +83,12 @@ class ProcessedMessage
     public function getProcessedAt(): \DateTimeImmutable
     {
         return $this->processedAt;
+    }
+
+    public function getSource(): ?MessageSource
+    {
+        return $this->source !== null
+            ? MessageSource::from($this->source)
+            : null;
     }
 }

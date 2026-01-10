@@ -11,6 +11,7 @@
 namespace App\Command;
 
 use App\Entity\Messages\ProcessedMessage;
+use App\Enum\MessageSource;
 use App\Repository\Messages\ProcessedMessageRepository;
 use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -49,6 +50,21 @@ class MessagesCommand extends Command
                 ),
             )
             ->addOption(
+                'source',
+                null,
+                InputOption::VALUE_REQUIRED,
+                sprintf(
+                    'Filter by source (%s)',
+                    implode(
+                        ', ',
+                        array_map(
+                            fn (MessageSource $s) => $s->value,
+                            MessageSource::cases(),
+                        ),
+                    ),
+                ),
+            )
+            ->addOption(
                 'limit',
                 'l',
                 InputOption::VALUE_REQUIRED,
@@ -80,6 +96,7 @@ class MessagesCommand extends Command
     {
         $type = $input->getOption('type');
         $status = $input->getOption('status');
+        $source = $input->getOption('source');
         $limit = (int) $input->getOption('limit');
 
         $criteria = [];
@@ -88,6 +105,9 @@ class MessagesCommand extends Command
         }
         if ($status) {
             $criteria['status'] = $status;
+        }
+        if ($source) {
+            $criteria['source'] = $source;
         }
 
         $entries = $this->processedMessageRepository->findBy(
@@ -103,7 +123,7 @@ class MessagesCommand extends Command
         }
 
         $io->table(
-            ['Time', 'Type', 'Status', 'Error'],
+            ['Time', 'Type', 'Source', 'Status', 'Error'],
             $this->formatRows($entries),
         );
 
@@ -140,18 +160,20 @@ class MessagesCommand extends Command
                 $output .= "No processed messages found.\n";
             } else {
                 $output .= sprintf(
-                    "%-19s  %-25s  %-8s  %s\n",
+                    "%-19s  %-25s  %-8s  %-8s  %s\n",
                     'Time',
                     'Type',
+                    'Source',
                     'Status',
                     'Error',
                 );
                 $output .= sprintf(
-                    "%-19s  %-25s  %-8s  %s\n",
+                    "%-19s  %-25s  %-8s  %-8s  %s\n",
                     str_repeat('-', 19),
                     str_repeat('-', 25),
                     str_repeat('-', 8),
-                    str_repeat('-', 25),
+                    str_repeat('-', 8),
+                    str_repeat('-', 20),
                 );
 
                 foreach ($entries as $entry) {
@@ -160,12 +182,13 @@ class MessagesCommand extends Command
                         strrpos($entry->getMessageType(), '\\') + 1,
                     );
                     $output .= sprintf(
-                        "%-19s  %-25s  %-8s  %s\n",
+                        "%-19s  %-25s  %-8s  %-8s  %s\n",
                         $entry->getProcessedAt()->format('Y-m-d H:i:s'),
                         $shortType,
+                        (string) $entry->getSource()?->value,
                         $entry->getStatus(),
                         $entry->getErrorMessage()
-                            ? substr($entry->getErrorMessage(), 0, 25)
+                            ? substr($entry->getErrorMessage(), 0, 20)
                             : '',
                     );
                 }
@@ -179,7 +202,7 @@ class MessagesCommand extends Command
     /**
      * @param ProcessedMessage[] $entries
      *
-     * @return array<array<string>>
+     * @return array<array<string|null>>
      */
     private function formatRows(array $entries): array
     {
@@ -192,6 +215,7 @@ class MessagesCommand extends Command
             $rows[] = [
                 $entry->getProcessedAt()->format('Y-m-d H:i:s'),
                 $shortType,
+                $entry->getSource()?->value,
                 $entry->getStatus(),
                 $entry->getErrorMessage()
                     ? substr($entry->getErrorMessage(), 0, 50)

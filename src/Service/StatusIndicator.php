@@ -10,6 +10,7 @@
 
 namespace App\Service;
 
+use App\Enum\MessageSource;
 use App\Message\CleanupContentMessage;
 use App\Message\HeartbeatMessage;
 use App\Message\RefreshFeedsMessage;
@@ -58,11 +59,13 @@ class StatusIndicator
 
     public function getWebhookLastBeat(): ?\DateTimeImmutable
     {
-        $lastRefresh = $this->processedMessageRepository->getLastSuccessByType(
+        $lastRefresh = $this->processedMessageRepository->getLastSuccessByTypeAndSource(
             RefreshFeedsMessage::class,
+            MessageSource::Webhook,
         );
-        $lastCleanup = $this->processedMessageRepository->getLastSuccessByType(
+        $lastCleanup = $this->processedMessageRepository->getLastSuccessByTypeAndSource(
             CleanupContentMessage::class,
+            MessageSource::Webhook,
         );
 
         if ($lastRefresh !== null && $lastCleanup !== null) {

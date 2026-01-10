@@ -11,7 +11,9 @@
 namespace App\Messenger\Middleware;
 
 use App\Entity\Messages\ProcessedMessage;
+use App\Enum\MessageSource;
 use App\Message\RetainableMessageInterface;
+use App\Message\SourceAwareMessageInterface;
 use App\Repository\Messages\ProcessedMessageRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Messenger\Envelope;
@@ -33,6 +35,10 @@ class ProcessedMessageMiddleware implements MiddlewareInterface
             $message instanceof RetainableMessageInterface
                 ? $message::getRetentionLimit()
                 : null;
+        $source =
+            $message instanceof SourceAwareMessageInterface
+                ? $message->getSource()
+                : null;
 
         try {
             $result = $stack->next()->handle($envelope, $stack);
@@ -41,6 +47,7 @@ class ProcessedMessageMiddleware implements MiddlewareInterface
                 ProcessedMessage::STATUS_SUCCESS,
                 null,
                 $retentionLimit,
+                $source,
             );
 
             return $result;
@@ -50,6 +57,7 @@ class ProcessedMessageMiddleware implements MiddlewareInterface
                 ProcessedMessage::STATUS_FAILED,
                 $e->getMessage(),
                 $retentionLimit,
+                $source,
             );
             throw $e;
         }
@@ -60,6 +68,7 @@ class ProcessedMessageMiddleware implements MiddlewareInterface
         string $status,
         ?string $errorMessage,
         ?int $retentionLimit,
+        ?MessageSource $source,
     ): void {
         $em = $this->registry->getManager('messages');
 
@@ -71,6 +80,7 @@ class ProcessedMessageMiddleware implements MiddlewareInterface
             $messageType,
             $status,
             $errorMessage,
+            $source,
         );
 
         $this->repository->save($processedMessage, $retentionLimit);

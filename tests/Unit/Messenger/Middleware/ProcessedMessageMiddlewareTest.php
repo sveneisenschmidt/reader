@@ -11,6 +11,7 @@
 namespace App\Tests\Unit\Messenger\Middleware;
 
 use App\Entity\Messages\ProcessedMessage;
+use App\Enum\MessageSource;
 use App\Message\HeartbeatMessage;
 use App\Message\RefreshFeedsMessage;
 use App\Messenger\Middleware\ProcessedMessageMiddleware;
@@ -39,7 +40,8 @@ class ProcessedMessageMiddlewareTest extends TestCase
                 $this->callback(function (ProcessedMessage $pm) {
                     return $pm->getMessageType() === HeartbeatMessage::class
                         && $pm->getStatus() === ProcessedMessage::STATUS_SUCCESS
-                        && $pm->getErrorMessage() === null;
+                        && $pm->getErrorMessage() === null
+                        && $pm->getSource() === MessageSource::Worker;
                 }),
                 HeartbeatMessage::getRetentionLimit(),
             );
@@ -77,7 +79,8 @@ class ProcessedMessageMiddlewareTest extends TestCase
                     return $pm->getMessageType() ===
                         RefreshFeedsMessage::class
                         && $pm->getStatus() === ProcessedMessage::STATUS_FAILED
-                        && $pm->getErrorMessage() === 'Test error';
+                        && $pm->getErrorMessage() === 'Test error'
+                        && $pm->getSource() === MessageSource::Manual;
                 }),
                 RefreshFeedsMessage::getRetentionLimit(),
             );

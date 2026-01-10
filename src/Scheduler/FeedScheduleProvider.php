@@ -10,6 +10,7 @@
 
 namespace App\Scheduler;
 
+use App\Enum\MessageSource;
 use App\Message\CleanupContentMessage;
 use App\Message\HeartbeatMessage;
 use App\Message\RefreshFeedsMessage;
@@ -43,13 +44,13 @@ class FeedScheduleProvider implements ScheduleProviderInterface
             ->add(
                 RecurringMessage::every(
                     $this->refreshInterval,
-                    new RefreshFeedsMessage(),
+                    new RefreshFeedsMessage(MessageSource::Worker),
                 ),
             )
             ->add(
                 RecurringMessage::every(
                     $this->cleanupInterval,
-                    new CleanupContentMessage(olderThanDays: 30),
+                    new CleanupContentMessage(30, MessageSource::Worker),
                 ),
             );
     }

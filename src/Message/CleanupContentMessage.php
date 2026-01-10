@@ -10,14 +10,23 @@
 
 namespace App\Message;
 
-class CleanupContentMessage implements RetainableMessageInterface
+use App\Enum\MessageSource;
+
+class CleanupContentMessage implements RetainableMessageInterface, SourceAwareMessageInterface
 {
-    public function __construct(public readonly int $olderThanDays = 30)
-    {
+    public function __construct(
+        public readonly int $olderThanDays = 30,
+        private MessageSource $source = MessageSource::Webhook,
+    ) {
     }
 
     public static function getRetentionLimit(): int
     {
         return 10;
+    }
+
+    public function getSource(): MessageSource
+    {
+        return $this->source;
     }
 }

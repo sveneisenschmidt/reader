@@ -10,10 +10,22 @@
 
 namespace App\Message;
 
-class RefreshFeedsMessage implements RetainableMessageInterface
+use App\Enum\MessageSource;
+
+class RefreshFeedsMessage implements RetainableMessageInterface, SourceAwareMessageInterface
 {
+    public function __construct(
+        private MessageSource $source = MessageSource::Manual,
+    ) {
+    }
+
     public static function getRetentionLimit(): int
     {
         return 50;
+    }
+
+    public function getSource(): MessageSource
+    {
+        return $this->source;
     }
 }

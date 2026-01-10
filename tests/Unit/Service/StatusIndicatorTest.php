@@ -11,6 +11,7 @@
 namespace App\Tests\Unit\Service;
 
 use App\Entity\Messages\ProcessedMessage;
+use App\Enum\MessageSource;
 use App\Message\HeartbeatMessage;
 use App\Message\RefreshFeedsMessage;
 use App\Repository\Messages\ProcessedMessageRepository;
@@ -114,11 +115,15 @@ class StatusIndicatorTest extends TestCase
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
-            ->method('getLastSuccessByType')
-            ->willReturnCallback(function (string $type) use (
-                $processedMessage,
-            ) {
-                if ($type === RefreshFeedsMessage::class) {
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturnCallback(function (
+                string $type,
+                MessageSource $source,
+            ) use ($processedMessage) {
+                if (
+                    $type === RefreshFeedsMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $processedMessage;
                 }
 
@@ -140,11 +145,15 @@ class StatusIndicatorTest extends TestCase
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
-            ->method('getLastSuccessByType')
-            ->willReturnCallback(function (string $type) use (
-                $processedMessage,
-            ) {
-                if ($type === RefreshFeedsMessage::class) {
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturnCallback(function (
+                string $type,
+                MessageSource $source,
+            ) use ($processedMessage) {
+                if (
+                    $type === RefreshFeedsMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $processedMessage;
                 }
 
@@ -160,7 +169,7 @@ class StatusIndicatorTest extends TestCase
     public function isWebhookAliveReturnsFalseWhenNoWebhookExists(): void
     {
         $repository = $this->createMock(ProcessedMessageRepository::class);
-        $repository->method('getLastSuccessByType')->willReturn(null);
+        $repository->method('getLastSuccessByTypeAndSource')->willReturn(null);
 
         $service = new StatusIndicator($repository);
 
@@ -201,9 +210,15 @@ class StatusIndicatorTest extends TestCase
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
-            ->method('getLastSuccessByType')
-            ->willReturnCallback(function (string $type) use ($webhookMessage) {
-                if ($type === RefreshFeedsMessage::class) {
+            ->method('getLastSuccessByTypeAndSource')
+            ->willReturnCallback(function (
+                string $type,
+                MessageSource $source,
+            ) use ($webhookMessage) {
+                if (
+                    $type === RefreshFeedsMessage::class
+                    && $source === MessageSource::Webhook
+                ) {
                     return $webhookMessage;
                 }
 

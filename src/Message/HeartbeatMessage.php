@@ -10,10 +10,17 @@
 
 namespace App\Message;
 
-class HeartbeatMessage implements RetainableMessageInterface
+use App\Enum\MessageSource;
+
+class HeartbeatMessage implements RetainableMessageInterface, SourceAwareMessageInterface
 {
     public static function getRetentionLimit(): int
     {
         return 10;
+    }
+
+    public function getSource(): MessageSource
+    {
+        return MessageSource::Worker;
     }
 }
