@@ -10,6 +10,7 @@
 
 namespace App\Entity\Subscriptions;
 
+use App\Enum\SubscriptionStatus;
 use Doctrine\ORM\Mapping as ORM;
 
 #[
@@ -46,6 +47,9 @@ class Subscription
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $folder = null;
+
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $status = 'pending';
 
     public function __construct(
         int $userId,
@@ -124,6 +128,18 @@ class Subscription
     public function setFolder(?string $folder): self
     {
         $this->folder = $folder;
+
+        return $this;
+    }
+
+    public function getStatus(): SubscriptionStatus
+    {
+        return SubscriptionStatus::from($this->status);
+    }
+
+    public function setStatus(SubscriptionStatus $status): self
+    {
+        $this->status = $status->value;
 
         return $this;
     }

@@ -10,7 +10,6 @@
 
 namespace App\Controller;
 
-use App\Service\FeedReaderService;
 use App\Service\FeedViewService;
 use App\Service\ReadStatusService;
 use App\Service\SeenStatusService;
@@ -26,7 +25,6 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 class FeedController extends AbstractController
 {
     public function __construct(
-        private FeedReaderService $feedReaderService,
         private UserService $userService,
         private SubscriptionService $subscriptionService,
         private ReadStatusService $readStatusService,
@@ -52,9 +50,7 @@ class FeedController extends AbstractController
     {
         $this->validateCsrfToken($request, 'refresh');
         $user = $this->userService->getCurrentUser();
-        $feedUrls = $this->subscriptionService->getFeedUrls($user->getId());
-        $this->feedReaderService->refreshAllFeeds($feedUrls);
-        $this->subscriptionService->updateRefreshTimestamps($user->getId());
+        $this->subscriptionService->refreshSubscriptions($user->getId());
 
         $referer = $request->headers->get('referer');
         if ($referer) {

@@ -289,30 +289,6 @@ class SubscriptionRepositoryTest extends KernelTestCase
     }
 
     #[Test]
-    public function updateAllRefreshTimestampsUpdatesAllSubscriptions(): void
-    {
-        $this->repository->addSubscription(
-            $this->testUserId,
-            'https://example.com/refresh1.xml',
-            'Refresh Feed 1',
-            'subreporefresh01',
-        );
-        $this->repository->addSubscription(
-            $this->testUserId,
-            'https://example.com/refresh2.xml',
-            'Refresh Feed 2',
-            'subreporefresh02',
-        );
-
-        $this->repository->updateAllRefreshTimestamps($this->testUserId);
-
-        $subscriptions = $this->repository->findByUserId($this->testUserId);
-        foreach ($subscriptions as $subscription) {
-            $this->assertNotNull($subscription->getLastRefreshedAt());
-        }
-    }
-
-    #[Test]
     public function hasAnyForUserReturnsFalseWhenNoSubscriptions(): void
     {
         $result = $this->repository->hasAnyForUser(77777);
@@ -376,14 +352,15 @@ class SubscriptionRepositoryTest extends KernelTestCase
     #[Test]
     public function getOldestRefreshTimeReturnsOldestTime(): void
     {
-        $this->repository->addSubscription(
+        $subscription = $this->repository->addSubscription(
             $this->testUserId,
             'https://example.com/oldest.xml',
             'Oldest Feed',
             'subrepooldest001',
         );
 
-        $this->repository->updateAllRefreshTimestamps($this->testUserId);
+        $subscription->updateLastRefreshedAt();
+        $this->repository->flush();
 
         $result = $this->repository->getOldestRefreshTime($this->testUserId);
 

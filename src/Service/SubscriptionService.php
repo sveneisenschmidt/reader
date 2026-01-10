@@ -11,12 +11,20 @@
 namespace App\Service;
 
 use App\Entity\Subscriptions\Subscription;
+use App\Enum\SubscriptionStatus;
 use App\Repository\Content\FeedItemRepository;
 use App\Repository\Subscriptions\SubscriptionRepository;
 use App\Repository\Users\ReadStatusRepository;
 use App\Repository\Users\SeenStatusRepository;
+use FeedIo\Adapter\HttpRequestException;
+use FeedIo\Adapter\NotFoundException;
+use FeedIo\Adapter\ServerErrorException;
+use FeedIo\Parser\MissingFieldsException;
+use FeedIo\Parser\UnsupportedFormatException;
+use FeedIo\Reader\NoAccurateParserException;
 use PhpStaticAnalysis\Attributes\Param;
 use PhpStaticAnalysis\Attributes\Returns;
+use Psr\Log\LoggerInterface;
 
 class SubscriptionService
 {
@@ -27,6 +35,7 @@ class SubscriptionService
         private SeenStatusRepository $seenStatusRepository,
         private FeedReaderService $feedReaderService,
         private FeedContentService $feedContentService,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -190,14 +199,56 @@ class SubscriptionService
         return $this->subscriptionRepository->getOldestRefreshTime($userId);
     }
 
-    public function updateRefreshTimestamps(int $userId): void
-    {
-        $this->subscriptionRepository->updateAllRefreshTimestamps($userId);
-    }
-
     public function updateRefreshTimestamp(Subscription $subscription): void
     {
         $subscription->updateLastRefreshedAt();
         $this->subscriptionRepository->flush();
+    }
+
+    public function refreshSubscriptions(int $userId): int
+    {
+        $subscriptions = $this->getSubscriptionsForUser($userId);
+        $count = 0;
+
+        foreach ($subscriptions as $subscription) {
+            try {
+                $feedData = $this->feedReaderService->fetchAndPersistFeed(
+                    $subscription->getUrl(),
+                );
+                $count += count($feedData['items']);
+                $subscription->updateLastRefreshedAt();
+                $subscription->setStatus(SubscriptionStatus::Success);
+                $this->subscriptionRepository->flush();
+            } catch (HttpRequestException|NotFoundException|ServerErrorException $e) {
+                $status = str_contains($e->getMessage(), 'timed out')
+                    ? SubscriptionStatus::Timeout
+                    : SubscriptionStatus::Unreachable;
+                $subscription->setStatus($status);
+                $this->subscriptionRepository->flush();
+                $this->logger->error('Failed to refresh subscription', [
+                    'url' => $subscription->getUrl(),
+                    'status' => $status->value,
+                    'error' => $e->getMessage(),
+                ]);
+            } catch (NoAccurateParserException|UnsupportedFormatException|MissingFieldsException $e) {
+                $subscription->setStatus(SubscriptionStatus::Invalid);
+                $this->subscriptionRepository->flush();
+                $this->logger->error('Failed to refresh subscription', [
+                    'url' => $subscription->getUrl(),
+                    'status' => SubscriptionStatus::Invalid->value,
+                    'error' => $e->getMessage(),
+                ]);
+            } catch (\Exception $e) {
+                $subscription->setStatus(SubscriptionStatus::Unreachable);
+                $this->subscriptionRepository->flush();
+                $this->logger->error('Failed to refresh subscription', [
+                    'url' => $subscription->getUrl(),
+                    'status' => SubscriptionStatus::Unreachable->value,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $count;
     }
 }

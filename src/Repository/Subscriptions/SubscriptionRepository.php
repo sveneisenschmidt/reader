@@ -105,17 +105,6 @@ class SubscriptionRepository extends ServiceEntityRepository
         }
     }
 
-    public function updateAllRefreshTimestamps(int $userId): void
-    {
-        $subscriptions = $this->findByUserId($userId);
-
-        foreach ($subscriptions as $subscription) {
-            $subscription->updateLastRefreshedAt();
-        }
-
-        $this->getEntityManager()->flush();
-    }
-
     public function hasAnyForUser(int $userId): bool
     {
         return $this->count(['userId' => $userId]) > 0;

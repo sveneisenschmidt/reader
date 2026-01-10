@@ -12,7 +12,6 @@ namespace App\Controller;
 
 use App\Form\FirstFeedType;
 use App\Service\FeedDiscoveryService;
-use App\Service\FeedReaderService;
 use App\Service\SubscriptionService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,7 +25,6 @@ class OnboardingController extends AbstractController
         private UserService $userService,
         private SubscriptionService $subscriptionService,
         private FeedDiscoveryService $feedDiscoveryService,
-        private FeedReaderService $feedReaderService,
     ) {
     }
 
@@ -61,8 +59,7 @@ class OnboardingController extends AbstractController
                     $user->getId(),
                     $feedUrl,
                 );
-                $this->feedReaderService->refreshAllFeeds([$feedUrl]);
-                $this->subscriptionService->updateRefreshTimestamps(
+                $this->subscriptionService->refreshSubscriptions(
                     $user->getId(),
                 );
 
