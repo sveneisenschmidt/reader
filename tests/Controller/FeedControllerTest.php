@@ -10,6 +10,7 @@
 
 namespace App\Tests\Controller;
 
+use App\Service\UserPreferenceService;
 use App\Tests\Trait\AuthenticatedTestTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -840,5 +841,82 @@ class FeedControllerTest extends WebTestCase
         } else {
             $this->assertTrue(true);
         }
+    }
+
+    #[Test]
+    public function markAsReadWithShowNextUnreadEnabledRedirects(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // Enable showNextUnread preference
+        $userPreferenceService = static::getContainer()->get(
+            UserPreferenceService::class,
+        );
+        $userPreferenceService->setShowNextUnread(
+            $this->testUser->getId(),
+            true,
+        );
+
+        $crawler = $client->request('GET', '/f/fedcba9876543210');
+        $form = $crawler->filter('form[action$="/read"]');
+        if ($form->count() > 0) {
+            $token = $form->filter('input[name="_token"]')->attr('value');
+
+            $client->request('POST', '/f/fedcba9876543210/read', [
+                '_token' => $token,
+            ]);
+
+            $this->assertResponseRedirects();
+        } else {
+            $this->assertTrue(true);
+        }
+
+        // Reset preference
+        $userPreferenceService->setShowNextUnread(
+            $this->testUser->getId(),
+            false,
+        );
+    }
+
+    #[Test]
+    public function filteredMarkAsReadWithShowNextUnreadEnabledRedirects(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // Enable showNextUnread preference
+        $userPreferenceService = static::getContainer()->get(
+            UserPreferenceService::class,
+        );
+        $userPreferenceService->setShowNextUnread(
+            $this->testUser->getId(),
+            true,
+        );
+
+        $crawler = $client->request(
+            'GET',
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+        $form = $crawler->filter('form[action$="/read"]');
+        if ($form->count() > 0) {
+            $token = $form->filter('input[name="_token"]')->attr('value');
+
+            $client->request(
+                'POST',
+                '/s/0123456789abcdef/f/fedcba9876543210/read',
+                ['_token' => $token],
+            );
+
+            $this->assertResponseRedirects();
+        } else {
+            $this->assertTrue(true);
+        }
+
+        // Reset preference
+        $userPreferenceService->setShowNextUnread(
+            $this->testUser->getId(),
+            false,
+        );
     }
 }

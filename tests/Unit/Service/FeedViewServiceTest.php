@@ -239,6 +239,126 @@ class FeedViewServiceTest extends TestCase
         $this->assertEquals('guid3', $result);
     }
 
+    #[Test]
+    public function findNextUnreadItemGuidReturnsNextUnreadItem(): void
+    {
+        $userId = 1;
+
+        $subscriptionService = $this->createStub(SubscriptionService::class);
+        $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
+
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
+        $feedFetcher
+            ->method('getAllItems')
+            ->willReturn([
+                ['guid' => 'guid1', 'sguid' => 'sguid1'],
+                ['guid' => 'guid2', 'sguid' => 'sguid1'],
+                ['guid' => 'guid3', 'sguid' => 'sguid1'],
+            ]);
+
+        $readStatusService = $this->createStub(ReadStatusService::class);
+        $readStatusService
+            ->method('enrichItemsWithReadStatus')
+            ->willReturnCallback(
+                fn ($items) => array_map(
+                    fn ($item) => array_merge($item, [
+                        'isRead' => $item['guid'] === 'guid2',
+                    ]),
+                    $items,
+                ),
+            );
+
+        $service = new FeedViewService(
+            $feedFetcher,
+            $subscriptionService,
+            $readStatusService,
+            $this->createStub(SeenStatusService::class),
+        );
+
+        $result = $service->findNextUnreadItemGuid($userId, null, 'guid1');
+
+        $this->assertEquals('guid3', $result);
+    }
+
+    #[Test]
+    public function findNextUnreadItemGuidReturnsNullWhenNoUnreadItems(): void
+    {
+        $userId = 1;
+
+        $subscriptionService = $this->createStub(SubscriptionService::class);
+        $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
+
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
+        $feedFetcher
+            ->method('getAllItems')
+            ->willReturn([
+                ['guid' => 'guid1', 'sguid' => 'sguid1'],
+                ['guid' => 'guid2', 'sguid' => 'sguid1'],
+            ]);
+
+        $readStatusService = $this->createStub(ReadStatusService::class);
+        $readStatusService
+            ->method('enrichItemsWithReadStatus')
+            ->willReturnCallback(
+                fn ($items) => array_map(
+                    fn ($item) => array_merge($item, ['isRead' => true]),
+                    $items,
+                ),
+            );
+
+        $service = new FeedViewService(
+            $feedFetcher,
+            $subscriptionService,
+            $readStatusService,
+            $this->createStub(SeenStatusService::class),
+        );
+
+        $result = $service->findNextUnreadItemGuid($userId, null, 'guid1');
+
+        $this->assertNull($result);
+    }
+
+    #[Test]
+    public function findNextUnreadItemGuidFiltersbySubscription(): void
+    {
+        $userId = 1;
+
+        $subscriptionService = $this->createStub(SubscriptionService::class);
+        $subscriptionService
+            ->method('getFeedGuids')
+            ->willReturn(['sguid1', 'sguid2']);
+
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
+        $feedFetcher
+            ->method('getAllItems')
+            ->willReturn([
+                ['guid' => 'guid1', 'sguid' => 'sguid1'],
+                ['guid' => 'guid2', 'sguid' => 'sguid2'],
+                ['guid' => 'guid3', 'sguid' => 'sguid1'],
+            ]);
+
+        $readStatusService = $this->createStub(ReadStatusService::class);
+        $readStatusService
+            ->method('enrichItemsWithReadStatus')
+            ->willReturnCallback(
+                fn ($items) => array_map(
+                    fn ($item) => array_merge($item, ['isRead' => false]),
+                    $items,
+                ),
+            );
+
+        $service = new FeedViewService(
+            $feedFetcher,
+            $subscriptionService,
+            $readStatusService,
+            $this->createStub(SeenStatusService::class),
+        );
+
+        $result = $service->findNextUnreadItemGuid($userId, 'sguid1', 'guid1');
+
+        $this->assertEquals('guid3', $result);
+    }
+
     private function createServiceWithEnrichedItems(): FeedViewService
     {
         $subscriptionService = $this->createStub(SubscriptionService::class);
