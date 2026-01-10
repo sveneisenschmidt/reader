@@ -62,5 +62,32 @@ jobs:
             - name: Run database migrations
               run: make db-migrate
 
-            - name: Run tests
-              run: php bin/phpunit
+            - name: Run tests with coverage
+              run: |
+                  php bin/phpunit --coverage-text 2>&1 | tee coverage-output.txt
+
+            - name: Check coverage thresholds
+              run: |
+                  CLASSES=$(grep "Classes:" coverage-output.txt | head -1 | grep -oP '\d+\.\d+')
+                  METHODS=$(grep "Methods:" coverage-output.txt | head -1 | grep -oP '\d+\.\d+')
+                  LINES=$(grep "Lines:" coverage-output.txt | head -1 | grep -oP '\d+\.\d+')
+
+                  echo "Classes: ${CLASSES}%"
+                  echo "Methods: ${METHODS}%"
+                  echo "Lines: ${LINES}%"
+
+                  FAILED=0
+                  if (( $(echo "$CLASSES < 95" | bc -l) )); then
+                    echo "::error::Classes coverage ${CLASSES}% is below 95%"
+                    FAILED=1
+                  fi
+                  if (( $(echo "$METHODS < 95" | bc -l) )); then
+                    echo "::error::Methods coverage ${METHODS}% is below 95%"
+                    FAILED=1
+                  fi
+                  if (( $(echo "$LINES < 95" | bc -l) )); then
+                    echo "::error::Lines coverage ${LINES}% is below 95%"
+                    FAILED=1
+                  fi
+
+                  exit $FAILED
