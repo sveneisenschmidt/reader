@@ -45,7 +45,6 @@ coverage-report
 
 # Node
 node_modules/
-package-lock.json
 
 # PHP-CS-Fixer
 .php-cs-fixer.cache
