@@ -47,7 +47,7 @@ jobs:
             - name: Minify CSS and JS
               if: ${{ inputs.minify_assets }}
               run: |
-                  npm install -g terser cssnano-cli
+                  npm install -g terser lightningcss-cli
 
                   # Minify all JS files in public/assets
                   find public/assets -name "*.js" -type f | while read file; do
@@ -55,10 +55,10 @@ jobs:
                     terser "$file" --compress --mangle -o "$file"
                   done
 
-                  # Minify all CSS files in public/assets
+                  # Minify all CSS files in public/assets (lightningcss handles nesting correctly)
                   find public/assets -name "*.css" -type f | while read file; do
                     echo "Minifying CSS: $file"
-                    cssnano "$file" "$file"
+                    lightningcss --minify "$file" -o "$file"
                   done
 
             - name: Setup SSH
