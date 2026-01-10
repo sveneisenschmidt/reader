@@ -17,7 +17,9 @@ use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
 use Symfony\Component\Scheduler\Schedule;
 use Symfony\Component\Scheduler\ScheduleProviderInterface;
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 
+#[CodeCoverageIgnore]
 #[AsSchedule("default")]
 class FeedScheduleProvider implements ScheduleProviderInterface
 {

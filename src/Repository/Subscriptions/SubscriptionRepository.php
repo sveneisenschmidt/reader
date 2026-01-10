@@ -90,7 +90,7 @@ class SubscriptionRepository extends ServiceEntityRepository
     public function updateFolder(
         int $userId,
         string $guid,
-        ?array $folder,
+        ?string $folder,
     ): void {
         $subscription = $this->findByUserIdAndGuid($userId, $guid);
 

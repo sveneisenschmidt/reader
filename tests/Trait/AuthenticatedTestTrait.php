@@ -9,8 +9,10 @@
 
 namespace App\Tests\Trait;
 
+use App\Entity\Content\FeedItem;
 use App\Entity\Subscriptions\Subscription;
 use App\Entity\Users\User;
+use App\Repository\Content\FeedItemRepository;
 use App\Repository\Subscriptions\SubscriptionRepository;
 use App\Repository\Users\UserRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -106,5 +108,40 @@ trait AuthenticatedTestTrait
     {
         $this->loginAsTestUser($client);
         $this->createTestSubscription();
+    }
+
+    private function createTestFeedItem(
+        string $feedGuid = "0123456789abcdef",
+        string $itemGuid = "fedcba9876543210",
+    ): FeedItem {
+        $container = static::getContainer();
+        $feedItemRepository = $container->get(FeedItemRepository::class);
+
+        $existing = $feedItemRepository->findByGuid($itemGuid);
+        if ($existing) {
+            return $existing;
+        }
+
+        $feedItem = new FeedItem(
+            $itemGuid,
+            $feedGuid,
+            "Test Feed Item",
+            "https://example.com/item",
+            "Test Feed",
+            "<p>This is a test feed item excerpt.</p>",
+            new \DateTimeImmutable(),
+        );
+
+        $feedItemRepository->upsert($feedItem);
+
+        return $feedItem;
+    }
+
+    private function ensureTestUserHasSubscriptionWithItem(
+        KernelBrowser $client,
+    ): void {
+        $this->loginAsTestUser($client);
+        $subscription = $this->createTestSubscription();
+        $this->createTestFeedItem($subscription->getGuid());
     }
 }

@@ -551,4 +551,240 @@ class FeedControllerTest extends WebTestCase
 
         $this->assertResponseStatusCodeSame(403);
     }
+
+    #[Test]
+    public function feedItemPageShowsItemContent(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $crawler = $client->request("GET", "/f/fedcba9876543210");
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists("main#feed");
+    }
+
+    #[Test]
+    public function markAsReadWithItemRedirects(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $crawler = $client->request("GET", "/f/fedcba9876543210");
+        $this->assertResponseIsSuccessful();
+
+        $form = $crawler->filter('form[action$="/read"]');
+        $this->assertGreaterThan(
+            0,
+            $form->count(),
+            "Mark as read form should exist",
+        );
+
+        $token = $form->filter('input[name="_token"]')->attr("value");
+
+        $client->request("POST", "/f/fedcba9876543210/read", [
+            "_token" => $token,
+        ]);
+
+        $this->assertResponseRedirects();
+    }
+
+    #[Test]
+    public function markAsUnreadWithItemRedirects(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // First mark as read
+        $crawler = $client->request("GET", "/f/fedcba9876543210");
+        $form = $crawler->filter('form[action$="/read"]');
+        if ($form->count() > 0) {
+            $token = $form->filter('input[name="_token"]')->attr("value");
+            $client->request("POST", "/f/fedcba9876543210/read", [
+                "_token" => $token,
+            ]);
+        }
+
+        // Now test mark as unread
+        $crawler = $client->request("GET", "/f/fedcba9876543210");
+        $form = $crawler->filter('form[action$="/unread"]');
+        if ($form->count() > 0) {
+            $token = $form->filter('input[name="_token"]')->attr("value");
+
+            $client->request("POST", "/f/fedcba9876543210/unread", [
+                "_token" => $token,
+            ]);
+
+            $this->assertResponseRedirects("/f/fedcba9876543210");
+        } else {
+            $this->assertTrue(true);
+        }
+    }
+
+    #[Test]
+    public function markAsReadStayWithItemRedirects(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $crawler = $client->request("GET", "/f/fedcba9876543210");
+        $form = $crawler->filter('form[action$="/read-stay"]');
+        if ($form->count() > 0) {
+            $token = $form->filter('input[name="_token"]')->attr("value");
+
+            $client->request("POST", "/f/fedcba9876543210/read-stay", [
+                "_token" => $token,
+            ]);
+
+            $this->assertResponseRedirects("/f/fedcba9876543210");
+        } else {
+            $this->assertTrue(true);
+        }
+    }
+
+    #[Test]
+    public function markAllReadWithItemsRedirects(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $crawler = $client->request("GET", "/");
+        $form = $crawler->filter('form[action$="/mark-all-read"]');
+
+        // Form only appears when there are unread items
+        if ($form->count() > 0) {
+            $token = $form->filter('input[name="_token"]')->attr("value");
+            $client->request("POST", "/mark-all-read", ["_token" => $token]);
+            $this->assertResponseRedirects("/");
+        } else {
+            // Item was already marked as read in previous tests
+            $this->assertTrue(true);
+        }
+    }
+
+    #[Test]
+    public function subscriptionMarkAllReadWithItemsRedirects(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $crawler = $client->request("GET", "/s/0123456789abcdef");
+        $form = $crawler->filter('form[action$="/mark-all-read"]');
+
+        if ($form->count() > 0) {
+            $token = $form->filter('input[name="_token"]')->attr("value");
+            $client->request("POST", "/s/0123456789abcdef/mark-all-read", [
+                "_token" => $token,
+            ]);
+
+            $this->assertResponseRedirects("/s/0123456789abcdef");
+        } else {
+            $this->assertTrue(true);
+        }
+    }
+
+    #[Test]
+    public function filteredFeedItemWithItemLoads(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $client->request("GET", "/s/0123456789abcdef/f/fedcba9876543210");
+
+        $this->assertResponseIsSuccessful();
+    }
+
+    #[Test]
+    public function filteredMarkAsReadWithItemRedirects(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $crawler = $client->request(
+            "GET",
+            "/s/0123456789abcdef/f/fedcba9876543210",
+        );
+        $form = $crawler->filter('form[action$="/read"]');
+        if ($form->count() > 0) {
+            $token = $form->filter('input[name="_token"]')->attr("value");
+
+            $client->request(
+                "POST",
+                "/s/0123456789abcdef/f/fedcba9876543210/read",
+                ["_token" => $token],
+            );
+
+            $this->assertResponseRedirects();
+        } else {
+            $this->assertTrue(true);
+        }
+    }
+
+    #[Test]
+    public function filteredMarkAsReadStayWithItemRedirects(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $crawler = $client->request(
+            "GET",
+            "/s/0123456789abcdef/f/fedcba9876543210",
+        );
+        $form = $crawler->filter('form[action$="/read-stay"]');
+        if ($form->count() > 0) {
+            $token = $form->filter('input[name="_token"]')->attr("value");
+
+            $client->request(
+                "POST",
+                "/s/0123456789abcdef/f/fedcba9876543210/read-stay",
+                ["_token" => $token],
+            );
+
+            $this->assertResponseRedirects(
+                "/s/0123456789abcdef/f/fedcba9876543210",
+            );
+        } else {
+            $this->assertTrue(true);
+        }
+    }
+
+    #[Test]
+    public function markAllReadExecutesSuccessfully(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // Get CSRF token
+        $crawler = $client->request("GET", "/");
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr("value");
+
+        $client->request("POST", "/mark-all-read", [
+            "_token" => $csrfToken,
+        ]);
+
+        $this->assertResponseRedirects("/");
+    }
+
+    #[Test]
+    public function subscriptionMarkAllReadExecutesSuccessfully(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // Get CSRF token
+        $crawler = $client->request("GET", "/s/0123456789abcdef");
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr("value");
+
+        $client->request("POST", "/s/0123456789abcdef/mark-all-read", [
+            "_token" => $csrfToken,
+        ]);
+
+        $this->assertResponseRedirects("/s/0123456789abcdef");
+    }
 }

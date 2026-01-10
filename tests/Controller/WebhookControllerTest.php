@@ -15,6 +15,8 @@ use App\Message\RefreshFeedsMessage;
 use App\Repository\Messages\ProcessedMessageRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
 class WebhookControllerTest extends WebTestCase
 {
@@ -225,5 +227,63 @@ class WebhookControllerTest extends WebTestCase
             ProcessedMessage::STATUS_SUCCESS,
             $lastEntry->getStatus(),
         );
+    }
+
+    #[Test]
+    public function refreshFeedsReturnsErrorOnException(): void
+    {
+        $client = static::createClient();
+
+        $mockBus = $this->createMock(MessageBusInterface::class);
+        $mockBus
+            ->method("dispatch")
+            ->willThrowException(new \RuntimeException("Test error"));
+
+        static::getContainer()->set(MessageBusInterface::class, $mockBus);
+
+        $client->request(
+            "GET",
+            "/webhook/refresh-feeds",
+            [],
+            [],
+            [
+                "PHP_AUTH_USER" => self::WEBHOOK_USER,
+                "PHP_AUTH_PW" => self::WEBHOOK_PASSWORD,
+            ],
+        );
+
+        $this->assertResponseStatusCodeSame(500);
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals("error", $response["status"]);
+        $this->assertEquals("Test error", $response["message"]);
+    }
+
+    #[Test]
+    public function cleanupContentReturnsErrorOnException(): void
+    {
+        $client = static::createClient();
+
+        $mockBus = $this->createMock(MessageBusInterface::class);
+        $mockBus
+            ->method("dispatch")
+            ->willThrowException(new \RuntimeException("Cleanup failed"));
+
+        static::getContainer()->set(MessageBusInterface::class, $mockBus);
+
+        $client->request(
+            "GET",
+            "/webhook/cleanup-content",
+            [],
+            [],
+            [
+                "PHP_AUTH_USER" => self::WEBHOOK_USER,
+                "PHP_AUTH_PW" => self::WEBHOOK_PASSWORD,
+            ],
+        );
+
+        $this->assertResponseStatusCodeSame(500);
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals("error", $response["status"]);
+        $this->assertEquals("Cleanup failed", $response["message"]);
     }
 }

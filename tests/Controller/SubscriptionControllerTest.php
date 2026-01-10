@@ -231,4 +231,22 @@ class SubscriptionControllerTest extends WebTestCase
             "New subscription should have refresh timestamp set",
         );
     }
+
+    #[Test]
+    public function addingInvalidFeedShowsError(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+        $this->deleteAllSubscriptionsForTestUser();
+
+        $crawler = $client->request("GET", "/subscriptions");
+
+        $form = $crawler->selectButton("Subscribe")->form();
+        $form["subscriptions[new][url]"] =
+            "https://example.com/invalid-feed.xml";
+
+        $client->submit($form);
+
+        $this->assertSelectorExists("p.form-error");
+    }
 }

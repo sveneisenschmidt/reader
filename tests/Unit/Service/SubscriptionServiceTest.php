@@ -299,6 +299,24 @@ class SubscriptionServiceTest extends TestCase
     }
 
     #[Test]
+    public function updateSubscriptionNameCallsRepository(): void
+    {
+        $userId = 1;
+        $guid = "test-guid";
+        $name = "New Feed Name";
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method("updateName")
+            ->with($userId, $guid, $name);
+
+        $service = $this->createService(subscriptionRepository: $repository);
+
+        $service->updateSubscriptionName($userId, $guid, $name);
+    }
+
+    #[Test]
     public function enrichItemsWithSubscriptionNamesAddsSourceField(): void
     {
         $userId = 1;

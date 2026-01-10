@@ -46,7 +46,7 @@
 
     <coverage>
         <report>
-            <text outputFile="php://stdout" showOnlySummary="true" />
+            <text outputFile="php://stdout" />
         </report>
     </coverage>
 </phpunit>

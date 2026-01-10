@@ -17,7 +17,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 
+#[CodeCoverageIgnore]
 #[AsCommand(name: "reader:messages", description: "Display processed messages")]
 class MessagesCommand extends Command
 {

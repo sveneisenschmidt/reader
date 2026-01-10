@@ -93,6 +93,7 @@ class AuthController extends AbstractController
     }
 
     #[Route("/logout", name: "auth_logout")]
+    #[\PHPUnit\Framework\Attributes\CodeCoverageIgnore]
     public function logout(): never
     {
         throw new \LogicException("This should never be reached.");

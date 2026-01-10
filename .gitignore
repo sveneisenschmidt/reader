@@ -37,3 +37,8 @@ Thumbs.db
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+# Code coverage
+coverage.xml
+coverage-html
+coverage-report

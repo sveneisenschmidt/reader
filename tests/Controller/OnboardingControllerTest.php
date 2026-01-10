@@ -128,4 +128,22 @@ class OnboardingControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(422);
         $this->assertSelectorExists(".form-error");
     }
+
+    #[Test]
+    public function submittingUrlWithInvalidFeedContentShowsError(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+        $this->deleteAllSubscriptionsForTestUser();
+
+        $crawler = $client->request("GET", "/onboarding");
+
+        $form = $crawler->selectButton("Subscribe")->form();
+        $form["first_feed[feedUrl]"] = "https://example.com/invalid-feed.xml";
+
+        $client->submit($form);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSelectorExists(".form-error");
+    }
 }
