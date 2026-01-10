@@ -110,7 +110,7 @@
                     {% for source, count in sources %}
                 <tr>
                     <td>{{ type|split('\\')|last }}</td>
-                    <td>{{ source ?? '-' }}</td>
+                    <td>{{ source|default('unknown') }}</td>
                     <td>{{ count }}</td>
                 </tr>
                     {% endfor %}
