@@ -17,6 +17,7 @@ use App\Repository\Subscriptions\SubscriptionRepository;
 use App\Repository\Users\ReadStatusRepository;
 use App\Repository\Users\SeenStatusRepository;
 use App\Service\FeedContentService;
+use App\Service\FeedExceptionHandler;
 use App\Service\FeedReaderService;
 use App\Service\SubscriptionService;
 use PHPUnit\Framework\Attributes\Test;
@@ -827,7 +828,7 @@ class SubscriptionServiceTest extends TestCase
         ?FeedItemRepository $feedItemRepository = null,
         ?ReadStatusRepository $readStatusRepository = null,
         ?SeenStatusRepository $seenStatusRepository = null,
-        ?LoggerInterface $logger = null,
+        ?FeedExceptionHandler $exceptionHandler = null,
     ): SubscriptionService {
         return new SubscriptionService(
             $subscriptionRepository ??
@@ -839,7 +840,10 @@ class SubscriptionServiceTest extends TestCase
                 $this->createStub(SeenStatusRepository::class),
             $feedReaderService ?? $this->createStub(FeedReaderService::class),
             $feedContentService ?? $this->createStub(FeedContentService::class),
-            $logger ?? $this->createStub(LoggerInterface::class),
+            $exceptionHandler ??
+                new FeedExceptionHandler(
+                    $this->createStub(LoggerInterface::class),
+                ),
         );
     }
 }

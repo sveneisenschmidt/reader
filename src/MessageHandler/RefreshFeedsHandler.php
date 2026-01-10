@@ -13,14 +13,9 @@ namespace App\MessageHandler;
 use App\Enum\SubscriptionStatus;
 use App\Message\RefreshFeedsMessage;
 use App\Repository\Subscriptions\SubscriptionRepository;
+use App\Service\FeedExceptionHandler;
 use App\Service\FeedReaderService;
 use Doctrine\ORM\EntityManagerInterface;
-use FeedIo\Adapter\HttpRequestException;
-use FeedIo\Adapter\NotFoundException;
-use FeedIo\Adapter\ServerErrorException;
-use FeedIo\Parser\MissingFieldsException;
-use FeedIo\Parser\UnsupportedFormatException;
-use FeedIo\Reader\NoAccurateParserException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -32,6 +27,7 @@ class RefreshFeedsHandler
         private SubscriptionRepository $subscriptionRepository,
         private EntityManagerInterface $subscriptionsEntityManager,
         private LoggerInterface $logger,
+        private FeedExceptionHandler $exceptionHandler,
     ) {
     }
 
@@ -51,36 +47,15 @@ class RefreshFeedsHandler
                 );
                 $subscription->updateLastRefreshedAt();
                 $subscription->setStatus(SubscriptionStatus::Success);
-                $this->subscriptionsEntityManager->flush();
                 ++$successCount;
-            } catch (HttpRequestException|NotFoundException|ServerErrorException $e) {
-                $status = str_contains($e->getMessage(), 'timed out')
-                    ? SubscriptionStatus::Timeout
-                    : SubscriptionStatus::Unreachable;
-                $subscription->setStatus($status);
-                $this->subscriptionsEntityManager->flush();
-                $this->logger->error('Failed to refresh feed', [
-                    'url' => $subscription->getUrl(),
-                    'status' => $status->value,
-                    'error' => $e->getMessage(),
-                ]);
-            } catch (NoAccurateParserException|UnsupportedFormatException|MissingFieldsException $e) {
-                $subscription->setStatus(SubscriptionStatus::Invalid);
-                $this->subscriptionsEntityManager->flush();
-                $this->logger->error('Failed to refresh feed', [
-                    'url' => $subscription->getUrl(),
-                    'status' => SubscriptionStatus::Invalid->value,
-                    'error' => $e->getMessage(),
-                ]);
             } catch (\Exception $e) {
-                $subscription->setStatus(SubscriptionStatus::Unreachable);
-                $this->subscriptionsEntityManager->flush();
-                $this->logger->error('Failed to refresh feed', [
-                    'url' => $subscription->getUrl(),
-                    'status' => SubscriptionStatus::Unreachable->value,
-                    'error' => $e->getMessage(),
-                ]);
+                $status = $this->exceptionHandler->handleException(
+                    $e,
+                    $subscription,
+                );
+                $subscription->setStatus($status);
             }
+            $this->subscriptionsEntityManager->flush();
         }
 
         $this->logger->info('Feeds refreshed', [

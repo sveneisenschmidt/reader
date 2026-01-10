@@ -15,6 +15,7 @@ use App\Enum\SubscriptionStatus;
 use App\Message\RefreshFeedsMessage;
 use App\MessageHandler\RefreshFeedsHandler;
 use App\Repository\Subscriptions\SubscriptionRepository;
+use App\Service\FeedExceptionHandler;
 use App\Service\FeedReaderService;
 use Doctrine\ORM\EntityManagerInterface;
 use FeedIo\Adapter\HttpRequestException;
@@ -30,6 +31,12 @@ use Psr\Log\LoggerInterface;
 
 class RefreshFeedsHandlerTest extends TestCase
 {
+    private function createExceptionHandler(
+        LoggerInterface $logger,
+    ): FeedExceptionHandler {
+        return new FeedExceptionHandler($logger);
+    }
+
     #[Test]
     public function refreshesAllSubscriptionFeeds(): void
     {
@@ -70,6 +77,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $subscriptionRepository,
             $entityManager,
             $logger,
+            $this->createExceptionHandler($logger),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -97,6 +105,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $subscriptionRepository,
             $entityManager,
             $logger,
+            $this->createExceptionHandler($logger),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -143,6 +152,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $subscriptionRepository,
             $entityManager,
             $logger,
+            $this->createExceptionHandler($logger),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -205,16 +215,13 @@ class RefreshFeedsHandlerTest extends TestCase
             });
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger
-            ->expects($this->once())
-            ->method('error')
-            ->with('Failed to refresh feed', $this->anything());
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
             $subscriptionRepository,
             $entityManager,
             $logger,
+            $this->createExceptionHandler($logger),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -254,6 +261,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $subscriptionRepository,
             $entityManager,
             $logger,
+            $this->createExceptionHandler($logger),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -291,6 +299,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $subscriptionRepository,
             $entityManager,
             $logger,
+            $this->createExceptionHandler($logger),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -326,6 +335,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $subscriptionRepository,
             $entityManager,
             $logger,
+            $this->createExceptionHandler($logger),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -365,6 +375,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $subscriptionRepository,
             $entityManager,
             $logger,
+            $this->createExceptionHandler($logger),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -402,6 +413,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $subscriptionRepository,
             $entityManager,
             $logger,
+            $this->createExceptionHandler($logger),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -439,6 +451,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $subscriptionRepository,
             $entityManager,
             $logger,
+            $this->createExceptionHandler($logger),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -476,6 +489,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $subscriptionRepository,
             $entityManager,
             $logger,
+            $this->createExceptionHandler($logger),
         );
         $handler(new RefreshFeedsMessage());
     }
