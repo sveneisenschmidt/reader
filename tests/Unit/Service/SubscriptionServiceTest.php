@@ -15,7 +15,8 @@ use App\Repository\Content\FeedItemRepository;
 use App\Repository\Subscriptions\SubscriptionRepository;
 use App\Repository\Users\ReadStatusRepository;
 use App\Repository\Users\SeenStatusRepository;
-use App\Service\FeedFetcher;
+use App\Service\FeedContentService;
+use App\Service\FeedReaderService;
 use App\Service\SubscriptionService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -180,13 +181,15 @@ class SubscriptionServiceTest extends TestCase
         $title = 'Example Feed';
         $guid = 'generated-guid';
 
-        $feedFetcher = $this->createMock(FeedFetcher::class);
-        $feedFetcher
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
             ->expects($this->once())
             ->method('getFeedTitle')
             ->with($url)
             ->willReturn($title);
-        $feedFetcher
+
+        $feedContentService = $this->createMock(FeedContentService::class);
+        $feedContentService
             ->expects($this->once())
             ->method('createGuid')
             ->with($url)
@@ -203,7 +206,8 @@ class SubscriptionServiceTest extends TestCase
 
         $service = $this->createService(
             subscriptionRepository: $repository,
-            feedFetcher: $feedFetcher,
+            feedReaderService: $feedReaderService,
+            feedContentService: $feedContentService,
         );
         $result = $service->addSubscription($userId, $url);
 
@@ -369,7 +373,8 @@ class SubscriptionServiceTest extends TestCase
 
     private function createService(
         ?SubscriptionRepository $subscriptionRepository = null,
-        ?FeedFetcher $feedFetcher = null,
+        ?FeedReaderService $feedReaderService = null,
+        ?FeedContentService $feedContentService = null,
         ?FeedItemRepository $feedItemRepository = null,
         ?ReadStatusRepository $readStatusRepository = null,
         ?SeenStatusRepository $seenStatusRepository = null,
@@ -382,7 +387,8 @@ class SubscriptionServiceTest extends TestCase
                 $this->createStub(ReadStatusRepository::class),
             $seenStatusRepository ??
                 $this->createStub(SeenStatusRepository::class),
-            $feedFetcher ?? $this->createStub(FeedFetcher::class),
+            $feedReaderService ?? $this->createStub(FeedReaderService::class),
+            $feedContentService ?? $this->createStub(FeedContentService::class),
         );
     }
 }

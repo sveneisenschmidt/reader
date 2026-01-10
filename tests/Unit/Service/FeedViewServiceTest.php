@@ -10,7 +10,7 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Service\FeedFetcher;
+use App\Service\FeedPersistenceService;
 use App\Service\FeedViewService;
 use App\Service\ReadStatusService;
 use App\Service\SeenStatusService;
@@ -103,7 +103,7 @@ class FeedViewServiceTest extends TestCase
         $subscriptionService = $this->createStub(SubscriptionService::class);
         $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
 
-        $feedFetcher = $this->createStub(FeedFetcher::class);
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
         $feedFetcher
             ->method('getAllItems')
             ->willReturn([['guid' => 'guid1'], ['guid' => 'guid2']]);
@@ -130,7 +130,7 @@ class FeedViewServiceTest extends TestCase
             ->method('getFeedGuids')
             ->willReturn(['sguid1', 'sguid2']);
 
-        $feedFetcher = $this->createStub(FeedFetcher::class);
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
         $feedFetcher
             ->method('getAllItems')
             ->willReturn([
@@ -159,7 +159,7 @@ class FeedViewServiceTest extends TestCase
         $subscriptionService = $this->createStub(SubscriptionService::class);
         $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
 
-        $feedFetcher = $this->createStub(FeedFetcher::class);
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
         $feedFetcher
             ->method('getAllItems')
             ->willReturn([
@@ -188,7 +188,7 @@ class FeedViewServiceTest extends TestCase
         $subscriptionService = $this->createStub(SubscriptionService::class);
         $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
 
-        $feedFetcher = $this->createStub(FeedFetcher::class);
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
         $feedFetcher
             ->method('getAllItems')
             ->willReturn([
@@ -218,7 +218,7 @@ class FeedViewServiceTest extends TestCase
             ->method('getFeedGuids')
             ->willReturn(['sguid1', 'sguid2']);
 
-        $feedFetcher = $this->createStub(FeedFetcher::class);
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
         $feedFetcher
             ->method('getAllItems')
             ->willReturn([
@@ -252,7 +252,7 @@ class FeedViewServiceTest extends TestCase
             ->method('getSubscriptionsWithCounts')
             ->willReturn([]);
 
-        $feedFetcher = $this->createStub(FeedFetcher::class);
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
         $feedFetcher
             ->method('getAllItems')
             ->willReturn([

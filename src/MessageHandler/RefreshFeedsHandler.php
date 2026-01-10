@@ -12,7 +12,7 @@ namespace App\MessageHandler;
 
 use App\Message\RefreshFeedsMessage;
 use App\Repository\Subscriptions\SubscriptionRepository;
-use App\Service\FeedFetcher;
+use App\Service\FeedReaderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -21,7 +21,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 class RefreshFeedsHandler
 {
     public function __construct(
-        private FeedFetcher $feedFetcher,
+        private FeedReaderService $feedReaderService,
         private SubscriptionRepository $subscriptionRepository,
         private EntityManagerInterface $subscriptionsEntityManager,
         private LoggerInterface $logger,
@@ -35,7 +35,7 @@ class RefreshFeedsHandler
 
         $this->logger->info('Refreshing feeds', ['count' => count($urls)]);
 
-        $this->feedFetcher->refreshAllFeeds($urls);
+        $this->feedReaderService->refreshAllFeeds($urls);
 
         // Update refresh timestamps for all subscriptions
         foreach ($subscriptions as $subscription) {

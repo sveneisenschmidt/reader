@@ -15,7 +15,7 @@ use App\Entity\Users\User;
 use App\Message\RefreshFeedsMessage;
 use App\Repository\Messages\ProcessedMessageRepository;
 use App\Repository\Users\UserRepository;
-use App\Service\FeedFetcher;
+use App\Service\FeedContentService;
 use App\Service\FeedViewService;
 use App\Service\ReadStatusService;
 use App\Service\SeenStatusService;
@@ -86,7 +86,7 @@ class CaptureScreenshotsCommand extends Command
         private FeedViewService $feedViewService,
         private ReadStatusService $readStatusService,
         private SeenStatusService $seenStatusService,
-        private FeedFetcher $feedFetcher,
+        private FeedContentService $feedContentService,
         private ProcessedMessageRepository $processedMessageRepository,
     ) {
         parent::__construct();
@@ -195,7 +195,7 @@ class CaptureScreenshotsCommand extends Command
             // - First 3 (index 0-2): unread + new (unseen) - default, no action
             // - 5th (index 4): unread + seen
             // - 4th and 6th onwards (index 3, 5+): read + seen
-            $svensGuid = $this->feedFetcher->createGuid(
+            $svensGuid = $this->feedContentService->createGuid(
                 self::TEST_FEEDS[0]['url'],
             );
             $allItems = $this->feedViewService->loadEnrichedItems(
@@ -313,7 +313,7 @@ class CaptureScreenshotsCommand extends Command
 
             $io->section('Capturing Mobile Feed List');
             // Navigate directly to Sven's Blog subscription URL
-            $svensGuid = $this->feedFetcher->createGuid(
+            $svensGuid = $this->feedContentService->createGuid(
                 self::TEST_FEEDS[0]['url'],
             );
             $this->driver->get($baseUrl.'/s/'.$svensGuid);

@@ -16,7 +16,7 @@ use PhpStaticAnalysis\Attributes\Returns;
 class FeedViewService
 {
     public function __construct(
-        private FeedFetcher $feedFetcher,
+        private FeedPersistenceService $feedPersistenceService,
         private SubscriptionService $subscriptionService,
         private ReadStatusService $readStatusService,
         private SeenStatusService $seenStatusService,
@@ -70,7 +70,7 @@ class FeedViewService
     public function loadEnrichedItems(int $userId): array
     {
         $sguids = $this->subscriptionService->getFeedGuids($userId);
-        $items = $this->feedFetcher->getAllItems($sguids);
+        $items = $this->feedPersistenceService->getAllItems($sguids);
         $items = $this->subscriptionService->enrichItemsWithSubscriptionNames(
             $items,
             $userId,
@@ -90,7 +90,7 @@ class FeedViewService
     public function getAllItemGuids(int $userId): array
     {
         $sguids = $this->subscriptionService->getFeedGuids($userId);
-        $items = $this->feedFetcher->getAllItems($sguids);
+        $items = $this->feedPersistenceService->getAllItems($sguids);
 
         return array_column($items, 'guid');
     }
@@ -101,7 +101,7 @@ class FeedViewService
         string $sguid,
     ): array {
         $sguids = $this->subscriptionService->getFeedGuids($userId);
-        $items = $this->feedFetcher->getAllItems($sguids);
+        $items = $this->feedPersistenceService->getAllItems($sguids);
         $items = array_filter($items, fn ($item) => $item['sguid'] === $sguid);
 
         return array_column($items, 'guid');
@@ -113,7 +113,7 @@ class FeedViewService
         string $currentGuid,
     ): ?string {
         $sguids = $this->subscriptionService->getFeedGuids($userId);
-        $items = $this->feedFetcher->getAllItems($sguids);
+        $items = $this->feedPersistenceService->getAllItems($sguids);
 
         if ($sguid) {
             $items = array_values(

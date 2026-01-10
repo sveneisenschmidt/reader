@@ -13,8 +13,6 @@ parameters:
         - '#Call to an undefined method Doctrine\\Persistence\\ObjectManager::isOpen#'
         # SubmitButton::isClicked() exists but PHPStan doesn't see it through FormInterface
         - '#Call to an undefined method Symfony\\Component\\Form\\FormInterface::isClicked#'
-        # Laminas Feed Reader returns nullable values despite PHPDoc
-        - '#Expression on left side of \?\? is not nullable#'
         # Doctrine DBAL 4.x deprecated ConnectionEventArgs but it still works
         - '#Doctrine\\DBAL\\Event\\ConnectionEventArgs#'
         # Intentional infinite loop for tail-like behavior

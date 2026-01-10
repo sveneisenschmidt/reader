@@ -14,7 +14,7 @@ use App\Entity\Subscriptions\Subscription;
 use App\Message\RefreshFeedsMessage;
 use App\MessageHandler\RefreshFeedsHandler;
 use App\Repository\Subscriptions\SubscriptionRepository;
-use App\Service\FeedFetcher;
+use App\Service\FeedReaderService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -47,7 +47,7 @@ class RefreshFeedsHandlerTest extends TestCase
             ->method('findAll')
             ->willReturn([$subscription1, $subscription2]);
 
-        $feedFetcher = $this->createMock(FeedFetcher::class);
+        $feedFetcher = $this->createMock(FeedReaderService::class);
         $feedFetcher
             ->expects($this->once())
             ->method('refreshAllFeeds')
@@ -78,7 +78,7 @@ class RefreshFeedsHandlerTest extends TestCase
         );
         $subscriptionRepository->method('findAll')->willReturn([]);
 
-        $feedFetcher = $this->createMock(FeedFetcher::class);
+        $feedFetcher = $this->createMock(FeedReaderService::class);
         $feedFetcher
             ->expects($this->once())
             ->method('refreshAllFeeds')
@@ -105,7 +105,7 @@ class RefreshFeedsHandlerTest extends TestCase
         );
         $subscriptionRepository->method('findAll')->willReturn([]);
 
-        $feedFetcher = $this->createMock(FeedFetcher::class);
+        $feedFetcher = $this->createMock(FeedReaderService::class);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger

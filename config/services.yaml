@@ -10,11 +10,27 @@ services:
     App\:
         resource: "../src/"
 
-    # Entity Manager aliases
-    App\Service\FeedFetcher:
+    # FeedIo configuration
+    Psr\Http\Client\ClientInterface:
+        class: Symfony\Component\HttpClient\Psr18Client
+
+    FeedIo\Adapter\Http\Client:
+        arguments:
+            $client: '@Psr\Http\Client\ClientInterface'
+
+    FeedIo\FeedIo:
+        arguments:
+            $client: '@FeedIo\Adapter\Http\Client'
+            $logger: "@logger"
+
+    # Feed Services configuration
+    App\Service\FeedContentService:
+        arguments:
+            $feedContentSanitizer: "@html_sanitizer.sanitizer.app.feed_content_sanitizer"
+
+    App\Service\FeedPersistenceService:
         arguments:
             $contentEntityManager: "@doctrine.orm.content_entity_manager"
-            $feedContentSanitizer: "@html_sanitizer.sanitizer.app.feed_content_sanitizer"
 
     App\MessageHandler\RefreshFeedsHandler:
         arguments:

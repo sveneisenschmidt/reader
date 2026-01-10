@@ -11,7 +11,8 @@
 namespace App\Controller;
 
 use App\Form\FirstFeedType;
-use App\Service\FeedFetcher;
+use App\Service\FeedDiscoveryService;
+use App\Service\FeedReaderService;
 use App\Service\SubscriptionService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,7 +25,8 @@ class OnboardingController extends AbstractController
     public function __construct(
         private UserService $userService,
         private SubscriptionService $subscriptionService,
-        private FeedFetcher $feedFetcher,
+        private FeedDiscoveryService $feedDiscoveryService,
+        private FeedReaderService $feedReaderService,
     ) {
     }
 
@@ -42,21 +44,24 @@ class OnboardingController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $feedUrl = $data['feedUrl'];
+            $inputUrl = $data['feedUrl'];
 
-            $error = $this->feedFetcher->validateFeedUrl($feedUrl);
-            if ($error !== null) {
+            $result = $this->feedDiscoveryService->resolveToFeedUrl($inputUrl);
+            if ($result['error'] !== null) {
                 $form
                     ->get('feedUrl')
-                    ->addError(new \Symfony\Component\Form\FormError($error));
+                    ->addError(
+                        new \Symfony\Component\Form\FormError($result['error']),
+                    );
             } else {
+                $feedUrl = $result['feedUrl'];
                 $user = $this->userService->getCurrentUser();
 
                 $this->subscriptionService->addSubscription(
                     $user->getId(),
                     $feedUrl,
                 );
-                $this->feedFetcher->refreshAllFeeds([$feedUrl]);
+                $this->feedReaderService->refreshAllFeeds([$feedUrl]);
                 $this->subscriptionService->updateRefreshTimestamps(
                     $user->getId(),
                 );

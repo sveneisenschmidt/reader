@@ -190,6 +190,7 @@ body {
     background: var(--color-bg);
     font-family: "Work Sans", sans-serif;
     line-height: 1.5;
+    text-wrap: pretty;
     display: flex;
     flex-direction: column;
     overscroll-behavior-y: contain;

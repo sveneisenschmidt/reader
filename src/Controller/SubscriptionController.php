@@ -11,7 +11,7 @@
 namespace App\Controller;
 
 use App\Form\SubscriptionsType;
-use App\Service\FeedFetcher;
+use App\Service\FeedDiscoveryService;
 use App\Service\SubscriptionService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,7 +25,7 @@ class SubscriptionController extends AbstractController
     public function __construct(
         private SubscriptionService $subscriptionService,
         private UserService $userService,
-        private FeedFetcher $feedFetcher,
+        private FeedDiscoveryService $feedDiscoveryService,
     ) {
     }
 
@@ -76,33 +76,38 @@ class SubscriptionController extends AbstractController
             // Handle new subscription
             $newData = $data['new'];
             if (!empty($newData['url'])) {
-                // Check if feed already exists
-                $existingUrls = array_map(
-                    fn ($s) => $s->getUrl(),
-                    $subscriptions,
+                $result = $this->feedDiscoveryService->resolveToFeedUrl(
+                    $newData['url'],
                 );
-                if (in_array($newData['url'], $existingUrls)) {
+
+                if ($result['error'] !== null) {
                     $form
                         ->get('new')
                         ->get('url')
-                        ->addError(
-                            new FormError('This feed is already subscribed.'),
-                        );
+                        ->addError(new FormError($result['error']));
                     $hasError = true;
                 } else {
-                    $error = $this->feedFetcher->validateFeedUrl(
-                        $newData['url'],
+                    $feedUrl = $result['feedUrl'];
+
+                    // Check if feed already exists
+                    $existingUrls = array_map(
+                        fn ($s) => $s->getUrl(),
+                        $subscriptions,
                     );
-                    if ($error !== null) {
+                    if (in_array($feedUrl, $existingUrls)) {
                         $form
                             ->get('new')
                             ->get('url')
-                            ->addError(new FormError($error));
+                            ->addError(
+                                new FormError(
+                                    'This feed is already subscribed.',
+                                ),
+                            );
                         $hasError = true;
                     } else {
                         $subscription = $this->subscriptionService->addSubscription(
                             $user->getId(),
-                            $newData['url'],
+                            $feedUrl,
                         );
                         // Feed content is already fetched by addSubscription (via getFeedTitle)
                         // Just update the refresh timestamp for this subscription

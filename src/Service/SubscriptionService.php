@@ -25,7 +25,8 @@ class SubscriptionService
         private FeedItemRepository $feedItemRepository,
         private ReadStatusRepository $readStatusRepository,
         private SeenStatusRepository $seenStatusRepository,
-        private FeedFetcher $feedFetcher,
+        private FeedReaderService $feedReaderService,
+        private FeedContentService $feedContentService,
     ) {
     }
 
@@ -95,8 +96,8 @@ class SubscriptionService
 
     public function addSubscription(int $userId, string $url): Subscription
     {
-        $title = $this->feedFetcher->getFeedTitle($url);
-        $guid = $this->feedFetcher->createGuid($url);
+        $title = $this->feedReaderService->getFeedTitle($url);
+        $guid = $this->feedContentService->createGuid($url);
 
         return $this->subscriptionRepository->addSubscription(
             $userId,

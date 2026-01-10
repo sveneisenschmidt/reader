@@ -25,9 +25,9 @@ class FirstFeedType extends AbstractType
         array $options,
     ): void {
         $builder->add('feedUrl', UrlType::class, [
-            'label' => 'Feed URL',
+            'label' => 'URL',
             'constraints' => [
-                new Assert\NotBlank(message: 'Please enter a feed URL.'),
+                new Assert\NotBlank(message: 'Please enter a URL.'),
                 new Assert\Url(message: 'Please enter a valid URL.'),
             ],
             'attr' => [

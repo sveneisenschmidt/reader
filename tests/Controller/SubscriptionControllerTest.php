@@ -198,7 +198,7 @@ class SubscriptionControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains(
-            '.subscription-row p a',
+            '.form-row p a',
             'https://example.com/feed.xml',
         );
     }
