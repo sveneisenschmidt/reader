@@ -4,7 +4,7 @@ on:
     workflow_dispatch:
         inputs:
             minify_assets:
-                description: "Minify CSS and JS assets"
+                description: "Minify Assets"
                 required: false
                 default: true
                 type: boolean
