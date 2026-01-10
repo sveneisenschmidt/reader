@@ -506,6 +506,301 @@ class SubscriptionServiceTest extends TestCase
         $this->assertEquals(0, $count);
     }
 
+    #[Test]
+    public function countByUserReturnsCount(): void
+    {
+        $userId = 1;
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('countByUserId')
+            ->with($userId)
+            ->willReturn(5);
+
+        $service = $this->createService(subscriptionRepository: $repository);
+
+        $this->assertEquals(5, $service->countByUser($userId));
+    }
+
+    #[Test]
+    public function hasSubscriptionsReturnsTrueWhenSubscriptionsExist(): void
+    {
+        $userId = 1;
+
+        $repository = $this->createStub(SubscriptionRepository::class);
+        $repository->method('countByUserId')->willReturn(3);
+
+        $service = $this->createService(subscriptionRepository: $repository);
+
+        $this->assertTrue($service->hasSubscriptions($userId));
+    }
+
+    #[Test]
+    public function hasSubscriptionsReturnsFalseWhenNoSubscriptions(): void
+    {
+        $userId = 1;
+
+        $repository = $this->createStub(SubscriptionRepository::class);
+        $repository->method('countByUserId')->willReturn(0);
+
+        $service = $this->createService(subscriptionRepository: $repository);
+
+        $this->assertFalse($service->hasSubscriptions($userId));
+    }
+
+    #[Test]
+    public function updateSubscriptionUpdatesNameAndFolder(): void
+    {
+        $userId = 1;
+        $guid = 'test-guid';
+        $name = 'New Name';
+        $folder = 'Tech';
+
+        $subscription = $this->createMock(Subscription::class);
+        $subscription->expects($this->once())->method('setName')->with($name);
+        $subscription
+            ->expects($this->once())
+            ->method('setFolder')
+            ->with($folder);
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('findByGuid')
+            ->with($userId, $guid)
+            ->willReturn($subscription);
+        $repository->expects($this->once())->method('flush');
+
+        $service = $this->createService(subscriptionRepository: $repository);
+
+        $service->updateSubscription($userId, $guid, $name, $folder);
+    }
+
+    #[Test]
+    public function updateSubscriptionDoesNothingWhenNotFound(): void
+    {
+        $userId = 1;
+        $guid = 'non-existent';
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('findByGuid')
+            ->with($userId, $guid)
+            ->willReturn(null);
+        $repository->expects($this->never())->method('flush');
+
+        $service = $this->createService(subscriptionRepository: $repository);
+
+        $service->updateSubscription($userId, $guid, 'Name', null);
+    }
+
+    #[Test]
+    public function getSubscriptionByGuidReturnsSubscription(): void
+    {
+        $userId = 1;
+        $guid = 'test-guid';
+        $subscription = $this->createSubscriptionStub(
+            $guid,
+            'Test Feed',
+            'https://example.com/feed',
+        );
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('findByGuid')
+            ->with($userId, $guid)
+            ->willReturn($subscription);
+
+        $service = $this->createService(subscriptionRepository: $repository);
+
+        $result = $service->getSubscriptionByGuid($userId, $guid);
+
+        $this->assertSame($subscription, $result);
+    }
+
+    #[Test]
+    public function getOldestRefreshTimeReturnsTime(): void
+    {
+        $userId = 1;
+        $time = new \DateTimeImmutable('2024-01-01 12:00:00');
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('getOldestRefreshTime')
+            ->with($userId)
+            ->willReturn($time);
+
+        $service = $this->createService(subscriptionRepository: $repository);
+
+        $result = $service->getOldestRefreshTime($userId);
+
+        $this->assertSame($time, $result);
+    }
+
+    #[Test]
+    public function updateRefreshTimestampUpdatesAndFlushes(): void
+    {
+        $subscription = $this->createMock(Subscription::class);
+        $subscription->expects($this->once())->method('updateLastRefreshedAt');
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository->expects($this->once())->method('flush');
+
+        $service = $this->createService(subscriptionRepository: $repository);
+
+        $service->updateRefreshTimestamp($subscription);
+    }
+
+    #[Test]
+    public function refreshSubscriptionsSetsTimeoutOnTimeoutError(): void
+    {
+        $userId = 1;
+        $subscription = $this->createMock(Subscription::class);
+        $subscription->method('getUrl')->willReturn('https://example.com/feed');
+        $subscription
+            ->expects($this->once())
+            ->method('setStatus')
+            ->with(SubscriptionStatus::Timeout);
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository->method('findByUserId')->willReturn([$subscription]);
+        $repository->expects($this->once())->method('flush');
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(
+                new \FeedIo\Adapter\HttpRequestException(
+                    'Connection timed out',
+                ),
+            );
+
+        $service = $this->createService(
+            subscriptionRepository: $repository,
+            feedReaderService: $feedReaderService,
+        );
+
+        $service->refreshSubscriptions($userId);
+    }
+
+    #[Test]
+    public function refreshSubscriptionsSetsInvalidOnUnsupportedFormat(): void
+    {
+        $userId = 1;
+        $subscription = $this->createMock(Subscription::class);
+        $subscription->method('getUrl')->willReturn('https://example.com/feed');
+        $subscription
+            ->expects($this->once())
+            ->method('setStatus')
+            ->with(SubscriptionStatus::Invalid);
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository->method('findByUserId')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(
+                new \FeedIo\Parser\UnsupportedFormatException('Unsupported'),
+            );
+
+        $service = $this->createService(
+            subscriptionRepository: $repository,
+            feedReaderService: $feedReaderService,
+        );
+
+        $service->refreshSubscriptions($userId);
+    }
+
+    #[Test]
+    public function refreshSubscriptionsSetsInvalidOnMissingFields(): void
+    {
+        $userId = 1;
+        $subscription = $this->createMock(Subscription::class);
+        $subscription->method('getUrl')->willReturn('https://example.com/feed');
+        $subscription
+            ->expects($this->once())
+            ->method('setStatus')
+            ->with(SubscriptionStatus::Invalid);
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository->method('findByUserId')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(
+                new \FeedIo\Parser\MissingFieldsException('Missing fields'),
+            );
+
+        $service = $this->createService(
+            subscriptionRepository: $repository,
+            feedReaderService: $feedReaderService,
+        );
+
+        $service->refreshSubscriptions($userId);
+    }
+
+    #[Test]
+    public function refreshSubscriptionsSetsUnreachableOnServerError(): void
+    {
+        $userId = 1;
+        $subscription = $this->createMock(Subscription::class);
+        $subscription->method('getUrl')->willReturn('https://example.com/feed');
+        $subscription
+            ->expects($this->once())
+            ->method('setStatus')
+            ->with(SubscriptionStatus::Unreachable);
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository->method('findByUserId')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(
+                new \FeedIo\Adapter\ServerErrorException('500 Error'),
+            );
+
+        $service = $this->createService(
+            subscriptionRepository: $repository,
+            feedReaderService: $feedReaderService,
+        );
+
+        $service->refreshSubscriptions($userId);
+    }
+
+    #[Test]
+    public function refreshSubscriptionsSetsUnreachableOnGenericException(): void
+    {
+        $userId = 1;
+        $subscription = $this->createMock(Subscription::class);
+        $subscription->method('getUrl')->willReturn('https://example.com/feed');
+        $subscription
+            ->expects($this->once())
+            ->method('setStatus')
+            ->with(SubscriptionStatus::Unreachable);
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository->method('findByUserId')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(new \Exception('Unknown error'));
+
+        $service = $this->createService(
+            subscriptionRepository: $repository,
+            feedReaderService: $feedReaderService,
+        );
+
+        $service->refreshSubscriptions($userId);
+    }
+
     private function createSubscriptionStub(
         string $guid,
         string $name,

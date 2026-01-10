@@ -136,10 +136,4 @@ class SubscriptionRepository extends ServiceEntityRepository
     {
         $this->getEntityManager()->flush();
     }
-
-    public function save(Subscription $subscription): void
-    {
-        $this->getEntityManager()->persist($subscription);
-        $this->getEntityManager()->flush();
-    }
 }

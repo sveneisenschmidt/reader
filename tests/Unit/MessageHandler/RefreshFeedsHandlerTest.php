@@ -17,6 +17,12 @@ use App\MessageHandler\RefreshFeedsHandler;
 use App\Repository\Subscriptions\SubscriptionRepository;
 use App\Service\FeedReaderService;
 use Doctrine\ORM\EntityManagerInterface;
+use FeedIo\Adapter\HttpRequestException;
+use FeedIo\Adapter\NotFoundException;
+use FeedIo\Adapter\ServerErrorException;
+use FeedIo\Parser\MissingFieldsException;
+use FeedIo\Parser\UnsupportedFormatException;
+use FeedIo\Reader\NoAccurateParserException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -202,6 +208,265 @@ class RefreshFeedsHandlerTest extends TestCase
             ->expects($this->once())
             ->method('error')
             ->with('Failed to refresh feed', $this->anything());
+
+        $handler = new RefreshFeedsHandler(
+            $feedReaderService,
+            $subscriptionRepository,
+            $entityManager,
+            $logger,
+        );
+        $handler(new RefreshFeedsMessage());
+    }
+
+    #[Test]
+    public function setsTimeoutStatusOnTimeoutException(): void
+    {
+        $subscription = $this->createMock(Subscription::class);
+        $subscription
+            ->method('getUrl')
+            ->willReturn('https://example.com/feed.xml');
+        $subscription->expects($this->never())->method('updateLastRefreshedAt');
+        $subscription
+            ->expects($this->once())
+            ->method('setStatus')
+            ->with(SubscriptionStatus::Timeout);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects($this->once())->method('flush');
+
+        $subscriptionRepository = $this->createMock(
+            SubscriptionRepository::class,
+        );
+        $subscriptionRepository->method('findAll')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(
+                new HttpRequestException('Connection timed out'),
+            );
+
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $handler = new RefreshFeedsHandler(
+            $feedReaderService,
+            $subscriptionRepository,
+            $entityManager,
+            $logger,
+        );
+        $handler(new RefreshFeedsMessage());
+    }
+
+    #[Test]
+    public function setsUnreachableStatusOnHttpRequestException(): void
+    {
+        $subscription = $this->createMock(Subscription::class);
+        $subscription
+            ->method('getUrl')
+            ->willReturn('https://example.com/feed.xml');
+        $subscription
+            ->expects($this->once())
+            ->method('setStatus')
+            ->with(SubscriptionStatus::Unreachable);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+
+        $subscriptionRepository = $this->createMock(
+            SubscriptionRepository::class,
+        );
+        $subscriptionRepository->method('findAll')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(
+                new HttpRequestException('Connection refused'),
+            );
+
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $handler = new RefreshFeedsHandler(
+            $feedReaderService,
+            $subscriptionRepository,
+            $entityManager,
+            $logger,
+        );
+        $handler(new RefreshFeedsMessage());
+    }
+
+    #[Test]
+    public function setsUnreachableStatusOnNotFoundException(): void
+    {
+        $subscription = $this->createMock(Subscription::class);
+        $subscription
+            ->method('getUrl')
+            ->willReturn('https://example.com/feed.xml');
+        $subscription
+            ->expects($this->once())
+            ->method('setStatus')
+            ->with(SubscriptionStatus::Unreachable);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+
+        $subscriptionRepository = $this->createMock(
+            SubscriptionRepository::class,
+        );
+        $subscriptionRepository->method('findAll')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(new NotFoundException('404 Not Found'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $handler = new RefreshFeedsHandler(
+            $feedReaderService,
+            $subscriptionRepository,
+            $entityManager,
+            $logger,
+        );
+        $handler(new RefreshFeedsMessage());
+    }
+
+    #[Test]
+    public function setsUnreachableStatusOnServerErrorException(): void
+    {
+        $subscription = $this->createMock(Subscription::class);
+        $subscription
+            ->method('getUrl')
+            ->willReturn('https://example.com/feed.xml');
+        $subscription
+            ->expects($this->once())
+            ->method('setStatus')
+            ->with(SubscriptionStatus::Unreachable);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+
+        $subscriptionRepository = $this->createMock(
+            SubscriptionRepository::class,
+        );
+        $subscriptionRepository->method('findAll')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(
+                new ServerErrorException('500 Internal Server Error'),
+            );
+
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $handler = new RefreshFeedsHandler(
+            $feedReaderService,
+            $subscriptionRepository,
+            $entityManager,
+            $logger,
+        );
+        $handler(new RefreshFeedsMessage());
+    }
+
+    #[Test]
+    public function setsInvalidStatusOnNoAccurateParserException(): void
+    {
+        $subscription = $this->createMock(Subscription::class);
+        $subscription
+            ->method('getUrl')
+            ->willReturn('https://example.com/feed.xml');
+        $subscription
+            ->expects($this->once())
+            ->method('setStatus')
+            ->with(SubscriptionStatus::Invalid);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+
+        $subscriptionRepository = $this->createMock(
+            SubscriptionRepository::class,
+        );
+        $subscriptionRepository->method('findAll')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(
+                new NoAccurateParserException('No parser found'),
+            );
+
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $handler = new RefreshFeedsHandler(
+            $feedReaderService,
+            $subscriptionRepository,
+            $entityManager,
+            $logger,
+        );
+        $handler(new RefreshFeedsMessage());
+    }
+
+    #[Test]
+    public function setsInvalidStatusOnUnsupportedFormatException(): void
+    {
+        $subscription = $this->createMock(Subscription::class);
+        $subscription
+            ->method('getUrl')
+            ->willReturn('https://example.com/feed.xml');
+        $subscription
+            ->expects($this->once())
+            ->method('setStatus')
+            ->with(SubscriptionStatus::Invalid);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+
+        $subscriptionRepository = $this->createMock(
+            SubscriptionRepository::class,
+        );
+        $subscriptionRepository->method('findAll')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(
+                new UnsupportedFormatException('Unsupported format'),
+            );
+
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $handler = new RefreshFeedsHandler(
+            $feedReaderService,
+            $subscriptionRepository,
+            $entityManager,
+            $logger,
+        );
+        $handler(new RefreshFeedsMessage());
+    }
+
+    #[Test]
+    public function setsInvalidStatusOnMissingFieldsException(): void
+    {
+        $subscription = $this->createMock(Subscription::class);
+        $subscription
+            ->method('getUrl')
+            ->willReturn('https://example.com/feed.xml');
+        $subscription
+            ->expects($this->once())
+            ->method('setStatus')
+            ->with(SubscriptionStatus::Invalid);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+
+        $subscriptionRepository = $this->createMock(
+            SubscriptionRepository::class,
+        );
+        $subscriptionRepository->method('findAll')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(
+                new MissingFieldsException('Missing required fields'),
+            );
+
+        $logger = $this->createMock(LoggerInterface::class);
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
