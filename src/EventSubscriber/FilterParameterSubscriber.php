@@ -10,13 +10,16 @@
 
 namespace App\EventSubscriber;
 
+use PhpStaticAnalysis\Attributes\Returns;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class FilterParameterSubscriber implements EventSubscriberInterface
 {
+    #[Returns('array<string, string>')]
     public static function getSubscribedEvents(): array
     {
         return [
@@ -54,7 +57,8 @@ class FilterParameterSubscriber implements EventSubscriberInterface
         $response->setTargetUrl($newUrl);
     }
 
-    private function getFilterParams($request): array
+    #[Returns('array<string, string|int>')]
+    private function getFilterParams(Request $request): array
     {
         $filters = [];
 

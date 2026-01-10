@@ -13,6 +13,8 @@ namespace App\Service;
 use App\Entity\Content\FeedItem;
 use App\Repository\Content\FeedItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use PhpStaticAnalysis\Attributes\Param;
+use PhpStaticAnalysis\Attributes\Returns;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -29,6 +31,7 @@ class FeedFetcher
     ) {
     }
 
+    #[Returns('array{title: string, items: list<array<string, mixed>>}')]
     public function fetchAndPersistFeed(string $url): array
     {
         $response = $this->httpClient->request('GET', $url);
@@ -41,6 +44,8 @@ class FeedFetcher
         return $feedData;
     }
 
+    #[Param(items: 'list<array<string, mixed>>')]
+    #[Returns('list<array<string, mixed>>')]
     private function sanitizeItems(array $items): array
     {
         return array_map(function ($item) {
@@ -50,6 +55,7 @@ class FeedFetcher
         }, $items);
     }
 
+    #[Param(items: 'list<array<string, mixed>>')]
     private function persistFeedItems(array $items): void
     {
         $twoDaysAgo = new \DateTimeImmutable('-48 hours');
@@ -86,6 +92,7 @@ class FeedFetcher
         $this->contentEntityManager->flush();
     }
 
+    #[Param(feedUrls: 'list<string>')]
     public function refreshAllFeeds(array $feedUrls): int
     {
         $responses = [];
@@ -113,6 +120,8 @@ class FeedFetcher
         return $count;
     }
 
+    #[Param(feedGuids: 'list<string>')]
+    #[Returns('list<array<string, mixed>>')]
     public function getAllItems(array $feedGuids): array
     {
         $feedItems = $this->feedItemRepository->findByFeedGuids($feedGuids);
@@ -120,6 +129,7 @@ class FeedFetcher
         return array_map(fn (FeedItem $item) => $item->toArray(), $feedItems);
     }
 
+    #[Returns('array<string, mixed>|null')]
     public function getItemByGuid(string $guid): ?array
     {
         $feedItem = $this->feedItemRepository->findByGuid($guid);

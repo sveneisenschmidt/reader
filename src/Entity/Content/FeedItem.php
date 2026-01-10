@@ -11,6 +11,7 @@
 namespace App\Entity\Content;
 
 use Doctrine\ORM\Mapping as ORM;
+use PhpStaticAnalysis\Attributes\Returns;
 
 #[
     ORM\Entity(
@@ -150,6 +151,7 @@ class FeedItem
         return $this;
     }
 
+    #[Returns('array<string, mixed>')]
     public function toArray(): array
     {
         return [

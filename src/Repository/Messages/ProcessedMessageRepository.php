@@ -14,7 +14,10 @@ use App\Entity\Messages\ProcessedMessage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpStaticAnalysis\Attributes\Returns;
+use PhpStaticAnalysis\Attributes\Template;
 
+#[Template('T', ProcessedMessage::class)]
 class ProcessedMessageRepository extends ServiceEntityRepository
 {
     public function __construct(private ManagerRegistry $registry)
@@ -54,6 +57,7 @@ class ProcessedMessageRepository extends ServiceEntityRepository
         );
     }
 
+    #[Returns('list<ProcessedMessage>')]
     public function findByType(string $type, int $limit = 100): array
     {
         return $this->findBy(
@@ -90,9 +94,7 @@ class ProcessedMessageRepository extends ServiceEntityRepository
         $qb->getQuery()->execute();
     }
 
-    /**
-     * @return array<string, int>
-     */
+    #[Returns('array<string, int>')]
     public function getCountsByType(): array
     {
         $result = $this->createQueryBuilder('m')

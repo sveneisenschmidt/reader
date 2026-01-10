@@ -1,5 +1,5 @@
 parameters:
-    level: 5
+    level: 6
     paths:
         - src
     symfony:
@@ -19,6 +19,12 @@ parameters:
         - '#Doctrine\\DBAL\\Event\\ConnectionEventArgs#'
         # Intentional infinite loop for tail-like behavior
         - '#While loop condition is always true#'
+        # Generic type specifications for Symfony/Doctrine classes
+        -
+            identifier: missingType.generics
+        # PhpStaticAnalysis Implements_ attribute not recognized
+        - '#Attribute class PhpStaticAnalysis\\Attributes\\Implements_ does not exist#'
 
 includes:
     - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/php-static-analysis/phpstan-extension/extension.neon

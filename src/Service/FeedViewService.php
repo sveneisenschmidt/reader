@@ -10,6 +10,9 @@
 
 namespace App\Service;
 
+use PhpStaticAnalysis\Attributes\Param;
+use PhpStaticAnalysis\Attributes\Returns;
+
 class FeedViewService
 {
     public function __construct(
@@ -20,6 +23,7 @@ class FeedViewService
     ) {
     }
 
+    #[Returns('array<string, mixed>')]
     public function getViewData(
         int $userId,
         ?string $sguid = null,
@@ -62,6 +66,7 @@ class FeedViewService
         ];
     }
 
+    #[Returns('list<array<string, mixed>>')]
     public function loadEnrichedItems(int $userId): array
     {
         $sguids = $this->subscriptionService->getFeedGuids($userId);
@@ -81,6 +86,7 @@ class FeedViewService
         );
     }
 
+    #[Returns('list<string>')]
     public function getAllItemGuids(int $userId): array
     {
         $sguids = $this->subscriptionService->getFeedGuids($userId);
@@ -89,6 +95,7 @@ class FeedViewService
         return array_column($items, 'guid');
     }
 
+    #[Returns('list<string>')]
     public function getItemGuidsForSubscription(
         int $userId,
         string $sguid,
@@ -127,6 +134,8 @@ class FeedViewService
         return null;
     }
 
+    #[Param(items: 'list<array<string, mixed>>')]
+    #[Returns('array<string, mixed>|null')]
     private function findItemByGuid(array $items, string $guid): ?array
     {
         foreach ($items as $item) {

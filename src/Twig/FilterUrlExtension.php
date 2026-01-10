@@ -10,6 +10,7 @@
 
 namespace App\Twig;
 
+use PhpStaticAnalysis\Attributes\Param;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\AbstractExtension;
@@ -31,6 +32,7 @@ class FilterUrlExtension extends AbstractExtension
         ];
     }
 
+    #[Param(params: 'array<string, mixed>')]
     public function filterUrl(array $params = []): string
     {
         $request = $this->requestStack->getCurrentRequest();
@@ -60,6 +62,7 @@ class FilterUrlExtension extends AbstractExtension
         );
     }
 
+    #[Param(params: 'array<string, mixed>')]
     public function pathWithFilters(string $route, array $params = []): string
     {
         $request = $this->requestStack->getCurrentRequest();

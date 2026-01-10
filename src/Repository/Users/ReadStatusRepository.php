@@ -13,7 +13,11 @@ namespace App\Repository\Users;
 use App\Entity\Users\ReadStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpStaticAnalysis\Attributes\Param;
+use PhpStaticAnalysis\Attributes\Returns;
+use PhpStaticAnalysis\Attributes\Template;
 
+#[Template('T', ReadStatus::class)]
 class ReadStatusRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -56,6 +60,7 @@ class ReadStatusRepository extends ServiceEntityRepository
         ]) !== null;
     }
 
+    #[Returns('list<string>')]
     public function getReadGuidsForUser(int $userId): array
     {
         $results = $this->createQueryBuilder('r')
@@ -68,6 +73,7 @@ class ReadStatusRepository extends ServiceEntityRepository
         return array_column($results, 'feedItemGuid');
     }
 
+    #[Param(feedItemGuids: 'list<string>')]
     public function markManyAsRead(int $userId, array $feedItemGuids): void
     {
         if (empty($feedItemGuids)) {
@@ -95,6 +101,7 @@ class ReadStatusRepository extends ServiceEntityRepository
         $em->flush();
     }
 
+    #[Param(feedItemGuids: 'list<string>')]
     public function deleteByFeedItemGuids(
         int $userId,
         array $feedItemGuids,

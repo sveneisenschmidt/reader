@@ -13,7 +13,11 @@ namespace App\Repository\Users;
 use App\Entity\Users\SeenStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpStaticAnalysis\Attributes\Param;
+use PhpStaticAnalysis\Attributes\Returns;
+use PhpStaticAnalysis\Attributes\Template;
 
+#[Template('T', SeenStatus::class)]
 class SeenStatusRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -35,6 +39,7 @@ class SeenStatusRepository extends ServiceEntityRepository
         }
     }
 
+    #[Param(feedItemGuids: 'list<string>')]
     public function markManyAsSeen(int $userId, array $feedItemGuids): void
     {
         $existingGuids = $this->getSeenGuidsForUser($userId, $feedItemGuids);
@@ -58,6 +63,8 @@ class SeenStatusRepository extends ServiceEntityRepository
         ]) !== null;
     }
 
+    #[Param(filterGuids: 'list<string>')]
+    #[Returns('list<string>')]
     public function getSeenGuidsForUser(
         int $userId,
         array $filterGuids = [],
@@ -79,6 +86,7 @@ class SeenStatusRepository extends ServiceEntityRepository
         return array_column($results, 'feedItemGuid');
     }
 
+    #[Param(feedItemGuids: 'list<string>')]
     public function deleteByFeedItemGuids(
         int $userId,
         array $feedItemGuids,

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7e6c78b46e975d746da405345c2f9d2d",
+    "content-hash": "41048107a70367fcabb52ee68a324123",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -8247,6 +8247,197 @@
             "time": "2022-02-21T01:04:05+00:00"
         },
         {
+            "name": "php-static-analysis/attributes",
+            "version": "0.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-static-analysis/attributes.git",
+                "reference": "58ef4290d0e8a27946ae6ed33e462c86a07f33e1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-static-analysis/attributes/zipball/58ef4290d0e8a27946ae6ed33e462c86a07f33e1",
+                "reference": "58ef4290d0e8a27946ae6ed33e462c86a07f33e1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "php-static-analysis/node-visitor": "^0.5.0 || dev-main",
+                "php-static-analysis/phpstan-extension": "^0.5.0 || dev-main",
+                "php-static-analysis/psalm-plugin": "^0.5.0 || dev-main",
+                "phpstan/extension-installer": "^1.3",
+                "phpstan/phpstan": "^2.0",
+                "phpunit/phpunit": "^9.0",
+                "symplify/easy-coding-standard": "^12.1",
+                "vimeo/psalm": "^6.12"
+            },
+            "suggest": {
+                "php-static-analysis/phpstan-extension": "PHPStan extension to read static analysis attributes",
+                "php-static-analysis/psalm-plugin": "Psalm plugin to read static analysis attributes",
+                "php-static-analysis/rector-rule": "RectorPHP rule to convert PHPDoc annotations to static analysis attributes"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpStaticAnalysis\\Attributes\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Carlos Granados",
+                    "email": "carlos@fastdebug.io"
+                }
+            ],
+            "description": "Attributes used instead of PHPDocs for static analysis tools",
+            "support": {
+                "issues": "https://github.com/php-static-analysis/attributes/issues",
+                "source": "https://github.com/php-static-analysis/attributes/tree/0.5.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/carlos-granados",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-06-04T13:55:53+00:00"
+        },
+        {
+            "name": "php-static-analysis/node-visitor",
+            "version": "0.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-static-analysis/node-visitor.git",
+                "reference": "38abd50e27493839f5e9af41695f00e0e0139601"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-static-analysis/node-visitor/zipball/38abd50e27493839f5e9af41695f00e0e0139601",
+                "reference": "38abd50e27493839f5e9af41695f00e0e0139601",
+                "shasum": ""
+            },
+            "require": {
+                "nikic/php-parser": "^5",
+                "php": ">=8.1",
+                "php-static-analysis/attributes": "^0.5.0 || dev-main"
+            },
+            "require-dev": {
+                "php-static-analysis/phpstan-extension": "^0.5.0 || dev-main",
+                "php-static-analysis/psalm-plugin": "^0.5.0 || dev-main",
+                "phpstan/extension-installer": "^1.3",
+                "phpstan/phpstan": "^2.0",
+                "phpunit/phpunit": "^9.0",
+                "psalm/plugin-phpunit": "^0.19.2",
+                "symplify/easy-coding-standard": "^12.1",
+                "vimeo/psalm": "^6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpStaticAnalysis\\NodeVisitor\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Carlos Granados",
+                    "email": "carlos@fastdebug.io"
+                }
+            ],
+            "description": "PHP parser node visitor that converts Attributes into PHPDoc annotations",
+            "keywords": [
+                "dev",
+                "static analysis"
+            ],
+            "support": {
+                "issues": "https://github.com/php-static-analysis/node-visitor/issues",
+                "source": "https://github.com/php-static-analysis/node-visitor/tree/0.5.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/carlos-granados",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-06-04T14:33:24+00:00"
+        },
+        {
+            "name": "php-static-analysis/phpstan-extension",
+            "version": "0.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-static-analysis/phpstan-extension.git",
+                "reference": "5b7992f789264c1ef42aa1d00495c52be173cc67"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-static-analysis/phpstan-extension/zipball/5b7992f789264c1ef42aa1d00495c52be173cc67",
+                "reference": "5b7992f789264c1ef42aa1d00495c52be173cc67",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "php-static-analysis/attributes": "^0.5.0 || dev-main",
+                "php-static-analysis/node-visitor": "^0.5.0 || dev-main",
+                "phpstan/phpstan": "^2.0",
+                "webmozart/assert": "^1.11"
+            },
+            "require-dev": {
+                "php-static-analysis/psalm-plugin": "^0.5.0 || dev-main",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpunit/phpunit": "^9.0",
+                "symplify/easy-coding-standard": "^12.1",
+                "vimeo/psalm": "^6"
+            },
+            "type": "phpstan-extension",
+            "extra": {
+                "phpstan": {
+                    "includes": [
+                        "extension.neon"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PhpStaticAnalysis\\PHPStanExtension\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Carlos Granados",
+                    "email": "carlos@fastdebug.io"
+                }
+            ],
+            "description": "PHPStan extension to read static analysis attributes",
+            "keywords": [
+                "dev",
+                "static analysis"
+            ],
+            "support": {
+                "issues": "https://github.com/php-static-analysis/phpstan-extension/issues",
+                "source": "https://github.com/php-static-analysis/phpstan-extension/tree/0.5.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/carlos-granados",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-06-04T14:52:12+00:00"
+        },
+        {
             "name": "php-webdriver/webdriver",
             "version": "1.16.0",
             "source": {
@@ -10760,6 +10951,64 @@
                 }
             ],
             "time": "2025-12-08T11:19:18+00:00"
+        },
+        {
+            "name": "webmozart/assert",
+            "version": "1.12.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webmozarts/assert.git",
+                "reference": "9be6926d8b485f55b9229203f962b51ed377ba68"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/9be6926d8b485f55b9229203f962b51ed377ba68",
+                "reference": "9be6926d8b485f55b9229203f962b51ed377ba68",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ctype": "*",
+                "ext-date": "*",
+                "ext-filter": "*",
+                "php": "^7.2 || ^8.0"
+            },
+            "suggest": {
+                "ext-intl": "",
+                "ext-simplexml": "",
+                "ext-spl": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.10-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Webmozart\\Assert\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bernhard Schussek",
+                    "email": "bschussek@gmail.com"
+                }
+            ],
+            "description": "Assertions to validate method input/output with nice error messages.",
+            "keywords": [
+                "assert",
+                "check",
+                "validate"
+            ],
+            "support": {
+                "issues": "https://github.com/webmozarts/assert/issues",
+                "source": "https://github.com/webmozarts/assert/tree/1.12.1"
+            },
+            "time": "2025-10-29T15:56:20+00:00"
         }
     ],
     "aliases": [],

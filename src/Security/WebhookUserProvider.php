@@ -10,12 +10,14 @@
 
 namespace App\Security;
 
+use PhpStaticAnalysis\Attributes\Implements_;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
+#[Implements_('UserProviderInterface<WebhookUser>')]
 class WebhookUserProvider implements UserProviderInterface
 {
     public function __construct(

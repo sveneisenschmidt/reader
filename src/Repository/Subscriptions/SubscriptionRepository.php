@@ -13,7 +13,10 @@ namespace App\Repository\Subscriptions;
 use App\Entity\Subscriptions\Subscription;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpStaticAnalysis\Attributes\Returns;
+use PhpStaticAnalysis\Attributes\Template;
 
+#[Template('T', Subscription::class)]
 class SubscriptionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -21,6 +24,7 @@ class SubscriptionRepository extends ServiceEntityRepository
         parent::__construct($registry, Subscription::class);
     }
 
+    #[Returns('list<Subscription>')]
     public function findByUserId(int $userId): array
     {
         return $this->findBy(['userId' => $userId], ['createdAt' => 'ASC']);

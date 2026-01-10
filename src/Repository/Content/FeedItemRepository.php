@@ -13,7 +13,11 @@ namespace App\Repository\Content;
 use App\Entity\Content\FeedItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use PhpStaticAnalysis\Attributes\Param;
+use PhpStaticAnalysis\Attributes\Returns;
+use PhpStaticAnalysis\Attributes\Template;
 
+#[Template('T', FeedItem::class)]
 class FeedItemRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -26,6 +30,7 @@ class FeedItemRepository extends ServiceEntityRepository
         return $this->findOneBy(['guid' => $guid]);
     }
 
+    #[Returns('list<FeedItem>')]
     public function findByFeedGuid(string $feedGuid): array
     {
         return $this->findBy(
@@ -34,11 +39,14 @@ class FeedItemRepository extends ServiceEntityRepository
         );
     }
 
+    #[Returns('list<FeedItem>')]
     public function findAllOrderedByDate(): array
     {
         return $this->findBy([], ['publishedAt' => 'DESC']);
     }
 
+    #[Param(feedGuids: 'list<string>')]
+    #[Returns('list<FeedItem>')]
     public function findByFeedGuids(array $feedGuids): array
     {
         if (empty($feedGuids)) {
@@ -70,6 +78,7 @@ class FeedItemRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
+    #[Param(feedItems: 'list<FeedItem>')]
     public function upsertBatch(array $feedItems): void
     {
         foreach ($feedItems as $feedItem) {
@@ -104,6 +113,7 @@ class FeedItemRepository extends ServiceEntityRepository
             ->execute();
     }
 
+    #[Returns('list<string>')]
     public function getGuidsByFeedGuid(string $feedGuid): array
     {
         $results = $this->createQueryBuilder('f')

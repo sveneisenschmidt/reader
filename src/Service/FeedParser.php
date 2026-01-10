@@ -13,9 +13,11 @@ namespace App\Service;
 use Laminas\Feed\Reader\Entry\EntryInterface;
 use Laminas\Feed\Reader\Feed\FeedInterface;
 use Laminas\Feed\Reader\Reader;
+use PhpStaticAnalysis\Attributes\Returns;
 
 class FeedParser
 {
+    #[Returns('array{title: string, items: list<array<string, mixed>>}')]
     public function parse(string $content, string $feedUrl): array
     {
         try {
@@ -38,6 +40,7 @@ class FeedParser
         }
     }
 
+    #[Returns('array{title: string, items: list<array<string, mixed>>}')]
     private function extractFeedData(
         FeedInterface $feed,
         string $feedUrl,
@@ -53,6 +56,7 @@ class FeedParser
         return ['title' => $title, 'items' => $items];
     }
 
+    #[Returns('array<string, mixed>')]
     private function extractEntryData(
         EntryInterface $entry,
         string $feedTitle,

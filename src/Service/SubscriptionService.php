@@ -15,6 +15,8 @@ use App\Repository\Content\FeedItemRepository;
 use App\Repository\Subscriptions\SubscriptionRepository;
 use App\Repository\Users\ReadStatusRepository;
 use App\Repository\Users\SeenStatusRepository;
+use PhpStaticAnalysis\Attributes\Param;
+use PhpStaticAnalysis\Attributes\Returns;
 
 class SubscriptionService
 {
@@ -27,6 +29,7 @@ class SubscriptionService
     ) {
     }
 
+    #[Returns('list<Subscription>')]
     public function getSubscriptionsForUser(int $userId): array
     {
         return $this->subscriptionRepository->findByUserId($userId);
@@ -42,6 +45,8 @@ class SubscriptionService
         return $this->countByUser($userId) > 0;
     }
 
+    #[Param(items: 'list<array<string, mixed>>')]
+    #[Returns('list<array<string, mixed>>')]
     public function getSubscriptionsWithCounts(
         int $userId,
         array $items = [],
@@ -72,6 +77,7 @@ class SubscriptionService
         return $result;
     }
 
+    #[Returns('list<string>')]
     public function getFeedUrls(int $userId): array
     {
         $subscriptions = $this->getSubscriptionsForUser($userId);
@@ -79,6 +85,7 @@ class SubscriptionService
         return array_map(fn (Subscription $s) => $s->getUrl(), $subscriptions);
     }
 
+    #[Returns('list<string>')]
     public function getFeedGuids(int $userId): array
     {
         $subscriptions = $this->getSubscriptionsForUser($userId);
@@ -155,6 +162,8 @@ class SubscriptionService
         return $this->subscriptionRepository->findByGuid($userId, $guid);
     }
 
+    #[Param(items: 'list<array<string, mixed>>')]
+    #[Returns('list<array<string, mixed>>')]
     public function enrichItemsWithSubscriptionNames(
         array $items,
         int $userId,
