@@ -91,7 +91,10 @@
         }
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.92",
         "php-webdriver/webdriver": "^1.16",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-symfony": "^2.0",
         "phpunit/phpunit": "^12.5",
         "symfony/browser-kit": "8.0.*",
         "symfony/css-selector": "8.0.*",

@@ -42,3 +42,15 @@ Thumbs.db
 coverage.xml
 coverage-html
 coverage-report
+
+# Node
+node_modules/
+package-lock.json
+
+# PHP-CS-Fixer
+.php-cs-fixer.cache
+
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###

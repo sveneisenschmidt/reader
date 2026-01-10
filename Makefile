@@ -1,4 +1,4 @@
-.PHONY: dev dev-with-worker stop cache-clear install db-migrate db-reset db-create-dev-user test coverage check-deps screenshots
+.PHONY: dev dev-with-worker stop cache-clear install db-migrate db-reset db-create-dev-user test coverage check-deps screenshots lint lint-fix
 
 check-deps:
 	@echo "Checking dependencies..."
@@ -40,6 +40,17 @@ db-reset:
 
 test:
 	php bin/phpunit
+
+lint:
+	vendor/bin/phpstan analyse --memory-limit=512M
+	vendor/bin/php-cs-fixer fix --dry-run --diff
+	npx eslint assets/js/
+	npx stylelint "assets/css/**/*.css"
+
+lint-fix:
+	vendor/bin/php-cs-fixer fix
+	npx eslint assets/js/ --fix
+	npx stylelint "assets/css/**/*.css" --fix
 
 db-create-dev-user:
 	@if [ "$$APP_ENV" = "test" ] || [ "$$APP_ENV" = "prod" ]; then \
