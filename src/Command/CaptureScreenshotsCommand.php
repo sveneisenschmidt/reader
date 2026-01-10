@@ -38,19 +38,19 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[CodeCoverageIgnore]
-#[When(env: 'dev')]
-#[When(env: 'test')]
+#[When(env: "dev")]
+#[When(env: "test")]
 #[
     AsCommand(
-        name: 'reader:capture-screenshots',
-        description: 'Capture screenshots of all app pages for documentation',
+        name: "reader:capture-screenshots",
+        description: "Capture screenshots of all app pages for documentation",
     ),
 ]
 class CaptureScreenshotsCommand extends Command
 {
-    private const TEST_EMAIL = 'screenshots@reader.test';
-    private const TEST_PASSWORD = 'screenshot-password-123';
-    private const SCREENSHOT_DIR = 'docs/screenshots';
+    private const TEST_EMAIL = "screenshots@reader.test";
+    private const TEST_PASSWORD = "screenshot-password-123";
+    private const SCREENSHOT_DIR = "docs/screenshots";
     private const VIEWPORT_WIDTH = 1280;
     private const VIEWPORT_HEIGHT = 1024;
     // Chrome enforces minimum width of 500px, so we use that
@@ -60,19 +60,19 @@ class CaptureScreenshotsCommand extends Command
 
     private const TEST_FEEDS = [
         [
-            'url' => 'https://sven.eisenschmidt.website/index.xml',
-            'title' => "Sven's Blog",
-            'folder' => 'Personal',
+            "url" => "https://sven.eisenschmidt.website/index.xml",
+            "title" => "Sven's Blog",
+            "folder" => "Personal",
         ],
         [
-            'url' => 'https://jasper.tandy.is/syndicated',
-            'title' => "Jasper's Blog",
-            'folder' => 'Personal',
+            "url" => "https://jasper.tandy.is/syndicated",
+            "title" => "Jasper's Blog",
+            "folder" => "Personal",
         ],
         [
-            'url' => 'https://news.ycombinator.com/rss',
-            'title' => 'Hacker News',
-            'folder' => 'News',
+            "url" => "https://news.ycombinator.com/rss",
+            "title" => "Hacker News",
+            "folder" => "News",
         ],
     ];
 
@@ -95,17 +95,17 @@ class CaptureScreenshotsCommand extends Command
     protected function configure(): void
     {
         $this->addOption(
-            'base-url',
+            "base-url",
             null,
             InputOption::VALUE_REQUIRED,
-            'Base URL of the app',
-            'http://127.0.0.1:8000',
+            "Base URL of the app",
+            "http://127.0.0.1:8000",
         )->addOption(
-            'chromedriver-url',
+            "chromedriver-url",
             null,
             InputOption::VALUE_REQUIRED,
-            'ChromeDriver URL',
-            'http://localhost:9515',
+            "ChromeDriver URL",
+            "http://localhost:9515",
         );
     }
 
@@ -114,10 +114,10 @@ class CaptureScreenshotsCommand extends Command
         OutputInterface $output,
     ): int {
         $io = new SymfonyStyle($input, $output);
-        $baseUrl = $input->getOption('base-url');
-        $chromedriverUrl = $input->getOption('chromedriver-url');
+        $baseUrl = $input->getOption("base-url");
+        $chromedriverUrl = $input->getOption("chromedriver-url");
 
-        $io->title('Capturing Screenshots');
+        $io->title("Capturing Screenshots");
 
         // Ensure screenshot directory exists
         $screenshotDir = $this->getScreenshotDir();
@@ -127,9 +127,9 @@ class CaptureScreenshotsCommand extends Command
 
         try {
             // Setup WebDriver
-            $io->section('Setting up WebDriver');
+            $io->section("Setting up WebDriver");
             $this->setupWebDriver($chromedriverUrl);
-            $io->success('WebDriver connected');
+            $io->success("WebDriver connected");
 
             // Check if we need to set up a user
             $user = $this->userRepository->findByEmail(self::TEST_EMAIL);
@@ -137,58 +137,58 @@ class CaptureScreenshotsCommand extends Command
 
             if (!$user) {
                 // Capture setup page first (only visible when no user exists)
-                $io->section('Capturing Setup');
-                $this->driver->get($baseUrl.'/setup');
+                $io->section("Capturing Setup");
+                $this->driver->get($baseUrl . "/setup");
                 $this->waitForPage();
-                $this->takeScreenshot('setup');
-                $io->success('setup.png');
+                $this->takeScreenshot("setup");
+                $io->success("setup.png");
 
                 // Create user programmatically for remaining screenshots
-                $io->section('Creating test user');
+                $io->section("Creating test user");
                 $totpSecret = $this->totpService->generateSecret();
                 $user = $this->createTestUser($totpSecret);
-                $io->success('Test user created');
+                $io->success("Test user created");
             } else {
                 $totpSecret = $user->getTotpSecret();
-                $io->warning('User already exists, skipping setup screenshot');
+                $io->warning("User already exists, skipping setup screenshot");
             }
 
             // Capture login page (now that user exists)
-            $io->section('Capturing Login');
-            $this->driver->get($baseUrl.'/login');
+            $io->section("Capturing Login");
+            $this->driver->get($baseUrl . "/login");
             $this->waitForPage();
-            $this->takeScreenshot('login');
-            $io->success('login.png');
+            $this->takeScreenshot("login");
+            $io->success("login.png");
 
             // Login
-            $io->section('Logging in');
+            $io->section("Logging in");
             $this->login($baseUrl, $totpSecret);
-            $io->success('Logged in');
+            $io->success("Logged in");
 
             // Check if onboarding is needed (no feeds)
-            $this->driver->get($baseUrl.'/');
+            $this->driver->get($baseUrl . "/");
             $this->waitForPage();
 
             $currentUrl = $this->driver->getCurrentURL();
-            if (str_contains($currentUrl, 'onboarding')) {
+            if (str_contains($currentUrl, "onboarding")) {
                 // Capture onboarding
-                $io->section('Capturing Onboarding');
-                $this->takeScreenshot('onboarding');
-                $io->success('onboarding.png');
+                $io->section("Capturing Onboarding");
+                $this->takeScreenshot("onboarding");
+                $io->success("onboarding.png");
 
                 // Add feeds via subscriptions page
                 // Feeds are automatically refreshed when added
-                $io->section('Adding test feeds');
+                $io->section("Adding test feeds");
                 foreach (self::TEST_FEEDS as $feed) {
                     $this->addFeed(
                         $baseUrl,
-                        $feed['url'],
-                        $feed['title'],
-                        $feed['folder'],
+                        $feed["url"],
+                        $feed["title"],
+                        $feed["folder"],
                     );
-                    $io->writeln('  Added: '.$feed['title']);
+                    $io->writeln("  Added: " . $feed["title"]);
                 }
-                $io->success('Feeds added');
+                $io->success("Feeds added");
             }
 
             // Set read/seen status for Sven's Blog items only:
@@ -196,7 +196,7 @@ class CaptureScreenshotsCommand extends Command
             // - 5th (index 4): unread + seen
             // - 4th and 6th onwards (index 3, 5+): read + seen
             $svensGuid = $this->feedContentService->createGuid(
-                self::TEST_FEEDS[0]['url'],
+                self::TEST_FEEDS[0]["url"],
             );
             $allItems = $this->feedViewService->loadEnrichedItems(
                 $user->getId(),
@@ -204,10 +204,10 @@ class CaptureScreenshotsCommand extends Command
             $svensItems = array_values(
                 array_filter(
                     $allItems,
-                    fn ($item) => $item['sguid'] === $svensGuid,
+                    fn($item) => $item["sguid"] === $svensGuid,
                 ),
             );
-            $guids = array_column($svensItems, 'guid');
+            $guids = array_column($svensItems, "guid");
 
             $itemsToMarkRead = [];
             $itemsToMarkSeen = [];
@@ -236,8 +236,8 @@ class CaptureScreenshotsCommand extends Command
             }
 
             // Capture feed view
-            $io->section('Capturing Feed');
-            $this->driver->get($baseUrl.'/');
+            $io->section("Capturing Feed");
+            $this->driver->get($baseUrl . "/");
             $this->waitForPage();
             sleep(1); // Let content load
 
@@ -255,23 +255,23 @@ class CaptureScreenshotsCommand extends Command
 
             // Click on first article to show reading pane
             $articles = $this->driver->findElements(
-                WebDriverBy::cssSelector('#feed section > div'),
+                WebDriverBy::cssSelector("#feed section > div"),
             );
             if (count($articles) > 0) {
                 $articles[0]->click();
                 sleep(1);
             }
-            $this->takeScreenshot('feed');
-            $io->success('feed.png');
+            $this->takeScreenshot("feed");
+            $io->success("feed.png");
 
             // Capture feed view with light theme
-            $io->section('Capturing Feed (Light)');
+            $io->section("Capturing Feed (Light)");
             $this->driver->executeScript(
                 "document.documentElement.setAttribute('data-theme', 'light');",
             );
             usleep(500000);
-            $this->takeScreenshot('feed-light');
-            $io->success('feed-light.png');
+            $this->takeScreenshot("feed-light");
+            $io->success("feed-light.png");
 
             // Reset to dark theme for remaining screenshots
             $this->driver->executeScript(
@@ -279,14 +279,14 @@ class CaptureScreenshotsCommand extends Command
             );
 
             // Capture subscriptions
-            $io->section('Capturing Subscriptions');
-            $this->driver->get($baseUrl.'/subscriptions');
+            $io->section("Capturing Subscriptions");
+            $this->driver->get($baseUrl . "/subscriptions");
             $this->waitForPage();
-            $this->takeScreenshot('subscriptions');
-            $io->success('subscriptions.png');
+            $this->takeScreenshot("subscriptions");
+            $io->success("subscriptions.png");
 
             // Capture preferences
-            $io->section('Capturing Preferences');
+            $io->section("Capturing Preferences");
             // Create a processed message so "Webhook: Online" is shown
             $this->processedMessageRepository->save(
                 new ProcessedMessage(
@@ -294,10 +294,10 @@ class CaptureScreenshotsCommand extends Command
                     ProcessedMessage::STATUS_SUCCESS,
                 ),
             );
-            $this->driver->get($baseUrl.'/preferences');
+            $this->driver->get($baseUrl . "/preferences");
             $this->waitForPage();
-            $this->takeScreenshot('preferences');
-            $io->success('preferences.png');
+            $this->takeScreenshot("preferences");
+            $io->success("preferences.png");
 
             // Capture mobile screenshots (iPhone 15 portrait)
             // Restart WebDriver with mobile viewport size
@@ -309,37 +309,40 @@ class CaptureScreenshotsCommand extends Command
             );
 
             // Login again for mobile session
+            // Wait for next TOTP window to avoid code reuse issues
+            $io->section("Waiting for new TOTP window");
+            $this->waitForNextTotpWindow($io);
             $this->login($baseUrl, $totpSecret);
 
-            $io->section('Capturing Mobile Feed List');
+            $io->section("Capturing Mobile Feed List");
             // Navigate directly to Sven's Blog subscription URL
             $svensGuid = $this->feedContentService->createGuid(
-                self::TEST_FEEDS[0]['url'],
+                self::TEST_FEEDS[0]["url"],
             );
-            $this->driver->get($baseUrl.'/s/'.$svensGuid);
+            $this->driver->get($baseUrl . "/s/" . $svensGuid);
             $this->waitForPage();
             sleep(1);
-            $this->takeScreenshot('feed-mobile-list');
-            $io->success('feed-mobile-list.png');
+            $this->takeScreenshot("feed-mobile-list");
+            $io->success("feed-mobile-list.png");
 
             // Capture mobile reading pane - click first article
-            $io->section('Capturing Mobile Reading Pane');
+            $io->section("Capturing Mobile Reading Pane");
             $articles = $this->driver->findElements(
-                WebDriverBy::cssSelector('[data-reading-list] > div'),
+                WebDriverBy::cssSelector("[data-reading-list] > div"),
             );
             if (count($articles) > 0) {
                 $articles[0]->click();
                 $this->waitForPage();
                 sleep(1);
             }
-            $this->takeScreenshot('feed-mobile-reading');
-            $io->success('feed-mobile-reading.png');
+            $this->takeScreenshot("feed-mobile-reading");
+            $io->success("feed-mobile-reading.png");
 
-            $io->success('All screenshots captured in '.$screenshotDir);
+            $io->success("All screenshots captured in " . $screenshotDir);
 
             return Command::SUCCESS;
         } catch (\Exception $e) {
-            $io->error('Failed: '.$e->getMessage());
+            $io->error("Failed: " . $e->getMessage());
 
             return Command::FAILURE;
         } finally {
@@ -354,12 +357,12 @@ class CaptureScreenshotsCommand extends Command
     ): void {
         $options = new ChromeOptions();
         $args = [
-            '--headless=new',
-            '--disable-gpu',
-            '--no-sandbox',
-            '--disable-dev-shm-usage',
-            '--force-device-scale-factor=1',
-            sprintf('--window-size=%d,%d', $width, $height),
+            "--headless=new",
+            "--disable-gpu",
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--force-device-scale-factor=1",
+            sprintf("--window-size=%d,%d", $width, $height),
         ];
 
         $options->addArguments($args);
@@ -387,7 +390,7 @@ class CaptureScreenshotsCommand extends Command
             ->wait(10)
             ->until(
                 WebDriverExpectedCondition::presenceOfElementLocated(
-                    WebDriverBy::tagName('body'),
+                    WebDriverBy::tagName("body"),
                 ),
             );
         // Force dark theme
@@ -399,13 +402,13 @@ class CaptureScreenshotsCommand extends Command
 
     private function takeScreenshot(string $name): void
     {
-        $path = $this->getScreenshotDir().'/'.$name.'.png';
+        $path = $this->getScreenshotDir() . "/" . $name . ".png";
         $this->driver->takeScreenshot($path);
     }
 
     private function getScreenshotDir(): string
     {
-        return dirname(__DIR__, 2).'/'.self::SCREENSHOT_DIR;
+        return dirname(__DIR__, 2) . "/" . self::SCREENSHOT_DIR;
     }
 
     private function createTestUser(string $totpSecret): User
@@ -428,15 +431,15 @@ class CaptureScreenshotsCommand extends Command
 
     private function login(string $baseUrl, string $totpSecret): void
     {
-        $this->driver->get($baseUrl.'/login');
+        $this->driver->get($baseUrl . "/login");
         $this->waitForPage();
 
         // Fill login form
         $this->driver
-            ->findElement(WebDriverBy::id('login_email'))
+            ->findElement(WebDriverBy::id("login_email"))
             ->sendKeys(self::TEST_EMAIL);
         $this->driver
-            ->findElement(WebDriverBy::id('login_password'))
+            ->findElement(WebDriverBy::id("login_password"))
             ->sendKeys(self::TEST_PASSWORD);
 
         // Generate current OTP
@@ -445,7 +448,7 @@ class CaptureScreenshotsCommand extends Command
 
         // Fill OTP input (single field)
         $this->driver
-            ->findElement(WebDriverBy::cssSelector('.otp-input'))
+            ->findElement(WebDriverBy::cssSelector(".otp-input"))
             ->sendKeys($otpCode);
 
         // Submit form
@@ -455,6 +458,14 @@ class CaptureScreenshotsCommand extends Command
             )
             ->click();
         $this->waitForPage();
+
+        // Verify login was successful - we should no longer be on the login page
+        $currentUrl = $this->driver->getCurrentURL();
+        if (str_contains($currentUrl, "/login")) {
+            throw new \RuntimeException(
+                "Login failed - still on login page. URL: " . $currentUrl,
+            );
+        }
     }
 
     private function addFeed(
@@ -463,7 +474,7 @@ class CaptureScreenshotsCommand extends Command
         string $title,
         ?string $folder = null,
     ): void {
-        $this->driver->get($baseUrl.'/subscriptions');
+        $this->driver->get($baseUrl . "/subscriptions");
         $this->waitForPage();
 
         // Find the URL input and add button
@@ -485,7 +496,7 @@ class CaptureScreenshotsCommand extends Command
 
         // Update the title and folder - find the last form row in manage section
         $formRows = $this->driver->findElements(
-            WebDriverBy::cssSelector('.page-section--bordered .form-row'),
+            WebDriverBy::cssSelector(".page-section--bordered .form-row"),
         );
         if (count($formRows) > 0) {
             $lastRow = $formRows[count($formRows) - 1];
@@ -526,5 +537,22 @@ class CaptureScreenshotsCommand extends Command
         if ($this->driver) {
             $this->driver->quit();
         }
+    }
+
+    private function waitForNextTotpWindow(SymfonyStyle $io): void
+    {
+        // TOTP codes are valid for 30 seconds
+        // Wait until we're in a new 30-second window to avoid code reuse
+        $currentTime = time();
+        $secondsIntoWindow = $currentTime % 30;
+        $secondsToWait = 30 - $secondsIntoWindow + 1; // +1 to be safe
+
+        $io->writeln(
+            sprintf(
+                "  Waiting %d seconds for next TOTP window...",
+                $secondsToWait,
+            ),
+        );
+        sleep($secondsToWait);
     }
 }

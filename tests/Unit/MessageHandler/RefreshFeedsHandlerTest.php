@@ -28,6 +28,8 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\SharedLockInterface;
 
 class RefreshFeedsHandlerTest extends TestCase
 {
@@ -35,6 +37,18 @@ class RefreshFeedsHandlerTest extends TestCase
         LoggerInterface $logger,
     ): FeedExceptionHandler {
         return new FeedExceptionHandler($logger);
+    }
+
+    private function createLockFactory(bool $acquirable = true): LockFactory
+    {
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->method('acquire')->willReturn($acquirable);
+        $lock->method('release');
+
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        return $lockFactory;
     }
 
     #[Test]
@@ -78,6 +92,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $entityManager,
             $logger,
             $this->createExceptionHandler($logger),
+            $this->createLockFactory(),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -106,6 +121,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $entityManager,
             $logger,
             $this->createExceptionHandler($logger),
+            $this->createLockFactory(),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -141,7 +157,7 @@ class RefreshFeedsHandlerTest extends TestCase
                 if ($callCount === 2) {
                     $this->assertEquals('Feeds refreshed', $message);
                     $this->assertEquals(
-                        ['success' => 0, 'failed' => 0],
+                        ['success' => 0, 'skipped' => 0, 'failed' => 0],
                         $context,
                     );
                 }
@@ -153,6 +169,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $entityManager,
             $logger,
             $this->createExceptionHandler($logger),
+            $this->createLockFactory(),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -222,6 +239,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $entityManager,
             $logger,
             $this->createExceptionHandler($logger),
+            $this->createLockFactory(),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -262,6 +280,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $entityManager,
             $logger,
             $this->createExceptionHandler($logger),
+            $this->createLockFactory(),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -300,6 +319,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $entityManager,
             $logger,
             $this->createExceptionHandler($logger),
+            $this->createLockFactory(),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -336,6 +356,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $entityManager,
             $logger,
             $this->createExceptionHandler($logger),
+            $this->createLockFactory(),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -376,6 +397,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $entityManager,
             $logger,
             $this->createExceptionHandler($logger),
+            $this->createLockFactory(),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -414,6 +436,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $entityManager,
             $logger,
             $this->createExceptionHandler($logger),
+            $this->createLockFactory(),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -452,6 +475,7 @@ class RefreshFeedsHandlerTest extends TestCase
             $entityManager,
             $logger,
             $this->createExceptionHandler($logger),
+            $this->createLockFactory(),
         );
         $handler(new RefreshFeedsMessage());
     }
@@ -490,6 +514,121 @@ class RefreshFeedsHandlerTest extends TestCase
             $entityManager,
             $logger,
             $this->createExceptionHandler($logger),
+            $this->createLockFactory(),
+        );
+        $handler(new RefreshFeedsMessage());
+    }
+
+    #[Test]
+    public function skipsSubscriptionWhenLockNotAcquired(): void
+    {
+        $subscription = $this->createMock(Subscription::class);
+        $subscription->method('getId')->willReturn(1);
+        $subscription
+            ->method('getUrl')
+            ->willReturn('https://example.com/feed.xml');
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects($this->never())->method('flush');
+
+        $subscriptionRepository = $this->createMock(
+            SubscriptionRepository::class,
+        );
+        $subscriptionRepository->method('findAll')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->expects($this->never())
+            ->method('fetchAndPersistFeed');
+
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $handler = new RefreshFeedsHandler(
+            $feedReaderService,
+            $subscriptionRepository,
+            $entityManager,
+            $logger,
+            $this->createExceptionHandler($logger),
+            $this->createLockFactory(acquirable: false),
+        );
+        $handler(new RefreshFeedsMessage());
+    }
+
+    #[Test]
+    public function releasesLockAfterRefresh(): void
+    {
+        $subscription = $this->createMock(Subscription::class);
+        $subscription->method('getId')->willReturn(1);
+        $subscription
+            ->method('getUrl')
+            ->willReturn('https://example.com/feed.xml');
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+
+        $subscriptionRepository = $this->createMock(
+            SubscriptionRepository::class,
+        );
+        $subscriptionRepository->method('findAll')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->method('acquire')->willReturn(true);
+        $lock->expects($this->once())->method('release');
+
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $handler = new RefreshFeedsHandler(
+            $feedReaderService,
+            $subscriptionRepository,
+            $entityManager,
+            $logger,
+            $this->createExceptionHandler($logger),
+            $lockFactory,
+        );
+        $handler(new RefreshFeedsMessage());
+    }
+
+    #[Test]
+    public function releasesLockEvenOnException(): void
+    {
+        $subscription = $this->createMock(Subscription::class);
+        $subscription->method('getId')->willReturn(1);
+        $subscription
+            ->method('getUrl')
+            ->willReturn('https://example.com/feed.xml');
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+
+        $subscriptionRepository = $this->createMock(
+            SubscriptionRepository::class,
+        );
+        $subscriptionRepository->method('findAll')->willReturn([$subscription]);
+
+        $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willThrowException(new \Exception('Feed error'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->method('acquire')->willReturn(true);
+        $lock->expects($this->once())->method('release');
+
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $handler = new RefreshFeedsHandler(
+            $feedReaderService,
+            $subscriptionRepository,
+            $entityManager,
+            $logger,
+            $this->createExceptionHandler($logger),
+            $lockFactory,
         );
         $handler(new RefreshFeedsMessage());
     }
