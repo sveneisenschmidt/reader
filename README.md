@@ -209,12 +209,27 @@ make install
 # Run database migrations
 make db-migrate
 
+# Create dev test user (dev environment only)
+make db-dev-user-create
+
 # Start development server (without worker)
 make dev
 
 # Start development server (with worker)
 make dev-with-worker
 ```
+
+### Dev Test User
+
+The `make db-dev-user-create` command creates a test user for development:
+
+- **Email:** dev@localhost.arpa
+- **Password:** devdevdev
+- **TOTP Secret:** `3DDQUI6BMJAJMWV3U5YGHSZYKVCHZIUAQCTI6ZWWEHYNI5JSLCYZ75ADRJQQC3BECC73O2GWOSWGO6MLRD56MONJXPOF23NIA47TLLQ`
+
+Add this secret to your authenticator app (Google Authenticator, Authy, 1Password, etc.) once. It's stable across database resets.
+
+This command only works in dev environment and will abort on test/prod.
 
 ## Deployment
 

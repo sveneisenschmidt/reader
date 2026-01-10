@@ -1,4 +1,4 @@
-.PHONY: dev dev-with-worker stop cache-clear install db-migrate db-reset test coverage check-deps screenshots user-create
+.PHONY: dev dev-with-worker stop cache-clear install db-migrate db-reset db-dev-user-create test coverage check-deps screenshots
 
 check-deps:
 	@echo "Checking dependencies..."
@@ -41,9 +41,9 @@ db-reset:
 test:
 	php bin/phpunit
 
-user-create:
+db-dev-user-create:
 	@if [ "$$APP_ENV" = "test" ] || [ "$$APP_ENV" = "prod" ]; then \
-		echo "Error: user-create can only run in dev environment"; \
+		echo "Error: db-dev-user-create can only run in dev environment"; \
 		exit 1; \
 	fi
 	sqlite3 var/data/dev_users.db < fixtures/dev-user.sql
