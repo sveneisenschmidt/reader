@@ -24,19 +24,19 @@ class EncryptCommandTest extends KernelTestCase
         $kernel = self::bootKernel();
         $application = new Application($kernel);
 
-        $command = $application->find("reader:encrypt");
+        $command = $application->find('reader:encrypt');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(["value" => "test-password"]);
+        $commandTester->execute(['value' => 'test-password']);
 
         $this->assertEquals(0, $commandTester->getStatusCode());
 
         $encrypted = trim($commandTester->getDisplay());
         $this->assertNotEmpty($encrypted);
-        $this->assertNotEquals("test-password", $encrypted);
+        $this->assertNotEquals('test-password', $encrypted);
 
         // Verify it can be decrypted
         $encryption = static::getContainer()->get(EncryptionService::class);
         $decrypted = $encryption->decrypt($encrypted);
-        $this->assertEquals("test-password", $decrypted);
+        $this->assertEquals('test-password', $decrypted);
     }
 }

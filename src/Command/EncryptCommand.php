@@ -19,8 +19,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[
     AsCommand(
-        name: "reader:encrypt",
-        description: "Encrypt a value using the APP_SECRET",
+        name: 'reader:encrypt',
+        description: 'Encrypt a value using the APP_SECRET',
     ),
 ]
 class EncryptCommand extends Command
@@ -33,9 +33,9 @@ class EncryptCommand extends Command
     protected function configure(): void
     {
         $this->addArgument(
-            "value",
+            'value',
             InputArgument::REQUIRED,
-            "The value to encrypt",
+            'The value to encrypt',
         );
     }
 
@@ -43,7 +43,7 @@ class EncryptCommand extends Command
         InputInterface $input,
         OutputInterface $output,
     ): int {
-        $value = $input->getArgument("value");
+        $value = $input->getArgument('value');
         $encrypted = $this->encryption->encrypt($value);
 
         $output->writeln($encrypted);

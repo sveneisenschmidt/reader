@@ -24,14 +24,14 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
  *
  * Then set WEBHOOK_PASSWORD in .env to the output.
  */
-#[Implements_("UserProviderInterface<WebhookUser>")]
+#[Implements_('UserProviderInterface<WebhookUser>')]
 class WebhookUserProvider implements UserProviderInterface
 {
     private string $decryptedPassword;
 
     public function __construct(
-        #[Autowire(env: "WEBHOOK_USER")] private string $webhookUser,
-        #[Autowire(env: "WEBHOOK_PASSWORD")] string $webhookPassword,
+        #[Autowire(env: 'WEBHOOK_USER')] private string $webhookUser,
+        #[Autowire(env: 'WEBHOOK_PASSWORD')] string $webhookPassword,
         EncryptionService $encryption,
     ) {
         $this->decryptedPassword = $encryption->decrypt($webhookPassword);
@@ -39,7 +39,7 @@ class WebhookUserProvider implements UserProviderInterface
 
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
-        if ($identifier !== $this->webhookUser || $this->webhookUser === "") {
+        if ($identifier !== $this->webhookUser || $this->webhookUser === '') {
             throw new UserNotFoundException();
         }
 
