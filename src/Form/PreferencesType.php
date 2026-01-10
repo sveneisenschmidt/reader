@@ -33,6 +33,7 @@ class PreferencesType extends AbstractType
                     'Light' => 'light',
                     'Dark' => 'dark',
                 ],
+                'expanded' => true,
             ])
             ->add('showNextUnread', CheckboxType::class, [
                 'label' => 'Skip already read articles when marking as read',
