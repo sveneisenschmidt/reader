@@ -19,6 +19,7 @@ class UserRegistrationService
     public function __construct(
         private UserRepository $userRepository,
         private UserPasswordHasherInterface $passwordHasher,
+        private TotpEncryptionService $totpEncryption,
     ) {
     }
 
@@ -32,7 +33,7 @@ class UserRegistrationService
         $user->setPassword(
             $this->passwordHasher->hashPassword($user, $password),
         );
-        $user->setTotpSecret($totpSecret);
+        $user->setTotpSecret($this->totpEncryption->encrypt($totpSecret));
 
         $this->userRepository->save($user);
 

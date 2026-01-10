@@ -11,6 +11,7 @@
 namespace App\Security;
 
 use App\Repository\Users\UserRepository;
+use App\Service\TotpEncryptionService;
 use App\Service\TotpService;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -34,6 +35,7 @@ class AppAuthenticator extends AbstractAuthenticator implements AuthenticationEn
         private UserRepository $userRepository,
         private UserPasswordHasherInterface $passwordHasher,
         private TotpService $totpService,
+        private TotpEncryptionService $totpEncryption,
         #[
             Autowire(service: 'limiter.login'),
         ]
@@ -76,10 +78,13 @@ class AppAuthenticator extends AbstractAuthenticator implements AuthenticationEn
 
         $totpSecret = $user->getTotpSecret();
 
-        if (
-            !$totpSecret
-            || !$this->totpService->verify($totpSecret, $otpCode)
-        ) {
+        if (!$totpSecret) {
+            throw new CustomUserMessageAuthenticationException('Invalid credentials.');
+        }
+
+        $totpSecret = $this->totpEncryption->decrypt($totpSecret);
+
+        if (!$this->totpService->verify($totpSecret, $otpCode)) {
             throw new CustomUserMessageAuthenticationException('Invalid credentials.');
         }
 

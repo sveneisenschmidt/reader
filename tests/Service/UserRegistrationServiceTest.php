@@ -11,6 +11,7 @@
 namespace App\Tests\Service;
 
 use App\Repository\Users\UserRepository;
+use App\Service\TotpEncryptionService;
 use App\Service\UserRegistrationService;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -19,6 +20,7 @@ class UserRegistrationServiceTest extends KernelTestCase
 {
     private UserRegistrationService $service;
     private UserRepository $userRepository;
+    private TotpEncryptionService $totpEncryption;
 
     protected function setUp(): void
     {
@@ -27,6 +29,7 @@ class UserRegistrationServiceTest extends KernelTestCase
 
         $this->service = $container->get(UserRegistrationService::class);
         $this->userRepository = $container->get(UserRepository::class);
+        $this->totpEncryption = $container->get(TotpEncryptionService::class);
     }
 
     #[Test]
@@ -42,7 +45,11 @@ class UserRegistrationServiceTest extends KernelTestCase
         $this->assertEquals($email, $user->getEmail());
         $this->assertEquals($email, $user->getUsername());
         $this->assertNotEquals($password, $user->getPassword());
-        $this->assertEquals($totpSecret, $user->getTotpSecret());
+        $this->assertNotEquals($totpSecret, $user->getTotpSecret());
+        $this->assertEquals(
+            $totpSecret,
+            $this->totpEncryption->decrypt($user->getTotpSecret()),
+        );
     }
 
     #[Test]
