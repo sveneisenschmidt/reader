@@ -12,13 +12,12 @@ namespace App\Service;
 
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class TotpEncryptionService
+class EncryptionService
 {
     private string $key;
 
     public function __construct(
-        #[Autowire('%env(APP_SECRET)%')]
-        string $appSecret,
+        #[Autowire('%env(APP_SECRET)%')] string $appSecret,
     ) {
         $this->key = hash('sha256', $appSecret, binary: true);
     }
@@ -41,7 +40,11 @@ class TotpEncryptionService
         $nonce = substr($decoded, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
         $ciphertext = substr($decoded, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
 
-        $plaintext = sodium_crypto_secretbox_open($ciphertext, $nonce, $this->key);
+        $plaintext = sodium_crypto_secretbox_open(
+            $ciphertext,
+            $nonce,
+            $this->key,
+        );
         if ($plaintext === false) {
             throw new \RuntimeException('Decryption failed');
         }

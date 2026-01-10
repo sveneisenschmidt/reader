@@ -15,11 +15,11 @@ use App\Entity\Users\User;
 use App\Message\RefreshFeedsMessage;
 use App\Repository\Messages\ProcessedMessageRepository;
 use App\Repository\Users\UserRepository;
+use App\Service\EncryptionService;
 use App\Service\FeedContentService;
 use App\Service\FeedViewService;
 use App\Service\ReadStatusService;
 use App\Service\SeenStatusService;
-use App\Service\TotpEncryptionService;
 use App\Service\TotpService;
 use Doctrine\ORM\EntityManagerInterface;
 use Facebook\WebDriver\Chrome\ChromeOptions;
@@ -84,7 +84,7 @@ class CaptureScreenshotsCommand extends Command
         private UserRepository $userRepository,
         private UserPasswordHasherInterface $passwordHasher,
         private TotpService $totpService,
-        private TotpEncryptionService $totpEncryption,
+        private EncryptionService $totpEncryption,
         private FeedViewService $feedViewService,
         private ReadStatusService $readStatusService,
         private SeenStatusService $seenStatusService,

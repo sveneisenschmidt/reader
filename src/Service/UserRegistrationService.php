@@ -19,7 +19,7 @@ class UserRegistrationService
     public function __construct(
         private UserRepository $userRepository,
         private UserPasswordHasherInterface $passwordHasher,
-        private TotpEncryptionService $totpEncryption,
+        private EncryptionService $totpEncryption,
     ) {
     }
 

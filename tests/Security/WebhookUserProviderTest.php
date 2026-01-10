@@ -12,6 +12,7 @@ namespace App\Tests\Security;
 
 use App\Security\WebhookUser;
 use App\Security\WebhookUserProvider;
+use App\Service\EncryptionService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -19,10 +20,30 @@ use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 
 class WebhookUserProviderTest extends TestCase
 {
+    private EncryptionService $encryption;
+
+    protected function setUp(): void
+    {
+        $this->encryption = new EncryptionService('test-app-secret');
+    }
+
+    private function createProvider(
+        string $user,
+        string $password,
+    ): WebhookUserProvider {
+        $encryptedPassword = $this->encryption->encrypt($password);
+
+        return new WebhookUserProvider(
+            $user,
+            $encryptedPassword,
+            $this->encryption,
+        );
+    }
+
     #[Test]
     public function loadUserByIdentifierReturnsUser(): void
     {
-        $provider = new WebhookUserProvider('test_user', 'test_pass');
+        $provider = $this->createProvider('test_user', 'test_pass');
 
         $user = $provider->loadUserByIdentifier('test_user');
 
@@ -34,7 +55,7 @@ class WebhookUserProviderTest extends TestCase
     #[Test]
     public function loadUserByIdentifierThrowsForWrongUser(): void
     {
-        $provider = new WebhookUserProvider('test_user', 'test_pass');
+        $provider = $this->createProvider('test_user', 'test_pass');
 
         $this->expectException(UserNotFoundException::class);
         $provider->loadUserByIdentifier('wrong_user');
@@ -43,7 +64,7 @@ class WebhookUserProviderTest extends TestCase
     #[Test]
     public function loadUserByIdentifierThrowsForEmptyUser(): void
     {
-        $provider = new WebhookUserProvider('', 'test_pass');
+        $provider = $this->createProvider('', 'test_pass');
 
         $this->expectException(UserNotFoundException::class);
         $provider->loadUserByIdentifier('');
@@ -52,7 +73,7 @@ class WebhookUserProviderTest extends TestCase
     #[Test]
     public function refreshUserReturnsUser(): void
     {
-        $provider = new WebhookUserProvider('test_user', 'test_pass');
+        $provider = $this->createProvider('test_user', 'test_pass');
         $user = new WebhookUser('test_user', 'test_pass');
 
         $refreshedUser = $provider->refreshUser($user);
@@ -64,7 +85,7 @@ class WebhookUserProviderTest extends TestCase
     #[Test]
     public function refreshUserThrowsForUnsupportedUser(): void
     {
-        $provider = new WebhookUserProvider('test_user', 'test_pass');
+        $provider = $this->createProvider('test_user', 'test_pass');
         $unsupportedUser = $this->createMock(
             \Symfony\Component\Security\Core\User\UserInterface::class,
         );
@@ -76,7 +97,7 @@ class WebhookUserProviderTest extends TestCase
     #[Test]
     public function supportsClassReturnsTrueForWebhookUser(): void
     {
-        $provider = new WebhookUserProvider('test_user', 'test_pass');
+        $provider = $this->createProvider('test_user', 'test_pass');
 
         $this->assertTrue($provider->supportsClass(WebhookUser::class));
     }
@@ -84,7 +105,7 @@ class WebhookUserProviderTest extends TestCase
     #[Test]
     public function supportsClassReturnsFalseForOtherClasses(): void
     {
-        $provider = new WebhookUserProvider('test_user', 'test_pass');
+        $provider = $this->createProvider('test_user', 'test_pass');
 
         $this->assertFalse($provider->supportsClass(\stdClass::class));
     }

@@ -48,7 +48,7 @@ jobs:
                   WORKER_REFRESH_INTERVAL="1 minute"
                   WORKER_CLEANUP_INTERVAL="1 day"
                   WEBHOOK_USER=webhook_test
-                  WEBHOOK_PASSWORD=webhook_secret
+                  WEBHOOK_PASSWORD=Sqst5a+xp+exVCDE646zVySa+iaEEgVP/86PP0Hk3pHgviiTKnSX0eHYoXIJ2X/PCKi8pPAT
                   LOCK_DSN=flock
                   MESSENGER_TRANSPORT_DSN=doctrine://default?auto_setup=0
                   EOF

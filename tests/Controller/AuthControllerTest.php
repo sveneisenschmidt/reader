@@ -12,7 +12,7 @@ namespace App\Tests\Controller;
 
 use App\Entity\Users\User;
 use App\Repository\Users\UserRepository;
-use App\Service\TotpEncryptionService;
+use App\Service\EncryptionService;
 use OTPHP\TOTP;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -25,7 +25,7 @@ class AuthControllerTest extends WebTestCase
         $container = static::getContainer();
         $userRepository = $container->get(UserRepository::class);
         $passwordHasher = $container->get(UserPasswordHasherInterface::class);
-        $totpEncryption = $container->get(TotpEncryptionService::class);
+        $totpEncryption = $container->get(EncryptionService::class);
 
         // Check if test user already exists
         if ($userRepository->findByUsername('test@example.com')) {

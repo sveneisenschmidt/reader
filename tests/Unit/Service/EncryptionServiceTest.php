@@ -10,17 +10,17 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Service\TotpEncryptionService;
+use App\Service\EncryptionService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-class TotpEncryptionServiceTest extends TestCase
+class EncryptionServiceTest extends TestCase
 {
-    private TotpEncryptionService $service;
+    private EncryptionService $service;
 
     protected function setUp(): void
     {
-        $this->service = new TotpEncryptionService('test-secret-key');
+        $this->service = new EncryptionService('test-secret-key');
     }
 
     #[Test]
@@ -76,7 +76,7 @@ class TotpEncryptionServiceTest extends TestCase
 
         $encrypted = $this->service->encrypt('secret');
 
-        $otherService = new TotpEncryptionService('different-key');
+        $otherService = new EncryptionService('different-key');
         $otherService->decrypt($encrypted);
     }
 

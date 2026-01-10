@@ -11,7 +11,7 @@
 namespace App\Security;
 
 use App\Repository\Users\UserRepository;
-use App\Service\TotpEncryptionService;
+use App\Service\EncryptionService;
 use App\Service\TotpService;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -35,7 +35,7 @@ class AppAuthenticator extends AbstractAuthenticator implements AuthenticationEn
         private UserRepository $userRepository,
         private UserPasswordHasherInterface $passwordHasher,
         private TotpService $totpService,
-        private TotpEncryptionService $totpEncryption,
+        private EncryptionService $totpEncryption,
         #[
             Autowire(service: 'limiter.login'),
         ]

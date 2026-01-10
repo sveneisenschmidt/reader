@@ -154,8 +154,16 @@ As an alternative to the background worker, you can trigger tasks via HTTP webho
 
 ```env
 WEBHOOK_USER=webhook
-WEBHOOK_PASSWORD=your-secret-password
+WEBHOOK_PASSWORD=<encrypted-password>
 ```
+
+To encrypt your webhook password, run on your production server:
+
+```bash
+php bin/console reader:encrypt your-secret-password
+```
+
+Then set the output as `WEBHOOK_PASSWORD` in your `.env` file. The encryption uses `APP_SECRET`, so you must run this command in the same environment where the password will be used.
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|

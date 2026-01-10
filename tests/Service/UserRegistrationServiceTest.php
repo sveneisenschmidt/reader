@@ -11,7 +11,7 @@
 namespace App\Tests\Service;
 
 use App\Repository\Users\UserRepository;
-use App\Service\TotpEncryptionService;
+use App\Service\EncryptionService;
 use App\Service\UserRegistrationService;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -20,7 +20,7 @@ class UserRegistrationServiceTest extends KernelTestCase
 {
     private UserRegistrationService $service;
     private UserRepository $userRepository;
-    private TotpEncryptionService $totpEncryption;
+    private EncryptionService $totpEncryption;
 
     protected function setUp(): void
     {
@@ -29,7 +29,7 @@ class UserRegistrationServiceTest extends KernelTestCase
 
         $this->service = $container->get(UserRegistrationService::class);
         $this->userRepository = $container->get(UserRepository::class);
-        $this->totpEncryption = $container->get(TotpEncryptionService::class);
+        $this->totpEncryption = $container->get(EncryptionService::class);
     }
 
     #[Test]
