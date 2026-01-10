@@ -70,12 +70,26 @@ class FeedViewService
     #[Returns('list<array<string, mixed>>')]
     public function loadEnrichedItems(int $userId): array
     {
-        $sguids = $this->subscriptionService->getFeedGuids($userId);
-        $items = $this->feedPersistenceService->getAllItems($sguids);
-        $items = $this->subscriptionService->enrichItemsWithSubscriptionNames(
-            $items,
+        $subscriptions = $this->subscriptionService->getSubscriptionsForUser(
             $userId,
         );
+        $sguids = array_map(fn ($s) => $s->getGuid(), $subscriptions);
+
+        $items = $this->feedPersistenceService->getAllItems($sguids);
+
+        $nameMap = [];
+        foreach ($subscriptions as $subscription) {
+            $nameMap[$subscription->getGuid()] = $subscription->getName();
+        }
+
+        $items = array_map(function ($item) use ($nameMap) {
+            if (isset($nameMap[$item['sguid']])) {
+                $item['source'] = $nameMap[$item['sguid']];
+            }
+
+            return $item;
+        }, $items);
+
         $items = $this->readStatusService->enrichItemsWithReadStatus(
             $items,
             $userId,
