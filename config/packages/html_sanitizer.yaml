@@ -17,3 +17,7 @@ framework:
                     - colgroup
                     - col
                     - caption
+                force_attributes:
+                    a:
+                        target: _blank
+                        rel: noopener noreferrer
