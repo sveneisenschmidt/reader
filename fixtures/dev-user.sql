@@ -3,8 +3,8 @@ INSERT INTO user (username, email, password, totp_secret, theme, created_at)
 VALUES (
     'dev@localhost.arpa',
     'dev@localhost.arpa',
-    '$2y$13$XsZhAfRBWw77xpySL0g5JeKJtA.ATpZxcnLNM48dgd/EsEDlcmU3O',
-    '3DDQUI6BMJAJMWV3U5YGHSZYKVCHZIUAQCTI6ZWWEHYNI5JSLCYZ75ADRJQQC3BECC73O2GWOSWGO6MLRD56MONJXPOF23NIA47TLLQ',
+    '$2y$13$8wsRpG.JyrTHB1ORc63lMOjNF58JrbnuwYj5h919Qv8Oe6OvzXI7y',
+    '6i4IwE1zqA0kW447uWm2Anq+vap+Utck3tR+dmgCriCCVKXRZSvHO2SBqGlcHuV+XFq4y+q/wK8OH8KU8CfGEmpKpr+5yKcCxhHkzoRAsi3YRWdPJ1cX/NeZzy0iNjwoUjVCtjHNWPjAOOQLML/4iAUCK7HWj7qhSYdGj8l63WLzTSaM0vnN/cxvs19rfFo=',
     'auto',
     datetime('now')
 );

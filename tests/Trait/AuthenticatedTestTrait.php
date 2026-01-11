@@ -146,4 +146,40 @@ trait AuthenticatedTestTrait
         $subscription = $this->createTestSubscription();
         $this->createTestFeedItem($subscription->getGuid());
     }
+
+    private function createTestFeedItemWithLink(
+        string $feedGuid = '0123456789abcdef',
+        string $itemGuid = 'fedcba9876543210',
+    ): FeedItem {
+        $container = static::getContainer();
+        $feedItemRepository = $container->get(FeedItemRepository::class);
+
+        $existing = $feedItemRepository->findByGuid($itemGuid);
+        if ($existing) {
+            $feedItemRepository->getEntityManager()->remove($existing);
+            $feedItemRepository->getEntityManager()->flush();
+        }
+
+        $feedItem = new FeedItem(
+            $itemGuid,
+            $feedGuid,
+            'Test Feed Item With Link',
+            'https://example.com/article',
+            'Test Feed',
+            '<p>Content with <a href="https://linked-site.com/page">a link</a>.</p>',
+            new \DateTimeImmutable(),
+        );
+
+        $feedItemRepository->upsert($feedItem);
+
+        return $feedItem;
+    }
+
+    private function ensureTestUserHasSubscriptionWithItemContainingLink(
+        KernelBrowser $client,
+    ): void {
+        $this->loginAsTestUser($client);
+        $subscription = $this->createTestSubscription();
+        $this->createTestFeedItemWithLink($subscription->getGuid());
+    }
 }

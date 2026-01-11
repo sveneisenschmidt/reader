@@ -1,6 +1,6 @@
 framework:
     rate_limiter:
         login:
-            policy: 'sliding_window'
-            limit: 5
-            interval: '15 minutes'
+            policy: "sliding_window"
+            limit: 20
+            interval: "5 minutes"

@@ -411,8 +411,8 @@ class AuthControllerTest extends WebTestCase
         $cache = $container->get('cache.rate_limiter');
         $cache->clear();
 
-        // Make multiple failed login attempts to trigger rate limiter
-        for ($i = 0; $i < 6; ++$i) {
+        // Make multiple failed login attempts to trigger rate limiter (limit is 20)
+        for ($i = 0; $i < 21; ++$i) {
             $client->request('POST', '/login', [
                 'login' => [
                     'email' => 'test@example.com',

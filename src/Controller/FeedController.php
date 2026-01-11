@@ -13,6 +13,7 @@ namespace App\Controller;
 use App\Enum\MessageSource;
 use App\EventSubscriber\FilterParameterSubscriber;
 use App\Message\RefreshFeedsMessage;
+use App\Repository\Content\FeedItemRepository;
 use App\Service\FeedViewService;
 use App\Service\ReadStatusService;
 use App\Service\SeenStatusService;
@@ -38,6 +39,7 @@ class FeedController extends AbstractController
         private UserPreferenceService $userPreferenceService,
         private CsrfTokenManagerInterface $csrfTokenManager,
         private MessageBusInterface $messageBus,
+        private FeedItemRepository $feedItemRepository,
     ) {
     }
 
@@ -336,6 +338,53 @@ class FeedController extends AbstractController
             'sguid' => $sguid,
             'fguid' => $fguid,
         ]);
+    }
+
+    #[
+        Route(
+            '/f/{fguid}/open',
+            name: 'feed_item_open',
+            requirements: ['fguid' => '[a-f0-9]{16}'],
+            methods: ['GET'],
+        ),
+    ]
+    public function open(Request $request, string $fguid): Response
+    {
+        $url = $request->query->get('url');
+        if (!$url) {
+            return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
+        }
+
+        $feedItem = $this->feedItemRepository->findByGuid($fguid);
+        if (!$feedItem || !$this->isUrlAllowed($url, $feedItem)) {
+            return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
+        }
+
+        $user = $this->userService->getCurrentUser();
+        $userId = $user->getId();
+        $this->readStatusService->markAsRead($userId, $fguid);
+        $this->seenStatusService->markAsSeen($userId, $fguid);
+
+        return $this->redirect($url);
+    }
+
+    private function isUrlAllowed(
+        string $url,
+        \App\Entity\Content\FeedItem $feedItem,
+    ): bool {
+        if ($feedItem->getLink() === $url) {
+            return true;
+        }
+
+        $content = $feedItem->getExcerpt();
+        if (empty($content)) {
+            return false;
+        }
+
+        $crawler = new \Symfony\Component\DomCrawler\Crawler($content);
+        $hrefs = $crawler->filter('a')->each(fn ($node) => $node->attr('href'));
+
+        return in_array($url, $hrefs, true);
     }
 
     private function renderFeedView(

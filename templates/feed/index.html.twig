@@ -106,22 +106,17 @@
     <article data-reading-pane>
         <a href="{% if activeFeed %}{{ path_with_filters('subscription_show', {sguid: activeFeed}) }}{% else %}{{ path_with_filters('feed_index') }}{% endif %}" class="back-link">&larr; Back</a>
         <header>
-            <h1><a href="{{ activeItem.link }}" target="_blank" rel="noopener noreferrer" data-external-link>{{ activeItem.title }}</a></h1>
+            <h1><a href="{{ path('feed_item_open', {fguid: activeItem.guid, url: activeItem.link}) }}" target="_blank" rel="noopener noreferrer">{{ activeItem.title }}</a></h1>
             <p class="meta">
                 <a href="{{ path_with_filters('subscription_show', {sguid: activeItem.sguid}) }}" class="source">{{ activeItem.source }}</a>
                 <time datetime="{{ activeItem.date|date('Y-m-d\\TH:i') }}">{% if activeItem.date|date('Y-m-d') == 'now'|date('Y-m-d') %}{{ activeItem.date|date('H:i') }}{% else %}{{ activeItem.date|date('j F Y, H:i') }}{% endif %}</time>
             </p>
         </header>
-        <div class="content" data-article-content>
-            {{ activeItem.excerpt|raw }}
+        <div class="content">
+            {{ activeItem.excerpt|rewrite_links(activeItem.guid)|raw }}
         </div>
         <footer>
-            <a href="{{ activeItem.link }}" target="_blank" rel="noopener noreferrer" class="btn-link" data-external-link>Read original</a>
-            {% if not activeItem.isRead %}
-            <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_read_stay', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_read_stay', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline" data-mark-read-stay-form hidden>
-                <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
-            </form>
-            {% endif %}
+            <a href="{{ path('feed_item_open', {fguid: activeItem.guid, url: activeItem.link}) }}" target="_blank" rel="noopener noreferrer" class="btn-link">Read original</a>
             {% if activeItem.isRead %}
                 <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_unread', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_unread', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
                     <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
@@ -135,7 +130,7 @@
             {% endif %}
         </footer>
     </article>
-    <script src="{{ asset('js/external-links.js') }}"></script>
+    <script src="{{ asset('js/open-link-refresh.js') }}"></script>
     {% endif %}
     {% if pullToRefresh %}
     <script src="{{ asset('js/pull-to-refresh.js') }}"></script>

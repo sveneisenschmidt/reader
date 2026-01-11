@@ -919,4 +919,146 @@ class FeedControllerTest extends WebTestCase
             false,
         );
     }
+
+    #[Test]
+    public function openRouteRequires16CharHexGuid(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
+        $client->request('GET', '/f/invalid/open?url=https://example.com');
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    #[Test]
+    public function openRouteWithoutUrlRedirectsToFeedItem(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $client->request('GET', '/f/fedcba9876543210/open');
+
+        $this->assertResponseRedirects('/f/fedcba9876543210');
+    }
+
+    #[Test]
+    public function openRouteWithInvalidFeedItemRedirectsToFeedItem(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
+        $client->request(
+            'GET',
+            '/f/0000000000000000/open?url=https://example.com',
+        );
+
+        $this->assertResponseRedirects('/f/0000000000000000');
+    }
+
+    #[Test]
+    public function openRouteWithDisallowedUrlRedirectsToFeedItem(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // URL that doesn't exist in the article
+        $client->request(
+            'GET',
+            '/f/fedcba9876543210/open?url=https://malicious.com',
+        );
+
+        $this->assertResponseRedirects('/f/fedcba9876543210');
+    }
+
+    #[Test]
+    public function openRouteWithArticleLinkRedirectsToExternalUrl(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItemContainingLink($client);
+
+        // The article's main link is https://example.com/article
+        $client->request(
+            'GET',
+            '/f/fedcba9876543210/open?url=https://example.com/article',
+        );
+
+        $this->assertResponseRedirects('https://example.com/article');
+    }
+
+    #[Test]
+    public function openRouteWithContentLinkRedirectsToExternalUrl(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItemContainingLink($client);
+
+        // URL that exists in the article content
+        $client->request(
+            'GET',
+            '/f/fedcba9876543210/open?url=https://linked-site.com/page',
+        );
+
+        $this->assertResponseRedirects('https://linked-site.com/page');
+    }
+
+    #[Test]
+    public function openRouteMarksItemAsRead(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItemContainingLink($client);
+
+        // Clear any existing read status
+        $readStatusRepo = static::getContainer()->get(
+            \App\Repository\Users\ReadStatusRepository::class,
+        );
+        $readStatusRepo->markAsUnread(
+            $this->testUser->getId(),
+            'fedcba9876543210',
+        );
+
+        // Verify item is unread
+        $this->assertFalse(
+            $readStatusRepo->isRead(
+                $this->testUser->getId(),
+                'fedcba9876543210',
+            ),
+        );
+
+        // Open the article link
+        $client->request(
+            'GET',
+            '/f/fedcba9876543210/open?url=https://example.com/article',
+        );
+
+        // Verify item is now read
+        $this->assertTrue(
+            $readStatusRepo->isRead(
+                $this->testUser->getId(),
+                'fedcba9876543210',
+            ),
+        );
+    }
+
+    #[Test]
+    public function openRouteMarksItemAsSeen(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItemContainingLink($client);
+
+        // Open the article link
+        $client->request(
+            'GET',
+            '/f/fedcba9876543210/open?url=https://example.com/article',
+        );
+
+        // Verify item is seen after opening
+        $seenStatusRepo = static::getContainer()->get(
+            \App\Repository\Users\SeenStatusRepository::class,
+        );
+        $this->assertTrue(
+            $seenStatusRepo->isSeen(
+                $this->testUser->getId(),
+                'fedcba9876543210',
+            ),
+        );
+    }
 }
