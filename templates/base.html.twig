@@ -43,6 +43,9 @@
 
     {% block scripts %}{% endblock %}
     <script src="{{ asset('js/refresh.js') }}"></script>
-    <script>setTimeout(() => document.activeElement?.blur(), 0);</script>
+    <script>
+    document.body.focus();
+    document.activeElement?.blur();
+</script>
 </body>
 </html>
