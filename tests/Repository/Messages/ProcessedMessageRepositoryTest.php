@@ -20,7 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class ProcessedMessageRepositoryTest extends KernelTestCase
 {
     private ProcessedMessageRepository $repository;
-    private string $testMessageType = "App\\Tests\\TestMessage";
+    private string $testMessageType = 'App\\Tests\\TestMessage';
 
     protected function setUp(): void
     {
@@ -79,7 +79,7 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
     public function getLastByTypeReturnsNullWhenNoMessages(): void
     {
         $result = $this->repository->getLastByType(
-            "App\\Nonexistent\\MessageType",
+            'App\\Nonexistent\\MessageType',
         );
 
         $this->assertNull($result);
@@ -97,7 +97,7 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
         $message2 = new ProcessedMessage(
             $this->testMessageType,
             ProcessedMessage::STATUS_FAILED,
-            "Error message",
+            'Error message',
         );
         $this->repository->save($message2);
 
@@ -117,12 +117,12 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
         $message = new ProcessedMessage(
             $this->testMessageType,
             ProcessedMessage::STATUS_FAILED,
-            "Error",
+            'Error',
         );
         $this->repository->save($message);
 
         $result = $this->repository->getLastSuccessByType(
-            "App\\Another\\NonexistentType",
+            'App\\Another\\NonexistentType',
         );
 
         $this->assertNull($result);
@@ -140,7 +140,7 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
         $failed = new ProcessedMessage(
             $this->testMessageType,
             ProcessedMessage::STATUS_FAILED,
-            "Error",
+            'Error',
         );
         $this->repository->save($failed);
 
@@ -158,7 +158,7 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
     #[Test]
     public function findByTypeReturnsEmptyArrayWhenNoMessages(): void
     {
-        $result = $this->repository->findByType("App\\Empty\\MessageType");
+        $result = $this->repository->findByType('App\\Empty\\MessageType');
 
         $this->assertIsArray($result);
         $this->assertEmpty($result);
@@ -266,7 +266,7 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
     public function saveWorksAfterEntityManagerIsClosed(): void
     {
         $registry = static::getContainer()->get(ManagerRegistry::class);
-        $em = $registry->getManager("messages");
+        $em = $registry->getManager('messages');
         $em->close();
 
         $message = new ProcessedMessage(
@@ -304,15 +304,15 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
         $counts = $this->repository->getCountsByTypeAndSource();
 
         $this->assertArrayHasKey($this->testMessageType, $counts);
-        $this->assertArrayHasKey("worker", $counts[$this->testMessageType]);
-        $this->assertArrayHasKey("webhook", $counts[$this->testMessageType]);
+        $this->assertArrayHasKey('worker', $counts[$this->testMessageType]);
+        $this->assertArrayHasKey('webhook', $counts[$this->testMessageType]);
         $this->assertEquals(
             1,
-            $counts[$this->testMessageType]["worker"]["count"],
+            $counts[$this->testMessageType]['worker']['count'],
         );
         $this->assertEquals(
             1,
-            $counts[$this->testMessageType]["webhook"]["count"],
+            $counts[$this->testMessageType]['webhook']['count'],
         );
     }
 

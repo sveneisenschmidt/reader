@@ -6,3 +6,14 @@ framework:
                 allow_relative_links: false
                 allow_relative_medias: false
                 force_https_urls: true
+                block_elements:
+                    - table
+                    - thead
+                    - tbody
+                    - tfoot
+                    - tr
+                    - th
+                    - td
+                    - colgroup
+                    - col
+                    - caption

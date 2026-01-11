@@ -43,11 +43,11 @@
                     {% set ungroupedFeeds = ungroupedFeeds|merge([feed]) %}
                 {% endif %}
             {% endfor %}
-            {% for folderKey, group in groupedFeeds %}
+            {% for folderKey, group in groupedFeeds|sort((a, b) => a.folder|lower <=> b.folder|lower) %}
             <li class="folder">
                 <span class="folder-name">{{ group.folder }}</span>
                 <ul class="folder-feeds">
-                    {% for feed in group.feeds %}
+                    {% for feed in group.feeds|sort((a, b) => a.name|lower <=> b.name|lower) %}
                     <li{% if activeFeed == feed.sguid %} class="active"{% endif %}>
                         <a href="{{ path_with_filters('subscription_show', {sguid: feed.sguid}) }}">{{ feed.name }}</a>
                         {% if feed.count > 0 %}<span class="count">{{ feed.count }}</span>{% endif %}
@@ -56,7 +56,7 @@
                 </ul>
             </li>
             {% endfor %}
-            {% for feed in ungroupedFeeds %}
+            {% for feed in ungroupedFeeds|sort((a, b) => a.name|lower <=> b.name|lower) %}
             <li{% if activeFeed == feed.sguid %} class="active"{% endif %}>
                 <a href="{{ path_with_filters('subscription_show', {sguid: feed.sguid}) }}">{{ feed.name }}</a>
                 {% if feed.count > 0 %}<span class="count">{{ feed.count }}</span>{% endif %}
