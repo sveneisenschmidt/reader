@@ -30,6 +30,7 @@ security:
             entry_point: App\Security\AppAuthenticator
             remember_me:
                 secret: "%kernel.secret%"
+                name: REMEMBERME
                 lifetime: 7776000 # 90 days
                 always_remember_me: true
             logout:
