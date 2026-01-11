@@ -11,7 +11,6 @@
 namespace App\Service;
 
 use App\Entity\Subscriptions\Subscription;
-use App\Enum\SubscriptionStatus;
 use App\Repository\Content\FeedItemRepository;
 use App\Repository\Subscriptions\SubscriptionRepository;
 use App\Repository\Users\ReadStatusRepository;
@@ -28,7 +27,6 @@ class SubscriptionService
         private SeenStatusRepository $seenStatusRepository,
         private FeedReaderService $feedReaderService,
         private FeedContentService $feedContentService,
-        private FeedExceptionHandler $exceptionHandler,
     ) {
     }
 
@@ -196,32 +194,5 @@ class SubscriptionService
     {
         $subscription->updateLastRefreshedAt();
         $this->subscriptionRepository->flush();
-    }
-
-    public function refreshSubscriptions(int $userId): int
-    {
-        $subscriptions = $this->getSubscriptionsForUser($userId);
-        $count = 0;
-
-        foreach ($subscriptions as $subscription) {
-            try {
-                $feedData = $this->feedReaderService->fetchAndPersistFeed(
-                    $subscription->getUrl(),
-                );
-                $count += count($feedData['items']);
-                $subscription->updateLastRefreshedAt();
-                $subscription->setStatus(SubscriptionStatus::Success);
-            } catch (\Exception $e) {
-                $status = $this->exceptionHandler->handleException(
-                    $e,
-                    $subscription,
-                );
-                $subscription->setStatus($status);
-            }
-
-            $this->subscriptionRepository->flush();
-        }
-
-        return $count;
     }
 }

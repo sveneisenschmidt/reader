@@ -41,43 +41,66 @@ class RefreshFeedsHandler
             'count' => count($subscriptions),
         ]);
 
+        // Group subscriptions by host to apply rate limiting
+        $feedsByHost = [];
+        foreach ($subscriptions as $subscription) {
+            $host =
+                parse_url($subscription->getUrl(), PHP_URL_HOST) ?? 'unknown';
+            $feedsByHost[$host][] = $subscription;
+        }
+
         $successCount = 0;
         $skippedCount = 0;
-        foreach ($subscriptions as $subscription) {
-            $lock = $this->lockFactory->createLock(
-                'feed-refresh-'.$subscription->getId(),
-                ttl: 300,
-            );
+        $lastRequestByHost = [];
+        $minDelayMs = 1000; // 1 second delay between requests to same host
 
-            if (!$lock->acquire(blocking: false)) {
-                $this->logger->info(
-                    'Feed refresh already in progress, skipping',
-                    [
-                        'subscription_id' => $subscription->getId(),
-                        'url' => $subscription->getUrl(),
-                    ],
+        foreach ($feedsByHost as $host => $hostSubscriptions) {
+            foreach ($hostSubscriptions as $subscription) {
+                // Rate limit: wait if needed before requesting same host
+                if (isset($lastRequestByHost[$host])) {
+                    $elapsedMs =
+                        (microtime(true) - $lastRequestByHost[$host]) * 1000;
+                    if ($elapsedMs < $minDelayMs) {
+                        usleep((int) (($minDelayMs - $elapsedMs) * 1000));
+                    }
+                }
+                $lock = $this->lockFactory->createLock(
+                    'feed-refresh-'.$subscription->getId(),
+                    ttl: 300,
                 );
-                ++$skippedCount;
-                continue;
-            }
 
-            try {
-                $this->feedReaderService->fetchAndPersistFeed(
-                    $subscription->getUrl(),
-                );
-                $subscription->updateLastRefreshedAt();
-                $subscription->setStatus(SubscriptionStatus::Success);
-                ++$successCount;
-            } catch (\Exception $e) {
-                $status = $this->exceptionHandler->handleException(
-                    $e,
-                    $subscription,
-                );
-                $subscription->setStatus($status);
-            } finally {
-                $lock->release();
+                if (!$lock->acquire(blocking: false)) {
+                    $this->logger->info(
+                        'Feed refresh already in progress, skipping',
+                        [
+                            'subscription_id' => $subscription->getId(),
+                            'url' => $subscription->getUrl(),
+                        ],
+                    );
+                    ++$skippedCount;
+                    continue;
+                }
+
+                try {
+                    $this->feedReaderService->fetchAndPersistFeed(
+                        $subscription->getUrl(),
+                    );
+                    $subscription->updateLastRefreshedAt();
+                    $subscription->setStatus(SubscriptionStatus::Success);
+                    ++$successCount;
+                } catch (\Exception $e) {
+                    $status = $this->exceptionHandler->handleException(
+                        $e,
+                        $subscription,
+                    );
+                    $subscription->setStatus($status);
+                } finally {
+                    $lock->release();
+                }
+
+                $lastRequestByHost[$host] = microtime(true);
+                $this->subscriptionsEntityManager->flush();
             }
-            $this->subscriptionsEntityManager->flush();
         }
 
         $this->logger->info('Feeds refreshed', [

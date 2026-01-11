@@ -10,7 +10,9 @@
 
 namespace App\Controller;
 
+use App\Enum\MessageSource;
 use App\EventSubscriber\FilterParameterSubscriber;
+use App\Message\RefreshFeedsMessage;
 use App\Service\FeedViewService;
 use App\Service\ReadStatusService;
 use App\Service\SeenStatusService;
@@ -20,6 +22,7 @@ use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -34,6 +37,7 @@ class FeedController extends AbstractController
         private FeedViewService $feedViewService,
         private UserPreferenceService $userPreferenceService,
         private CsrfTokenManagerInterface $csrfTokenManager,
+        private MessageBusInterface $messageBus,
     ) {
     }
 
@@ -52,8 +56,9 @@ class FeedController extends AbstractController
     public function refresh(Request $request): Response
     {
         $this->validateCsrfToken($request, 'refresh');
-        $user = $this->userService->getCurrentUser();
-        $this->subscriptionService->refreshSubscriptions($user->getId());
+        $this->messageBus->dispatch(
+            new RefreshFeedsMessage(MessageSource::Manual),
+        );
 
         $referer = $request->headers->get('referer');
         if ($referer) {

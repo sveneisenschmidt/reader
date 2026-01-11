@@ -10,13 +10,16 @@
 
 namespace App\Controller;
 
+use App\Enum\MessageSource;
 use App\Form\FirstFeedType;
+use App\Message\RefreshFeedsMessage;
 use App\Service\FeedDiscoveryService;
 use App\Service\SubscriptionService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 class OnboardingController extends AbstractController
@@ -25,6 +28,7 @@ class OnboardingController extends AbstractController
         private UserService $userService,
         private SubscriptionService $subscriptionService,
         private FeedDiscoveryService $feedDiscoveryService,
+        private MessageBusInterface $messageBus,
     ) {
     }
 
@@ -59,8 +63,8 @@ class OnboardingController extends AbstractController
                     $user->getId(),
                     $feedUrl,
                 );
-                $this->subscriptionService->refreshSubscriptions(
-                    $user->getId(),
+                $this->messageBus->dispatch(
+                    new RefreshFeedsMessage(MessageSource::Manual),
                 );
 
                 return $this->redirectToRoute('feed_index');

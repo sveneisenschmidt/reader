@@ -23,6 +23,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
+use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 class ProcessedMessageMiddlewareTest extends TestCase
 {
@@ -30,7 +31,7 @@ class ProcessedMessageMiddlewareTest extends TestCase
     public function savesSuccessfulMessageWithRetentionLimit(): void
     {
         $message = new HeartbeatMessage();
-        $envelope = new Envelope($message);
+        $envelope = new Envelope($message)->with(new ReceivedStamp('sync'));
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
@@ -67,7 +68,7 @@ class ProcessedMessageMiddlewareTest extends TestCase
     public function savesFailedMessageWithErrorMessage(): void
     {
         $message = new RefreshFeedsMessage();
-        $envelope = new Envelope($message);
+        $envelope = new Envelope($message)->with(new ReceivedStamp('sync'));
         $exception = new \RuntimeException('Test error');
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
@@ -108,7 +109,7 @@ class ProcessedMessageMiddlewareTest extends TestCase
     public function savesMessageWithoutRetentionLimitForNonRetainableMessage(): void
     {
         $message = new \stdClass();
-        $envelope = new Envelope($message);
+        $envelope = new Envelope($message)->with(new ReceivedStamp('sync'));
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository
@@ -135,7 +136,7 @@ class ProcessedMessageMiddlewareTest extends TestCase
     public function resetsEntityManagerWhenClosed(): void
     {
         $message = new HeartbeatMessage();
-        $envelope = new Envelope($message);
+        $envelope = new Envelope($message)->with(new ReceivedStamp('sync'));
 
         $repository = $this->createMock(ProcessedMessageRepository::class);
         $repository->expects($this->once())->method('save');

@@ -11,18 +11,15 @@
 namespace App\Tests\Unit\Service;
 
 use App\Entity\Subscriptions\Subscription;
-use App\Enum\SubscriptionStatus;
 use App\Repository\Content\FeedItemRepository;
 use App\Repository\Subscriptions\SubscriptionRepository;
 use App\Repository\Users\ReadStatusRepository;
 use App\Repository\Users\SeenStatusRepository;
 use App\Service\FeedContentService;
-use App\Service\FeedExceptionHandler;
 use App\Service\FeedReaderService;
 use App\Service\SubscriptionService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 
 class SubscriptionServiceTest extends TestCase
 {
@@ -360,154 +357,6 @@ class SubscriptionServiceTest extends TestCase
     }
 
     #[Test]
-    public function refreshSubscriptionsUpdatesStatusOnSuccess(): void
-    {
-        $userId = 1;
-        $subscription = $this->createMock(Subscription::class);
-        $subscription->method('getUrl')->willReturn('https://example.com/feed');
-        $subscription->expects($this->once())->method('updateLastRefreshedAt');
-        $subscription
-            ->expects($this->once())
-            ->method('setStatus')
-            ->with(SubscriptionStatus::Success);
-
-        $repository = $this->createMock(SubscriptionRepository::class);
-        $repository->method('findByUserId')->willReturn([$subscription]);
-        $repository->expects($this->once())->method('flush');
-
-        $feedReaderService = $this->createMock(FeedReaderService::class);
-        $feedReaderService
-            ->method('fetchAndPersistFeed')
-            ->willReturn(['title' => 'Test', 'items' => [['id' => 1]]]);
-
-        $service = $this->createService(
-            subscriptionRepository: $repository,
-            feedReaderService: $feedReaderService,
-        );
-
-        $count = $service->refreshSubscriptions($userId);
-
-        $this->assertEquals(1, $count);
-    }
-
-    #[Test]
-    public function refreshSubscriptionsSetsUnreachableOnHttpError(): void
-    {
-        $userId = 1;
-        $subscription = $this->createMock(Subscription::class);
-        $subscription->method('getUrl')->willReturn('https://example.com/feed');
-        $subscription->expects($this->never())->method('updateLastRefreshedAt');
-        $subscription
-            ->expects($this->once())
-            ->method('setStatus')
-            ->with(SubscriptionStatus::Unreachable);
-
-        $repository = $this->createMock(SubscriptionRepository::class);
-        $repository->method('findByUserId')->willReturn([$subscription]);
-        $repository->expects($this->once())->method('flush');
-
-        $feedReaderService = $this->createMock(FeedReaderService::class);
-        $feedReaderService
-            ->method('fetchAndPersistFeed')
-            ->willThrowException(
-                new \FeedIo\Adapter\NotFoundException('Not found'),
-            );
-
-        $service = $this->createService(
-            subscriptionRepository: $repository,
-            feedReaderService: $feedReaderService,
-        );
-
-        $count = $service->refreshSubscriptions($userId);
-
-        $this->assertEquals(0, $count);
-    }
-
-    #[Test]
-    public function refreshSubscriptionsSetsInvalidOnParserError(): void
-    {
-        $userId = 1;
-        $subscription = $this->createMock(Subscription::class);
-        $subscription->method('getUrl')->willReturn('https://example.com/feed');
-        $subscription->expects($this->never())->method('updateLastRefreshedAt');
-        $subscription
-            ->expects($this->once())
-            ->method('setStatus')
-            ->with(SubscriptionStatus::Invalid);
-
-        $repository = $this->createMock(SubscriptionRepository::class);
-        $repository->method('findByUserId')->willReturn([$subscription]);
-        $repository->expects($this->once())->method('flush');
-
-        $feedReaderService = $this->createMock(FeedReaderService::class);
-        $feedReaderService
-            ->method('fetchAndPersistFeed')
-            ->willThrowException(
-                new \FeedIo\Reader\NoAccurateParserException('Invalid feed'),
-            );
-
-        $service = $this->createService(
-            subscriptionRepository: $repository,
-            feedReaderService: $feedReaderService,
-        );
-
-        $count = $service->refreshSubscriptions($userId);
-
-        $this->assertEquals(0, $count);
-    }
-
-    #[Test]
-    public function refreshSubscriptionsContinuesAfterFailure(): void
-    {
-        $userId = 1;
-
-        $subscription1 = $this->createMock(Subscription::class);
-        $subscription1
-            ->method('getUrl')
-            ->willReturn('https://example.com/feed1');
-        $subscription1
-            ->expects($this->once())
-            ->method('setStatus')
-            ->with(SubscriptionStatus::Unreachable);
-
-        $subscription2 = $this->createMock(Subscription::class);
-        $subscription2
-            ->method('getUrl')
-            ->willReturn('https://example.com/feed2');
-        $subscription2->expects($this->once())->method('updateLastRefreshedAt');
-        $subscription2
-            ->expects($this->once())
-            ->method('setStatus')
-            ->with(SubscriptionStatus::Success);
-
-        $repository = $this->createMock(SubscriptionRepository::class);
-        $repository
-            ->method('findByUserId')
-            ->willReturn([$subscription1, $subscription2]);
-        $repository->expects($this->exactly(2))->method('flush');
-
-        $feedReaderService = $this->createMock(FeedReaderService::class);
-        $feedReaderService
-            ->method('fetchAndPersistFeed')
-            ->willReturnCallback(function (string $url) {
-                if ($url === 'https://example.com/feed1') {
-                    throw new \FeedIo\Adapter\HttpRequestException('Error');
-                }
-
-                return ['title' => 'Test', 'items' => []];
-            });
-
-        $service = $this->createService(
-            subscriptionRepository: $repository,
-            feedReaderService: $feedReaderService,
-        );
-
-        $count = $service->refreshSubscriptions($userId);
-
-        $this->assertEquals(0, $count);
-    }
-
-    #[Test]
     public function countByUserReturnsCount(): void
     {
         $userId = 1;
@@ -656,156 +505,6 @@ class SubscriptionServiceTest extends TestCase
         $service->updateRefreshTimestamp($subscription);
     }
 
-    #[Test]
-    public function refreshSubscriptionsSetsTimeoutOnTimeoutError(): void
-    {
-        $userId = 1;
-        $subscription = $this->createMock(Subscription::class);
-        $subscription->method('getUrl')->willReturn('https://example.com/feed');
-        $subscription
-            ->expects($this->once())
-            ->method('setStatus')
-            ->with(SubscriptionStatus::Timeout);
-
-        $repository = $this->createMock(SubscriptionRepository::class);
-        $repository->method('findByUserId')->willReturn([$subscription]);
-        $repository->expects($this->once())->method('flush');
-
-        $feedReaderService = $this->createMock(FeedReaderService::class);
-        $feedReaderService
-            ->method('fetchAndPersistFeed')
-            ->willThrowException(
-                new \FeedIo\Adapter\HttpRequestException(
-                    'Connection timed out',
-                ),
-            );
-
-        $service = $this->createService(
-            subscriptionRepository: $repository,
-            feedReaderService: $feedReaderService,
-        );
-
-        $service->refreshSubscriptions($userId);
-    }
-
-    #[Test]
-    public function refreshSubscriptionsSetsInvalidOnUnsupportedFormat(): void
-    {
-        $userId = 1;
-        $subscription = $this->createMock(Subscription::class);
-        $subscription->method('getUrl')->willReturn('https://example.com/feed');
-        $subscription
-            ->expects($this->once())
-            ->method('setStatus')
-            ->with(SubscriptionStatus::Invalid);
-
-        $repository = $this->createMock(SubscriptionRepository::class);
-        $repository->method('findByUserId')->willReturn([$subscription]);
-
-        $feedReaderService = $this->createMock(FeedReaderService::class);
-        $feedReaderService
-            ->method('fetchAndPersistFeed')
-            ->willThrowException(
-                new \FeedIo\Parser\UnsupportedFormatException('Unsupported'),
-            );
-
-        $service = $this->createService(
-            subscriptionRepository: $repository,
-            feedReaderService: $feedReaderService,
-        );
-
-        $service->refreshSubscriptions($userId);
-    }
-
-    #[Test]
-    public function refreshSubscriptionsSetsInvalidOnMissingFields(): void
-    {
-        $userId = 1;
-        $subscription = $this->createMock(Subscription::class);
-        $subscription->method('getUrl')->willReturn('https://example.com/feed');
-        $subscription
-            ->expects($this->once())
-            ->method('setStatus')
-            ->with(SubscriptionStatus::Invalid);
-
-        $repository = $this->createMock(SubscriptionRepository::class);
-        $repository->method('findByUserId')->willReturn([$subscription]);
-
-        $feedReaderService = $this->createMock(FeedReaderService::class);
-        $feedReaderService
-            ->method('fetchAndPersistFeed')
-            ->willThrowException(
-                new \FeedIo\Parser\MissingFieldsException('Missing fields'),
-            );
-
-        $service = $this->createService(
-            subscriptionRepository: $repository,
-            feedReaderService: $feedReaderService,
-        );
-
-        $service->refreshSubscriptions($userId);
-    }
-
-    #[Test]
-    public function refreshSubscriptionsSetsUnreachableOnServerError(): void
-    {
-        $userId = 1;
-        $subscription = $this->createMock(Subscription::class);
-        $subscription->method('getUrl')->willReturn('https://example.com/feed');
-        $subscription
-            ->expects($this->once())
-            ->method('setStatus')
-            ->with(SubscriptionStatus::Unreachable);
-
-        $repository = $this->createMock(SubscriptionRepository::class);
-        $repository->method('findByUserId')->willReturn([$subscription]);
-
-        $feedReaderService = $this->createMock(FeedReaderService::class);
-        $feedReaderService
-            ->method('fetchAndPersistFeed')
-            ->willThrowException(
-                new \FeedIo\Adapter\ServerErrorException(
-                    $this->createStub(
-                        \Psr\Http\Message\ResponseInterface::class,
-                    ),
-                ),
-            );
-
-        $service = $this->createService(
-            subscriptionRepository: $repository,
-            feedReaderService: $feedReaderService,
-        );
-
-        $service->refreshSubscriptions($userId);
-    }
-
-    #[Test]
-    public function refreshSubscriptionsSetsUnreachableOnGenericException(): void
-    {
-        $userId = 1;
-        $subscription = $this->createMock(Subscription::class);
-        $subscription->method('getUrl')->willReturn('https://example.com/feed');
-        $subscription
-            ->expects($this->once())
-            ->method('setStatus')
-            ->with(SubscriptionStatus::Unreachable);
-
-        $repository = $this->createMock(SubscriptionRepository::class);
-        $repository->method('findByUserId')->willReturn([$subscription]);
-
-        $feedReaderService = $this->createMock(FeedReaderService::class);
-        $feedReaderService
-            ->method('fetchAndPersistFeed')
-            ->willThrowException(new \Exception('Unknown error'));
-
-        $service = $this->createService(
-            subscriptionRepository: $repository,
-            feedReaderService: $feedReaderService,
-        );
-
-        $service->refreshSubscriptions($userId);
-    }
-
     private function createSubscriptionStub(
         string $guid,
         string $name,
@@ -828,7 +527,6 @@ class SubscriptionServiceTest extends TestCase
         ?FeedItemRepository $feedItemRepository = null,
         ?ReadStatusRepository $readStatusRepository = null,
         ?SeenStatusRepository $seenStatusRepository = null,
-        ?FeedExceptionHandler $exceptionHandler = null,
     ): SubscriptionService {
         return new SubscriptionService(
             $subscriptionRepository ??
@@ -840,10 +538,6 @@ class SubscriptionServiceTest extends TestCase
                 $this->createStub(SeenStatusRepository::class),
             $feedReaderService ?? $this->createStub(FeedReaderService::class),
             $feedContentService ?? $this->createStub(FeedContentService::class),
-            $exceptionHandler ??
-                new FeedExceptionHandler(
-                    $this->createStub(LoggerInterface::class),
-                ),
         );
     }
 }

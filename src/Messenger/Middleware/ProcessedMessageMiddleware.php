@@ -20,6 +20,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
+use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 class ProcessedMessageMiddleware implements MiddlewareInterface
 {
@@ -31,7 +32,7 @@ class ProcessedMessageMiddleware implements MiddlewareInterface
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
-        // Skip if already processed
+        // Skip if already processed (prevents double-logging)
         if ($envelope->last(ProcessedMessageStamp::class) !== null) {
             return $stack->next()->handle($envelope, $stack);
         }
@@ -48,6 +49,12 @@ class ProcessedMessageMiddleware implements MiddlewareInterface
 
         try {
             $result = $stack->next()->handle($envelope, $stack);
+
+            // Only log when message was received (not during initial dispatch)
+            if ($envelope->last(ReceivedStamp::class) === null) {
+                return $result;
+            }
+
             $this->saveProcessedMessage(
                 get_class($message),
                 ProcessedMessage::STATUS_SUCCESS,
