@@ -31,6 +31,6 @@
     </main>
 
     {% block scripts %}{% endblock %}
-    <script>document.activeElement?.blur();</script>
+    <script>setTimeout(() => document.activeElement?.blur(), 0);</script>
 </body>
 </html>
