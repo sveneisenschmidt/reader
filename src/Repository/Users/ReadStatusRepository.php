@@ -75,9 +75,26 @@ class ReadStatusRepository extends ServiceEntityRepository
     #[Param(feedItemGuids: 'list<string>')]
     public function markManyAsRead(int $userId, array $feedItemGuids): void
     {
-        foreach ($feedItemGuids as $guid) {
-            $this->markAsRead($userId, $guid);
+        if (empty($feedItemGuids)) {
+            return;
         }
+
+        $conn = $this->getEntityManager()->getConnection();
+        $now = new \DateTimeImmutable()->format('Y-m-d H:i:s');
+
+        $placeholders = [];
+        $params = [];
+        foreach ($feedItemGuids as $guid) {
+            $placeholders[] = '(?, ?, ?)';
+            $params[] = $userId;
+            $params[] = $guid;
+            $params[] = $now;
+        }
+
+        $sql =
+            'INSERT OR IGNORE INTO read_status (user_id, feed_item_guid, read_at) VALUES '.
+            implode(', ', $placeholders);
+        $conn->executeStatement($sql, $params);
     }
 
     #[Param(feedItemGuids: 'list<string>')]

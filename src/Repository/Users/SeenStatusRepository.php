@@ -41,9 +41,26 @@ class SeenStatusRepository extends ServiceEntityRepository
     #[Param(feedItemGuids: 'list<string>')]
     public function markManyAsSeen(int $userId, array $feedItemGuids): void
     {
-        foreach ($feedItemGuids as $guid) {
-            $this->markAsSeen($userId, $guid);
+        if (empty($feedItemGuids)) {
+            return;
         }
+
+        $conn = $this->getEntityManager()->getConnection();
+        $now = new \DateTimeImmutable()->format('Y-m-d H:i:s');
+
+        $placeholders = [];
+        $params = [];
+        foreach ($feedItemGuids as $guid) {
+            $placeholders[] = '(?, ?, ?)';
+            $params[] = $userId;
+            $params[] = $guid;
+            $params[] = $now;
+        }
+
+        $sql =
+            'INSERT OR IGNORE INTO seen_status (user_id, feed_item_guid, seen_at) VALUES '.
+            implode(', ', $placeholders);
+        $conn->executeStatement($sql, $params);
     }
 
     public function isSeen(int $userId, string $feedItemGuid): bool
