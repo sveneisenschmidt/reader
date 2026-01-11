@@ -51,7 +51,7 @@ class UserPreferenceRepository extends ServiceEntityRepository
             $preference = new UserPreference(
                 $userId,
                 $preferenceKey,
-                $isEnabled,
+                $isEnabled ? '1' : '0',
             );
             $this->getEntityManager()->persist($preference);
         } else {
@@ -72,5 +72,38 @@ class UserPreferenceRepository extends ServiceEntityRepository
         }
 
         return $result;
+    }
+
+    public function getValue(
+        int $userId,
+        string $preferenceKey,
+        string $default = '',
+    ): string {
+        $preference = $this->findOneBy([
+            'userId' => $userId,
+            'preferenceKey' => $preferenceKey,
+        ]);
+
+        return $preference?->getValue() ?? $default;
+    }
+
+    public function setValue(
+        int $userId,
+        string $preferenceKey,
+        string $value,
+    ): void {
+        $preference = $this->findOneBy([
+            'userId' => $userId,
+            'preferenceKey' => $preferenceKey,
+        ]);
+
+        if ($preference === null) {
+            $preference = new UserPreference($userId, $preferenceKey, $value);
+            $this->getEntityManager()->persist($preference);
+        } else {
+            $preference->setValue($value);
+        }
+
+        $this->getEntityManager()->flush();
     }
 }

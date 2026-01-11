@@ -83,4 +83,49 @@ class UserPreferenceRepositoryTest extends KernelTestCase
         $this->assertCount(1, $result);
         $this->assertTrue($result[UserPreference::SHOW_NEXT_UNREAD]);
     }
+
+    #[Test]
+    public function getValueReturnsDefaultWhenPreferenceDoesNotExist(): void
+    {
+        $result = $this->repository->getValue(
+            99994,
+            'non_existent_key',
+            'default',
+        );
+
+        $this->assertEquals('default', $result);
+    }
+
+    #[Test]
+    public function setValueCreatesNewPreference(): void
+    {
+        $userId = 99993;
+        $key = UserPreference::FILTER_WORDS;
+
+        $this->repository->setValue($userId, $key, "word1\nword2");
+
+        $this->assertEquals(
+            "word1\nword2",
+            $this->repository->getValue($userId, $key),
+        );
+    }
+
+    #[Test]
+    public function setValueUpdatesExistingPreference(): void
+    {
+        $userId = 99992;
+        $key = UserPreference::FILTER_WORDS;
+
+        $this->repository->setValue($userId, $key, 'word1');
+        $this->assertEquals(
+            'word1',
+            $this->repository->getValue($userId, $key),
+        );
+
+        $this->repository->setValue($userId, $key, 'word2');
+        $this->assertEquals(
+            'word2',
+            $this->repository->getValue($userId, $key),
+        );
+    }
 }

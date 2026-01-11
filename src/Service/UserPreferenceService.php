@@ -56,14 +56,50 @@ class UserPreferenceService
         );
     }
 
-    #[Returns('array<string, bool>')]
+    #[Returns('list<string>')]
+    public function getFilterWords(int $userId): array
+    {
+        $raw = $this->userPreferenceRepository->getValue(
+            $userId,
+            UserPreference::FILTER_WORDS,
+            '',
+        );
+
+        return array_filter(
+            array_map('trim', explode("\n", $raw)),
+            fn ($w) => $w !== '',
+        );
+    }
+
+    public function getFilterWordsRaw(int $userId): string
+    {
+        return $this->userPreferenceRepository->getValue(
+            $userId,
+            UserPreference::FILTER_WORDS,
+            '',
+        );
+    }
+
+    public function setFilterWords(int $userId, string $words): void
+    {
+        $this->userPreferenceRepository->setValue(
+            $userId,
+            UserPreference::FILTER_WORDS,
+            $words,
+        );
+    }
+
+    #[Returns('array<string, mixed>')]
     public function getAllPreferences(int $userId): array
     {
-        $prefs = $this->userPreferenceRepository->getAllForUser($userId);
-
         return [
-            UserPreference::SHOW_NEXT_UNREAD => $prefs[UserPreference::SHOW_NEXT_UNREAD] ?? false,
-            UserPreference::PULL_TO_REFRESH => $prefs[UserPreference::PULL_TO_REFRESH] ?? true,
+            UserPreference::SHOW_NEXT_UNREAD => $this->isShowNextUnreadEnabled(
+                $userId,
+            ),
+            UserPreference::PULL_TO_REFRESH => $this->isPullToRefreshEnabled(
+                $userId,
+            ),
+            UserPreference::FILTER_WORDS => $this->getFilterWordsRaw($userId),
         ];
     }
 }

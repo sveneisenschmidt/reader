@@ -25,6 +25,7 @@ class UserPreference
 {
     public const SHOW_NEXT_UNREAD = 'show_next_unread';
     public const PULL_TO_REFRESH = 'pull_to_refresh';
+    public const FILTER_WORDS = 'filter_words';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -37,17 +38,17 @@ class UserPreference
     #[ORM\Column(type: 'string', length: 50)]
     private string $preferenceKey;
 
-    #[ORM\Column(type: 'boolean')]
-    private bool $isEnabled;
+    #[ORM\Column(type: 'text')]
+    private string $value;
 
     public function __construct(
         int $userId,
         string $preferenceKey,
-        bool $isEnabled = false,
+        string $value = '0',
     ) {
         $this->userId = $userId;
         $this->preferenceKey = $preferenceKey;
-        $this->isEnabled = $isEnabled;
+        $this->value = $value;
     }
 
     public function getId(): ?int
@@ -67,12 +68,24 @@ class UserPreference
 
     public function isEnabled(): bool
     {
-        return $this->isEnabled;
+        return $this->value === '1';
     }
 
     public function setEnabled(bool $isEnabled): self
     {
-        $this->isEnabled = $isEnabled;
+        $this->value = $isEnabled ? '1' : '0';
+
+        return $this;
+    }
+
+    public function getValue(): string
+    {
+        return $this->value;
+    }
+
+    public function setValue(string $value): self
+    {
+        $this->value = $value;
 
         return $this;
     }

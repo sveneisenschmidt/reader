@@ -26,7 +26,7 @@ class UserPreferenceServiceTest extends TestCase
         $repository = $this->createMock(UserPreferenceRepository::class);
         $repository
             ->expects($this->once())
-            ->method('isEnabled')
+            ->method("isEnabled")
             ->with($userId, UserPreference::SHOW_NEXT_UNREAD)
             ->willReturn(true);
 
@@ -43,7 +43,7 @@ class UserPreferenceServiceTest extends TestCase
         $repository = $this->createMock(UserPreferenceRepository::class);
         $repository
             ->expects($this->once())
-            ->method('isEnabled')
+            ->method("isEnabled")
             ->with($userId, UserPreference::SHOW_NEXT_UNREAD)
             ->willReturn(false);
 
@@ -60,7 +60,7 @@ class UserPreferenceServiceTest extends TestCase
         $repository = $this->createMock(UserPreferenceRepository::class);
         $repository
             ->expects($this->once())
-            ->method('setEnabled')
+            ->method("setEnabled")
             ->with($userId, UserPreference::SHOW_NEXT_UNREAD, true);
 
         $service = new UserPreferenceService($repository);
@@ -75,7 +75,7 @@ class UserPreferenceServiceTest extends TestCase
         $repository = $this->createMock(UserPreferenceRepository::class);
         $repository
             ->expects($this->once())
-            ->method('isEnabled')
+            ->method("isEnabled")
             ->with($userId, UserPreference::PULL_TO_REFRESH, true)
             ->willReturn(true);
 
@@ -92,7 +92,7 @@ class UserPreferenceServiceTest extends TestCase
         $repository = $this->createMock(UserPreferenceRepository::class);
         $repository
             ->expects($this->once())
-            ->method('isEnabled')
+            ->method("isEnabled")
             ->with($userId, UserPreference::PULL_TO_REFRESH, true)
             ->willReturn(false);
 
@@ -109,7 +109,7 @@ class UserPreferenceServiceTest extends TestCase
         $repository = $this->createMock(UserPreferenceRepository::class);
         $repository
             ->expects($this->once())
-            ->method('setEnabled')
+            ->method("setEnabled")
             ->with($userId, UserPreference::PULL_TO_REFRESH, false);
 
         $service = new UserPreferenceService($repository);
@@ -123,19 +123,25 @@ class UserPreferenceServiceTest extends TestCase
 
         $repository = $this->createMock(UserPreferenceRepository::class);
         $repository
-            ->expects($this->once())
-            ->method('getAllForUser')
-            ->with($userId)
-            ->willReturn([
-                UserPreference::SHOW_NEXT_UNREAD => true,
-                UserPreference::PULL_TO_REFRESH => false,
+            ->method("isEnabled")
+            ->willReturnMap([
+                [$userId, UserPreference::SHOW_NEXT_UNREAD, false, true],
+                [$userId, UserPreference::PULL_TO_REFRESH, true, false],
             ]);
+        $repository
+            ->method("getValue")
+            ->with($userId, UserPreference::FILTER_WORDS, "")
+            ->willReturn("word1\nword2");
 
         $service = new UserPreferenceService($repository);
         $result = $service->getAllPreferences($userId);
 
         $this->assertTrue($result[UserPreference::SHOW_NEXT_UNREAD]);
         $this->assertFalse($result[UserPreference::PULL_TO_REFRESH]);
+        $this->assertEquals(
+            "word1\nword2",
+            $result[UserPreference::FILTER_WORDS],
+        );
     }
 
     #[Test]
@@ -145,15 +151,21 @@ class UserPreferenceServiceTest extends TestCase
 
         $repository = $this->createMock(UserPreferenceRepository::class);
         $repository
-            ->expects($this->once())
-            ->method('getAllForUser')
-            ->with($userId)
-            ->willReturn([]);
+            ->method("isEnabled")
+            ->willReturnMap([
+                [$userId, UserPreference::SHOW_NEXT_UNREAD, false, false],
+                [$userId, UserPreference::PULL_TO_REFRESH, true, true],
+            ]);
+        $repository
+            ->method("getValue")
+            ->with($userId, UserPreference::FILTER_WORDS, "")
+            ->willReturn("");
 
         $service = new UserPreferenceService($repository);
         $result = $service->getAllPreferences($userId);
 
         $this->assertFalse($result[UserPreference::SHOW_NEXT_UNREAD]);
         $this->assertTrue($result[UserPreference::PULL_TO_REFRESH]);
+        $this->assertEquals("", $result[UserPreference::FILTER_WORDS]);
     }
 }

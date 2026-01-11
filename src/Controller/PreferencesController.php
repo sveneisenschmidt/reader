@@ -50,6 +50,7 @@ class PreferencesController extends AbstractController
             'theme' => $user->getTheme(),
             'showNextUnread' => $userPrefs[UserPreference::SHOW_NEXT_UNREAD],
             'pullToRefresh' => $userPrefs[UserPreference::PULL_TO_REFRESH],
+            'filterWords' => $userPrefs[UserPreference::FILTER_WORDS],
         ]);
 
         $profileForm->handleRequest($request);
@@ -76,6 +77,10 @@ class PreferencesController extends AbstractController
             $this->userPreferenceService->setPullToRefresh(
                 $userId,
                 $data['pullToRefresh'],
+            );
+            $this->userPreferenceService->setFilterWords(
+                $userId,
+                $data['filterWords'] ?? '',
             );
 
             $this->addFlash('success', 'Preferences saved.');

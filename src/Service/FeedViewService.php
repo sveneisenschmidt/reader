@@ -21,6 +21,7 @@ class FeedViewService
         private SubscriptionService $subscriptionService,
         private ReadStatusService $readStatusService,
         private SeenStatusService $seenStatusService,
+        private UserPreferenceService $userPreferenceService,
     ) {
     }
 
@@ -32,7 +33,11 @@ class FeedViewService
         bool $unreadOnly = false,
         int $limit = FilterParameterSubscriber::DEFAULT_LIMIT,
     ): array {
-        $allItems = $this->loadEnrichedItems($userId);
+        $allItems = $this->applyWordFilter(
+            $this->loadEnrichedItems($userId),
+            $userId,
+        );
+
         $feeds = $this->subscriptionService->getSubscriptionsWithCounts(
             $userId,
             $allItems,
@@ -202,5 +207,28 @@ class FeedViewService
         }
 
         return null;
+    }
+
+    #[Param(items: 'list<array<string, mixed>>')]
+    #[Returns('list<array<string, mixed>>')]
+    private function applyWordFilter(array $items, int $userId): array
+    {
+        $filterWords = $this->userPreferenceService->getFilterWords($userId);
+        if (empty($filterWords)) {
+            return $items;
+        }
+
+        return array_values(
+            array_filter($items, function ($item) use ($filterWords) {
+                $text = ($item['title'] ?? '').' '.($item['excerpt'] ?? '');
+                foreach ($filterWords as $word) {
+                    if (stripos($text, $word) !== false) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }),
+        );
     }
 }

@@ -22,7 +22,7 @@ class UserPreferenceTest extends TestCase
         $preference = new UserPreference(
             1,
             UserPreference::SHOW_NEXT_UNREAD,
-            true,
+            '1',
         );
 
         $this->assertNull($preference->getId());
@@ -32,6 +32,7 @@ class UserPreferenceTest extends TestCase
             $preference->getPreferenceKey(),
         );
         $this->assertTrue($preference->isEnabled());
+        $this->assertEquals('1', $preference->getValue());
     }
 
     #[Test]
@@ -40,6 +41,7 @@ class UserPreferenceTest extends TestCase
         $preference = new UserPreference(1, UserPreference::SHOW_NEXT_UNREAD);
 
         $this->assertFalse($preference->isEnabled());
+        $this->assertEquals('0', $preference->getValue());
     }
 
     #[Test]
@@ -48,12 +50,24 @@ class UserPreferenceTest extends TestCase
         $preference = new UserPreference(
             1,
             UserPreference::SHOW_NEXT_UNREAD,
-            false,
+            '0',
         );
 
         $result = $preference->setEnabled(true);
 
         $this->assertTrue($preference->isEnabled());
+        $this->assertEquals('1', $preference->getValue());
+        $this->assertSame($preference, $result);
+    }
+
+    #[Test]
+    public function setValueUpdatesValue(): void
+    {
+        $preference = new UserPreference(1, UserPreference::FILTER_WORDS);
+
+        $result = $preference->setValue("word1\nword2");
+
+        $this->assertEquals("word1\nword2", $preference->getValue());
         $this->assertSame($preference, $result);
     }
 }
