@@ -32,6 +32,6 @@ class RefreshTimestampExtension extends AbstractExtension
     {
         $user = $this->userService->getCurrentUser();
 
-        return $this->subscriptionService->getOldestRefreshTime($user->getId());
+        return $this->subscriptionService->getLatestRefreshTime($user->getId());
     }
 }

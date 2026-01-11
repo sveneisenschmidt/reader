@@ -341,16 +341,16 @@ class SubscriptionRepositoryTest extends KernelTestCase
     }
 
     #[Test]
-    public function getOldestRefreshTimeReturnsNullWhenNoRefreshed(): void
+    public function getLatestRefreshTimeReturnsNullWhenNoRefreshed(): void
     {
         // User with no subscriptions
-        $result = $this->repository->getOldestRefreshTime(55555);
+        $result = $this->repository->getLatestRefreshTime(55555);
 
         $this->assertNull($result);
     }
 
     #[Test]
-    public function getOldestRefreshTimeReturnsOldestTime(): void
+    public function getLatestRefreshTimeReturnsOldestTime(): void
     {
         $subscription = $this->repository->addSubscription(
             $this->testUserId,
@@ -362,7 +362,7 @@ class SubscriptionRepositoryTest extends KernelTestCase
         $subscription->updateLastRefreshedAt();
         $this->repository->flush();
 
-        $result = $this->repository->getOldestRefreshTime($this->testUserId);
+        $result = $this->repository->getLatestRefreshTime($this->testUserId);
 
         $this->assertInstanceOf(\DateTimeImmutable::class, $result);
     }

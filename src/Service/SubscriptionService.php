@@ -187,9 +187,9 @@ class SubscriptionService
         }, $items);
     }
 
-    public function getOldestRefreshTime(int $userId): ?\DateTimeImmutable
+    public function getLatestRefreshTime(int $userId): ?\DateTimeImmutable
     {
-        return $this->subscriptionRepository->getOldestRefreshTime($userId);
+        return $this->subscriptionRepository->getLatestRefreshTime($userId);
     }
 
     public function updateRefreshTimestamp(Subscription $subscription): void

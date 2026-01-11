@@ -623,7 +623,7 @@ class SubscriptionServiceTest extends TestCase
     }
 
     #[Test]
-    public function getOldestRefreshTimeReturnsTime(): void
+    public function getLatestRefreshTimeReturnsTime(): void
     {
         $userId = 1;
         $time = new \DateTimeImmutable('2024-01-01 12:00:00');
@@ -631,13 +631,13 @@ class SubscriptionServiceTest extends TestCase
         $repository = $this->createMock(SubscriptionRepository::class);
         $repository
             ->expects($this->once())
-            ->method('getOldestRefreshTime')
+            ->method('getLatestRefreshTime')
             ->with($userId)
             ->willReturn($time);
 
         $service = $this->createService(subscriptionRepository: $repository);
 
-        $result = $service->getOldestRefreshTime($userId);
+        $result = $service->getLatestRefreshTime($userId);
 
         $this->assertSame($time, $result);
     }

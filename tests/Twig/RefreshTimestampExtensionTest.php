@@ -55,7 +55,7 @@ class RefreshTimestampExtensionTest extends TestCase
 
         $this->userService->method('getCurrentUser')->willReturn($user);
         $this->subscriptionService
-            ->method('getOldestRefreshTime')
+            ->method('getLatestRefreshTime')
             ->with(1)
             ->willReturn($expectedTime);
 
@@ -72,7 +72,7 @@ class RefreshTimestampExtensionTest extends TestCase
 
         $this->userService->method('getCurrentUser')->willReturn($user);
         $this->subscriptionService
-            ->method('getOldestRefreshTime')
+            ->method('getLatestRefreshTime')
             ->with(1)
             ->willReturn(null);
 

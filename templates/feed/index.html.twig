@@ -93,7 +93,7 @@
                 <h2>{% if item.isNew %}<span class="new-indicator">●</span> {% endif %}{{ item.title }}</h2>
                 <p class="meta">
                     <span class="source">{{ item.source }}</span>
-                    <time datetime="{{ item.date|date('Y-m-d') }}">{{ item.date|date('j F Y') }}</time>
+                    <time datetime="{{ item.date|date('Y-m-d') }}">{% if item.date|date('Y-m-d') == 'now'|date('Y-m-d') %}{{ item.date|date('H:i') }}{% else %}{{ item.date|date('j F Y') }}{% endif %}</time>
                 </p>
             </a>
 
@@ -109,7 +109,7 @@
             <h1><a href="{{ activeItem.link }}" data-external-link>{{ activeItem.title }}</a></h1>
             <p class="meta">
                 <a href="{{ path_with_filters('subscription_show', {sguid: activeItem.sguid}) }}" class="source">{{ activeItem.source }}</a>
-                <time datetime="{{ activeItem.date|date('Y-m-d\\TH:i') }}">{{ activeItem.date|date('j F Y, H:i') }}</time>
+                <time datetime="{{ activeItem.date|date('Y-m-d\\TH:i') }}">{% if activeItem.date|date('Y-m-d') == 'now'|date('Y-m-d') %}{{ activeItem.date|date('H:i') }}{% else %}{{ activeItem.date|date('j F Y, H:i') }}{% endif %}</time>
             </p>
         </header>
         <div class="content" data-article-content>

@@ -115,10 +115,10 @@ class SubscriptionRepository extends ServiceEntityRepository
         return $this->count(['userId' => $userId]);
     }
 
-    public function getOldestRefreshTime(int $userId): ?\DateTimeImmutable
+    public function getLatestRefreshTime(int $userId): ?\DateTimeImmutable
     {
         $result = $this->createQueryBuilder('s')
-            ->select('MIN(s.lastRefreshedAt)')
+            ->select('MAX(s.lastRefreshedAt)')
             ->where('s.userId = :userId')
             ->andWhere('s.lastRefreshedAt IS NOT NULL')
             ->setParameter('userId', $userId)
