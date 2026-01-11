@@ -227,7 +227,13 @@ body {
 
         & nav {
             display: flex;
+            align-items: center;
             gap: var(--spacing-md);
+
+            & a:last-child {
+                font-size: 1.33rem;
+                line-height: 1;
+            }
 
             & a.active,
             & .menu-toggle {
