@@ -38,7 +38,7 @@ class SeenStatusRepositoryTest extends KernelTestCase
     public function markAsSeenIsIdempotent(): void
     {
         $userId = 1;
-        $feedItemGuid = 'test-guid-idempotent';
+        $feedItemGuid = "test-guid-idempotent";
 
         $this->repository->markAsSeen($userId, $feedItemGuid);
         $this->repository->markAsSeen($userId, $feedItemGuid);
@@ -50,12 +50,51 @@ class SeenStatusRepositoryTest extends KernelTestCase
     public function markAsSeenCreatesRecord(): void
     {
         $userId = 1;
-        $feedItemGuid = 'test-guid-new';
+        $feedItemGuid = "test-guid-new";
 
         $this->assertFalse($this->repository->isSeen($userId, $feedItemGuid));
 
         $this->repository->markAsSeen($userId, $feedItemGuid);
 
         $this->assertTrue($this->repository->isSeen($userId, $feedItemGuid));
+    }
+
+    #[Test]
+    public function markManyAsSeenWithEmptyArrayDoesNothing(): void
+    {
+        $this->repository->markManyAsSeen(1, []);
+
+        $this->assertTrue(true);
+    }
+
+    #[Test]
+    public function markManyAsSeenCreatesRecords(): void
+    {
+        $userId = 1;
+        $guids = ["batch-guid-1", "batch-guid-2", "batch-guid-3"];
+
+        foreach ($guids as $guid) {
+            $this->assertFalse($this->repository->isSeen($userId, $guid));
+        }
+
+        $this->repository->markManyAsSeen($userId, $guids);
+
+        foreach ($guids as $guid) {
+            $this->assertTrue($this->repository->isSeen($userId, $guid));
+        }
+    }
+
+    #[Test]
+    public function markManyAsSeenIsIdempotent(): void
+    {
+        $userId = 1;
+        $guids = ["batch-idem-1", "batch-idem-2"];
+
+        $this->repository->markManyAsSeen($userId, $guids);
+        $this->repository->markManyAsSeen($userId, $guids);
+
+        foreach ($guids as $guid) {
+            $this->assertTrue($this->repository->isSeen($userId, $guid));
+        }
     }
 }

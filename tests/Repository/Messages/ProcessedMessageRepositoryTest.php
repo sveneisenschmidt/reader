@@ -11,14 +11,16 @@
 namespace App\Tests\Repository\Messages;
 
 use App\Entity\Messages\ProcessedMessage;
+use App\Enum\MessageSource;
 use App\Repository\Messages\ProcessedMessageRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class ProcessedMessageRepositoryTest extends KernelTestCase
 {
     private ProcessedMessageRepository $repository;
-    private string $testMessageType = 'App\\Tests\\TestMessage';
+    private string $testMessageType = "App\\Tests\\TestMessage";
 
     protected function setUp(): void
     {
@@ -77,7 +79,7 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
     public function getLastByTypeReturnsNullWhenNoMessages(): void
     {
         $result = $this->repository->getLastByType(
-            'App\\Nonexistent\\MessageType',
+            "App\\Nonexistent\\MessageType",
         );
 
         $this->assertNull($result);
@@ -95,7 +97,7 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
         $message2 = new ProcessedMessage(
             $this->testMessageType,
             ProcessedMessage::STATUS_FAILED,
-            'Error message',
+            "Error message",
         );
         $this->repository->save($message2);
 
@@ -115,12 +117,12 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
         $message = new ProcessedMessage(
             $this->testMessageType,
             ProcessedMessage::STATUS_FAILED,
-            'Error',
+            "Error",
         );
         $this->repository->save($message);
 
         $result = $this->repository->getLastSuccessByType(
-            'App\\Another\\NonexistentType',
+            "App\\Another\\NonexistentType",
         );
 
         $this->assertNull($result);
@@ -138,7 +140,7 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
         $failed = new ProcessedMessage(
             $this->testMessageType,
             ProcessedMessage::STATUS_FAILED,
-            'Error',
+            "Error",
         );
         $this->repository->save($failed);
 
@@ -156,7 +158,7 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
     #[Test]
     public function findByTypeReturnsEmptyArrayWhenNoMessages(): void
     {
-        $result = $this->repository->findByType('App\\Empty\\MessageType');
+        $result = $this->repository->findByType("App\\Empty\\MessageType");
 
         $this->assertIsArray($result);
         $this->assertEmpty($result);
@@ -258,5 +260,84 @@ class ProcessedMessageRepositoryTest extends KernelTestCase
 
         $this->assertArrayHasKey($this->testMessageType, $counts);
         $this->assertEquals(3, $counts[$this->testMessageType]);
+    }
+
+    #[Test]
+    public function saveWorksAfterEntityManagerIsClosed(): void
+    {
+        $registry = static::getContainer()->get(ManagerRegistry::class);
+        $em = $registry->getManager("messages");
+        $em->close();
+
+        $message = new ProcessedMessage(
+            $this->testMessageType,
+            ProcessedMessage::STATUS_SUCCESS,
+        );
+
+        $this->repository->save($message);
+
+        $result = $this->repository->getLastByType($this->testMessageType);
+        $this->assertNotNull($result);
+    }
+
+    #[Test]
+    public function getCountsByTypeAndSourceReturnsCorrectData(): void
+    {
+        $this->repository->pruneByType($this->testMessageType, 0);
+
+        $message1 = new ProcessedMessage(
+            $this->testMessageType,
+            ProcessedMessage::STATUS_SUCCESS,
+            null,
+            MessageSource::Worker,
+        );
+        $this->repository->save($message1);
+
+        $message2 = new ProcessedMessage(
+            $this->testMessageType,
+            ProcessedMessage::STATUS_SUCCESS,
+            null,
+            MessageSource::Webhook,
+        );
+        $this->repository->save($message2);
+
+        $counts = $this->repository->getCountsByTypeAndSource();
+
+        $this->assertArrayHasKey($this->testMessageType, $counts);
+        $this->assertArrayHasKey("worker", $counts[$this->testMessageType]);
+        $this->assertArrayHasKey("webhook", $counts[$this->testMessageType]);
+        $this->assertEquals(
+            1,
+            $counts[$this->testMessageType]["worker"]["count"],
+        );
+        $this->assertEquals(
+            1,
+            $counts[$this->testMessageType]["webhook"]["count"],
+        );
+    }
+
+    #[Test]
+    public function getLastSuccessByTypeAndSourceReturnsCorrectMessage(): void
+    {
+        $this->repository->pruneByType($this->testMessageType, 0);
+
+        $message = new ProcessedMessage(
+            $this->testMessageType,
+            ProcessedMessage::STATUS_SUCCESS,
+            null,
+            MessageSource::Worker,
+        );
+        $this->repository->save($message);
+
+        $result = $this->repository->getLastSuccessByTypeAndSource(
+            $this->testMessageType,
+            MessageSource::Worker,
+        );
+
+        $this->assertNotNull($result);
+        $this->assertEquals(
+            ProcessedMessage::STATUS_SUCCESS,
+            $result->getStatus(),
+        );
     }
 }
