@@ -9,19 +9,19 @@
 
     <div class="form-row">
         {{ form_label(form.email) }}
-        {{ form_widget(form.email, {'attr': {'autofocus': true}}) }}
+        {{ form_widget(form.email, {'attr': {'required': true}}) }}
         {{ form_errors(form.email) }}
     </div>
 
     <div class="form-row">
         {{ form_label(form.password) }}
-        {{ form_widget(form.password) }}
+        {{ form_widget(form.password, {'attr': {'required': true}}) }}
         {{ form_errors(form.password) }}
     </div>
 
     <div class="form-row">
         {{ form_label(form.otp) }}
-        {{ form_widget(form.otp, {attr: {class: 'otp-input', maxlength: 6, inputmode: 'numeric', pattern: '[0-9]{6}', autocomplete: 'one-time-code', placeholder: '000000'}}) }}
+        {{ form_widget(form.otp, {attr: {class: 'otp-input', maxlength: 6, inputmode: 'numeric', pattern: '[0-9]{6}', autocomplete: 'one-time-code', placeholder: '000000', required: true}}) }}
         {{ form_errors(form.otp) }}
     </div>
 

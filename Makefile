@@ -82,4 +82,6 @@ screenshots: check-deps
 	symfony server:stop; \
 	echo "Stopping ChromeDriver..."; \
 	kill $$CHROME_PID 2>/dev/null || true; \
+	echo "Comparing screenshots..."; \
+	./bin/compare-screenshots; \
 	echo "Done!"

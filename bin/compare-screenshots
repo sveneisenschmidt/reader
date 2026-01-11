@@ -1,0 +1,137 @@
+#!/bin/bash
+#
+# Compare screenshots against committed versions to detect visual regressions.
+# Requires ImageMagick (compare command).
+#
+# Usage: bin/compare-screenshots [threshold]
+#
+# Examples:
+#   bin/compare-screenshots        # Use default 1.0% threshold
+#   bin/compare-screenshots 2.0    # Use 2.0% threshold
+#
+
+set -e
+
+SCREENSHOTS_DIR="docs/screenshots"
+THRESHOLD="${1:-1.0}"  # Default threshold: 1.0%
+
+# Screenshots with dynamic content that need higher thresholds
+# Format: "filename:threshold"
+CUSTOM_THRESHOLDS=(
+    "setup.png:2.0"  # Contains TOTP QR code which changes every time
+)
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+# Check for ImageMagick
+if ! command -v compare &> /dev/null; then
+    echo -e "${RED}Error: ImageMagick is required but not installed.${NC}"
+    echo "Install with: brew install imagemagick"
+    exit 1
+fi
+
+# Check if we're in a git repo
+if ! git rev-parse --is-inside-work-tree &> /dev/null; then
+    echo -e "${RED}Error: Not in a git repository.${NC}"
+    exit 1
+fi
+
+# Check if there are any screenshots
+if [ ! -d "$SCREENSHOTS_DIR" ]; then
+    echo -e "${RED}Error: Screenshots directory not found: $SCREENSHOTS_DIR${NC}"
+    exit 1
+fi
+
+echo "Comparing screenshots (threshold: ${THRESHOLD}%)"
+echo "================================================"
+echo ""
+
+FAILED=0
+PASSED=0
+SKIPPED=0
+
+# Function to get custom threshold for a file
+get_threshold() {
+    local file="$1"
+    for entry in "${CUSTOM_THRESHOLDS[@]}"; do
+        local name="${entry%%:*}"
+        local value="${entry##*:}"
+        if [ "$file" = "$name" ]; then
+            echo "$value"
+            return
+        fi
+    done
+    echo "$THRESHOLD"
+}
+
+for screenshot in "$SCREENSHOTS_DIR"/*.png; do
+    filename=$(basename "$screenshot")
+    file_threshold=$(get_threshold "$filename")
+
+    # Check if file is tracked in git
+    if ! git ls-files --error-unmatch "$screenshot" &> /dev/null; then
+        echo -e "${YELLOW}SKIP${NC}  $filename (not tracked in git)"
+        ((SKIPPED++))
+        continue
+    fi
+
+    # Check if file has changes
+    if git diff --quiet "$screenshot" 2>/dev/null; then
+        echo -e "${GREEN}OK${NC}    $filename (unchanged)"
+        ((PASSED++))
+        continue
+    fi
+
+    # Create temp file for old version
+    OLD_FILE=$(mktemp /tmp/screenshot_old_XXXXXX.png)
+    trap "rm -f $OLD_FILE" EXIT
+
+    # Extract committed version
+    git show "HEAD:$screenshot" > "$OLD_FILE" 2>/dev/null
+
+    # Compare images and get pixel difference
+    RESULT=$(compare -metric AE "$OLD_FILE" "$screenshot" /dev/null 2>&1 || true)
+    DIFF_PIXELS=$(echo "$RESULT" | grep -oE '^[0-9]+' || echo "0")
+
+    # Get image dimensions to calculate percentage
+    DIMENSIONS=$(identify -format "%w %h" "$screenshot")
+    WIDTH=$(echo "$DIMENSIONS" | cut -d' ' -f1)
+    HEIGHT=$(echo "$DIMENSIONS" | cut -d' ' -f2)
+    TOTAL_PIXELS=$((WIDTH * HEIGHT))
+
+    # Calculate percentage
+    if [ "$TOTAL_PIXELS" -gt 0 ]; then
+        PERCENTAGE=$(echo "scale=4; $DIFF_PIXELS * 100 / $TOTAL_PIXELS" | bc)
+    else
+        PERCENTAGE="0"
+    fi
+
+    # Compare against threshold
+    EXCEEDS=$(echo "$PERCENTAGE > $file_threshold" | bc)
+
+    if [ "$EXCEEDS" -eq 1 ]; then
+        echo -e "${RED}FAIL${NC}  $filename (${PERCENTAGE}% > ${file_threshold}% threshold)"
+        ((FAILED++))
+    else
+        echo -e "${GREEN}OK${NC}    $filename (${PERCENTAGE}% <= ${file_threshold}% threshold)"
+        ((PASSED++))
+    fi
+
+    rm -f "$OLD_FILE"
+done
+
+echo ""
+echo "================================================"
+echo "Results: ${PASSED} passed, ${FAILED} failed, ${SKIPPED} skipped"
+
+if [ "$FAILED" -gt 0 ]; then
+    echo -e "${RED}Visual regression detected!${NC}"
+    exit 1
+else
+    echo -e "${GREEN}No visual regressions detected.${NC}"
+    exit 0
+fi

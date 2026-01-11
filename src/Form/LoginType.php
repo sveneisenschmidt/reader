@@ -37,6 +37,7 @@ class LoginType extends AbstractType
                 ],
                 'attr' => [
                     'placeholder' => 'you@example.com',
+                    'autocomplete' => 'username',
                 ],
             ])
             ->add('password', PasswordType::class, [
@@ -46,6 +47,7 @@ class LoginType extends AbstractType
                 ],
                 'attr' => [
                     'placeholder' => 'Your password',
+                    'autocomplete' => 'current-password',
                 ],
             ])
             ->add('otp', TextType::class, [
@@ -58,6 +60,9 @@ class LoginType extends AbstractType
                         pattern: '/^\d{6}$/',
                         message: 'Authenticator code must be 6 digits.',
                     ),
+                ],
+                'attr' => [
+                    'autocomplete' => 'one-time-code',
                 ],
             ]);
     }

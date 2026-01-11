@@ -25,7 +25,7 @@
 
     <div class="form-row">
         {{ form_label(form.feedUrl) }}
-        {{ form_widget(form.feedUrl, {'attr': {'autofocus': true}}) }}
+        {{ form_widget(form.feedUrl, {'attr': {'required': true}}) }}
         {{ form_errors(form.feedUrl) }}
     </div>
 
