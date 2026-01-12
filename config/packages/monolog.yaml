@@ -33,7 +33,7 @@ when@prod:
                 buffer_size: 50 # How many messages should be saved? Prevent memory leaks
             group_nested:
                 type: group
-                members: [nested_file, nested_stderr]
+                members: [nested_file, nested_stderr, nested_email]
             nested_file:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
@@ -43,6 +43,14 @@ when@prod:
                 path: php://stderr
                 level: debug
                 formatter: monolog.formatter.json
+            nested_email:
+                type: symfony_mailer
+                from_email: "%env(ERROR_LOG_SENDER)%"
+                to_email: "%env(ERROR_LOG_RECIPIENT)%"
+                subject: "[Reader] Error: %%message%%"
+                level: error
+                formatter: monolog.formatter.html
+                content_type: text/html
             console:
                 type: console
                 process_psr_3_messages: false

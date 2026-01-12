@@ -145,6 +145,25 @@ This runs the worker hourly, with a 59-minute time limit (3540 seconds) to ensur
 | `WORKER_REFRESH_INTERVAL` | 5 minutes | How often feeds are refreshed |
 | `WORKER_CLEANUP_INTERVAL` | 1 day | How often old content is cleaned up |
 
+## Error Email Notifications
+
+Reader can send error notifications via email in production. Errors are logged to both file and email when configured.
+
+### Configuration
+
+Set these environment variables in your `.env.local` or production environment:
+
+```env
+# SMTP transport (required for actual email delivery)
+MAILER_DSN=smtp://user:password@smtp.example.com:587
+
+# Error notification emails
+ERROR_LOG_SENDER=system@eisenschmidt.email
+ERROR_LOG_RECIPIENT=sven@eisenschmidt.email
+```
+
+By default, `MAILER_DSN=null://null` which discards all emails. Configure a real SMTP transport to enable email notifications.
+
 ### Worker Status
 
 The Profile page shows whether the worker is running. This is determined by checking if the last heartbeat log entry was created within the last 30 seconds.
