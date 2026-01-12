@@ -28,8 +28,15 @@ class FeedPersistenceService
     public function persistFeedItems(array $items): void
     {
         $twoDaysAgo = new \DateTimeImmutable('-48 hours');
+        $processedGuids = [];
 
         foreach ($items as $itemData) {
+            // Skip duplicates within the same batch
+            if (isset($processedGuids[$itemData['guid']])) {
+                continue;
+            }
+            $processedGuids[$itemData['guid']] = true;
+
             $existing = $this->feedItemRepository->findByGuid(
                 $itemData['guid'],
             );
