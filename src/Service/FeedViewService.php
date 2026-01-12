@@ -132,8 +132,21 @@ class FeedViewService
         ?string $sguid,
         string $currentGuid,
         int $limit = 0,
+        bool $unreadOnly = false,
     ): ?string {
         $items = $this->getFilteredItems($userId, $sguid);
+
+        // When unreadOnly filter is active, we need to enrich and filter first
+        // to match the view behavior (Issue #40)
+        if ($unreadOnly) {
+            $items = $this->readStatusService->enrichItemsWithReadStatus(
+                $items,
+                $userId,
+            );
+            $items = array_values(
+                array_filter($items, fn ($item) => !$item['isRead']),
+            );
+        }
 
         if ($limit > 0) {
             $items = array_slice($items, 0, $limit);
@@ -157,12 +170,21 @@ class FeedViewService
         ?string $sguid,
         string $currentGuid,
         int $limit = 0,
+        bool $unreadOnly = false,
     ): ?string {
         $items = $this->getFilteredItems($userId, $sguid);
         $items = $this->readStatusService->enrichItemsWithReadStatus(
             $items,
             $userId,
         );
+
+        // When unreadOnly filter is active, filter to unread items first,
+        // then apply limit - this matches the view behavior (Issue #40)
+        if ($unreadOnly) {
+            $items = array_values(
+                array_filter($items, fn ($item) => !$item['isRead']),
+            );
+        }
 
         if ($limit > 0) {
             $items = array_slice($items, 0, $limit);
