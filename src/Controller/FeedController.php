@@ -176,12 +176,6 @@ class FeedController extends AbstractController
             FilterParameterSubscriber::DEFAULT_LIMIT,
         );
 
-        // Get unreadOnly filter state to pass to findNext methods (Issue #40)
-        $defaultUnread = $this->userPreferenceService->isUnreadOnlyEnabled(
-            $userId,
-        );
-        $unreadOnly = $request->query->getBoolean('unread', $defaultUnread);
-
         $nextFguid = $this->userPreferenceService->isShowNextUnreadEnabled(
             $userId,
         )
@@ -190,14 +184,12 @@ class FeedController extends AbstractController
                 null,
                 $fguid,
                 $limit,
-                $unreadOnly,
             )
             : $this->feedViewService->findNextItemGuid(
                 $userId,
                 null,
                 $fguid,
                 $limit,
-                $unreadOnly,
             );
 
         return $nextFguid
@@ -272,12 +264,6 @@ class FeedController extends AbstractController
             FilterParameterSubscriber::DEFAULT_LIMIT,
         );
 
-        // Get unreadOnly filter state to pass to findNext methods (Issue #40)
-        $defaultUnread = $this->userPreferenceService->isUnreadOnlyEnabled(
-            $userId,
-        );
-        $unreadOnly = $request->query->getBoolean('unread', $defaultUnread);
-
         $nextFguid = $this->userPreferenceService->isShowNextUnreadEnabled(
             $userId,
         )
@@ -286,14 +272,12 @@ class FeedController extends AbstractController
                 $sguid,
                 $fguid,
                 $limit,
-                $unreadOnly,
             )
             : $this->feedViewService->findNextItemGuid(
                 $userId,
                 $sguid,
                 $fguid,
                 $limit,
-                $unreadOnly,
             );
 
         return $nextFguid
