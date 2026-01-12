@@ -53,7 +53,6 @@ class FeedPersistenceServiceTest extends TestCase
     public function persistFeedItemsUpdatesRecentExistingItems(): void
     {
         $existingItem = $this->createMock(FeedItem::class);
-        $existingItem->method('getFeedGuid')->willReturn('feed-1');
         $existingItem
             ->method('getPublishedAt')
             ->willReturn(new \DateTimeImmutable('-1 day'));
@@ -102,7 +101,6 @@ class FeedPersistenceServiceTest extends TestCase
     public function persistFeedItemsSkipsOldExistingItems(): void
     {
         $existingItem = $this->createMock(FeedItem::class);
-        $existingItem->method('getFeedGuid')->willReturn('feed-1');
         $existingItem
             ->method('getPublishedAt')
             ->willReturn(new \DateTimeImmutable('-3 days'));

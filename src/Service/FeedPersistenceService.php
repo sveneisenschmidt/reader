@@ -28,15 +28,8 @@ class FeedPersistenceService
     public function persistFeedItems(array $items): void
     {
         $twoDaysAgo = new \DateTimeImmutable('-48 hours');
-        $processedGuids = [];
 
         foreach ($items as $itemData) {
-            // Skip duplicates within the same batch
-            if (isset($processedGuids[$itemData['guid']])) {
-                continue;
-            }
-            $processedGuids[$itemData['guid']] = true;
-
             $existing = $this->feedItemRepository->findByGuid(
                 $itemData['guid'],
             );
@@ -61,9 +54,6 @@ class FeedPersistenceService
                     $publishedAt,
                 );
                 $this->contentEntityManager->persist($feedItem);
-            } elseif ($existing->getFeedGuid() !== $itemData['feedGuid']) {
-                // Skip if item belongs to a different subscription
-                continue;
             } elseif ($existing->getPublishedAt() > $twoDaysAgo) {
                 $existing->setTitle($itemData['title']);
                 $existing->setLink($itemData['link']);
