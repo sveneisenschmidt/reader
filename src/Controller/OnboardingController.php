@@ -59,15 +59,25 @@ class OnboardingController extends AbstractController
                 $feedUrl = $result['feedUrl'];
                 $user = $this->userService->getCurrentUser();
 
-                $this->subscriptionService->addSubscription(
-                    $user->getId(),
-                    $feedUrl,
-                );
-                $this->messageBus->dispatch(
-                    new RefreshFeedsMessage(MessageSource::Manual),
-                );
+                try {
+                    $this->subscriptionService->addSubscription(
+                        $user->getId(),
+                        $feedUrl,
+                    );
+                    $this->messageBus->dispatch(
+                        new RefreshFeedsMessage(MessageSource::Manual),
+                    );
 
-                return $this->redirectToRoute('feed_index');
+                    return $this->redirectToRoute('feed_index');
+                } catch (\Throwable $e) {
+                    $form
+                        ->get('feedUrl')
+                        ->addError(
+                            new \Symfony\Component\Form\FormError(
+                                'Failed to fetch feed. Please try again.',
+                            ),
+                        );
+                }
             }
         }
 

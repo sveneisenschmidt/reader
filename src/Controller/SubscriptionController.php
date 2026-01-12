@@ -105,16 +105,28 @@ class SubscriptionController extends AbstractController
                             );
                         $hasError = true;
                     } else {
-                        $subscription = $this->subscriptionService->addSubscription(
-                            $user->getId(),
-                            $feedUrl,
-                        );
-                        // Feed content is already fetched by addSubscription (via getFeedTitle)
-                        // Just update the refresh timestamp for this subscription
-                        $this->subscriptionService->updateRefreshTimestamp(
-                            $subscription,
-                        );
-                        $this->addFlash('success', 'Feed added.');
+                        try {
+                            $subscription = $this->subscriptionService->addSubscription(
+                                $user->getId(),
+                                $feedUrl,
+                            );
+                            // Feed content is already fetched by addSubscription (via getFeedTitle)
+                            // Just update the refresh timestamp for this subscription
+                            $this->subscriptionService->updateRefreshTimestamp(
+                                $subscription,
+                            );
+                            $this->addFlash('success', 'Feed added.');
+                        } catch (\Throwable $e) {
+                            $form
+                                ->get('new')
+                                ->get('url')
+                                ->addError(
+                                    new FormError(
+                                        'Failed to fetch feed. Please try again.',
+                                    ),
+                                );
+                            $hasError = true;
+                        }
                     }
                 }
             }

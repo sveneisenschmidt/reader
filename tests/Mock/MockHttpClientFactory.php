@@ -35,6 +35,11 @@ class MockHttpClientFactory
             ]);
         }
 
+        // Throw exception for URLs containing "exception-feed"
+        if (str_contains($url, 'exception-feed')) {
+            throw new \RuntimeException('Simulated network error');
+        }
+
         $fixturesPath = __DIR__.'/../Fixtures';
         $feedContent = file_get_contents($fixturesPath.'/valid-feed.xml');
 

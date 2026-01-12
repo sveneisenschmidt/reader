@@ -250,4 +250,28 @@ class SubscriptionControllerTest extends WebTestCase
 
         $this->assertSelectorExists('p.form-error');
     }
+
+    #[Test]
+    public function addingFeedWithExceptionShowsError(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+        $this->deleteAllSubscriptionsForTestUser();
+
+        $crawler = $client->request('GET', '/subscriptions');
+
+        $form = $crawler->selectButton('Subscribe')->form();
+        $form['subscriptions[new][url]'] =
+            'https://example.com/exception-feed.xml';
+
+        $client->submit($form);
+
+        // Should not be a 500 error, but show a form error
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSelectorExists('p.form-error');
+        $this->assertSelectorTextContains(
+            'p.form-error',
+            'Could not fetch URL',
+        );
+    }
 }

@@ -109,6 +109,46 @@ class FeedControllerTest extends WebTestCase
     }
 
     #[Test]
+    public function refreshEndpointHandlesFeedErrorGracefully(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+        $this->deleteAllSubscriptionsForTestUser();
+
+        // Create a subscription with a URL that will throw an exception
+        $container = static::getContainer();
+        $subscriptionRepository = $container->get(
+            \App\Repository\Subscriptions\SubscriptionRepository::class,
+        );
+        $subscription = $subscriptionRepository->addSubscription(
+            $this->testUser->getId(),
+            'https://example.com/exception-feed.xml',
+            'Exception Feed',
+            '1234567890abcdef',
+        );
+        $subscription->updateLastRefreshedAt();
+        $subscriptionRepository->getEntityManager()->flush();
+
+        // Create a feed item so the page renders properly
+        $this->createTestFeedItem('1234567890abcdef', 'abcdef1234567890');
+
+        // Make a GET request first to establish the session
+        $crawler = $client->request('GET', '/');
+        $this->assertResponseIsSuccessful();
+
+        // Get the CSRF token from the refresh form in the footer
+        $token = $crawler
+            ->filter('form[data-refresh-form] input[name="_token"]')
+            ->attr('value');
+
+        // This should not throw a 500 error - the handler catches feed exceptions internally
+        $client->request('POST', '/refresh', ['_token' => $token]);
+
+        // Should redirect successfully (handler catches exceptions per-feed)
+        $this->assertResponseRedirects('/');
+    }
+
+    #[Test]
     public function refreshEndpointRedirectsToRefererWhenPresent(): void
     {
         $client = static::createClient();

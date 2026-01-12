@@ -58,9 +58,17 @@ class FeedController extends AbstractController
     public function refresh(Request $request): Response
     {
         $this->validateCsrfToken($request, 'refresh');
-        $this->messageBus->dispatch(
-            new RefreshFeedsMessage(MessageSource::Manual),
-        );
+
+        try {
+            $this->messageBus->dispatch(
+                new RefreshFeedsMessage(MessageSource::Manual),
+            );
+        } catch (\Throwable $e) {
+            $this->addFlash(
+                'error',
+                'Failed to refresh feeds. Please try again.',
+            );
+        }
 
         $referer = $request->headers->get('referer');
         if ($referer) {
