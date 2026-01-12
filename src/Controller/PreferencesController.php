@@ -50,6 +50,7 @@ class PreferencesController extends AbstractController
             'theme' => $user->getTheme(),
             'showNextUnread' => $userPrefs[UserPreference::SHOW_NEXT_UNREAD],
             'pullToRefresh' => $userPrefs[UserPreference::PULL_TO_REFRESH],
+            'keyboardShortcuts' => $user->hasKeyboardShortcuts(),
             'filterWords' => $userPrefs[UserPreference::FILTER_WORDS],
         ]);
 
@@ -68,6 +69,7 @@ class PreferencesController extends AbstractController
         if ($preferencesForm->isSubmitted() && $preferencesForm->isValid()) {
             $data = $preferencesForm->getData();
             $user->setTheme($data['theme']);
+            $user->setKeyboardShortcuts($data['keyboardShortcuts']);
             $this->entityManager->flush();
 
             $this->userPreferenceService->setShowNextUnread(

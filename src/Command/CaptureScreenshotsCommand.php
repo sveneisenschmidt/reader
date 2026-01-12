@@ -150,6 +150,8 @@ class CaptureScreenshotsCommand extends Command
                 $io->section('Creating test user');
                 $totpSecret = $this->totpService->generateSecret();
                 $user = $this->createTestUser($totpSecret);
+                $user->setKeyboardShortcuts(true);
+                $this->entityManager->flush();
                 $io->success('Test user created');
             } else {
                 $totpSecret = $this->totpEncryption->decrypt(

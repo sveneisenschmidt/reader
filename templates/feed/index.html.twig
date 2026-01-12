@@ -13,6 +13,7 @@
 {% block body_class %}{% if app.request.attributes.get('_route') in ['feed_item', 'feed_item_filtered'] %} class="has-active-item"{% endif %}{% endblock %}
 
 {% block keyboard_shortcuts %}
+    {% if app.user.keyboardShortcuts %}
     <div class="keyboard-shortcuts">
         {% if activeItem %}
             <span class="shortcut"><span class="key">{{ source('@icons/arrow-up.svg') }}</span> Previous article</span>
@@ -26,6 +27,7 @@
             <span class="shortcut"><span class="key">{{ source('@icons/corner-down-left.svg') }}</span> Open first article</span>
         {% endif %}
     </div>
+    {% endif %}
 {% endblock %}
 
 {% block header_title %}
@@ -158,7 +160,9 @@
     </article>
     <script src="{{ asset('js/open-link-refresh.js') }}"></script>
     {% endif %}
+    {% if app.user.keyboardShortcuts %}
     <script src="{{ asset('js/keyboard-shortcuts.js') }}"></script>
+    {% endif %}
     {% if pullToRefresh %}
     <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
     {% endif %}

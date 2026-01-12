@@ -39,6 +39,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 10, options: ['default' => 'auto'])]
     private string $theme = 'auto';
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $keyboardShortcuts = false;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -124,6 +127,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setTheme(string $theme): self
     {
         $this->theme = $theme;
+
+        return $this;
+    }
+
+    public function hasKeyboardShortcuts(): bool
+    {
+        return $this->keyboardShortcuts;
+    }
+
+    public function setKeyboardShortcuts(bool $keyboardShortcuts): self
+    {
+        $this->keyboardShortcuts = $keyboardShortcuts;
 
         return $this;
     }

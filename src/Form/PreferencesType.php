@@ -44,6 +44,10 @@ class PreferencesType extends AbstractType
                 'label' => 'Pull down to refresh feeds',
                 'required' => false,
             ])
+            ->add('keyboardShortcuts', CheckboxType::class, [
+                'label' => 'Enable keyboard shortcuts',
+                'required' => false,
+            ])
             ->add('filterWords', TextareaType::class, [
                 'label' => 'Filter words (one per line)',
                 'required' => false,
