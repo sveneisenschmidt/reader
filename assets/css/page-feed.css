@@ -355,3 +355,13 @@ header h1 .back {
         }
     }
 }
+
+@media (hover: hover) and (pointer: fine) and (width >= 1024px) {
+    body:has(#feed) footer {
+        justify-content: space-between;
+    }
+
+    body:has(#feed) footer .keyboard-shortcuts {
+        display: flex;
+    }
+}

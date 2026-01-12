@@ -266,6 +266,36 @@ body {
             min-height: auto;
         }
 
+        & .keyboard-shortcuts {
+            display: none;
+            gap: var(--spacing-md);
+
+            & .shortcut {
+                display: flex;
+                align-items: center;
+                gap: var(--spacing-xs);
+                color: var(--color-text-muted);
+                font-size: 0.875rem;
+            }
+
+            & .key {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 20px;
+                background: var(--color-text);
+                color: var(--color-bg);
+                border-radius: 4px;
+                padding: 2px 4px;
+                font-size: 0.75rem;
+            }
+
+            & .key svg {
+                width: 14px;
+                height: 14px;
+            }
+        }
+
         & .status-link {
             display: flex;
             align-items: center;

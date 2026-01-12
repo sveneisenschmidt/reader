@@ -33,6 +33,7 @@
     </main>
 
     <footer>
+        {% block keyboard_shortcuts %}{% endblock %}
         <a href="{{ path('status') }}" class="status-link">
             <span class="status-indicator {{ status_is_active() ? 'status-active' : 'status-inactive' }}"></span>
             {% set refreshTime = last_refresh() %}

@@ -12,6 +12,22 @@
 
 {% block body_class %}{% if app.request.attributes.get('_route') in ['feed_item', 'feed_item_filtered'] %} class="has-active-item"{% endif %}{% endblock %}
 
+{% block keyboard_shortcuts %}
+    <div class="keyboard-shortcuts">
+        {% if activeItem %}
+            <span class="shortcut"><span class="key">{{ source('@icons/arrow-up.svg') }}</span> Previous article</span>
+            <span class="shortcut"><span class="key">{{ source('@icons/arrow-down.svg') }}</span> Next article</span>
+            <span class="shortcut"><span class="key">{{ source('@icons/space.svg') }}</span> Mark as read/unread</span>
+            <span class="shortcut"><span class="key">{{ source('@icons/corner-down-left.svg') }}</span> Read original</span>
+            <span class="shortcut"><span class="key">Esc</span> Close</span>
+        {% else %}
+            <span class="shortcut"><span class="key">Shift</span> + <span class="key">{{ source('@icons/arrow-right-to-line.svg') }}</span> Previous subscription</span>
+            <span class="shortcut"><span class="key">{{ source('@icons/arrow-right-to-line.svg') }}</span> Next subscription</span>
+            <span class="shortcut"><span class="key">{{ source('@icons/corner-down-left.svg') }}</span> Open first article</span>
+        {% endif %}
+    </div>
+{% endblock %}
+
 {% block header_title %}
     {% if activeItem %}
         <a href="{% if activeFeed %}{{ path_with_filters('subscription_show', {sguid: activeFeed}) }}{% else %}{{ path_with_filters('feed_index') }}{% endif %}" class="home">
@@ -142,6 +158,7 @@
     </article>
     <script src="{{ asset('js/open-link-refresh.js') }}"></script>
     {% endif %}
+    <script src="{{ asset('js/keyboard-shortcuts.js') }}"></script>
     {% if pullToRefresh %}
     <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
     {% endif %}
