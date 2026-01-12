@@ -516,28 +516,26 @@ class FeedViewServiceTest extends TestCase
             ->willReturn([]);
 
         $feedFetcher = $this->createStub(FeedPersistenceService::class);
-        $feedFetcher
-            ->method('getAllItems')
-            ->willReturn([
-                [
-                    'guid' => 'guid1',
-                    'sguid' => 'sguid1',
-                    'title' => 'Good article',
-                    'excerpt' => 'Content here',
-                ],
-                [
-                    'guid' => 'guid2',
-                    'sguid' => 'sguid1',
-                    'title' => 'Sponsored post',
-                    'excerpt' => 'Buy now',
-                ],
-                [
-                    'guid' => 'guid3',
-                    'sguid' => 'sguid1',
-                    'title' => 'Another good one',
-                    'excerpt' => 'More content',
-                ],
-            ]);
+        $feedFetcher->method('getAllItems')->willReturn([
+            [
+                'guid' => 'guid1',
+                'sguid' => 'sguid1',
+                'title' => 'Good article',
+                'excerpt' => 'Content here',
+            ],
+            [
+                'guid' => 'guid2',
+                'sguid' => 'sguid1',
+                'title' => 'Sponsored post',
+                'excerpt' => 'Buy now',
+            ],
+            [
+                'guid' => 'guid3',
+                'sguid' => 'sguid1',
+                'title' => 'Another good one',
+                'excerpt' => 'More content',
+            ],
+        ]);
 
         $readStatusService = $this->createStub(ReadStatusService::class);
         $readStatusService
@@ -579,5 +577,125 @@ class FeedViewServiceTest extends TestCase
         $this->assertCount(2, $result['items']);
         $this->assertEquals('guid1', $result['items'][0]['guid']);
         $this->assertEquals('guid3', $result['items'][1]['guid']);
+    }
+
+    /**
+     * Test for Issue #40: findNextUnreadItemGuid should skip items that
+     * match the word filter, otherwise navigation leads to a filtered item
+     * that won't be displayed.
+     */
+    #[Test]
+    public function findNextUnreadItemGuidSkipsWordFilteredItems(): void
+    {
+        $userId = 1;
+
+        $subscriptionService = $this->createStub(SubscriptionService::class);
+        $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
+
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
+        $feedFetcher->method('getAllItems')->willReturn([
+            [
+                'guid' => 'guid1',
+                'sguid' => 'sguid1',
+                'title' => 'First article',
+                'excerpt' => 'Content',
+            ],
+            [
+                'guid' => 'guid2',
+                'sguid' => 'sguid1',
+                'title' => 'Sponsored post',
+                'excerpt' => 'Buy now',
+            ],
+            [
+                'guid' => 'guid3',
+                'sguid' => 'sguid1',
+                'title' => 'Third article',
+                'excerpt' => 'More content',
+            ],
+        ]);
+
+        $readStatusService = $this->createStub(ReadStatusService::class);
+        $readStatusService
+            ->method('enrichItemsWithReadStatus')
+            ->willReturnCallback(
+                fn ($items) => array_map(
+                    fn ($item) => array_merge($item, ['isRead' => false]),
+                    $items,
+                ),
+            );
+
+        $userPreferenceService = $this->createStub(
+            UserPreferenceService::class,
+        );
+        $userPreferenceService
+            ->method('getFilterWords')
+            ->willReturn(['sponsored']);
+
+        $service = new FeedViewService(
+            $feedFetcher,
+            $subscriptionService,
+            $readStatusService,
+            $this->createStub(SeenStatusService::class),
+            $userPreferenceService,
+        );
+
+        // From guid1, next unread should be guid3, skipping guid2 (filtered)
+        $result = $service->findNextUnreadItemGuid($userId, null, 'guid1');
+
+        $this->assertEquals('guid3', $result);
+    }
+
+    /**
+     * Test for Issue #40: findNextItemGuid should also skip word-filtered items.
+     */
+    #[Test]
+    public function findNextItemGuidSkipsWordFilteredItems(): void
+    {
+        $userId = 1;
+
+        $subscriptionService = $this->createStub(SubscriptionService::class);
+        $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
+
+        $feedFetcher = $this->createStub(FeedPersistenceService::class);
+        $feedFetcher->method('getAllItems')->willReturn([
+            [
+                'guid' => 'guid1',
+                'sguid' => 'sguid1',
+                'title' => 'First article',
+                'excerpt' => 'Content',
+            ],
+            [
+                'guid' => 'guid2',
+                'sguid' => 'sguid1',
+                'title' => 'Sponsored post',
+                'excerpt' => 'Buy now',
+            ],
+            [
+                'guid' => 'guid3',
+                'sguid' => 'sguid1',
+                'title' => 'Third article',
+                'excerpt' => 'More content',
+            ],
+        ]);
+
+        $userPreferenceService = $this->createStub(
+            UserPreferenceService::class,
+        );
+        $userPreferenceService
+            ->method('getFilterWords')
+            ->willReturn(['sponsored']);
+
+        $service = new FeedViewService(
+            $feedFetcher,
+            $subscriptionService,
+            $this->createStub(ReadStatusService::class),
+            $this->createStub(SeenStatusService::class),
+            $userPreferenceService,
+        );
+
+        // From guid1, next should be guid3, skipping guid2 (filtered)
+        $result = $service->findNextItemGuid($userId, null, 'guid1');
+
+        $this->assertEquals('guid3', $result);
     }
 }

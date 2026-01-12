@@ -193,7 +193,7 @@ class FeedViewService
             );
         }
 
-        return $items;
+        return $this->applyWordFilter($items, $userId);
     }
 
     #[Param(items: 'list<array<string, mixed>>')]
