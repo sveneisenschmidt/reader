@@ -283,8 +283,8 @@ body {
                 align-items: center;
                 justify-content: center;
                 height: 20px;
-                background: var(--color-text);
-                color: var(--color-bg);
+                background: var(--color-bg-muted);
+                color: var(--color-text);
                 border-radius: 4px;
                 padding: 2px 4px;
                 font-size: 0.75rem;

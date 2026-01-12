@@ -4,7 +4,7 @@ document.addEventListener("keydown", (e) => {
     const hasActiveItem = document.body.classList.contains("has-active-item");
 
     switch (e.code) {
-        case "Tab":
+        case "Tab": {
             e.preventDefault();
             const items = [
                 ...document.querySelectorAll(
@@ -24,6 +24,7 @@ document.addEventListener("keydown", (e) => {
                   : currentIndex + 1;
             items[nextIndex]?.click();
             break;
+        }
 
         case "Enter":
             e.preventDefault();
