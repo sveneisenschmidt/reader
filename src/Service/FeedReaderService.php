@@ -116,9 +116,7 @@ class FeedReaderService
         $date = $item->getLastModified();
 
         return [
-            'guid' => $this->contentService->createGuid(
-                $feedGuid.($link ?: $id),
-            ),
+            'guid' => $this->contentService->createGuid($link ?: $id),
             'title' => $itemTitle,
             'link' => $link,
             'source' => $feedTitle,

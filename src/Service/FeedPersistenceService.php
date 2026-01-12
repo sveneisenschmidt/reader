@@ -27,6 +27,7 @@ class FeedPersistenceService
     #[Param(items: 'list<array<string, mixed>>')]
     public function persistFeedItems(array $items): void
     {
+        $items = $this->deduplicateByGuid($items);
         $twoDaysAgo = new \DateTimeImmutable('-48 hours');
 
         foreach ($items as $itemData) {
@@ -85,5 +86,14 @@ class FeedPersistenceService
     public function getItemCountForFeed(string $feedGuid): int
     {
         return $this->feedItemRepository->getItemCountByFeedGuid($feedGuid);
+    }
+
+    #[Param(items: 'list<array<string, mixed>>')]
+    #[Returns('list<array<string, mixed>>')]
+    private function deduplicateByGuid(array $items): array
+    {
+        $guids = array_column($items, 'guid');
+
+        return array_values(array_combine($guids, $items));
     }
 }
