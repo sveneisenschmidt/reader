@@ -20,6 +20,10 @@
                 <a href="{{ path_with_filters('feed_index') }}" class="feeds-link">Feeds</a>
             {% endblock %}
             <a href="{{ path_with_filters('subscriptions') }}"{% if app.request.attributes.get('_route') == 'subscriptions' %} class="active"{% endif %}>Subscriptions</a>
+            <form action="{{ path_with_filters('feed_refresh') }}" method="post" class="inline" data-refresh-form>
+                <input type="hidden" name="_token" value="{{ csrf_token('refresh') }}">
+                <button type="submit" class="btn-link" title="Refresh">Refresh</button>
+            </form>
             <a href="{{ path_with_filters('preferences') }}"{% if app.request.attributes.get('_route') == 'preferences' %} class="active"{% endif %} title="Preferences">⛭</a>
         </nav>
     </header>
@@ -29,16 +33,13 @@
     </main>
 
     <footer>
-        <span class="status-indicator {{ status_is_active() ? 'status-active' : 'status-inactive' }}"></span>
-        {% set refreshTime = last_refresh() %}
-        {% if refreshTime %}
-        <form action="{{ path_with_filters('feed_refresh') }}" method="post" class="inline" data-refresh-form>
-            <input type="hidden" name="_token" value="{{ csrf_token('refresh') }}">
-            <button type="submit" class="btn-link">Refreshed {{ refreshTime|ago }}</button>
-        </form>
-        {% else %}
-        &nbsp;
-        {% endif %}
+        <a href="{{ path('status') }}" class="status-link">
+            <span class="status-indicator {{ status_is_active() ? 'status-active' : 'status-inactive' }}"></span>
+            {% set refreshTime = last_refresh() %}
+            {% if refreshTime %}
+                Refreshed {{ refreshTime|ago }}
+            {% endif %}
+        </a>
     </footer>
 
     {% block scripts %}{% endblock %}
