@@ -23,18 +23,14 @@ class FeedPersistenceServiceTest extends TestCase
     public function persistFeedItemsCreatesNewItems(): void
     {
         $repository = $this->createMock(FeedItemRepository::class);
-        $repository
-            ->method('findByGuid')
-            ->willReturn(null);
+        $repository->method('findByGuid')->willReturn(null);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager
             ->expects($this->once())
             ->method('persist')
             ->with($this->isInstanceOf(FeedItem::class));
-        $entityManager
-            ->expects($this->once())
-            ->method('flush');
+        $entityManager->expects($this->once())->method('flush');
 
         $service = $this->createService($repository, $entityManager);
 
@@ -57,6 +53,7 @@ class FeedPersistenceServiceTest extends TestCase
     public function persistFeedItemsUpdatesRecentExistingItems(): void
     {
         $existingItem = $this->createMock(FeedItem::class);
+        $existingItem->method('getFeedGuid')->willReturn('feed-1');
         $existingItem
             ->method('getPublishedAt')
             ->willReturn(new \DateTimeImmutable('-1 day'));
@@ -78,9 +75,7 @@ class FeedPersistenceServiceTest extends TestCase
             ->with('Updated excerpt');
 
         $repository = $this->createMock(FeedItemRepository::class);
-        $repository
-            ->method('findByGuid')
-            ->willReturn($existingItem);
+        $repository->method('findByGuid')->willReturn($existingItem);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects($this->never())->method('persist');
@@ -107,15 +102,14 @@ class FeedPersistenceServiceTest extends TestCase
     public function persistFeedItemsSkipsOldExistingItems(): void
     {
         $existingItem = $this->createMock(FeedItem::class);
+        $existingItem->method('getFeedGuid')->willReturn('feed-1');
         $existingItem
             ->method('getPublishedAt')
             ->willReturn(new \DateTimeImmutable('-3 days'));
         $existingItem->expects($this->never())->method('setTitle');
 
         $repository = $this->createMock(FeedItemRepository::class);
-        $repository
-            ->method('findByGuid')
-            ->willReturn($existingItem);
+        $repository->method('findByGuid')->willReturn($existingItem);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $entityManager->expects($this->never())->method('persist');
@@ -239,9 +233,7 @@ class FeedPersistenceServiceTest extends TestCase
     public function getItemByGuidReturnsNullIfNotFound(): void
     {
         $repository = $this->createMock(FeedItemRepository::class);
-        $repository
-            ->method('findByGuid')
-            ->willReturn(null);
+        $repository->method('findByGuid')->willReturn(null);
 
         $service = $this->createService($repository);
 

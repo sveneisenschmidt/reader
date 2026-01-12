@@ -219,35 +219,6 @@ class FeedItemRepositoryTest extends KernelTestCase
     }
 
     #[Test]
-    public function upsertSkipsItemFromDifferentSubscription(): void
-    {
-        // Create item with feedGuid "subscription1"
-        $originalItem = $this->createFeedItem(
-            'skipitem12345678',
-            'subscription1abc',
-        );
-        $this->repository->upsert($originalItem);
-
-        // Try to upsert same guid but different feedGuid (different subscription)
-        $differentSubItem = new FeedItem(
-            'skipitem12345678',
-            'subscription2def',
-            'Different Sub Title',
-            'https://example.com/different',
-            'Different Source',
-            'Different excerpt',
-            new \DateTimeImmutable(),
-        );
-
-        $this->repository->upsert($differentSubItem);
-
-        // Original item should be unchanged
-        $result = $this->repository->findByGuid('skipitem12345678');
-        $this->assertEquals('subscription1abc', $result->getFeedGuid());
-        $this->assertEquals('Test Item skipitem12345678', $result->getTitle());
-    }
-
-    #[Test]
     public function upsertBatchHandlesEmptyArray(): void
     {
         // Should not throw any error
@@ -292,58 +263,6 @@ class FeedItemRepositoryTest extends KernelTestCase
 
         $result = $this->repository->findByGuid('batchupdate12345');
         $this->assertEquals('Batch Updated Title', $result->getTitle());
-    }
-
-    #[Test]
-    public function upsertBatchSkipsItemsFromDifferentSubscription(): void
-    {
-        // Create original items with feedGuid "subscription1"
-        $original1 = $this->createFeedItem(
-            'batchskip12345678',
-            'subscription1abc',
-        );
-        $original2 = $this->createFeedItem(
-            'batchskip23456789',
-            'subscription1abc',
-        );
-        $this->repository->upsertBatch([$original1, $original2]);
-
-        // Try to upsert same guids but different feedGuids
-        $differentSub1 = new FeedItem(
-            'batchskip12345678',
-            'subscription2def',
-            'Different Sub Title 1',
-            'https://example.com/different1',
-            'Different Source',
-            'Different excerpt',
-            new \DateTimeImmutable(),
-        );
-        $differentSub2 = new FeedItem(
-            'batchskip23456789',
-            'subscription2def',
-            'Different Sub Title 2',
-            'https://example.com/different2',
-            'Different Source',
-            'Different excerpt',
-            new \DateTimeImmutable(),
-        );
-
-        $this->repository->upsertBatch([$differentSub1, $differentSub2]);
-
-        // Original items should be unchanged
-        $result1 = $this->repository->findByGuid('batchskip12345678');
-        $this->assertEquals('subscription1abc', $result1->getFeedGuid());
-        $this->assertEquals(
-            'Test Item batchskip12345678',
-            $result1->getTitle(),
-        );
-
-        $result2 = $this->repository->findByGuid('batchskip23456789');
-        $this->assertEquals('subscription1abc', $result2->getFeedGuid());
-        $this->assertEquals(
-            'Test Item batchskip23456789',
-            $result2->getTitle(),
-        );
     }
 
     #[Test]

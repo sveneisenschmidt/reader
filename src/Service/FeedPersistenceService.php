@@ -54,6 +54,9 @@ class FeedPersistenceService
                     $publishedAt,
                 );
                 $this->contentEntityManager->persist($feedItem);
+            } elseif ($existing->getFeedGuid() !== $itemData['feedGuid']) {
+                // Skip if item belongs to a different subscription
+                continue;
             } elseif ($existing->getPublishedAt() > $twoDaysAgo) {
                 $existing->setTitle($itemData['title']);
                 $existing->setLink($itemData['link']);
