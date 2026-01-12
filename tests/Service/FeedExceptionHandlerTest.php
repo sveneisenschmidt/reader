@@ -47,14 +47,14 @@ class FeedExceptionHandlerTest extends TestCase
     }
 
     #[Test]
-    public function handleExceptionLogsError(): void
+    public function handleExceptionLogsWarning(): void
     {
         $subscription = $this->createSubscription();
         $exception = new \Exception('Test error');
 
         $this->logger
             ->expects($this->once())
-            ->method('error')
+            ->method('warning')
             ->with(
                 'Failed to refresh feed',
                 $this->callback(function ($context) {

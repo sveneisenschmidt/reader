@@ -88,6 +88,11 @@ class FeedItemRepository extends ServiceEntityRepository
         $existing = $this->findByGuid($feedItem->getGuid());
 
         if ($existing !== null) {
+            // Skip if item belongs to a different subscription
+            if ($existing->getFeedGuid() !== $feedItem->getFeedGuid()) {
+                return;
+            }
+
             $existing->setTitle($feedItem->getTitle());
             $existing->setLink($feedItem->getLink());
             $existing->setSource($feedItem->getSource());
@@ -114,6 +119,11 @@ class FeedItemRepository extends ServiceEntityRepository
             $existing = $existingItems[$feedItem->getGuid()] ?? null;
 
             if ($existing !== null) {
+                // Skip if item belongs to a different subscription
+                if ($existing->getFeedGuid() !== $feedItem->getFeedGuid()) {
+                    continue;
+                }
+
                 $existing->setTitle($feedItem->getTitle());
                 $existing->setLink($feedItem->getLink());
                 $existing->setSource($feedItem->getSource());

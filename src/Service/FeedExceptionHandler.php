@@ -30,7 +30,7 @@ class FeedExceptionHandler
     ): SubscriptionStatus {
         $status = $this->determineStatus($e);
 
-        $this->logger->error('Failed to refresh feed', [
+        $this->logger->warning('Failed to refresh feed', [
             'url' => $subscription->getUrl(),
             'status' => $status->value,
             'error' => $e->getMessage(),
