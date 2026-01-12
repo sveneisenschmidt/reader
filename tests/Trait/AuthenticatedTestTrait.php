@@ -182,4 +182,13 @@ trait AuthenticatedTestTrait
         $subscription = $this->createTestSubscription();
         $this->createTestFeedItemWithLink($subscription->getGuid());
     }
+
+    private function ensureTestUserHasSubscriptionWithTwoItems(
+        KernelBrowser $client,
+    ): void {
+        $this->loginAsTestUser($client);
+        $subscription = $this->createTestSubscription();
+        $this->createTestFeedItem($subscription->getGuid(), 'aaaaaaaaaaaaaaa1');
+        $this->createTestFeedItem($subscription->getGuid(), 'aaaaaaaaaaaaaaa2');
+    }
 }

@@ -114,7 +114,7 @@
 
     <section data-reading-list{% if not activeItem %} data-full-width{% endif %}>
         {% if items is empty and unread %}
-        <div class="feed-empty">No unread items</div>
+        <div class="feed-empty">No unread items.<br><a href="{{ filter_url({unread: 0}) }}">Show all items</a></div>
         {% endif %}
         {% for item in items %}
         <div class="feed-item{% if activeItem and item.guid == activeItem.guid %} active{% endif %}{% if item.isRead %} read{% endif %}"{% if activeItem and item.guid == activeItem.guid %} data-active{% endif %}>

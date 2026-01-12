@@ -1244,4 +1244,91 @@ class FeedControllerTest extends WebTestCase
             '/s/0123456789abcdef/f/fedcba9876543210',
         );
     }
+
+    #[Test]
+    public function markAsReadWithUnreadFilterUsesUnreadNavigation(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithTwoItems($client);
+
+        // Disable showNextUnread preference
+        $userPreferenceService = static::getContainer()->get(
+            UserPreferenceService::class,
+        );
+        $userPreferenceService->setShowNextUnread(
+            $this->testUser->getId(),
+            false,
+        );
+
+        // Mark the second item as read so only the first is unread
+        $readStatusRepo = static::getContainer()->get(
+            \App\Repository\Users\ReadStatusRepository::class,
+        );
+        $readStatusRepo->markAsRead(
+            $this->testUser->getId(),
+            'aaaaaaaaaaaaaaa2',
+        );
+
+        // Get CSRF token with unread filter active
+        $crawler = $client->request('GET', '/f/aaaaaaaaaaaaaaa1?unread=1');
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        // Mark the first (unread) item as read with unread filter active
+        $client->request('POST', '/f/aaaaaaaaaaaaaaa1/read?unread=1', [
+            '_token' => $csrfToken,
+        ]);
+
+        // Should redirect to feed index (no more unread items)
+        // NOT to the next read item
+        $this->assertResponseRedirects('/');
+    }
+
+    #[Test]
+    public function filteredMarkAsReadWithUnreadFilterUsesUnreadNavigation(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithTwoItems($client);
+
+        // Disable showNextUnread preference
+        $userPreferenceService = static::getContainer()->get(
+            UserPreferenceService::class,
+        );
+        $userPreferenceService->setShowNextUnread(
+            $this->testUser->getId(),
+            false,
+        );
+
+        // Mark the second item as read so only the first is unread
+        $readStatusRepo = static::getContainer()->get(
+            \App\Repository\Users\ReadStatusRepository::class,
+        );
+        $readStatusRepo->markAsRead(
+            $this->testUser->getId(),
+            'aaaaaaaaaaaaaaa2',
+        );
+
+        // Get CSRF token with unread filter active
+        $crawler = $client->request(
+            'GET',
+            '/s/0123456789abcdef/f/aaaaaaaaaaaaaaa1?unread=1',
+        );
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        // Mark the first (unread) item as read with unread filter active
+        $client->request(
+            'POST',
+            '/s/0123456789abcdef/f/aaaaaaaaaaaaaaa1/read?unread=1',
+            ['_token' => $csrfToken],
+        );
+
+        // Should redirect to subscription view (no more unread items)
+        // NOT to the next read item
+        $this->assertResponseRedirects('/s/0123456789abcdef');
+    }
 }
