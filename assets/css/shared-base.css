@@ -230,9 +230,19 @@ body {
             align-items: center;
             gap: var(--spacing-md);
 
-            & a:last-child {
-                font-size: 1.33rem;
-                line-height: 1;
+            & .icon-btn {
+                display: flex;
+                align-items: center;
+            }
+
+            & .icon-btn svg {
+                display: block;
+                width: 20px;
+                height: 20px;
+            }
+
+            & .icon-btn.active svg {
+                stroke-width: 3;
             }
 
             & a.active,

@@ -1,4 +1,4 @@
-.PHONY: dev dev-with-worker stop cache-clear install db-migrate db-reset db-create-dev-user test coverage check-deps screenshots lint lint-fix
+.PHONY: dev dev-with-worker stop cache-clear install db-migrate db-reset db-create-dev-user test coverage check-deps screenshots lint lint-fix icon install-icons
 
 check-deps:
 	@echo "Checking dependencies..."
@@ -8,7 +8,7 @@ check-deps:
 	@command -v chromedriver >/dev/null 2>&1 || { echo "chromedriver is not installed. Install with: brew install chromedriver"; exit 1; }
 	@echo "All dependencies installed."
 
-install:
+install: install-icons
 	composer install
 
 dev: stop cache-clear
@@ -59,6 +59,22 @@ db-create-dev-user:
 	fi
 	sqlite3 var/data/dev_users.db < fixtures/dev-user.sql
 	@echo "Dev user created: dev@localhost.arpa / devdevdev"
+
+icon:
+	@if [ -z "$(name)" ]; then echo "Usage: make icon name=<icon-name>"; exit 1; fi
+	@curl -s "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/$(name).svg"
+
+ICONS = settings-2 refresh-ccw-dot
+
+install-icons:
+	@mkdir -p assets/icons
+	@for icon in $(ICONS); do \
+		if [ ! -f "assets/icons/$$icon.svg" ]; then \
+			echo "Downloading $$icon.svg..."; \
+			curl -s "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/$$icon.svg" > "assets/icons/$$icon.svg"; \
+		fi \
+	done
+	@echo "Icons ready."
 
 screenshots: check-deps
 	@echo "Stopping any running services..."

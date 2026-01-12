@@ -22,9 +22,9 @@
             <a href="{{ path_with_filters('subscriptions') }}"{% if app.request.attributes.get('_route') == 'subscriptions' %} class="active"{% endif %}>Subscriptions</a>
             <form action="{{ path_with_filters('feed_refresh') }}" method="post" class="inline" data-refresh-form>
                 <input type="hidden" name="_token" value="{{ csrf_token('refresh') }}">
-                <button type="submit" class="btn-link" title="Refresh">Refresh</button>
+                <button type="submit" class="btn-link icon-btn" title="Refresh">{{ source('@icons/refresh-ccw-dot.svg') }}</button>
             </form>
-            <a href="{{ path_with_filters('preferences') }}"{% if app.request.attributes.get('_route') == 'preferences' %} class="active"{% endif %} title="Preferences">⛭</a>
+            <a href="{{ path_with_filters('preferences') }}" class="icon-btn{% if app.request.attributes.get('_route') == 'preferences' %} active{% endif %}" title="Preferences">{{ source('@icons/settings-2.svg') }}</a>
         </nav>
     </header>
 
