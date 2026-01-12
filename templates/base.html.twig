@@ -14,7 +14,7 @@
 <body{% block body_class %}{% endblock %}>
     {% block menu_toggle %}{% endblock %}
     <header>
-        <h1><a href="{{ path_with_filters('feed_index') }}" class="home">Reader</a></h1>
+        <h1>{% block header_title %}<a href="{{ path_with_filters('feed_index') }}" class="home">Reader</a>{% endblock %}</h1>
         <nav>
             {% block menu_link %}
                 <a href="{{ path_with_filters('feed_index') }}" class="feeds-link">Feeds</a>

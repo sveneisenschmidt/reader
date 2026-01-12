@@ -2,6 +2,10 @@
    #feed - Main feed view
    ======================================== */
 
+header h1 .back {
+    display: none;
+}
+
 #feed {
     display: grid;
     grid-template-columns: 240px 38.2fr 61.8fr;
@@ -338,6 +342,16 @@
 
         & > article {
             display: flex;
+        }
+    }
+
+    body.has-active-item header h1 {
+        & .title {
+            display: none;
+        }
+
+        & .back {
+            display: inline;
         }
     }
 }

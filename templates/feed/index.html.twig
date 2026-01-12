@@ -12,6 +12,17 @@
 
 {% block body_class %}{% if app.request.attributes.get('_route') in ['feed_item', 'feed_item_filtered'] %} class="has-active-item"{% endif %}{% endblock %}
 
+{% block header_title %}
+    {% if activeItem %}
+        <a href="{% if activeFeed %}{{ path_with_filters('subscription_show', {sguid: activeFeed}) }}{% else %}{{ path_with_filters('feed_index') }}{% endif %}" class="home">
+            <span class="title">Reader</span>
+            <span class="back">&larr; Back</span>
+        </a>
+    {% else %}
+        <a href="{{ path_with_filters('feed_index') }}" class="home">Reader</a>
+    {% endif %}
+{% endblock %}
+
 {% block menu_toggle %}
     <input type="checkbox" id="menu-toggle" class="menu-checkbox">
 {% endblock %}
@@ -104,7 +115,6 @@
 
     {% if activeItem %}
     <article data-reading-pane>
-        <a href="{% if activeFeed %}{{ path_with_filters('subscription_show', {sguid: activeFeed}) }}{% else %}{{ path_with_filters('feed_index') }}{% endif %}" class="back-link">&larr; Back</a>
         <header>
             <h1><a href="{{ path('feed_item_open', {fguid: activeItem.guid, url: activeItem.link}) }}" target="_blank" rel="noopener noreferrer">{{ activeItem.title }}</a></h1>
             <p class="meta">
