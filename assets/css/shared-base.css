@@ -258,7 +258,7 @@ body {
         display: flex;
         justify-content: center;
         align-items: flex-start;
-        min-height: 4rem;
+        min-height: 3rem;
 
         @media (width >= 768px) {
             justify-content: flex-end;
