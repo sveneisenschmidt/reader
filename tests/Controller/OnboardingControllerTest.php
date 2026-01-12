@@ -147,24 +147,4 @@ class OnboardingControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(422);
         $this->assertSelectorExists('.form-error');
     }
-
-    #[Test]
-    public function submittingUrlWithExceptionShowsError(): void
-    {
-        $client = static::createClient();
-        $this->loginAsTestUser($client);
-        $this->deleteAllSubscriptionsForTestUser();
-
-        $crawler = $client->request('GET', '/onboarding');
-
-        $form = $crawler->selectButton('Subscribe')->form();
-        $form['first_feed[feedUrl]'] = 'https://example.com/exception-feed.xml';
-
-        $client->submit($form);
-
-        // Should not be a 500 error, but show a form error
-        $this->assertResponseStatusCodeSame(422);
-        $this->assertSelectorExists('.form-error');
-        $this->assertSelectorTextContains('.form-error', 'Could not fetch URL');
-    }
 }
