@@ -181,4 +181,36 @@ class PreferencesControllerTest extends WebTestCase
         $this->assertResponseStatusCodeSame(422);
         $this->assertSelectorExists('.form-error');
     }
+
+    #[Test]
+    public function preferencesFormDisplaysUnreadOnlyCheckbox(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+
+        $client->request('GET', '/preferences');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('input[name="preferences[unreadOnly]"]');
+    }
+
+    #[Test]
+    public function preferencesFormSubmissionUpdatesUnreadOnly(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+
+        $crawler = $client->request('GET', '/preferences');
+
+        $form = $crawler->selectButton('preferences[save]')->form();
+        // Uncheck the unreadOnly checkbox (default is checked/true)
+        $form['preferences[unreadOnly]'] = false;
+
+        $client->submit($form);
+
+        $this->assertResponseRedirects('/preferences');
+
+        $client->followRedirect();
+        $this->assertSelectorExists('.flash-success');
+    }
 }

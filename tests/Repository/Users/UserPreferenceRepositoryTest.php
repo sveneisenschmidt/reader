@@ -10,7 +10,7 @@
 
 namespace App\Tests\Repository\Users;
 
-use App\Entity\Users\UserPreference;
+use App\Enum\PreferenceKey;
 use App\Repository\Users\UserPreferenceRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -30,7 +30,10 @@ class UserPreferenceRepositoryTest extends KernelTestCase
     #[Test]
     public function isEnabledReturnsFalseWhenPreferenceDoesNotExist(): void
     {
-        $result = $this->repository->isEnabled(99999, 'non_existent_key');
+        $result = $this->repository->isEnabled(
+            99999,
+            PreferenceKey::ShowNextUnread,
+        );
 
         $this->assertFalse($result);
     }
@@ -39,7 +42,7 @@ class UserPreferenceRepositoryTest extends KernelTestCase
     public function setEnabledCreatesNewPreference(): void
     {
         $userId = 99998;
-        $key = UserPreference::SHOW_NEXT_UNREAD;
+        $key = PreferenceKey::ShowNextUnread;
 
         $this->repository->setEnabled($userId, $key, true);
 
@@ -50,7 +53,7 @@ class UserPreferenceRepositoryTest extends KernelTestCase
     public function setEnabledUpdatesExistingPreference(): void
     {
         $userId = 99997;
-        $key = UserPreference::SHOW_NEXT_UNREAD;
+        $key = PreferenceKey::ShowNextUnread;
 
         $this->repository->setEnabled($userId, $key, true);
         $this->assertTrue($this->repository->isEnabled($userId, $key));
@@ -74,14 +77,14 @@ class UserPreferenceRepositoryTest extends KernelTestCase
 
         $this->repository->setEnabled(
             $userId,
-            UserPreference::SHOW_NEXT_UNREAD,
+            PreferenceKey::ShowNextUnread,
             true,
         );
 
         $result = $this->repository->getAllForUser($userId);
 
         $this->assertCount(1, $result);
-        $this->assertTrue($result[UserPreference::SHOW_NEXT_UNREAD]);
+        $this->assertTrue($result[PreferenceKey::ShowNextUnread->value]);
     }
 
     #[Test]
@@ -89,7 +92,7 @@ class UserPreferenceRepositoryTest extends KernelTestCase
     {
         $result = $this->repository->getValue(
             99994,
-            'non_existent_key',
+            PreferenceKey::FilterWords,
             'default',
         );
 
@@ -100,7 +103,7 @@ class UserPreferenceRepositoryTest extends KernelTestCase
     public function setValueCreatesNewPreference(): void
     {
         $userId = 99993;
-        $key = UserPreference::FILTER_WORDS;
+        $key = PreferenceKey::FilterWords;
 
         $this->repository->setValue($userId, $key, "word1\nword2");
 
@@ -114,7 +117,7 @@ class UserPreferenceRepositoryTest extends KernelTestCase
     public function setValueUpdatesExistingPreference(): void
     {
         $userId = 99992;
-        $key = UserPreference::FILTER_WORDS;
+        $key = PreferenceKey::FilterWords;
 
         $this->repository->setValue($userId, $key, 'word1');
         $this->assertEquals(

@@ -11,7 +11,7 @@
 namespace App\Controller;
 
 use App\Entity\Users\User;
-use App\Entity\Users\UserPreference;
+use App\Enum\PreferenceKey;
 use App\Form\PreferencesType;
 use App\Form\ProfileType;
 use App\Service\StatusIndicator;
@@ -48,10 +48,11 @@ class PreferencesController extends AbstractController
 
         $preferencesForm = $this->createForm(PreferencesType::class, [
             'theme' => $user->getTheme(),
-            'showNextUnread' => $userPrefs[UserPreference::SHOW_NEXT_UNREAD],
-            'pullToRefresh' => $userPrefs[UserPreference::PULL_TO_REFRESH],
+            'showNextUnread' => $userPrefs[PreferenceKey::ShowNextUnread->value],
+            'pullToRefresh' => $userPrefs[PreferenceKey::PullToRefresh->value],
             'keyboardShortcuts' => $user->hasKeyboardShortcuts(),
-            'filterWords' => $userPrefs[UserPreference::FILTER_WORDS],
+            'unreadOnly' => $userPrefs[PreferenceKey::UnreadOnly->value],
+            'filterWords' => $userPrefs[PreferenceKey::FilterWords->value],
         ]);
 
         $profileForm->handleRequest($request);
@@ -83,6 +84,10 @@ class PreferencesController extends AbstractController
             $this->userPreferenceService->setFilterWords(
                 $userId,
                 $data['filterWords'] ?? '',
+            );
+            $this->userPreferenceService->setUnreadOnly(
+                $userId,
+                $data['unreadOnly'],
             );
 
             $this->addFlash('success', 'Preferences saved.');

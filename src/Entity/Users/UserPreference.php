@@ -23,10 +23,6 @@ use Doctrine\ORM\Mapping as ORM;
 ]
 class UserPreference
 {
-    public const SHOW_NEXT_UNREAD = 'show_next_unread';
-    public const PULL_TO_REFRESH = 'pull_to_refresh';
-    public const FILTER_WORDS = 'filter_words';
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]

@@ -48,6 +48,10 @@ class PreferencesType extends AbstractType
                 'label' => 'Enable keyboard shortcuts',
                 'required' => false,
             ])
+            ->add('unreadOnly', CheckboxType::class, [
+                'label' => 'Show unread articles only by default',
+                'required' => false,
+            ])
             ->add('filterWords', TextareaType::class, [
                 'label' => 'Filter words (one per line)',
                 'required' => false,

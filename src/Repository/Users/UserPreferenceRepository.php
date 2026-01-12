@@ -11,6 +11,7 @@
 namespace App\Repository\Users;
 
 use App\Entity\Users\UserPreference;
+use App\Enum\PreferenceKey;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use PhpStaticAnalysis\Attributes\Returns;
@@ -26,12 +27,12 @@ class UserPreferenceRepository extends ServiceEntityRepository
 
     public function isEnabled(
         int $userId,
-        string $preferenceKey,
+        PreferenceKey $preferenceKey,
         bool $default = false,
     ): bool {
         $preference = $this->findOneBy([
             'userId' => $userId,
-            'preferenceKey' => $preferenceKey,
+            'preferenceKey' => $preferenceKey->value,
         ]);
 
         return $preference?->isEnabled() ?? $default;
@@ -39,18 +40,18 @@ class UserPreferenceRepository extends ServiceEntityRepository
 
     public function setEnabled(
         int $userId,
-        string $preferenceKey,
+        PreferenceKey $preferenceKey,
         bool $isEnabled,
     ): void {
         $preference = $this->findOneBy([
             'userId' => $userId,
-            'preferenceKey' => $preferenceKey,
+            'preferenceKey' => $preferenceKey->value,
         ]);
 
         if ($preference === null) {
             $preference = new UserPreference(
                 $userId,
-                $preferenceKey,
+                $preferenceKey->value,
                 $isEnabled ? '1' : '0',
             );
             $this->getEntityManager()->persist($preference);
@@ -76,12 +77,12 @@ class UserPreferenceRepository extends ServiceEntityRepository
 
     public function getValue(
         int $userId,
-        string $preferenceKey,
+        PreferenceKey $preferenceKey,
         string $default = '',
     ): string {
         $preference = $this->findOneBy([
             'userId' => $userId,
-            'preferenceKey' => $preferenceKey,
+            'preferenceKey' => $preferenceKey->value,
         ]);
 
         return $preference?->getValue() ?? $default;
@@ -89,16 +90,20 @@ class UserPreferenceRepository extends ServiceEntityRepository
 
     public function setValue(
         int $userId,
-        string $preferenceKey,
+        PreferenceKey $preferenceKey,
         string $value,
     ): void {
         $preference = $this->findOneBy([
             'userId' => $userId,
-            'preferenceKey' => $preferenceKey,
+            'preferenceKey' => $preferenceKey->value,
         ]);
 
         if ($preference === null) {
-            $preference = new UserPreference($userId, $preferenceKey, $value);
+            $preference = new UserPreference(
+                $userId,
+                $preferenceKey->value,
+                $value,
+            );
             $this->getEntityManager()->persist($preference);
         } else {
             $preference->setValue($value);

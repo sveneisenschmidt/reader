@@ -11,6 +11,7 @@
 namespace App\Tests\Unit\Entity\Users;
 
 use App\Entity\Users\UserPreference;
+use App\Enum\PreferenceKey;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -21,14 +22,14 @@ class UserPreferenceTest extends TestCase
     {
         $preference = new UserPreference(
             1,
-            UserPreference::SHOW_NEXT_UNREAD,
+            PreferenceKey::ShowNextUnread->value,
             '1',
         );
 
         $this->assertNull($preference->getId());
         $this->assertEquals(1, $preference->getUserId());
         $this->assertEquals(
-            UserPreference::SHOW_NEXT_UNREAD,
+            PreferenceKey::ShowNextUnread->value,
             $preference->getPreferenceKey(),
         );
         $this->assertTrue($preference->isEnabled());
@@ -38,7 +39,10 @@ class UserPreferenceTest extends TestCase
     #[Test]
     public function constructorDefaultsToDisabled(): void
     {
-        $preference = new UserPreference(1, UserPreference::SHOW_NEXT_UNREAD);
+        $preference = new UserPreference(
+            1,
+            PreferenceKey::ShowNextUnread->value,
+        );
 
         $this->assertFalse($preference->isEnabled());
         $this->assertEquals('0', $preference->getValue());
@@ -49,7 +53,7 @@ class UserPreferenceTest extends TestCase
     {
         $preference = new UserPreference(
             1,
-            UserPreference::SHOW_NEXT_UNREAD,
+            PreferenceKey::ShowNextUnread->value,
             '0',
         );
 
@@ -63,7 +67,7 @@ class UserPreferenceTest extends TestCase
     #[Test]
     public function setValueUpdatesValue(): void
     {
-        $preference = new UserPreference(1, UserPreference::FILTER_WORDS);
+        $preference = new UserPreference(1, PreferenceKey::FilterWords->value);
 
         $result = $preference->setValue("word1\nword2");
 

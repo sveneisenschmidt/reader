@@ -29,4 +29,11 @@ class UserService
 
         return $user;
     }
+
+    public function getCurrentUserOrNull(): ?User
+    {
+        $user = $this->security->getUser();
+
+        return $user instanceof User ? $user : null;
+    }
 }

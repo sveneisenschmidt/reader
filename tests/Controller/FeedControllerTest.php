@@ -1061,4 +1061,187 @@ class FeedControllerTest extends WebTestCase
             ),
         );
     }
+
+    #[Test]
+    public function indexPageWithUnreadOnlyPreferenceEnabledFiltersUnread(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
+        // Enable unreadOnly preference (default is true, but set explicitly)
+        $userPreferenceService = static::getContainer()->get(
+            UserPreferenceService::class,
+        );
+        $userPreferenceService->setUnreadOnly($this->testUser->getId(), true);
+
+        $crawler = $client->request('GET', '/');
+
+        $this->assertResponseIsSuccessful();
+        // The "Show unread (turn off)" link should be visible when filter is active
+        $this->assertSelectorTextContains('.filter-toggle', 'Show unread');
+    }
+
+    #[Test]
+    public function indexPageWithExplicitUnreadParamOverridesPreference(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
+        // Enable unreadOnly preference
+        $userPreferenceService = static::getContainer()->get(
+            UserPreferenceService::class,
+        );
+        $userPreferenceService->setUnreadOnly($this->testUser->getId(), true);
+
+        // Request with explicit unread=0 should override preference
+        $crawler = $client->request('GET', '/?unread=0');
+
+        $this->assertResponseIsSuccessful();
+        // The toggle should show "Show unread" (without "turn off") when filter is disabled
+        $filterToggle = $crawler->filter('.filter-toggle')->text();
+        $this->assertStringContainsString('Show unread', $filterToggle);
+        $this->assertStringNotContainsString('turn off', $filterToggle);
+    }
+
+    #[Test]
+    public function markAsReadStayExecutesSuccessfully(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // Get CSRF token from feed item page
+        $crawler = $client->request('GET', '/f/fedcba9876543210');
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        $client->request('POST', '/f/fedcba9876543210/read-stay', [
+            '_token' => $csrfToken,
+        ]);
+
+        $this->assertResponseRedirects('/f/fedcba9876543210');
+    }
+
+    #[Test]
+    public function filteredMarkAsReadExecutesSuccessfully(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // Get CSRF token from filtered feed item page
+        $crawler = $client->request(
+            'GET',
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        $client->request(
+            'POST',
+            '/s/0123456789abcdef/f/fedcba9876543210/read',
+            ['_token' => $csrfToken],
+        );
+
+        $this->assertResponseRedirects();
+    }
+
+    #[Test]
+    public function filteredMarkAsReadWithStayExecutesSuccessfully(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // Get CSRF token from filtered feed item page
+        $crawler = $client->request(
+            'GET',
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        $client->request(
+            'POST',
+            '/s/0123456789abcdef/f/fedcba9876543210/read',
+            ['_token' => $csrfToken, 'stay' => '1'],
+        );
+
+        $this->assertResponseRedirects(
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+    }
+
+    #[Test]
+    public function filteredMarkAsUnreadExecutesSuccessfully(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // First mark as read
+        $crawler = $client->request(
+            'GET',
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        $client->request(
+            'POST',
+            '/s/0123456789abcdef/f/fedcba9876543210/read',
+            ['_token' => $csrfToken],
+        );
+
+        // Now mark as unread
+        $crawler = $client->request(
+            'GET',
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        $client->request(
+            'POST',
+            '/s/0123456789abcdef/f/fedcba9876543210/unread',
+            ['_token' => $csrfToken],
+        );
+
+        $this->assertResponseRedirects(
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+    }
+
+    #[Test]
+    public function filteredMarkAsReadStayExecutesSuccessfully(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // Get CSRF token from filtered feed item page
+        $crawler = $client->request(
+            'GET',
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        $client->request(
+            'POST',
+            '/s/0123456789abcdef/f/fedcba9876543210/read-stay',
+            ['_token' => $csrfToken],
+        );
+
+        $this->assertResponseRedirects(
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+    }
 }

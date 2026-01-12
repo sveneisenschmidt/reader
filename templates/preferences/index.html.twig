@@ -75,6 +75,15 @@
             </div>
         </div>
         <div class="form-row">
+            <div class="form-checkbox">
+                {{ form_widget(preferencesForm.unreadOnly) }}
+                <div class="form-checkbox__content">
+                    {{ form_label(preferencesForm.unreadOnly) }}
+                    <p>When disabled, all articles are shown by default.</p>
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
             {{ form_label(preferencesForm.filterWords) }}
             {{ form_widget(preferencesForm.filterWords, {'attr': {'placeholder': 'sponsored\nadvertisement\npromotion'}}) }}
             <p>Articles containing these words will be hidden from your feed.</p>

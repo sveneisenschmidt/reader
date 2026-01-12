@@ -10,7 +10,8 @@
 
 namespace App\Service;
 
-use App\Entity\Users\UserPreference;
+use App\Enum\PreferenceDefault;
+use App\Enum\PreferenceKey;
 use App\Repository\Users\UserPreferenceRepository;
 use PhpStaticAnalysis\Attributes\Returns;
 
@@ -25,7 +26,8 @@ class UserPreferenceService
     {
         return $this->userPreferenceRepository->isEnabled(
             $userId,
-            UserPreference::SHOW_NEXT_UNREAD,
+            PreferenceKey::ShowNextUnread,
+            PreferenceDefault::ShowNextUnread->asBool(),
         );
     }
 
@@ -33,7 +35,7 @@ class UserPreferenceService
     {
         $this->userPreferenceRepository->setEnabled(
             $userId,
-            UserPreference::SHOW_NEXT_UNREAD,
+            PreferenceKey::ShowNextUnread,
             $enabled,
         );
     }
@@ -42,8 +44,8 @@ class UserPreferenceService
     {
         return $this->userPreferenceRepository->isEnabled(
             $userId,
-            UserPreference::PULL_TO_REFRESH,
-            true,
+            PreferenceKey::PullToRefresh,
+            PreferenceDefault::PullToRefresh->asBool(),
         );
     }
 
@@ -51,7 +53,25 @@ class UserPreferenceService
     {
         $this->userPreferenceRepository->setEnabled(
             $userId,
-            UserPreference::PULL_TO_REFRESH,
+            PreferenceKey::PullToRefresh,
+            $enabled,
+        );
+    }
+
+    public function isUnreadOnlyEnabled(int $userId): bool
+    {
+        return $this->userPreferenceRepository->isEnabled(
+            $userId,
+            PreferenceKey::UnreadOnly,
+            PreferenceDefault::UnreadOnly->asBool(),
+        );
+    }
+
+    public function setUnreadOnly(int $userId, bool $enabled): void
+    {
+        $this->userPreferenceRepository->setEnabled(
+            $userId,
+            PreferenceKey::UnreadOnly,
             $enabled,
         );
     }
@@ -61,8 +81,8 @@ class UserPreferenceService
     {
         $raw = $this->userPreferenceRepository->getValue(
             $userId,
-            UserPreference::FILTER_WORDS,
-            '',
+            PreferenceKey::FilterWords,
+            PreferenceDefault::FilterWords->value(),
         );
 
         return array_filter(
@@ -75,8 +95,8 @@ class UserPreferenceService
     {
         return $this->userPreferenceRepository->getValue(
             $userId,
-            UserPreference::FILTER_WORDS,
-            '',
+            PreferenceKey::FilterWords,
+            PreferenceDefault::FilterWords->value(),
         );
     }
 
@@ -84,7 +104,7 @@ class UserPreferenceService
     {
         $this->userPreferenceRepository->setValue(
             $userId,
-            UserPreference::FILTER_WORDS,
+            PreferenceKey::FilterWords,
             $words,
         );
     }
@@ -93,13 +113,16 @@ class UserPreferenceService
     public function getAllPreferences(int $userId): array
     {
         return [
-            UserPreference::SHOW_NEXT_UNREAD => $this->isShowNextUnreadEnabled(
+            PreferenceKey::ShowNextUnread
+                ->value => $this->isShowNextUnreadEnabled($userId),
+            PreferenceKey::PullToRefresh
+                ->value => $this->isPullToRefreshEnabled($userId),
+            PreferenceKey::UnreadOnly->value => $this->isUnreadOnlyEnabled(
                 $userId,
             ),
-            UserPreference::PULL_TO_REFRESH => $this->isPullToRefreshEnabled(
+            PreferenceKey::FilterWords->value => $this->getFilterWordsRaw(
                 $userId,
             ),
-            UserPreference::FILTER_WORDS => $this->getFilterWordsRaw($userId),
         ];
     }
 }

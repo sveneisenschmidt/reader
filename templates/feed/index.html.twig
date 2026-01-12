@@ -94,7 +94,7 @@
         </ul>
         <div class="sidebar-filters">
             <div class="filter-group">
-                <a href="{{ filter_url({unread: unread ? 0 : 1}) }}" class="filter-toggle{% if unread %} active{% endif %}">{% if unread %}● Show unread (disable){% else %}○ Show unread{% endif %}</a>
+                <a href="{{ filter_url({unread: unread ? 0 : 1}) }}" class="filter-toggle{% if not unread %} active{% endif %}">{% if unread %}● Show unread (turn off){% else %}○ Show unread{% endif %}</a>
             </div>
             <div class="filter-group">
                 <a href="{{ filter_url({limit: 25}) }}" class="filter-limit{% if limit == 25 %} active{% endif %}">{% if limit == 25 %}●{% else %}○{% endif %} 25</a>

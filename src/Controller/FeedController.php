@@ -393,7 +393,10 @@ class FeedController extends AbstractController
         ?string $fguid = null,
     ): Response {
         $user = $this->userService->getCurrentUser();
-        $unread = $request->query->getBoolean('unread', false);
+        $defaultUnread = $this->userPreferenceService->isUnreadOnlyEnabled(
+            $user->getId(),
+        );
+        $unread = $request->query->getBoolean('unread', $defaultUnread);
         $limit = $request->query->getInt(
             'limit',
             FilterParameterSubscriber::DEFAULT_LIMIT,
