@@ -16,15 +16,18 @@ use Twig\TwigFunction;
 
 class AssetInlineExtension extends AbstractExtension
 {
-    public function __construct(
-        private AssetMapperInterface $assetMapper,
-    ) {
+    public function __construct(private AssetMapperInterface $assetMapper)
+    {
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('asset_inline', [$this, 'assetInline'], ['is_safe' => ['html']]),
+            new TwigFunction(
+                'asset_inline',
+                [$this, 'assetInline'],
+                ['is_safe' => ['html']],
+            ),
         ];
     }
 
@@ -36,6 +39,9 @@ class AssetInlineExtension extends AbstractExtension
             return '';
         }
 
-        return file_get_contents($asset->sourcePath);
+        return '/* '.
+            $asset->logicalPath.
+            " */\n".
+            file_get_contents($asset->sourcePath);
     }
 }

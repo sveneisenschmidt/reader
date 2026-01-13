@@ -3,12 +3,11 @@
 <head>
     {% include '_head.html.twig' %}
     <title>{% block title %}Reader{% endblock %}</title>
-    <link rel="preload" href="{{ asset('css/shared-layout.css') }}" as="style">
-    <link rel="preload" href="{{ asset('css/shared-forms.css') }}" as="style">
-    <link rel="preload" href="{{ asset('css/page-auth.css') }}" as="style">
-    <link rel="stylesheet" href="{{ asset('css/shared-layout.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/shared-forms.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/page-auth.css') }}">
+    <style>
+        {{ asset_inline('css/shared-layout.css') }}
+        {{ asset_inline('css/shared-forms.css') }}
+        {{ asset_inline('css/page-auth.css') }}
+    </style>
     {% block scripts %}{% endblock %}
 </head>
 <body>

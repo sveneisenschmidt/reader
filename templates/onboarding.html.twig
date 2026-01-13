@@ -2,16 +2,12 @@
 
 {% block title %}Onboarding | Reader{% endblock %}
 
-{% block preload %}
-    <link rel="preload" href="{{ asset('css/shared-layout.css') }}" as="style">
-    <link rel="preload" href="{{ asset('css/shared-forms.css') }}" as="style">
-    <link rel="preload" href="{{ asset('css/page-onboarding.css') }}" as="style">
-{% endblock %}
-
 {% block stylesheets %}
-    <link rel="stylesheet" href="{{ asset('css/shared-layout.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/shared-forms.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/page-onboarding.css') }}">
+    <style>
+        {{ asset_inline('css/shared-layout.css') }}
+        {{ asset_inline('css/shared-forms.css') }}
+        {{ asset_inline('css/page-onboarding.css') }}
+    </style>
 {% endblock %}
 
 {% block page_id %}onboarding{% endblock %}
