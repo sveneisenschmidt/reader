@@ -278,8 +278,8 @@ body {
     }
 
     &.standalone > footer {
-        min-height: 4rem;
-        padding-top: 0;
+        min-height: auto;
+        padding-bottom: 2rem;
     }
 
     & > footer .keyboard-shortcuts {
