@@ -271,11 +271,13 @@ body {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        min-height: 3rem;
 
         @media (width >= 768px) {
             justify-content: flex-end;
-            min-height: auto;
+        }
+
+        @media (display-mode: standalone) {
+            min-height: 4rem;
         }
 
         & .keyboard-shortcuts {
