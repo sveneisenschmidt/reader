@@ -1,8 +1,23 @@
 (() => {
     const section = document.querySelector("[data-reading-list]");
-    // On mobile, #feed scrolls instead of the section
-    const isMobile = window.matchMedia("(max-width: 768px)").matches;
-    const element = isMobile ? document.querySelector("#feed") : section;
+
+    // Find the scrollable parent element
+    const findScrollableParent = (el) => {
+        while (el && el !== document.body) {
+            const style = getComputedStyle(el);
+            const overflowY = style.overflowY;
+            if (
+                (overflowY === "auto" || overflowY === "scroll") &&
+                el.scrollHeight > el.clientHeight
+            ) {
+                return el;
+            }
+            el = el.parentElement;
+        }
+        return null;
+    };
+
+    const element = findScrollableParent(section) || section;
     const scrollKey = "reading-list-scroll";
     const activeKey = "reading-list-active";
     const activeElement = document.querySelector("[data-active]");
