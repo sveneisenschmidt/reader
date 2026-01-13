@@ -339,10 +339,15 @@ header h1 .back {
 
     .menu-toggle {
         display: flex;
+        margin-left: var(--spacing-md);
     }
 
     body.has-active-item .menu-toggle {
         visibility: hidden;
+    }
+
+    footer .status-link {
+        margin-right: var(--spacing-md);
     }
 
     .menu-checkbox:checked ~ * .menu-toggle .icon-open {

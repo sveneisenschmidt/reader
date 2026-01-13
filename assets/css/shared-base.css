@@ -211,7 +211,7 @@ body {
 
         & h1 {
             font-size: 1.25rem;
-            font-weight: var(--font-weight-regular);
+            font-weight: var(--font-weight-medium);
 
             & a {
                 color: var(--color-text);
