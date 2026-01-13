@@ -10,22 +10,6 @@
     <link rel="stylesheet" href="{{ asset('css/page-feed.css') }}">
 {% endblock %}
 
-{% block scripts %}
-    <script src="{{ asset('js/scroll-restore.js') }}"></script>
-    {% if activeItem %}
-    <script src="{{ asset('js/open-link-refresh.js') }}"></script>
-    {% if user_auto_mark_read() %}
-    <script src="{{ asset('js/auto-mark-read.js') }}"></script>
-    {% endif %}
-    {% endif %}
-    {% if user_keyboard_shortcuts() %}
-    <script src="{{ asset('js/keyboard-shortcuts.js') }}"></script>
-    {% endif %}
-    {% if pullToRefresh %}
-    <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
-    {% endif %}
-{% endblock %}
-
 {% block body_class %}{% if app.request.attributes.get('_route') in ['feed_item', 'feed_item_filtered'] %} class="has-active-item"{% endif %}{% endblock %}
 
 {% block keyboard_shortcuts %}
@@ -153,6 +137,7 @@
         </div>
         {% endfor %}
     </section>
+    <script src="{{ asset('js/scroll-restore.js') }}"></script>
 
     {% if activeItem %}
     <article data-reading-pane data-item="{{ activeItem.guid }}"{% if not activeItem.isRead %} data-unread{% endif %}>
@@ -183,5 +168,15 @@
             {% endif %}
         </footer>
     </article>
+    {% if user_auto_mark_read() %}
+    <script src="{{ asset('js/auto-mark-read.js') }}"></script>
+    {% endif %}
+    <script src="{{ asset('js/open-link-refresh.js') }}"></script>
+    {% endif %}
+    {% if user_keyboard_shortcuts() %}
+    <script src="{{ asset('js/keyboard-shortcuts.js') }}"></script>
+    {% endif %}
+    {% if pullToRefresh %}
+    <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
     {% endif %}
 {% endblock %}

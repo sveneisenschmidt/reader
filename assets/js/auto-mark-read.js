@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+(function () {
     const pane = document.querySelector("[data-reading-pane][data-unread]");
     if (!pane) return;
 
@@ -6,4 +6,4 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!form) return;
 
     setTimeout(() => form.submit(), 5000);
-});
+})();

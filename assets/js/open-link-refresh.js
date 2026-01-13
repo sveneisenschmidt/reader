@@ -1,5 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("[open-link-refresh] v2 loaded");
+(function () {
     document.querySelectorAll('a[href*="/open?"]').forEach((link) => {
         link.addEventListener("click", () => {
             setTimeout(() => {
@@ -7,4 +6,4 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 100);
         });
     });
-});
+})();
