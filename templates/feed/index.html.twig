@@ -62,11 +62,14 @@
 {% endblock %}
 
 {% block menu_link %}
+    <a href="{{ path_with_filters('feed_index') }}" class="feeds-link active">Feeds</a>
+{% endblock %}
+
+{% block footer_toggle %}
     <label for="menu-toggle" class="menu-toggle">
         <span class="icon-open">{{ source('@icons/panel-left-open.svg') }}</span>
         <span class="icon-close">{{ source('@icons/panel-left-close.svg') }}</span>
     </label>
-    <a href="{{ path_with_filters('feed_index') }}" class="feeds-link active">Feeds</a>
 {% endblock %}
 
 {% block page_id %}feed{% endblock %}

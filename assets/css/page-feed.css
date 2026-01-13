@@ -341,6 +341,10 @@ header h1 .back {
         display: flex;
     }
 
+    body.has-active-item .menu-toggle {
+        visibility: hidden;
+    }
+
     .menu-checkbox:checked ~ * .menu-toggle .icon-open {
         display: none;
     }

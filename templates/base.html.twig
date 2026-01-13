@@ -36,6 +36,7 @@
     </main>
 
     <footer>
+        {% block footer_toggle %}{% endblock %}
         {% block keyboard_shortcuts %}{% endblock %}
         <a href="{{ path('status') }}" class="status-link">
             <span class="status-indicator {{ status_is_active() ? 'status-active' : 'status-inactive' }}"></span>
