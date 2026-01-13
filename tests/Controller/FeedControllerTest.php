@@ -910,4 +910,127 @@ class FeedControllerTest extends WebTestCase
             '/s/0123456789abcdef/f/fedcba9876543210',
         );
     }
+
+    #[Test]
+    public function markAsReadWithBackActionRedirectsToFeedIndex(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $crawler = $client->request('GET', '/f/fedcba9876543210');
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        $client->request('POST', '/f/fedcba9876543210/read', [
+            '_token' => $csrfToken,
+            'action' => 'back',
+        ]);
+
+        $this->assertResponseRedirects('/');
+    }
+
+    #[Test]
+    public function markAsUnreadWithBackActionRedirectsToFeedIndex(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // First mark as read
+        $crawler = $client->request('GET', '/f/fedcba9876543210');
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        $client->request('POST', '/f/fedcba9876543210/read', [
+            '_token' => $csrfToken,
+        ]);
+
+        // Now mark as unread with back action
+        $crawler = $client->request('GET', '/f/fedcba9876543210');
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        $client->request('POST', '/f/fedcba9876543210/unread', [
+            '_token' => $csrfToken,
+            'action' => 'back',
+        ]);
+
+        $this->assertResponseRedirects('/');
+    }
+
+    #[Test]
+    public function filteredMarkAsReadWithBackActionRedirectsToSubscription(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        $crawler = $client->request(
+            'GET',
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        $client->request(
+            'POST',
+            '/s/0123456789abcdef/f/fedcba9876543210/read',
+            [
+                '_token' => $csrfToken,
+                'action' => 'back',
+            ],
+        );
+
+        $this->assertResponseRedirects('/s/0123456789abcdef');
+    }
+
+    #[Test]
+    public function filteredMarkAsUnreadWithBackActionRedirectsToSubscription(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItem($client);
+
+        // First mark as read
+        $crawler = $client->request(
+            'GET',
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        $client->request(
+            'POST',
+            '/s/0123456789abcdef/f/fedcba9876543210/read',
+            ['_token' => $csrfToken],
+        );
+
+        // Now mark as unread with back action
+        $crawler = $client->request(
+            'GET',
+            '/s/0123456789abcdef/f/fedcba9876543210',
+        );
+        $csrfToken = $crawler
+            ->filter('input[name="_token"]')
+            ->first()
+            ->attr('value');
+
+        $client->request(
+            'POST',
+            '/s/0123456789abcdef/f/fedcba9876543210/unread',
+            [
+                '_token' => $csrfToken,
+                'action' => 'back',
+            ],
+        );
+
+        $this->assertResponseRedirects('/s/0123456789abcdef');
+    }
 }

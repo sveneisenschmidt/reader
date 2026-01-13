@@ -166,6 +166,10 @@ class FeedController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsRead($user->getId(), $fguid);
 
+        if ($request->request->get('action') === 'back') {
+            return $this->redirectToRoute('feed_index');
+        }
+
         return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
     }
 
@@ -182,6 +186,10 @@ class FeedController extends AbstractController
         $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsUnread($user->getId(), $fguid);
+
+        if ($request->request->get('action') === 'back') {
+            return $this->redirectToRoute('feed_index');
+        }
 
         return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
     }
@@ -205,6 +213,12 @@ class FeedController extends AbstractController
         $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsRead($user->getId(), $fguid);
+
+        if ($request->request->get('action') === 'back') {
+            return $this->redirectToRoute('subscription_show', [
+                'sguid' => $sguid,
+            ]);
+        }
 
         return $this->redirectToRoute('feed_item_filtered', [
             'sguid' => $sguid,
@@ -231,6 +245,12 @@ class FeedController extends AbstractController
         $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsUnread($user->getId(), $fguid);
+
+        if ($request->request->get('action') === 'back') {
+            return $this->redirectToRoute('subscription_show', [
+                'sguid' => $sguid,
+            ]);
+        }
 
         return $this->redirectToRoute('feed_item_filtered', [
             'sguid' => $sguid,
