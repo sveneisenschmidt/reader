@@ -55,8 +55,12 @@ class FeedViewService
         $activeItem = $fguid ? $this->findItemByGuid($items, $fguid) : null;
 
         if ($unreadOnly) {
+            // Keep active item visible even if read, so it stays in list after marking read
             $items = array_values(
-                array_filter($items, fn ($item) => !$item['isRead']),
+                array_filter(
+                    $items,
+                    fn ($item) => !$item['isRead'] || $item['guid'] === $fguid,
+                ),
             );
         }
 
