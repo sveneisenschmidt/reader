@@ -1,10 +1,13 @@
 (() => {
-    const element = document.querySelector("[data-reading-list]");
+    const section = document.querySelector("[data-reading-list]");
+    // On mobile, #feed scrolls instead of the section
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    const element = isMobile ? document.querySelector("#feed") : section;
     const scrollKey = "reading-list-scroll";
     const activeKey = "reading-list-active";
     const activeElement = document.querySelector("[data-active]");
 
-    if (element) {
+    const restoreScroll = () => {
         if (activeElement) {
             const savedActive = sessionStorage.getItem(activeKey);
             const currentActive = activeElement.dataset.active;
@@ -30,6 +33,14 @@
             // Clear the active key since we're back to list view
             sessionStorage.removeItem(activeKey);
         }
+    };
+
+    if (element) {
+        // Use requestAnimationFrame to ensure layout is complete (iOS Safari)
+        requestAnimationFrame(() => {
+            requestAnimationFrame(restoreScroll);
+        });
+
         element.addEventListener("scroll", () => {
             sessionStorage.setItem(scrollKey, element.scrollTop);
         });
