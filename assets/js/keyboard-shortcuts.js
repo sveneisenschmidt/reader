@@ -43,23 +43,31 @@ document.addEventListener("keydown", (e) => {
             document.querySelector("[data-reading-pane] footer form")?.submit();
             break;
 
-        case "ArrowDown":
+        case "ArrowDown": {
             if (!hasActiveItem) return;
             e.preventDefault();
-            document
-                .querySelector(".feed-item.active")
-                ?.nextElementSibling?.querySelector("a")
-                ?.click();
+            const nextItem =
+                document.querySelector(".feed-item.active")?.nextElementSibling;
+            if (nextItem) {
+                nextItem.scrollIntoView({ block: "nearest" });
+                nextItem.querySelector("a")?.click();
+            }
             break;
+        }
 
-        case "ArrowUp":
+        case "ArrowUp": {
             if (!hasActiveItem) return;
             e.preventDefault();
-            document
-                .querySelector(".feed-item.active")
-                ?.previousElementSibling?.querySelector("a")
-                ?.click();
+            const prevItem =
+                document.querySelector(
+                    ".feed-item.active",
+                )?.previousElementSibling;
+            if (prevItem) {
+                prevItem.scrollIntoView({ block: "nearest" });
+                prevItem.querySelector("a")?.click();
+            }
             break;
+        }
 
         case "Escape":
             if (!hasActiveItem) return;
