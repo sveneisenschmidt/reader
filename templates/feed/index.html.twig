@@ -164,14 +164,16 @@
             {% endif %}
         </footer>
     </article>
-        {% if user_auto_mark_read() %}
-        <script>{{ asset_inline('js/auto-mark-read.js') }}</script>
-        {% endif %}
-        <script>{{ asset_inline('js/open-link-refresh.js') }}</script>
+    {% if user_auto_mark_read() %}
+    <script>{{ asset_inline('js/auto-mark-read.js') }}</script>
     {% endif %}
+    <script>{{ asset_inline('js/open-link-refresh.js') }}</script>
+    {% endif %}
+
     {% if user_keyboard_shortcuts() %}
     <script>{{ asset_inline('js/keyboard-shortcuts.js') }}</script>
     {% endif %}
+
     {% if pullToRefresh %}
     <script>{{ asset_inline('js/pull-to-refresh.js') }}</script>
     {% endif %}

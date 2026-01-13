@@ -40,7 +40,7 @@ class AssetInlineExtension extends AbstractExtension
         }
 
         return '/* '.
-            $asset->logicalPath.
+            $asset->publicPath.
             " */\n".
             file_get_contents($asset->sourcePath);
     }

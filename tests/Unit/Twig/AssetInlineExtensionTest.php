@@ -56,7 +56,11 @@ class AssetInlineExtensionTest extends TestCase
             '(function() { console.log("test"); })();',
         );
 
-        $asset = new MappedAsset('js/test.js', $tempFile);
+        $asset = new MappedAsset(
+            'js/test.js',
+            $tempFile,
+            publicPath: '/assets/js/test-abc123.js',
+        );
 
         $assetMapper = $this->createMock(AssetMapperInterface::class);
         $assetMapper
@@ -68,7 +72,10 @@ class AssetInlineExtensionTest extends TestCase
 
         $result = $extension->assetInline('js/test.js');
 
-        $this->assertStringContainsString('/* js/test.js */', $result);
+        $this->assertStringContainsString(
+            '/* /assets/js/test-abc123.js */',
+            $result,
+        );
         $this->assertStringContainsString(
             '(function() { console.log("test"); })();',
             $result,
