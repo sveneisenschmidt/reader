@@ -1,63 +1,37 @@
+/**
+ * Scroll Restore
+ *
+ * Restores the scroll position of the feed list between page loads.
+ *
+ * Scroll containers:
+ * - Desktop: section[data-reading-list]
+ * - Mobile: [data-scroll-container]
+ */
+
 (() => {
-    const section = document.querySelector("[data-reading-list]");
+    const STORAGE_KEY = "reading-list-scroll";
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    const hasReadingPane = document.body.classList.contains("has-active-item");
 
-    // Find the scrollable parent element
-    const findScrollableParent = (el) => {
-        while (el && el !== document.body) {
-            const style = getComputedStyle(el);
-            const overflowY = style.overflowY;
-            if (
-                (overflowY === "auto" || overflowY === "scroll") &&
-                el.scrollHeight > el.clientHeight
-            ) {
-                return el;
-            }
-            el = el.parentElement;
-        }
-        return null;
-    };
+    const element = isMobile
+        ? document.querySelector("[data-scroll-container]")
+        : document.querySelector("[data-reading-list]");
 
-    const element = findScrollableParent(section) || section;
-    const scrollKey = "reading-list-scroll";
-    const activeKey = "reading-list-active";
-    const activeElement = document.querySelector("[data-active]");
+    if (!element) return;
 
-    const restoreScroll = () => {
-        if (activeElement) {
-            const savedActive = sessionStorage.getItem(activeKey);
-            const currentActive = activeElement.dataset.active;
+    // On mobile with reading pane open, don't restore or save
+    if (isMobile && hasReadingPane) return;
 
-            // Scroll to active element if it changed (keyboard navigation)
-            if (savedActive !== currentActive) {
-                activeElement.scrollIntoView({ block: "center" });
-                sessionStorage.setItem(activeKey, currentActive);
-                sessionStorage.setItem(scrollKey, element.scrollTop);
-            } else {
-                // Same item, restore scroll position
-                const saved = sessionStorage.getItem(scrollKey);
-                if (saved) {
-                    element.scrollTop = parseInt(saved, 10);
-                }
-            }
-        } else {
-            // No active element (back to list) - restore scroll position
-            const saved = sessionStorage.getItem(scrollKey);
-            if (saved) {
-                element.scrollTop = parseInt(saved, 10);
-            }
-            // Clear the active key since we're back to list view
-            sessionStorage.removeItem(activeKey);
-        }
-    };
-
-    if (element) {
-        // Use requestAnimationFrame to ensure layout is complete (iOS Safari)
-        requestAnimationFrame(() => {
-            requestAnimationFrame(restoreScroll);
-        });
-
-        element.addEventListener("scroll", () => {
-            sessionStorage.setItem(scrollKey, element.scrollTop);
+    // Restore
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        window.requestAnimationFrame(() => {
+            element.scrollTop = parseInt(saved, 10);
         });
     }
+
+    // Save
+    element.addEventListener("scroll", () => {
+        sessionStorage.setItem(STORAGE_KEY, element.scrollTop);
+    });
 })();
