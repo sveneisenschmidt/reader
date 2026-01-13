@@ -10,6 +10,22 @@
     <link rel="stylesheet" href="{{ asset('css/page-feed.css') }}">
 {% endblock %}
 
+{% block scripts %}
+    <script src="{{ asset('js/scroll-restore.js') }}"></script>
+    {% if activeItem %}
+    <script src="{{ asset('js/open-link-refresh.js') }}"></script>
+    {% if user_auto_mark_read() %}
+    <script src="{{ asset('js/auto-mark-read.js') }}"></script>
+    {% endif %}
+    {% endif %}
+    {% if user_keyboard_shortcuts() %}
+    <script src="{{ asset('js/keyboard-shortcuts.js') }}"></script>
+    {% endif %}
+    {% if pullToRefresh %}
+    <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
+    {% endif %}
+{% endblock %}
+
 {% block body_class %}{% if app.request.attributes.get('_route') in ['feed_item', 'feed_item_filtered'] %} class="has-active-item"{% endif %}{% endblock %}
 
 {% block keyboard_shortcuts %}
@@ -114,7 +130,7 @@
         {% endif %}
     </aside>
 
-    <section data-reading-list{% if not activeItem %} data-full-width{% endif %}>
+    <section data-reading-list{% if activeFeed %} data-subscription="{{ activeFeed }}"{% endif %}{% if not activeItem %} data-full-width{% endif %}>
         {% if items is empty and unread %}
         <div class="feed-empty">No unread items.<br><a href="{{ filter_url({unread: 0}) }}">Show all items</a></div>
         {% endif %}
@@ -131,10 +147,9 @@
         </div>
         {% endfor %}
     </section>
-    <script src="{{ asset('js/scroll-restore.js') }}"></script>
 
     {% if activeItem %}
-    <article data-reading-pane{% if not activeItem.isRead %} data-unread{% endif %}>
+    <article data-reading-pane data-item="{{ activeItem.guid }}"{% if not activeItem.isRead %} data-unread{% endif %}>
         <header>
             <h1><a href="{{ path('feed_item_open', {fguid: activeItem.guid, url: activeItem.link}) }}" target="_blank" rel="noopener noreferrer">{{ activeItem.title }}</a></h1>
             <p class="meta">
@@ -160,15 +175,5 @@
             {% endif %}
         </footer>
     </article>
-    <script src="{{ asset('js/open-link-refresh.js') }}"></script>
-    {% if user_auto_mark_read() %}
-    <script src="{{ asset('js/auto-mark-read.js') }}"></script>
-    {% endif %}
-    {% endif %}
-    {% if user_keyboard_shortcuts() %}
-    <script src="{{ asset('js/keyboard-shortcuts.js') }}"></script>
-    {% endif %}
-    {% if pullToRefresh %}
-    <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
     {% endif %}
 {% endblock %}
