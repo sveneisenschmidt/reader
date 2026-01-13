@@ -166,7 +166,8 @@ class FeedController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsRead($user->getId(), $fguid);
 
-        if ($request->request->get('action') === 'back') {
+        // redirect=list: back to feed list, redirect=article: stay on article
+        if ($request->request->get('redirect') === 'list') {
             return $this->redirectToRoute('feed_index');
         }
 
@@ -187,7 +188,8 @@ class FeedController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsUnread($user->getId(), $fguid);
 
-        if ($request->request->get('action') === 'back') {
+        // redirect=list: back to feed list, redirect=article: stay on article
+        if ($request->request->get('redirect') === 'list') {
             return $this->redirectToRoute('feed_index');
         }
 
@@ -214,7 +216,8 @@ class FeedController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsRead($user->getId(), $fguid);
 
-        if ($request->request->get('action') === 'back') {
+        // redirect=list: back to subscription list, redirect=article: stay on article
+        if ($request->request->get('redirect') === 'list') {
             return $this->redirectToRoute('subscription_show', [
                 'sguid' => $sguid,
             ]);
@@ -246,7 +249,8 @@ class FeedController extends AbstractController
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsUnread($user->getId(), $fguid);
 
-        if ($request->request->get('action') === 'back') {
+        // redirect=list: back to subscription list, redirect=article: stay on article
+        if ($request->request->get('redirect') === 'list') {
             return $this->redirectToRoute('subscription_show', [
                 'sguid' => $sguid,
             ]);

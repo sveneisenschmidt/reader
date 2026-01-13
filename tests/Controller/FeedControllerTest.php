@@ -925,7 +925,7 @@ class FeedControllerTest extends WebTestCase
 
         $client->request('POST', '/f/fedcba9876543210/read', [
             '_token' => $csrfToken,
-            'action' => 'back',
+            'redirect' => 'list',
         ]);
 
         $this->assertResponseRedirects('/');
@@ -957,7 +957,7 @@ class FeedControllerTest extends WebTestCase
 
         $client->request('POST', '/f/fedcba9876543210/unread', [
             '_token' => $csrfToken,
-            'action' => 'back',
+            'redirect' => 'list',
         ]);
 
         $this->assertResponseRedirects('/');
@@ -983,7 +983,7 @@ class FeedControllerTest extends WebTestCase
             '/s/0123456789abcdef/f/fedcba9876543210/read',
             [
                 '_token' => $csrfToken,
-                'action' => 'back',
+                'redirect' => 'list',
             ],
         );
 
@@ -1027,7 +1027,7 @@ class FeedControllerTest extends WebTestCase
             '/s/0123456789abcdef/f/fedcba9876543210/unread',
             [
                 '_token' => $csrfToken,
-                'action' => 'back',
+                'redirect' => 'list',
             ],
         );
 

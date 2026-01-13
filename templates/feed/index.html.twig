@@ -171,14 +171,14 @@
             {% if activeItem.isRead %}
                 <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_unread', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_unread', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
                     <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
-                    <button type="submit" class="btn-link">Mark as unread</button>
-                    <button type="submit" name="action" value="back" class="btn-link">Mark as unread & back</button>
+                    <button type="submit" name="redirect" value="article" class="btn-link" data-mark-action-article>Mark as unread</button>
+                    <button type="submit" name="redirect" value="list" class="btn-link" data-mark-action-list>Mark as unread</button>
                 </form>
             {% else %}
                 <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_read', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_read', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
                     <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
-                    <button type="submit" class="btn-link">Mark as read</button>
-                    <button type="submit" name="action" value="back" class="btn-link">Mark as read & back</button>
+                    <button type="submit" name="redirect" value="article" class="btn-link" data-mark-action-article>Mark as read</button>
+                    <button type="submit" name="redirect" value="list" class="btn-link" data-mark-action-list>Mark as read</button>
                 </form>
             {% endif %}
         </footer>

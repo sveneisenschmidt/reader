@@ -210,6 +210,11 @@ header h1 .back {
             padding: var(--spacing-md) 0;
             display: flex;
             justify-content: space-between;
+
+            /* Hide "redirect to list" button on desktop, show "stay on article" */
+            & [data-mark-action-list] {
+                display: none;
+            }
         }
     }
 }
@@ -380,6 +385,15 @@ header h1 .back {
         & .back {
             display: inline;
         }
+    }
+
+    /* Hide "stay on article" button on mobile, show "redirect to list" */
+    #feed > article > footer [data-mark-action-article] {
+        display: none;
+    }
+
+    #feed > article > footer [data-mark-action-list] {
+        display: inline;
     }
 }
 
