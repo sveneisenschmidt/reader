@@ -85,6 +85,44 @@ class AssetInlineExtensionTest extends TestCase
     }
 
     #[Test]
+    public function assetInlineLoadsFromPublicDirWhenExists(): void
+    {
+        $publicDir = sys_get_temp_dir().'/public_test_'.uniqid();
+        mkdir($publicDir.'/assets/js', 0777, true);
+
+        $publicFile = $publicDir.'/assets/js/test-abc123.js';
+        file_put_contents($publicFile, '/* minified */console.log("min");');
+
+        $sourceFile = tempnam(sys_get_temp_dir(), 'source_');
+        file_put_contents($sourceFile, '/* source */console.log("src");');
+
+        $asset = new MappedAsset(
+            'js/test.js',
+            $sourceFile,
+            publicPath: '/assets/js/test-abc123.js',
+        );
+
+        $assetMapper = $this->createMock(AssetMapperInterface::class);
+        $assetMapper
+            ->method('getAsset')
+            ->with('js/test.js')
+            ->willReturn($asset);
+
+        $extension = $this->createExtension($assetMapper, $publicDir);
+
+        $result = $extension->assetInline('js/test.js');
+
+        $this->assertStringContainsString('/* minified */', $result);
+        $this->assertStringNotContainsString('/* source */', $result);
+
+        unlink($publicFile);
+        unlink($sourceFile);
+        rmdir($publicDir.'/assets/js');
+        rmdir($publicDir.'/assets');
+        rmdir($publicDir);
+    }
+
+    #[Test]
     public function assetInlineFunctionIsSafeForHtml(): void
     {
         $extension = $this->createExtension();
@@ -104,9 +142,11 @@ class AssetInlineExtensionTest extends TestCase
 
     private function createExtension(
         ?AssetMapperInterface $assetMapper = null,
+        string $publicDir = '/tmp',
     ): AssetInlineExtension {
         return new AssetInlineExtension(
             $assetMapper ?? $this->createStub(AssetMapperInterface::class),
+            $publicDir,
         );
     }
 }

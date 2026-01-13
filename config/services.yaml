@@ -70,3 +70,7 @@ services:
     App\EventListener\SqliteWalListener:
         tags:
             - { name: doctrine.event_listener, event: postConnect }
+
+    App\Twig\AssetInlineExtension:
+        arguments:
+            $publicDir: "%kernel.project_dir%/public"

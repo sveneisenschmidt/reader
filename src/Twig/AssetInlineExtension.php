@@ -16,8 +16,10 @@ use Twig\TwigFunction;
 
 class AssetInlineExtension extends AbstractExtension
 {
-    public function __construct(private AssetMapperInterface $assetMapper)
-    {
+    public function __construct(
+        private AssetMapperInterface $assetMapper,
+        private string $publicDir,
+    ) {
     }
 
     public function getFunctions(): array
@@ -39,9 +41,14 @@ class AssetInlineExtension extends AbstractExtension
             return '';
         }
 
-        return '/* '.
-            $asset->publicPath.
-            " */\n".
-            file_get_contents($asset->sourcePath);
+        // Try compiled file in public/ first, then fall back to source
+        $publicFile = $this->publicDir.$asset->publicPath;
+        if (file_exists($publicFile)) {
+            $content = file_get_contents($publicFile);
+        } else {
+            $content = $asset->content ?? file_get_contents($asset->sourcePath);
+        }
+
+        return '/* '.$asset->publicPath." */\n".$content;
     }
 }
