@@ -721,6 +721,21 @@ class FeedControllerTest extends WebTestCase
     }
 
     #[Test]
+    public function openRouteWithEmptyContentRedirectsToFeedItem(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItemEmptyContent($client);
+
+        // URL that is not the main link and content is empty
+        $client->request(
+            'GET',
+            '/f/fedcba9876543210/open?url=https://other-site.com',
+        );
+
+        $this->assertResponseRedirects('/f/fedcba9876543210');
+    }
+
+    #[Test]
     public function openRouteWithArticleLinkRedirectsToExternalUrl(): void
     {
         $client = static::createClient();

@@ -47,12 +47,7 @@ class FeedReaderServiceTest extends TestCase
             ->with('https://example.com/feed.xml')
             ->willReturn($result);
 
-        $contentService = $this->createMock(FeedContentService::class);
-        $contentService
-            ->method('createGuid')
-            ->willReturnCallback(fn ($input) => substr(md5($input), 0, 16));
-
-        $service = $this->createService($feedIo, $contentService);
+        $service = $this->createService($feedIo);
 
         $feedData = $service->fetchFeed('https://example.com/feed.xml');
 
@@ -84,10 +79,7 @@ class FeedReaderServiceTest extends TestCase
         $feedIo = $this->createMock(FeedIo::class);
         $feedIo->method('read')->willReturn($result);
 
-        $contentService = $this->createMock(FeedContentService::class);
-        $contentService->method('createGuid')->willReturn('abc123');
-
-        $service = $this->createService($feedIo, $contentService);
+        $service = $this->createService($feedIo);
 
         $feedData = $service->fetchFeed('https://example.com/feed.xml');
 
@@ -117,7 +109,6 @@ class FeedReaderServiceTest extends TestCase
         $feedIo->method('read')->willReturn($result);
 
         $contentService = $this->createMock(FeedContentService::class);
-        $contentService->method('createGuid')->willReturn('abc123');
         $contentService
             ->expects($this->once())
             ->method('createTitleFromExcerpt')
@@ -184,7 +175,6 @@ class FeedReaderServiceTest extends TestCase
         $feedIo->method('read')->willReturn($result);
 
         $contentService = $this->createMock(FeedContentService::class);
-        $contentService->method('createGuid')->willReturn('abc123');
         $contentService
             ->expects($this->once())
             ->method('sanitizeItems')
@@ -225,7 +215,6 @@ class FeedReaderServiceTest extends TestCase
             ->willReturn($result);
 
         $contentService = $this->createMock(FeedContentService::class);
-        $contentService->method('createGuid')->willReturn('abc123');
         $contentService->method('sanitizeItems')->willReturn([]);
 
         $persistenceService = $this->createMock(FeedPersistenceService::class);
@@ -269,7 +258,6 @@ class FeedReaderServiceTest extends TestCase
             });
 
         $contentService = $this->createMock(FeedContentService::class);
-        $contentService->method('createGuid')->willReturn('abc123');
         $contentService->method('sanitizeItems')->willReturn([]);
 
         $persistenceService = $this->createMock(FeedPersistenceService::class);

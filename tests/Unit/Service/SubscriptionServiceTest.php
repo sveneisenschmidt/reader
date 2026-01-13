@@ -15,7 +15,6 @@ use App\Repository\Content\FeedItemRepository;
 use App\Repository\Subscriptions\SubscriptionRepository;
 use App\Repository\Users\ReadStatusRepository;
 use App\Repository\Users\SeenStatusRepository;
-use App\Service\FeedContentService;
 use App\Service\FeedReaderService;
 use App\Service\SubscriptionService;
 use PHPUnit\Framework\Attributes\Test;
@@ -179,7 +178,8 @@ class SubscriptionServiceTest extends TestCase
         $userId = 1;
         $url = 'https://example.com/feed';
         $title = 'Example Feed';
-        $guid = 'generated-guid';
+        // GUID is now generated internally using sha256
+        $expectedGuid = substr(hash('sha256', $url), 0, 16);
 
         $feedReaderService = $this->createMock(FeedReaderService::class);
         $feedReaderService
@@ -188,26 +188,22 @@ class SubscriptionServiceTest extends TestCase
             ->with($url)
             ->willReturn(['title' => $title, 'items' => []]);
 
-        $feedContentService = $this->createMock(FeedContentService::class);
-        $feedContentService
-            ->expects($this->once())
-            ->method('createGuid')
-            ->with($url)
-            ->willReturn($guid);
-
-        $subscription = $this->createSubscriptionStub($guid, $title, $url);
+        $subscription = $this->createSubscriptionStub(
+            $expectedGuid,
+            $title,
+            $url,
+        );
 
         $repository = $this->createMock(SubscriptionRepository::class);
         $repository
             ->expects($this->once())
             ->method('addSubscription')
-            ->with($userId, $url, $title, $guid)
+            ->with($userId, $url, $title, $expectedGuid)
             ->willReturn($subscription);
 
         $service = $this->createService(
             subscriptionRepository: $repository,
             feedReaderService: $feedReaderService,
-            feedContentService: $feedContentService,
         );
         $result = $service->addSubscription($userId, $url);
 
@@ -523,7 +519,6 @@ class SubscriptionServiceTest extends TestCase
     private function createService(
         ?SubscriptionRepository $subscriptionRepository = null,
         ?FeedReaderService $feedReaderService = null,
-        ?FeedContentService $feedContentService = null,
         ?FeedItemRepository $feedItemRepository = null,
         ?ReadStatusRepository $readStatusRepository = null,
         ?SeenStatusRepository $seenStatusRepository = null,
@@ -537,7 +532,6 @@ class SubscriptionServiceTest extends TestCase
             $seenStatusRepository ??
                 $this->createStub(SeenStatusRepository::class),
             $feedReaderService ?? $this->createStub(FeedReaderService::class),
-            $feedContentService ?? $this->createStub(FeedContentService::class),
         );
     }
 }

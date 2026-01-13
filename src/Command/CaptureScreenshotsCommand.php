@@ -17,7 +17,6 @@ use App\Message\RefreshFeedsMessage;
 use App\Repository\Messages\ProcessedMessageRepository;
 use App\Repository\Users\UserRepository;
 use App\Service\EncryptionService;
-use App\Service\FeedContentService;
 use App\Service\FeedViewService;
 use App\Service\ReadStatusService;
 use App\Service\SeenStatusService;
@@ -89,7 +88,6 @@ class CaptureScreenshotsCommand extends Command
         private FeedViewService $feedViewService,
         private ReadStatusService $readStatusService,
         private SeenStatusService $seenStatusService,
-        private FeedContentService $feedContentService,
         private ProcessedMessageRepository $processedMessageRepository,
         private \App\Service\UserPreferenceService $userPreferenceService,
     ) {
@@ -205,8 +203,10 @@ class CaptureScreenshotsCommand extends Command
             // - First 3 (index 0-2): unread + new (unseen) - default, no action
             // - 5th (index 4): unread + seen
             // - 4th and 6th onwards (index 3, 5+): read + seen
-            $svensGuid = $this->feedContentService->createGuid(
-                self::TEST_FEEDS[0]['url'],
+            $svensGuid = substr(
+                hash('sha256', self::TEST_FEEDS[0]['url']),
+                0,
+                16,
             );
             $allItems = $this->feedViewService->loadEnrichedItems(
                 $user->getId(),
@@ -328,8 +328,10 @@ class CaptureScreenshotsCommand extends Command
 
             $io->section('Capturing Mobile Feed List');
             // Navigate directly to Sven's Blog subscription URL
-            $svensGuid = $this->feedContentService->createGuid(
-                self::TEST_FEEDS[0]['url'],
+            $svensGuid = substr(
+                hash('sha256', self::TEST_FEEDS[0]['url']),
+                0,
+                16,
             );
             $this->driver->get($baseUrl.'/s/'.$svensGuid);
             $this->waitForPage();

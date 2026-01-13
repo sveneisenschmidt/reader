@@ -21,11 +21,6 @@ class FeedContentService
     ) {
     }
 
-    public function createGuid(string $input): string
-    {
-        return substr(hash('sha256', $input), 0, 16);
-    }
-
     #[Param(items: 'list<array<string, mixed>>')]
     #[Returns('list<array<string, mixed>>')]
     public function sanitizeItems(array $items): array

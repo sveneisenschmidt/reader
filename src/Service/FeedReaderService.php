@@ -85,7 +85,7 @@ class FeedReaderService
         FeedInterface $feed,
         string $feedUrl,
     ): array {
-        $subscriptionGuid = $this->contentService->createGuid($feedUrl);
+        $subscriptionGuid = $this->createSubscriptionGuid($feedUrl);
         $title = $feed->getTitle() ?? '';
         $items = [];
 
@@ -116,8 +116,9 @@ class FeedReaderService
         $date = $item->getLastModified();
 
         return [
-            'guid' => $this->contentService->createGuid(
-                $subscriptionGuid.($link ?: $id),
+            'guid' => $this->createFeedItemGuid(
+                $subscriptionGuid,
+                $link ?: $id,
             ),
             'title' => $itemTitle,
             'link' => $link,
@@ -126,5 +127,17 @@ class FeedReaderService
             'date' => $date ?? new \DateTime('now'),
             'excerpt' => $excerpt,
         ];
+    }
+
+    private function createSubscriptionGuid(string $feedUrl): string
+    {
+        return substr(hash('sha256', $feedUrl), 0, 16);
+    }
+
+    private function createFeedItemGuid(
+        string $subscriptionGuid,
+        string $identifier,
+    ): string {
+        return substr(hash('sha256', $subscriptionGuid.$identifier), 0, 16);
     }
 }

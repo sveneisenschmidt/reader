@@ -183,6 +183,42 @@ trait AuthenticatedTestTrait
         $this->createTestFeedItemWithLink($subscription->getGuid());
     }
 
+    private function createTestFeedItemWithEmptyContent(
+        string $subscriptionGuid = '0123456789abcdef',
+        string $itemGuid = 'fedcba9876543210',
+    ): FeedItem {
+        $container = static::getContainer();
+        $feedItemRepository = $container->get(FeedItemRepository::class);
+
+        $existing = $feedItemRepository->findByGuid($itemGuid);
+        if ($existing) {
+            $feedItemRepository->getEntityManager()->remove($existing);
+            $feedItemRepository->getEntityManager()->flush();
+        }
+
+        $feedItem = new FeedItem(
+            $itemGuid,
+            $subscriptionGuid,
+            'Test Feed Item With Empty Content',
+            'https://example.com/article',
+            'Test Feed',
+            '',
+            new \DateTimeImmutable(),
+        );
+
+        $feedItemRepository->upsert($feedItem);
+
+        return $feedItem;
+    }
+
+    private function ensureTestUserHasSubscriptionWithItemEmptyContent(
+        KernelBrowser $client,
+    ): void {
+        $this->loginAsTestUser($client);
+        $subscription = $this->createTestSubscription();
+        $this->createTestFeedItemWithEmptyContent($subscription->getGuid());
+    }
+
     private function ensureTestUserHasSubscriptionWithTwoItems(
         KernelBrowser $client,
     ): void {

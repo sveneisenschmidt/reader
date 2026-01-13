@@ -18,39 +18,6 @@ use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 class FeedContentServiceTest extends TestCase
 {
     #[Test]
-    public function createGuidReturns16CharHash(): void
-    {
-        $service = $this->createService();
-
-        $guid = $service->createGuid('https://example.com/feed');
-
-        $this->assertEquals(16, strlen($guid));
-        $this->assertMatchesRegularExpression('/^[a-f0-9]{16}$/', $guid);
-    }
-
-    #[Test]
-    public function createGuidReturnsSameHashForSameInput(): void
-    {
-        $service = $this->createService();
-
-        $guid1 = $service->createGuid('https://example.com/feed');
-        $guid2 = $service->createGuid('https://example.com/feed');
-
-        $this->assertEquals($guid1, $guid2);
-    }
-
-    #[Test]
-    public function createGuidReturnsDifferentHashForDifferentInput(): void
-    {
-        $service = $this->createService();
-
-        $guid1 = $service->createGuid('https://example.com/feed1');
-        $guid2 = $service->createGuid('https://example.com/feed2');
-
-        $this->assertNotEquals($guid1, $guid2);
-    }
-
-    #[Test]
     public function sanitizeItemsCleansExcerpts(): void
     {
         $sanitizer = $this->createMock(HtmlSanitizerInterface::class);

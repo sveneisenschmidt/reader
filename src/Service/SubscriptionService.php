@@ -26,7 +26,6 @@ class SubscriptionService
         private ReadStatusRepository $readStatusRepository,
         private SeenStatusRepository $seenStatusRepository,
         private FeedReaderService $feedReaderService,
-        private FeedContentService $feedContentService,
     ) {
     }
 
@@ -97,7 +96,7 @@ class SubscriptionService
     public function addSubscription(int $userId, string $url): Subscription
     {
         $feedData = $this->feedReaderService->fetchAndPersistFeed($url);
-        $guid = $this->feedContentService->createGuid($url);
+        $guid = $this->createSubscriptionGuid($url);
 
         return $this->subscriptionRepository->addSubscription(
             $userId,
@@ -105,6 +104,11 @@ class SubscriptionService
             $feedData['title'],
             $guid,
         );
+    }
+
+    private function createSubscriptionGuid(string $feedUrl): string
+    {
+        return substr(hash('sha256', $feedUrl), 0, 16);
     }
 
     public function removeSubscription(int $userId, string $guid): void
