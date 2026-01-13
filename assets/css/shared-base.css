@@ -279,7 +279,7 @@ body {
 
     &.standalone > footer {
         min-height: 4rem;
-        padding-top: var(--spacing-sm);
+        padding-top: var(--spacing-xs);
     }
 
     & > footer .keyboard-shortcuts {
