@@ -22,7 +22,12 @@
                 }
             }
         } else {
-            sessionStorage.removeItem(scrollKey);
+            // No active element (back to list) - restore scroll position
+            const saved = sessionStorage.getItem(scrollKey);
+            if (saved) {
+                element.scrollTop = parseInt(saved, 10);
+            }
+            // Clear the active key since we're back to list view
             sessionStorage.removeItem(activeKey);
         }
         element.addEventListener("scroll", () => {
