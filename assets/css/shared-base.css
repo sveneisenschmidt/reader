@@ -275,49 +275,49 @@ body {
         @media (width >= 768px) {
             justify-content: flex-end;
         }
+    }
 
-        @media (display-mode: standalone) {
-            min-height: 4rem;
-        }
+    &.standalone > footer {
+        min-height: 4rem;
+    }
 
-        & .keyboard-shortcuts {
-            display: none;
-            gap: var(--spacing-md);
+    & > footer .keyboard-shortcuts {
+        display: none;
+        gap: var(--spacing-md);
 
-            & .shortcut {
-                display: flex;
-                align-items: center;
-                gap: var(--spacing-xs);
-                color: var(--color-text-muted);
-                font-size: 0.875rem;
-            }
-
-            & .key {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 22px;
-                background: var(--color-bg-muted);
-                color: var(--color-text);
-                border-radius: 4px;
-                padding: 2px 4px;
-                font-size: 0.8rem;
-            }
-
-            & .key svg {
-                width: 14px;
-                height: 14px;
-            }
-        }
-
-        & .status-link {
+        & .shortcut {
             display: flex;
             align-items: center;
             gap: var(--spacing-xs);
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+        }
 
-            @media (width >= 768px) {
-                margin-left: auto;
-            }
+        & .key {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 22px;
+            background: var(--color-bg-muted);
+            color: var(--color-text);
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-size: 0.8rem;
+        }
+
+        & .key svg {
+            width: 14px;
+            height: 14px;
+        }
+    }
+
+    & > footer .status-link {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+
+        @media (width >= 768px) {
+            margin-left: auto;
         }
     }
 }
