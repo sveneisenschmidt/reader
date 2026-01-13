@@ -202,6 +202,17 @@ header h1 .back {
                 max-width: 100%;
                 height: auto;
             }
+
+            & ul,
+            & ol {
+                padding-left: var(--spacing-lg);
+                margin-bottom: var(--spacing-md);
+
+                & ul,
+                & ol {
+                    margin-bottom: 0;
+                }
+            }
         }
 
         & > footer {
