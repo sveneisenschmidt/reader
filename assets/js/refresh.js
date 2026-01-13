@@ -1,4 +1,4 @@
-(() => {
+document.addEventListener("DOMContentLoaded", () => {
     const SPINNER = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
     const form = document.querySelector("[data-refresh-form]");
 
@@ -22,4 +22,4 @@
             showOverlay();
             form?.requestSubmit();
         });
-})();
+});
