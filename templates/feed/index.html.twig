@@ -137,7 +137,7 @@
         </div>
         {% endfor %}
     </section>
-    <script src="{{ asset('js/scroll-restore.js') }}"></script>
+    <script>{{ asset_inline('js/scroll-restore.js') }}</script>
 
     {% if activeItem %}
     <article data-reading-pane data-item="{{ activeItem.guid }}"{% if not activeItem.isRead %} data-unread{% endif %}>
@@ -169,14 +169,14 @@
         </footer>
     </article>
     {% if user_auto_mark_read() %}
-    <script src="{{ asset('js/auto-mark-read.js') }}"></script>
+    <script>{{ asset_inline('js/auto-mark-read.js') }}</script>
     {% endif %}
-    <script src="{{ asset('js/open-link-refresh.js') }}"></script>
+    <script>{{ asset_inline('js/open-link-refresh.js') }}</script>
     {% endif %}
     {% if user_keyboard_shortcuts() %}
-    <script src="{{ asset('js/keyboard-shortcuts.js') }}"></script>
+    <script>{{ asset_inline('js/keyboard-shortcuts.js') }}</script>
     {% endif %}
     {% if pullToRefresh %}
-    <script src="{{ asset('js/pull-to-refresh.js') }}"></script>
+    <script>{{ asset_inline('js/pull-to-refresh.js') }}</script>
     {% endif %}
 {% endblock %}

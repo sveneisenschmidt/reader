@@ -2,6 +2,7 @@ twig:
     file_name_pattern: "*.twig"
     paths:
         "%kernel.project_dir%/assets/icons": icons
+        "%kernel.project_dir%/assets/js": js
     globals:
         app_timezone: "%env(APP_TIMEZONE)%"
     form_themes:

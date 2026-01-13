@@ -6,7 +6,7 @@
     {% block preload %}{% endblock %}
     {% block stylesheets %}{% endblock %}
     {% block scripts %}{% endblock %}
-    <script src="{{ asset('js/refresh.js') }}"></script>
+    <script>{{ asset_inline('js/refresh.js') }}</script>
 </head>
 <body{% block body_class %}{% endblock %}>
     {% block menu_toggle %}{% endblock %}
