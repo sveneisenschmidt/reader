@@ -19,7 +19,7 @@ use PhpStaticAnalysis\Attributes\Returns;
     ),
 ]
 #[ORM\Table(name: 'feed_item')]
-#[ORM\Index(name: 'idx_feed_guid', columns: ['feed_guid'])]
+#[ORM\Index(name: 'idx_subscription_guid', columns: ['subscription_guid'])]
 #[ORM\Index(name: 'idx_published_at', columns: ['published_at'])]
 class FeedItem
 {
@@ -31,8 +31,8 @@ class FeedItem
     #[ORM\Column(type: 'string', length: 16, unique: true)]
     private string $guid;
 
-    #[ORM\Column(type: 'string', length: 16)]
-    private string $feedGuid;
+    #[ORM\Column(name: 'subscription_guid', type: 'string', length: 16)]
+    private string $subscriptionGuid;
 
     #[ORM\Column(type: 'string', length: 500)]
     private string $title;
@@ -54,7 +54,7 @@ class FeedItem
 
     public function __construct(
         string $guid,
-        string $feedGuid,
+        string $subscriptionGuid,
         string $title,
         string $link,
         string $source,
@@ -62,7 +62,7 @@ class FeedItem
         \DateTimeImmutable $publishedAt,
     ) {
         $this->guid = $guid;
-        $this->feedGuid = $feedGuid;
+        $this->subscriptionGuid = $subscriptionGuid;
         $this->title = $title;
         $this->link = $link;
         $this->source = $source;
@@ -81,9 +81,9 @@ class FeedItem
         return $this->guid;
     }
 
-    public function getFeedGuid(): string
+    public function getSubscriptionGuid(): string
     {
-        return $this->feedGuid;
+        return $this->subscriptionGuid;
     }
 
     public function getTitle(): string
@@ -156,7 +156,7 @@ class FeedItem
     {
         return [
             'guid' => $this->guid,
-            'sguid' => $this->feedGuid,
+            'sguid' => $this->subscriptionGuid,
             'title' => $this->title,
             'link' => $this->link,
             'source' => $this->source,

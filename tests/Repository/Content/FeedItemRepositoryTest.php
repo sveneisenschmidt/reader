@@ -29,12 +29,12 @@ class FeedItemRepositoryTest extends KernelTestCase
 
     private function createFeedItem(
         string $guid,
-        string $feedGuid = 'testfeed1234567',
+        string $subscriptionGuid = 'testfeed1234567',
         ?\DateTimeImmutable $publishedAt = null,
     ): FeedItem {
         return new FeedItem(
             $guid,
-            $feedGuid,
+            $subscriptionGuid,
             "Test Item $guid",
             "https://example.com/$guid",
             'Test Source',
@@ -64,33 +64,33 @@ class FeedItemRepositoryTest extends KernelTestCase
     }
 
     #[Test]
-    public function findByFeedGuidReturnsEmptyArrayWhenNoItems(): void
+    public function findBySubscriptionGuidReturnsEmptyArrayWhenNoItems(): void
     {
-        $result = $this->repository->findByFeedGuid('nonexistentfeed1');
+        $result = $this->repository->findBySubscriptionGuid('nonexistentfeed1');
 
         $this->assertIsArray($result);
         $this->assertEmpty($result);
     }
 
     #[Test]
-    public function findByFeedGuidReturnsItemsOrderedByDate(): void
+    public function findBySubscriptionGuidReturnsItemsOrderedByDate(): void
     {
-        $feedGuid = 'orderedfeed12345';
+        $subscriptionGuid = 'orderedfeed12345';
         $older = $this->createFeedItem(
             'olderitem1234567',
-            $feedGuid,
+            $subscriptionGuid,
             new \DateTimeImmutable('-1 day'),
         );
         $newer = $this->createFeedItem(
             'neweritem1234567',
-            $feedGuid,
+            $subscriptionGuid,
             new \DateTimeImmutable('now'),
         );
 
         $this->repository->upsert($older);
         $this->repository->upsert($newer);
 
-        $result = $this->repository->findByFeedGuid($feedGuid);
+        $result = $this->repository->findBySubscriptionGuid($subscriptionGuid);
 
         $this->assertCount(2, $result);
         $this->assertEquals('neweritem1234567', $result[0]->getGuid());
@@ -116,9 +116,9 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function findByGuidsReturnsIndexedByGuid(): void
     {
-        $feedGuid = 'findbyguids12345';
-        $item1 = $this->createFeedItem('guiditem12345678', $feedGuid);
-        $item2 = $this->createFeedItem('guiditem23456789', $feedGuid);
+        $subscriptionGuid = 'findbyguids12345';
+        $item1 = $this->createFeedItem('guiditem12345678', $subscriptionGuid);
+        $item2 = $this->createFeedItem('guiditem23456789', $subscriptionGuid);
         $this->repository->upsert($item1);
         $this->repository->upsert($item2);
 
@@ -142,8 +142,8 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function findByGuidsReturnsOnlyExistingItems(): void
     {
-        $feedGuid = 'findbyguids23456';
-        $item = $this->createFeedItem('existingitem1234', $feedGuid);
+        $subscriptionGuid = 'findbyguids23456';
+        $item = $this->createFeedItem('existingitem1234', $subscriptionGuid);
         $this->repository->upsert($item);
 
         $result = $this->repository->findByGuids([
@@ -157,27 +157,30 @@ class FeedItemRepositoryTest extends KernelTestCase
     }
 
     #[Test]
-    public function findByFeedGuidsReturnsEmptyForEmptyInput(): void
+    public function findBySubscriptionGuidsReturnsEmptyForEmptyInput(): void
     {
-        $result = $this->repository->findByFeedGuids([]);
+        $result = $this->repository->findBySubscriptionGuids([]);
 
         $this->assertIsArray($result);
         $this->assertEmpty($result);
     }
 
     #[Test]
-    public function findByFeedGuidsReturnsItemsForMultipleFeeds(): void
+    public function findBySubscriptionGuidsReturnsItemsForMultipleSubscriptions(): void
     {
-        $feedGuid1 = 'multifeed1234567';
-        $feedGuid2 = 'multifeed2345678';
+        $subscriptionGuid1 = 'multifeed1234567';
+        $subscriptionGuid2 = 'multifeed2345678';
 
-        $item1 = $this->createFeedItem('multiitem12345678', $feedGuid1);
-        $item2 = $this->createFeedItem('multiitem23456789', $feedGuid2);
+        $item1 = $this->createFeedItem('multiitem12345678', $subscriptionGuid1);
+        $item2 = $this->createFeedItem('multiitem23456789', $subscriptionGuid2);
 
         $this->repository->upsert($item1);
         $this->repository->upsert($item2);
 
-        $result = $this->repository->findByFeedGuids([$feedGuid1, $feedGuid2]);
+        $result = $this->repository->findBySubscriptionGuids([
+            $subscriptionGuid1,
+            $subscriptionGuid2,
+        ]);
 
         $this->assertGreaterThanOrEqual(2, count($result));
     }
@@ -266,25 +269,29 @@ class FeedItemRepositoryTest extends KernelTestCase
     }
 
     #[Test]
-    public function getItemCountByFeedGuidReturnsZeroForEmpty(): void
+    public function getItemCountBySubscriptionGuidReturnsZeroForEmpty(): void
     {
-        $count = $this->repository->getItemCountByFeedGuid('emptyfeed1234567');
+        $count = $this->repository->getItemCountBySubscriptionGuid(
+            'emptyfeed1234567',
+        );
 
         $this->assertEquals(0, $count);
     }
 
     #[Test]
-    public function getItemCountByFeedGuidReturnsCorrectCount(): void
+    public function getItemCountBySubscriptionGuidReturnsCorrectCount(): void
     {
-        $feedGuid = 'countfeed1234567';
+        $subscriptionGuid = 'countfeed1234567';
         $this->repository->upsert(
-            $this->createFeedItem('count1234567890a', $feedGuid),
+            $this->createFeedItem('count1234567890a', $subscriptionGuid),
         );
         $this->repository->upsert(
-            $this->createFeedItem('count1234567890b', $feedGuid),
+            $this->createFeedItem('count1234567890b', $subscriptionGuid),
         );
 
-        $count = $this->repository->getItemCountByFeedGuid($feedGuid);
+        $count = $this->repository->getItemCountBySubscriptionGuid(
+            $subscriptionGuid,
+        );
 
         $this->assertGreaterThanOrEqual(2, $count);
     }
@@ -292,10 +299,10 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function deleteOlderThanRemovesOldItems(): void
     {
-        $feedGuid = 'deletefeed123456';
+        $subscriptionGuid = 'deletefeed123456';
         $oldItem = $this->createFeedItem(
             'olditem123456789',
-            $feedGuid,
+            $subscriptionGuid,
             new \DateTimeImmutable('-30 days'),
         );
         $this->repository->upsert($oldItem);
@@ -308,45 +315,53 @@ class FeedItemRepositoryTest extends KernelTestCase
     }
 
     #[Test]
-    public function getGuidsByFeedGuidReturnsEmptyForNoItems(): void
+    public function getGuidsBySubscriptionGuidReturnsEmptyForNoItems(): void
     {
-        $guids = $this->repository->getGuidsByFeedGuid('noguidsfeed12345');
+        $guids = $this->repository->getGuidsBySubscriptionGuid(
+            'noguidsfeed12345',
+        );
 
         $this->assertIsArray($guids);
         $this->assertEmpty($guids);
     }
 
     #[Test]
-    public function getGuidsByFeedGuidReturnsGuids(): void
+    public function getGuidsBySubscriptionGuidReturnsGuids(): void
     {
-        $feedGuid = 'guidsfeed1234567';
+        $subscriptionGuid = 'guidsfeed1234567';
         $this->repository->upsert(
-            $this->createFeedItem('guidsitem1234567', $feedGuid),
+            $this->createFeedItem('guidsitem1234567', $subscriptionGuid),
         );
         $this->repository->upsert(
-            $this->createFeedItem('guidsitem2345678', $feedGuid),
+            $this->createFeedItem('guidsitem2345678', $subscriptionGuid),
         );
 
-        $guids = $this->repository->getGuidsByFeedGuid($feedGuid);
+        $guids = $this->repository->getGuidsBySubscriptionGuid(
+            $subscriptionGuid,
+        );
 
         $this->assertContains('guidsitem1234567', $guids);
         $this->assertContains('guidsitem2345678', $guids);
     }
 
     #[Test]
-    public function deleteByFeedGuidRemovesAllItemsForFeed(): void
+    public function deleteBySubscriptionGuidRemovesAllItemsForSubscription(): void
     {
-        $feedGuid = 'deletebyfeed1234';
+        $subscriptionGuid = 'deletebyfeed1234';
         $this->repository->upsert(
-            $this->createFeedItem('delbyfeed1234567', $feedGuid),
+            $this->createFeedItem('delbyfeed1234567', $subscriptionGuid),
         );
         $this->repository->upsert(
-            $this->createFeedItem('delbyfeed2345678', $feedGuid),
+            $this->createFeedItem('delbyfeed2345678', $subscriptionGuid),
         );
 
-        $deleted = $this->repository->deleteByFeedGuid($feedGuid);
+        $deleted = $this->repository->deleteBySubscriptionGuid(
+            $subscriptionGuid,
+        );
 
         $this->assertGreaterThanOrEqual(0, $deleted);
-        $this->assertEmpty($this->repository->findByFeedGuid($feedGuid));
+        $this->assertEmpty(
+            $this->repository->findBySubscriptionGuid($subscriptionGuid),
+        );
     }
 }

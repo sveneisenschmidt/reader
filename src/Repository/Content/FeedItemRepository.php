@@ -53,10 +53,10 @@ class FeedItemRepository extends ServiceEntityRepository
     }
 
     #[Returns('list<FeedItem>')]
-    public function findByFeedGuid(string $feedGuid): array
+    public function findBySubscriptionGuid(string $subscriptionGuid): array
     {
         return $this->findBy(
-            ['feedGuid' => $feedGuid],
+            ['subscriptionGuid' => $subscriptionGuid],
             ['publishedAt' => 'DESC'],
         );
     }
@@ -67,17 +67,17 @@ class FeedItemRepository extends ServiceEntityRepository
         return $this->findBy([], ['publishedAt' => 'DESC']);
     }
 
-    #[Param(feedGuids: 'list<string>')]
+    #[Param(subscriptionGuids: 'list<string>')]
     #[Returns('list<FeedItem>')]
-    public function findByFeedGuids(array $feedGuids): array
+    public function findBySubscriptionGuids(array $subscriptionGuids): array
     {
-        if (empty($feedGuids)) {
+        if (empty($subscriptionGuids)) {
             return [];
         }
 
         return $this->createQueryBuilder('f')
-            ->where('f.feedGuid IN (:feedGuids)')
-            ->setParameter('feedGuids', $feedGuids)
+            ->where('f.subscriptionGuid IN (:subscriptionGuids)')
+            ->setParameter('subscriptionGuids', $subscriptionGuids)
             ->orderBy('f.publishedAt', 'DESC')
             ->getQuery()
             ->getResult();
@@ -127,9 +127,10 @@ class FeedItemRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
-    public function getItemCountByFeedGuid(string $feedGuid): int
-    {
-        return $this->count(['feedGuid' => $feedGuid]);
+    public function getItemCountBySubscriptionGuid(
+        string $subscriptionGuid,
+    ): int {
+        return $this->count(['subscriptionGuid' => $subscriptionGuid]);
     }
 
     public function deleteOlderThan(\DateTimeInterface $date): int
@@ -143,24 +144,24 @@ class FeedItemRepository extends ServiceEntityRepository
     }
 
     #[Returns('list<string>')]
-    public function getGuidsByFeedGuid(string $feedGuid): array
+    public function getGuidsBySubscriptionGuid(string $subscriptionGuid): array
     {
         $results = $this->createQueryBuilder('f')
             ->select('f.guid')
-            ->where('f.feedGuid = :feedGuid')
-            ->setParameter('feedGuid', $feedGuid)
+            ->where('f.subscriptionGuid = :subscriptionGuid')
+            ->setParameter('subscriptionGuid', $subscriptionGuid)
             ->getQuery()
             ->getScalarResult();
 
         return array_column($results, 'guid');
     }
 
-    public function deleteByFeedGuid(string $feedGuid): int
+    public function deleteBySubscriptionGuid(string $subscriptionGuid): int
     {
         return $this->createQueryBuilder('f')
             ->delete()
-            ->where('f.feedGuid = :feedGuid')
-            ->setParameter('feedGuid', $feedGuid)
+            ->where('f.subscriptionGuid = :subscriptionGuid')
+            ->setParameter('subscriptionGuid', $subscriptionGuid)
             ->getQuery()
             ->execute();
     }

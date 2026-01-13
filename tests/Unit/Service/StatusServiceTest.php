@@ -79,7 +79,7 @@ class StatusServiceTest extends TestCase
 
         $feedItemRepository = $this->createMock(FeedItemRepository::class);
         $feedItemRepository
-            ->method('getGuidsByFeedGuid')
+            ->method('getGuidsBySubscriptionGuid')
             ->willReturn(['item-1', 'item-2', 'item-3']);
 
         $readStatusRepository = $this->createMock(ReadStatusRepository::class);

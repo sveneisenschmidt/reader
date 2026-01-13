@@ -87,7 +87,7 @@ class SubscriptionService
     }
 
     #[Returns('list<string>')]
-    public function getFeedGuids(int $userId): array
+    public function getSubscriptionGuids(int $userId): array
     {
         $subscriptions = $this->getSubscriptionsForUser($userId);
 
@@ -110,7 +110,9 @@ class SubscriptionService
     public function removeSubscription(int $userId, string $guid): void
     {
         // Get all feed item GUIDs for this subscription
-        $feedItemGuids = $this->feedItemRepository->getGuidsByFeedGuid($guid);
+        $feedItemGuids = $this->feedItemRepository->getGuidsBySubscriptionGuid(
+            $guid,
+        );
 
         // Delete read/seen statuses for these items
         if (!empty($feedItemGuids)) {
@@ -125,7 +127,7 @@ class SubscriptionService
         }
 
         // Delete all feed items for this subscription
-        $this->feedItemRepository->deleteByFeedGuid($guid);
+        $this->feedItemRepository->deleteBySubscriptionGuid($guid);
 
         // Delete the subscription itself
         $this->subscriptionRepository->removeSubscription($userId, $guid);

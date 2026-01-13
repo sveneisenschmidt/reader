@@ -85,12 +85,12 @@ class FeedReaderService
         FeedInterface $feed,
         string $feedUrl,
     ): array {
-        $feedGuid = $this->contentService->createGuid($feedUrl);
+        $subscriptionGuid = $this->contentService->createGuid($feedUrl);
         $title = $feed->getTitle() ?? '';
         $items = [];
 
         foreach ($feed as $item) {
-            $items[] = $this->extractItemData($item, $title, $feedGuid);
+            $items[] = $this->extractItemData($item, $title, $subscriptionGuid);
         }
 
         return ['title' => $title, 'items' => $items];
@@ -100,7 +100,7 @@ class FeedReaderService
     private function extractItemData(
         \FeedIo\Feed\ItemInterface $item,
         string $feedTitle,
-        string $feedGuid,
+        string $subscriptionGuid,
     ): array {
         $link = $item->getLink() ?? '';
         $id = $item->getPublicId() ?? $link;
@@ -116,11 +116,13 @@ class FeedReaderService
         $date = $item->getLastModified();
 
         return [
-            'guid' => $this->contentService->createGuid($link ?: $id),
+            'guid' => $this->contentService->createGuid(
+                $subscriptionGuid.($link ?: $id),
+            ),
             'title' => $itemTitle,
             'link' => $link,
             'source' => $feedTitle,
-            'feedGuid' => $feedGuid,
+            'subscriptionGuid' => $subscriptionGuid,
             'date' => $date ?? new \DateTime('now'),
             'excerpt' => $excerpt,
         ];

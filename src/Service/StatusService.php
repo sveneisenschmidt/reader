@@ -70,7 +70,7 @@ class StatusService
         ];
 
         foreach ($subscriptions as $subscription) {
-            $itemGuids = $this->feedItemRepository->getGuidsByFeedGuid(
+            $itemGuids = $this->feedItemRepository->getGuidsBySubscriptionGuid(
                 $subscription->getGuid(),
             );
             $itemCount = count($itemGuids);

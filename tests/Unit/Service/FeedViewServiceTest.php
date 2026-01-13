@@ -102,7 +102,9 @@ class FeedViewServiceTest extends TestCase
         $userId = 1;
 
         $subscriptionService = $this->createStub(SubscriptionService::class);
-        $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
+        $subscriptionService
+            ->method('getSubscriptionGuids')
+            ->willReturn(['sguid1']);
 
         $feedFetcher = $this->createStub(FeedPersistenceService::class);
         $feedFetcher
@@ -129,7 +131,7 @@ class FeedViewServiceTest extends TestCase
 
         $subscriptionService = $this->createStub(SubscriptionService::class);
         $subscriptionService
-            ->method('getFeedGuids')
+            ->method('getSubscriptionGuids')
             ->willReturn(['sguid1', 'sguid2']);
 
         $feedFetcher = $this->createStub(FeedPersistenceService::class);
@@ -158,7 +160,7 @@ class FeedViewServiceTest extends TestCase
     {
         $subscriptionService = $this->createStub(SubscriptionService::class);
         $subscriptionService
-            ->method('getFeedGuids')
+            ->method('getSubscriptionGuids')
             ->willReturn(['sguid1', 'sguid2']);
         $subscriptionService
             ->method('enrichItemsWithSubscriptionNames')
@@ -223,7 +225,9 @@ class FeedViewServiceTest extends TestCase
         $userId = 1;
 
         $subscriptionService = $this->createStub(SubscriptionService::class);
-        $subscriptionService->method('getFeedGuids')->willReturn(['sguid1']);
+        $subscriptionService
+            ->method('getSubscriptionGuids')
+            ->willReturn(['sguid1']);
         $subscriptionService->method('getSubscriptionsForUser')->willReturn([]);
         $subscriptionService
             ->method('getSubscriptionsWithCounts')

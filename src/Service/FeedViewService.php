@@ -113,7 +113,7 @@ class FeedViewService
     #[Returns('list<string>')]
     public function getAllItemGuids(int $userId): array
     {
-        $sguids = $this->subscriptionService->getFeedGuids($userId);
+        $sguids = $this->subscriptionService->getSubscriptionGuids($userId);
         $items = $this->feedPersistenceService->getAllItems($sguids);
 
         return array_column($items, 'guid');
@@ -124,7 +124,7 @@ class FeedViewService
         int $userId,
         string $sguid,
     ): array {
-        $sguids = $this->subscriptionService->getFeedGuids($userId);
+        $sguids = $this->subscriptionService->getSubscriptionGuids($userId);
         $items = $this->feedPersistenceService->getAllItems($sguids);
         $items = array_filter($items, fn ($item) => $item['sguid'] === $sguid);
 

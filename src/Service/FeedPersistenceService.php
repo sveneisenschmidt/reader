@@ -47,7 +47,7 @@ class FeedPersistenceService
             if ($existing === null) {
                 $feedItem = new FeedItem(
                     $itemData['guid'],
-                    $itemData['feedGuid'],
+                    $itemData['subscriptionGuid'],
                     $itemData['title'],
                     $itemData['link'],
                     $itemData['source'],
@@ -66,11 +66,13 @@ class FeedPersistenceService
         $this->contentEntityManager->flush();
     }
 
-    #[Param(feedGuids: 'list<string>')]
+    #[Param(subscriptionGuids: 'list<string>')]
     #[Returns('list<array<string, mixed>>')]
-    public function getAllItems(array $feedGuids): array
+    public function getAllItems(array $subscriptionGuids): array
     {
-        $feedItems = $this->feedItemRepository->findByFeedGuids($feedGuids);
+        $feedItems = $this->feedItemRepository->findBySubscriptionGuids(
+            $subscriptionGuids,
+        );
 
         return array_map(fn (FeedItem $item) => $item->toArray(), $feedItems);
     }
@@ -83,9 +85,11 @@ class FeedPersistenceService
         return $feedItem?->toArray();
     }
 
-    public function getItemCountForFeed(string $feedGuid): int
+    public function getItemCountForSubscription(string $subscriptionGuid): int
     {
-        return $this->feedItemRepository->getItemCountByFeedGuid($feedGuid);
+        return $this->feedItemRepository->getItemCountBySubscriptionGuid(
+            $subscriptionGuid,
+        );
     }
 
     #[Param(items: 'list<array<string, mixed>>')]

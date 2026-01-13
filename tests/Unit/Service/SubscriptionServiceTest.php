@@ -147,7 +147,7 @@ class SubscriptionServiceTest extends TestCase
     }
 
     #[Test]
-    public function getFeedGuidsReturnsMappedGuids(): void
+    public function getSubscriptionGuidsReturnsMappedGuids(): void
     {
         $userId = 1;
         $subscriptions = [
@@ -168,7 +168,7 @@ class SubscriptionServiceTest extends TestCase
 
         $service = $this->createService(subscriptionRepository: $repository);
 
-        $result = $service->getFeedGuids($userId);
+        $result = $service->getSubscriptionGuids($userId);
 
         $this->assertEquals(['guid1', 'guid2'], $result);
     }
@@ -224,12 +224,12 @@ class SubscriptionServiceTest extends TestCase
         $feedItemRepository = $this->createMock(FeedItemRepository::class);
         $feedItemRepository
             ->expects($this->once())
-            ->method('getGuidsByFeedGuid')
+            ->method('getGuidsBySubscriptionGuid')
             ->with($guid)
             ->willReturn($feedItemGuids);
         $feedItemRepository
             ->expects($this->once())
-            ->method('deleteByFeedGuid')
+            ->method('deleteBySubscriptionGuid')
             ->with($guid);
 
         $readStatusRepository = $this->createMock(ReadStatusRepository::class);
@@ -269,12 +269,12 @@ class SubscriptionServiceTest extends TestCase
         $feedItemRepository = $this->createMock(FeedItemRepository::class);
         $feedItemRepository
             ->expects($this->once())
-            ->method('getGuidsByFeedGuid')
+            ->method('getGuidsBySubscriptionGuid')
             ->with($guid)
             ->willReturn([]);
         $feedItemRepository
             ->expects($this->once())
-            ->method('deleteByFeedGuid')
+            ->method('deleteBySubscriptionGuid')
             ->with($guid);
 
         $readStatusRepository = $this->createMock(ReadStatusRepository::class);

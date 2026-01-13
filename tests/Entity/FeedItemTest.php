@@ -20,7 +20,7 @@ class FeedItemTest extends TestCase
     {
         return new FeedItem(
             guid: 'abc123def456',
-            feedGuid: 'feed123456789',
+            subscriptionGuid: 'feed123456789',
             title: 'Test Article',
             link: 'https://example.com/article',
             source: 'Test Blog',
@@ -35,12 +35,15 @@ class FeedItemTest extends TestCase
         $item = $this->createFeedItem();
 
         $this->assertEquals('abc123def456', $item->getGuid());
-        $this->assertEquals('feed123456789', $item->getFeedGuid());
+        $this->assertEquals('feed123456789', $item->getSubscriptionGuid());
         $this->assertEquals('Test Article', $item->getTitle());
         $this->assertEquals('https://example.com/article', $item->getLink());
         $this->assertEquals('Test Blog', $item->getSource());
         $this->assertEquals('This is a test excerpt', $item->getExcerpt());
-        $this->assertEquals('2024-01-15', $item->getPublishedAt()->format('Y-m-d'));
+        $this->assertEquals(
+            '2024-01-15',
+            $item->getPublishedAt()->format('Y-m-d'),
+        );
     }
 
     #[Test]

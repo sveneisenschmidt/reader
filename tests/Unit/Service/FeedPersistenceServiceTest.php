@@ -37,7 +37,7 @@ class FeedPersistenceServiceTest extends TestCase
         $items = [
             [
                 'guid' => 'item-1',
-                'feedGuid' => 'feed-1',
+                'subscriptionGuid' => 'feed-1',
                 'title' => 'Test Item',
                 'link' => 'https://example.com/item',
                 'source' => 'Test Feed',
@@ -85,7 +85,7 @@ class FeedPersistenceServiceTest extends TestCase
         $items = [
             [
                 'guid' => 'item-1',
-                'feedGuid' => 'feed-1',
+                'subscriptionGuid' => 'feed-1',
                 'title' => 'Updated Title',
                 'link' => 'https://example.com/updated',
                 'source' => 'Updated Source',
@@ -118,7 +118,7 @@ class FeedPersistenceServiceTest extends TestCase
         $items = [
             [
                 'guid' => 'item-1',
-                'feedGuid' => 'feed-1',
+                'subscriptionGuid' => 'feed-1',
                 'title' => 'Updated Title',
                 'link' => 'https://example.com/updated',
                 'source' => 'Updated Source',
@@ -145,7 +145,7 @@ class FeedPersistenceServiceTest extends TestCase
         $items = [
             [
                 'guid' => 'item-1',
-                'feedGuid' => 'feed-1',
+                'subscriptionGuid' => 'feed-1',
                 'title' => 'Test Item',
                 'link' => 'https://example.com/item',
                 'source' => 'Test Feed',
@@ -172,7 +172,7 @@ class FeedPersistenceServiceTest extends TestCase
         $items = [
             [
                 'guid' => 'item-1',
-                'feedGuid' => 'feed-1',
+                'subscriptionGuid' => 'feed-1',
                 'title' => 'Test Item',
                 'link' => 'https://example.com/item',
                 'source' => 'Test Feed',
@@ -194,7 +194,7 @@ class FeedPersistenceServiceTest extends TestCase
 
         $repository = $this->createMock(FeedItemRepository::class);
         $repository
-            ->method('findByFeedGuids')
+            ->method('findBySubscriptionGuids')
             ->with(['feed-1', 'feed-2'])
             ->willReturn([$feedItem]);
 
@@ -241,18 +241,18 @@ class FeedPersistenceServiceTest extends TestCase
     }
 
     #[Test]
-    public function getItemCountForFeedReturnsCount(): void
+    public function getItemCountForSubscriptionReturnsCount(): void
     {
         $repository = $this->createMock(FeedItemRepository::class);
         $repository
             ->expects($this->once())
-            ->method('getItemCountByFeedGuid')
+            ->method('getItemCountBySubscriptionGuid')
             ->with('feed-1')
             ->willReturn(42);
 
         $service = $this->createService($repository);
 
-        $count = $service->getItemCountForFeed('feed-1');
+        $count = $service->getItemCountForSubscription('feed-1');
 
         $this->assertEquals(42, $count);
     }

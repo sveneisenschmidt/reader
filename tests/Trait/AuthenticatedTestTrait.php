@@ -113,7 +113,7 @@ trait AuthenticatedTestTrait
     }
 
     private function createTestFeedItem(
-        string $feedGuid = '0123456789abcdef',
+        string $subscriptionGuid = '0123456789abcdef',
         string $itemGuid = 'fedcba9876543210',
     ): FeedItem {
         $container = static::getContainer();
@@ -126,7 +126,7 @@ trait AuthenticatedTestTrait
 
         $feedItem = new FeedItem(
             $itemGuid,
-            $feedGuid,
+            $subscriptionGuid,
             'Test Feed Item',
             'https://example.com/item',
             'Test Feed',
@@ -148,7 +148,7 @@ trait AuthenticatedTestTrait
     }
 
     private function createTestFeedItemWithLink(
-        string $feedGuid = '0123456789abcdef',
+        string $subscriptionGuid = '0123456789abcdef',
         string $itemGuid = 'fedcba9876543210',
     ): FeedItem {
         $container = static::getContainer();
@@ -162,7 +162,7 @@ trait AuthenticatedTestTrait
 
         $feedItem = new FeedItem(
             $itemGuid,
-            $feedGuid,
+            $subscriptionGuid,
             'Test Feed Item With Link',
             'https://example.com/article',
             'Test Feed',
