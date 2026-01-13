@@ -279,6 +279,7 @@ body {
 
     &.standalone > footer {
         min-height: 4rem;
+        align-items: flex-start;
     }
 
     & > footer .keyboard-shortcuts {
