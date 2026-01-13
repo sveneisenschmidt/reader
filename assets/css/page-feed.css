@@ -266,6 +266,25 @@ header h1 .back {
 .menu-toggle {
     display: none;
     cursor: pointer;
+    align-items: center;
+
+    & svg {
+        display: block;
+        width: 18px;
+        height: 18px;
+        position: relative;
+        top: -1px;
+    }
+
+    & .icon-open,
+    & .icon-close {
+        display: flex;
+        align-items: center;
+    }
+
+    & .icon-close {
+        display: none;
+    }
 }
 
 .feeds-link {
@@ -319,11 +338,15 @@ header h1 .back {
     }
 
     .menu-toggle {
-        display: block;
+        display: flex;
     }
 
-    .feeds-link {
+    .menu-checkbox:checked ~ * .menu-toggle .icon-open {
         display: none;
+    }
+
+    .menu-checkbox:checked ~ * .menu-toggle .icon-close {
+        display: flex;
     }
 
     .menu-checkbox:checked ~ main#feed aside {
