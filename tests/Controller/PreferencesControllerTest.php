@@ -183,7 +183,7 @@ class PreferencesControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function preferencesFormDisplaysUnreadOnlyCheckbox(): void
+    public function preferencesFormDisplaysPullToRefreshCheckbox(): void
     {
         $client = static::createClient();
         $this->loginAsTestUser($client);
@@ -191,11 +191,25 @@ class PreferencesControllerTest extends WebTestCase
         $client->request('GET', '/preferences');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('input[name="preferences[unreadOnly]"]');
+        $this->assertSelectorExists('input[name="preferences[pullToRefresh]"]');
     }
 
     #[Test]
-    public function preferencesFormSubmissionUpdatesUnreadOnly(): void
+    public function preferencesFormDisplaysFilterWordsTextarea(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+
+        $client->request('GET', '/preferences');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists(
+            'textarea[name="preferences[filterWords]"]',
+        );
+    }
+
+    #[Test]
+    public function preferencesFormSubmissionUpdatesPullToRefresh(): void
     {
         $client = static::createClient();
         $this->loginAsTestUser($client);
@@ -203,8 +217,7 @@ class PreferencesControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/preferences');
 
         $form = $crawler->selectButton('preferences[save]')->form();
-        // Uncheck the unreadOnly checkbox (default is checked/true)
-        $form['preferences[unreadOnly]'] = false;
+        $form['preferences[pullToRefresh]'] = true;
 
         $client->submit($form);
 

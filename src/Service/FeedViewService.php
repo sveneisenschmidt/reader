@@ -30,7 +30,7 @@ class FeedViewService
         int $userId,
         ?string $sguid = null,
         ?string $fguid = null,
-        bool $unreadOnly = false,
+        bool $unreadOnly = FilterParameterSubscriber::DEFAULT_UNREAD,
         int $limit = FilterParameterSubscriber::DEFAULT_LIMIT,
     ): array {
         $allItems = $this->applyWordFilter(
@@ -125,75 +125,6 @@ class FeedViewService
         $items = array_filter($items, fn ($item) => $item['sguid'] === $sguid);
 
         return array_column($items, 'guid');
-    }
-
-    public function findNextItemGuid(
-        int $userId,
-        ?string $sguid,
-        string $currentGuid,
-        int $limit = 0,
-    ): ?string {
-        $items = $this->getFilteredItems($userId, $sguid);
-
-        if ($limit > 0) {
-            $items = array_slice($items, 0, $limit);
-        }
-
-        $found = false;
-        foreach ($items as $item) {
-            if ($found) {
-                return $item['guid'];
-            }
-            if ($item['guid'] === $currentGuid) {
-                $found = true;
-            }
-        }
-
-        return null;
-    }
-
-    public function findNextUnreadItemGuid(
-        int $userId,
-        ?string $sguid,
-        string $currentGuid,
-        int $limit = 0,
-    ): ?string {
-        $items = $this->getFilteredItems($userId, $sguid);
-        $items = $this->readStatusService->enrichItemsWithReadStatus(
-            $items,
-            $userId,
-        );
-
-        if ($limit > 0) {
-            $items = array_slice($items, 0, $limit);
-        }
-
-        $found = false;
-        foreach ($items as $item) {
-            if ($found && !$item['isRead']) {
-                return $item['guid'];
-            }
-            if ($item['guid'] === $currentGuid) {
-                $found = true;
-            }
-        }
-
-        return null;
-    }
-
-    #[Returns('list<array<string, mixed>>')]
-    private function getFilteredItems(int $userId, ?string $sguid): array
-    {
-        $sguids = $this->subscriptionService->getFeedGuids($userId);
-        $items = $this->feedPersistenceService->getAllItems($sguids);
-
-        if ($sguid) {
-            $items = array_values(
-                array_filter($items, fn ($item) => $item['sguid'] === $sguid),
-            );
-        }
-
-        return $this->applyWordFilter($items, $userId);
     }
 
     #[Param(items: 'list<array<string, mixed>>')]

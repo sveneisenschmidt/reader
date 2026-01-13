@@ -22,14 +22,14 @@ class UserPreferenceTest extends TestCase
     {
         $preference = new UserPreference(
             1,
-            PreferenceKey::ShowNextUnread->value,
+            PreferenceKey::PullToRefresh->value,
             '1',
         );
 
         $this->assertNull($preference->getId());
         $this->assertEquals(1, $preference->getUserId());
         $this->assertEquals(
-            PreferenceKey::ShowNextUnread->value,
+            PreferenceKey::PullToRefresh->value,
             $preference->getPreferenceKey(),
         );
         $this->assertTrue($preference->isEnabled());
@@ -41,7 +41,7 @@ class UserPreferenceTest extends TestCase
     {
         $preference = new UserPreference(
             1,
-            PreferenceKey::ShowNextUnread->value,
+            PreferenceKey::PullToRefresh->value,
         );
 
         $this->assertFalse($preference->isEnabled());
@@ -53,7 +53,7 @@ class UserPreferenceTest extends TestCase
     {
         $preference = new UserPreference(
             1,
-            PreferenceKey::ShowNextUnread->value,
+            PreferenceKey::PullToRefresh->value,
             '0',
         );
 

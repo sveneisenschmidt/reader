@@ -36,20 +36,16 @@ class PreferencesType extends AbstractType
                 ],
                 'expanded' => true,
             ])
-            ->add('showNextUnread', CheckboxType::class, [
-                'label' => 'Skip already read articles when marking as read',
-                'required' => false,
-            ])
             ->add('pullToRefresh', CheckboxType::class, [
                 'label' => 'Pull down to refresh feeds',
                 'required' => false,
             ])
-            ->add('keyboardShortcuts', CheckboxType::class, [
-                'label' => 'Enable keyboard shortcuts',
+            ->add('autoMarkRead', CheckboxType::class, [
+                'label' => 'Mark articles as read after 5 seconds',
                 'required' => false,
             ])
-            ->add('unreadOnly', CheckboxType::class, [
-                'label' => 'Show unread articles only by default',
+            ->add('keyboardShortcuts', CheckboxType::class, [
+                'label' => 'Enable keyboard shortcuts',
                 'required' => false,
             ])
             ->add('filterWords', TextareaType::class, [

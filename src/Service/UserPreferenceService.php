@@ -22,21 +22,21 @@ class UserPreferenceService
     ) {
     }
 
-    public function isShowNextUnreadEnabled(int $userId): bool
+    public function getTheme(int $userId): string
     {
-        return $this->userPreferenceRepository->isEnabled(
+        return $this->userPreferenceRepository->getValue(
             $userId,
-            PreferenceKey::ShowNextUnread,
-            PreferenceDefault::ShowNextUnread->asBool(),
+            PreferenceKey::Theme,
+            PreferenceDefault::Theme->value(),
         );
     }
 
-    public function setShowNextUnread(int $userId, bool $enabled): void
+    public function setTheme(int $userId, string $theme): void
     {
-        $this->userPreferenceRepository->setEnabled(
+        $this->userPreferenceRepository->setValue(
             $userId,
-            PreferenceKey::ShowNextUnread,
-            $enabled,
+            PreferenceKey::Theme,
+            $theme,
         );
     }
 
@@ -58,20 +58,38 @@ class UserPreferenceService
         );
     }
 
-    public function isUnreadOnlyEnabled(int $userId): bool
+    public function isAutoMarkReadEnabled(int $userId): bool
     {
         return $this->userPreferenceRepository->isEnabled(
             $userId,
-            PreferenceKey::UnreadOnly,
-            PreferenceDefault::UnreadOnly->asBool(),
+            PreferenceKey::AutoMarkRead,
+            PreferenceDefault::AutoMarkRead->asBool(),
         );
     }
 
-    public function setUnreadOnly(int $userId, bool $enabled): void
+    public function setAutoMarkRead(int $userId, bool $enabled): void
     {
         $this->userPreferenceRepository->setEnabled(
             $userId,
-            PreferenceKey::UnreadOnly,
+            PreferenceKey::AutoMarkRead,
+            $enabled,
+        );
+    }
+
+    public function isKeyboardShortcutsEnabled(int $userId): bool
+    {
+        return $this->userPreferenceRepository->isEnabled(
+            $userId,
+            PreferenceKey::KeyboardShortcuts,
+            PreferenceDefault::KeyboardShortcuts->asBool(),
+        );
+    }
+
+    public function setKeyboardShortcuts(int $userId, bool $enabled): void
+    {
+        $this->userPreferenceRepository->setEnabled(
+            $userId,
+            PreferenceKey::KeyboardShortcuts,
             $enabled,
         );
     }
@@ -113,13 +131,14 @@ class UserPreferenceService
     public function getAllPreferences(int $userId): array
     {
         return [
-            PreferenceKey::ShowNextUnread
-                ->value => $this->isShowNextUnreadEnabled($userId),
+            PreferenceKey::Theme->value => $this->getTheme($userId),
             PreferenceKey::PullToRefresh
                 ->value => $this->isPullToRefreshEnabled($userId),
-            PreferenceKey::UnreadOnly->value => $this->isUnreadOnlyEnabled(
+            PreferenceKey::AutoMarkRead->value => $this->isAutoMarkReadEnabled(
                 $userId,
             ),
+            PreferenceKey::KeyboardShortcuts
+                ->value => $this->isKeyboardShortcutsEnabled($userId),
             PreferenceKey::FilterWords->value => $this->getFilterWordsRaw(
                 $userId,
             ),

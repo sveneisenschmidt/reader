@@ -12,18 +12,20 @@ namespace App\Enum;
 
 enum PreferenceDefault
 {
-    case ShowNextUnread;
+    case Theme;
     case PullToRefresh;
+    case AutoMarkRead;
+    case KeyboardShortcuts;
     case FilterWords;
-    case UnreadOnly;
 
     public function value(): string
     {
         return match ($this) {
-            self::ShowNextUnread => '0',
+            self::Theme => 'auto',
             self::PullToRefresh => '1',
+            self::AutoMarkRead => '0',
+            self::KeyboardShortcuts => '0',
             self::FilterWords => '',
-            self::UnreadOnly => '1',
         };
     }
 

@@ -47,11 +47,10 @@ class PreferencesController extends AbstractController
         ]);
 
         $preferencesForm = $this->createForm(PreferencesType::class, [
-            'theme' => $user->getTheme(),
-            'showNextUnread' => $userPrefs[PreferenceKey::ShowNextUnread->value],
+            'theme' => $userPrefs[PreferenceKey::Theme->value],
             'pullToRefresh' => $userPrefs[PreferenceKey::PullToRefresh->value],
-            'keyboardShortcuts' => $user->hasKeyboardShortcuts(),
-            'unreadOnly' => $userPrefs[PreferenceKey::UnreadOnly->value],
+            'autoMarkRead' => $userPrefs[PreferenceKey::AutoMarkRead->value],
+            'keyboardShortcuts' => $userPrefs[PreferenceKey::KeyboardShortcuts->value],
             'filterWords' => $userPrefs[PreferenceKey::FilterWords->value],
         ]);
 
@@ -69,25 +68,23 @@ class PreferencesController extends AbstractController
 
         if ($preferencesForm->isSubmitted() && $preferencesForm->isValid()) {
             $data = $preferencesForm->getData();
-            $user->setTheme($data['theme']);
-            $user->setKeyboardShortcuts($data['keyboardShortcuts']);
-            $this->entityManager->flush();
 
-            $this->userPreferenceService->setShowNextUnread(
-                $userId,
-                $data['showNextUnread'],
-            );
+            $this->userPreferenceService->setTheme($userId, $data['theme']);
             $this->userPreferenceService->setPullToRefresh(
                 $userId,
                 $data['pullToRefresh'],
             );
+            $this->userPreferenceService->setAutoMarkRead(
+                $userId,
+                $data['autoMarkRead'],
+            );
+            $this->userPreferenceService->setKeyboardShortcuts(
+                $userId,
+                $data['keyboardShortcuts'],
+            );
             $this->userPreferenceService->setFilterWords(
                 $userId,
                 $data['filterWords'] ?? '',
-            );
-            $this->userPreferenceService->setUnreadOnly(
-                $userId,
-                $data['unreadOnly'],
             );
 
             $this->addFlash('success', 'Preferences saved.');

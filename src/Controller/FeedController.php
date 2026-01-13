@@ -164,43 +164,9 @@ class FeedController extends AbstractController
     {
         $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
-        $userId = $user->getId();
-        $this->readStatusService->markAsRead($userId, $fguid);
+        $this->readStatusService->markAsRead($user->getId(), $fguid);
 
-        if ($request->request->get('stay') === '1') {
-            return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
-        }
-
-        $limit = $request->query->getInt(
-            'limit',
-            FilterParameterSubscriber::DEFAULT_LIMIT,
-        );
-
-        $defaultUnread = $this->userPreferenceService->isUnreadOnlyEnabled(
-            $userId,
-        );
-        $unreadFilter = $request->query->getBoolean('unread', $defaultUnread);
-        $useUnreadNavigation =
-            $unreadFilter
-            || $this->userPreferenceService->isShowNextUnreadEnabled($userId);
-
-        $nextFguid = $useUnreadNavigation
-            ? $this->feedViewService->findNextUnreadItemGuid(
-                $userId,
-                null,
-                $fguid,
-                $limit,
-            )
-            : $this->feedViewService->findNextItemGuid(
-                $userId,
-                null,
-                $fguid,
-                $limit,
-            );
-
-        return $nextFguid
-            ? $this->redirectToRoute('feed_item', ['fguid' => $nextFguid])
-            : $this->redirectToRoute('feed_index');
+        return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
     }
 
     #[
@@ -216,23 +182,6 @@ class FeedController extends AbstractController
         $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsUnread($user->getId(), $fguid);
-
-        return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
-    }
-
-    #[
-        Route(
-            '/f/{fguid}/read-stay',
-            name: 'feed_item_mark_read_stay',
-            requirements: ['fguid' => '[a-f0-9]{16}'],
-            methods: ['POST'],
-        ),
-    ]
-    public function markAsReadStay(Request $request, string $fguid): Response
-    {
-        $this->validateCsrfToken($request, 'mark_read');
-        $user = $this->userService->getCurrentUser();
-        $this->readStatusService->markAsRead($user->getId(), $fguid);
 
         return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
     }
@@ -255,49 +204,12 @@ class FeedController extends AbstractController
     ): Response {
         $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
-        $userId = $user->getId();
-        $this->readStatusService->markAsRead($userId, $fguid);
+        $this->readStatusService->markAsRead($user->getId(), $fguid);
 
-        if ($request->request->get('stay') === '1') {
-            return $this->redirectToRoute('feed_item_filtered', [
-                'sguid' => $sguid,
-                'fguid' => $fguid,
-            ]);
-        }
-
-        $limit = $request->query->getInt(
-            'limit',
-            FilterParameterSubscriber::DEFAULT_LIMIT,
-        );
-
-        $defaultUnread = $this->userPreferenceService->isUnreadOnlyEnabled(
-            $userId,
-        );
-        $unreadFilter = $request->query->getBoolean('unread', $defaultUnread);
-        $useUnreadNavigation =
-            $unreadFilter
-            || $this->userPreferenceService->isShowNextUnreadEnabled($userId);
-
-        $nextFguid = $useUnreadNavigation
-            ? $this->feedViewService->findNextUnreadItemGuid(
-                $userId,
-                $sguid,
-                $fguid,
-                $limit,
-            )
-            : $this->feedViewService->findNextItemGuid(
-                $userId,
-                $sguid,
-                $fguid,
-                $limit,
-            );
-
-        return $nextFguid
-            ? $this->redirectToRoute('feed_item_filtered', [
-                'sguid' => $sguid,
-                'fguid' => $nextFguid,
-            ])
-            : $this->redirectToRoute('subscription_show', ['sguid' => $sguid]);
+        return $this->redirectToRoute('feed_item_filtered', [
+            'sguid' => $sguid,
+            'fguid' => $fguid,
+        ]);
     }
 
     #[
@@ -319,32 +231,6 @@ class FeedController extends AbstractController
         $this->validateCsrfToken($request, 'mark_read');
         $user = $this->userService->getCurrentUser();
         $this->readStatusService->markAsUnread($user->getId(), $fguid);
-
-        return $this->redirectToRoute('feed_item_filtered', [
-            'sguid' => $sguid,
-            'fguid' => $fguid,
-        ]);
-    }
-
-    #[
-        Route(
-            '/s/{sguid}/f/{fguid}/read-stay',
-            name: 'feed_item_filtered_mark_read_stay',
-            requirements: [
-                'sguid' => '[a-f0-9]{16}',
-                'fguid' => '[a-f0-9]{16}',
-            ],
-            methods: ['POST'],
-        ),
-    ]
-    public function markAsReadFilteredStay(
-        Request $request,
-        string $sguid,
-        string $fguid,
-    ): Response {
-        $this->validateCsrfToken($request, 'mark_read');
-        $user = $this->userService->getCurrentUser();
-        $this->readStatusService->markAsRead($user->getId(), $fguid);
 
         return $this->redirectToRoute('feed_item_filtered', [
             'sguid' => $sguid,
@@ -405,10 +291,10 @@ class FeedController extends AbstractController
         ?string $fguid = null,
     ): Response {
         $user = $this->userService->getCurrentUser();
-        $defaultUnread = $this->userPreferenceService->isUnreadOnlyEnabled(
-            $user->getId(),
+        $unread = $request->query->getBoolean(
+            'unread',
+            FilterParameterSubscriber::DEFAULT_UNREAD,
         );
-        $unread = $request->query->getBoolean('unread', $defaultUnread);
         $limit = $request->query->getInt(
             'limit',
             FilterParameterSubscriber::DEFAULT_LIMIT,

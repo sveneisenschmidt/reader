@@ -1,17 +1,32 @@
 (() => {
     const element = document.querySelector("[data-reading-list]");
-    const key = "reading-list-scroll";
+    const scrollKey = "reading-list-scroll";
+    const activeKey = "reading-list-active";
     const activeElement = document.querySelector("[data-active]");
 
     if (element) {
         if (activeElement) {
-            const saved = sessionStorage.getItem(key);
-            if (saved) element.scrollTop = parseInt(saved, 10);
+            const savedActive = sessionStorage.getItem(activeKey);
+            const currentActive = activeElement.dataset.active;
+
+            // Scroll to active element if it changed (keyboard navigation)
+            if (savedActive !== currentActive) {
+                activeElement.scrollIntoView({ block: "center" });
+                sessionStorage.setItem(activeKey, currentActive);
+                sessionStorage.setItem(scrollKey, element.scrollTop);
+            } else {
+                // Same item, restore scroll position
+                const saved = sessionStorage.getItem(scrollKey);
+                if (saved) {
+                    element.scrollTop = parseInt(saved, 10);
+                }
+            }
         } else {
-            sessionStorage.removeItem(key);
+            sessionStorage.removeItem(scrollKey);
+            sessionStorage.removeItem(activeKey);
         }
         element.addEventListener("scroll", () => {
-            sessionStorage.setItem(key, element.scrollTop);
+            sessionStorage.setItem(scrollKey, element.scrollTop);
         });
     }
 })();

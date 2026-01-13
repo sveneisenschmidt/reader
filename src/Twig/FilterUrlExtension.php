@@ -10,10 +10,7 @@
 
 namespace App\Twig;
 
-use App\Enum\PreferenceDefault;
 use App\EventSubscriber\FilterParameterSubscriber;
-use App\Service\UserPreferenceService;
-use App\Service\UserService;
 use PhpStaticAnalysis\Attributes\Param;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -25,8 +22,6 @@ class FilterUrlExtension extends AbstractExtension
     public function __construct(
         private RequestStack $requestStack,
         private UrlGeneratorInterface $urlGenerator,
-        private UserService $userService,
-        private UserPreferenceService $userPreferenceService,
     ) {
     }
 
@@ -45,13 +40,11 @@ class FilterUrlExtension extends AbstractExtension
         $route = $request->attributes->get('_route');
         $routeParams = $request->attributes->get('_route_params', []);
 
-        $user = $this->userService->getCurrentUserOrNull();
-        $defaultUnread = $user
-            ? $this->userPreferenceService->isUnreadOnlyEnabled($user->getId())
-            : PreferenceDefault::UnreadOnly->asBool();
-
         $current = [
-            'unread' => $request->query->getBoolean('unread', $defaultUnread)
+            'unread' => $request->query->getBoolean(
+                'unread',
+                FilterParameterSubscriber::DEFAULT_UNREAD,
+            )
                 ? '1'
                 : '0',
             'limit' => $request->query->getInt(
@@ -64,13 +57,9 @@ class FilterUrlExtension extends AbstractExtension
 
         // Remove default values to keep URLs clean
         if (
-            ($merged['unread'] === '1' || $merged['unread'] === 1)
-            && $defaultUnread
-        ) {
-            unset($merged['unread']);
-        } elseif (
-            ($merged['unread'] === '0' || $merged['unread'] === 0)
-            && !$defaultUnread
+            $merged['unread'] === '0'
+            || $merged['unread'] === 0
+            || $merged['unread'] === FilterParameterSubscriber::DEFAULT_UNREAD
         ) {
             unset($merged['unread']);
         }
@@ -91,14 +80,13 @@ class FilterUrlExtension extends AbstractExtension
 
         $filters = [];
 
-        $user = $this->userService->getCurrentUserOrNull();
-        $defaultUnread = $user
-            ? $this->userPreferenceService->isUnreadOnlyEnabled($user->getId())
-            : PreferenceDefault::UnreadOnly->asBool();
-        $unread = $request->query->getBoolean('unread', $defaultUnread);
+        $unread = $request->query->getBoolean(
+            'unread',
+            FilterParameterSubscriber::DEFAULT_UNREAD,
+        );
 
-        if ($unread !== $defaultUnread) {
-            $filters['unread'] = $unread ? '1' : '0';
+        if ($unread !== FilterParameterSubscriber::DEFAULT_UNREAD) {
+            $filters['unread'] = '1';
         }
 
         $limit = $request->query->getInt(

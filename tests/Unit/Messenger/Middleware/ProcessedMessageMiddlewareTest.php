@@ -165,4 +165,26 @@ class ProcessedMessageMiddlewareTest extends TestCase
         $middleware = new ProcessedMessageMiddleware($registry, $repository);
         $middleware->handle($envelope, $stack);
     }
+
+    #[Test]
+    public function skipsLoggingOnInitialDispatchWithoutReceivedStamp(): void
+    {
+        $message = new HeartbeatMessage();
+        $envelope = new Envelope($message);
+
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository->expects($this->never())->method('save');
+
+        $registry = $this->createMock(ManagerRegistry::class);
+
+        $stack = $this->createMock(StackInterface::class);
+        $nextMiddleware = $this->createMock(MiddlewareInterface::class);
+        $nextMiddleware->method('handle')->willReturn($envelope);
+        $stack->method('next')->willReturn($nextMiddleware);
+
+        $middleware = new ProcessedMessageMiddleware($registry, $repository);
+        $result = $middleware->handle($envelope, $stack);
+
+        $this->assertSame($message, $result->getMessage());
+    }
 }

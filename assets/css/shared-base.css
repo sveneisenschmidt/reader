@@ -300,6 +300,10 @@ body {
             display: flex;
             align-items: center;
             gap: var(--spacing-xs);
+
+            @media (width >= 768px) {
+                margin-left: auto;
+            }
         }
     }
 }

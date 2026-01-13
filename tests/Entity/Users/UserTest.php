@@ -124,24 +124,6 @@ class UserTest extends TestCase
     }
 
     #[Test]
-    public function themeDefaultsToAuto(): void
-    {
-        $user = new User('testuser');
-
-        $this->assertEquals('auto', $user->getTheme());
-    }
-
-    #[Test]
-    public function setThemeUpdatesTheme(): void
-    {
-        $user = new User('testuser');
-        $result = $user->setTheme('dark');
-
-        $this->assertEquals('dark', $user->getTheme());
-        $this->assertSame($user, $result);
-    }
-
-    #[Test]
     public function eraseCredentialsDoesNothing(): void
     {
         $user = new User('testuser');

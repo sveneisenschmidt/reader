@@ -91,6 +91,7 @@ class CaptureScreenshotsCommand extends Command
         private SeenStatusService $seenStatusService,
         private FeedContentService $feedContentService,
         private ProcessedMessageRepository $processedMessageRepository,
+        private \App\Service\UserPreferenceService $userPreferenceService,
     ) {
         parent::__construct();
     }
@@ -150,8 +151,10 @@ class CaptureScreenshotsCommand extends Command
                 $io->section('Creating test user');
                 $totpSecret = $this->totpService->generateSecret();
                 $user = $this->createTestUser($totpSecret);
-                $user->setKeyboardShortcuts(true);
-                $this->entityManager->flush();
+                $this->userPreferenceService->setKeyboardShortcuts(
+                    $user->getId(),
+                    true,
+                );
                 $io->success('Test user created');
             } else {
                 $totpSecret = $this->totpEncryption->decrypt(

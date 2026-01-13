@@ -43,4 +43,29 @@ class UserServiceTest extends TestCase
         $this->expectException(AccessDeniedException::class);
         $service->getCurrentUser();
     }
+
+    #[Test]
+    public function getCurrentUserOrNullReturnsUserWhenAuthenticated(): void
+    {
+        $user = $this->createStub(User::class);
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn($user);
+
+        $service = new UserService($security);
+        $result = $service->getCurrentUserOrNull();
+
+        $this->assertSame($user, $result);
+    }
+
+    #[Test]
+    public function getCurrentUserOrNullReturnsNullWhenNotAuthenticated(): void
+    {
+        $security = $this->createStub(Security::class);
+        $security->method('getUser')->willReturn(null);
+
+        $service = new UserService($security);
+        $result = $service->getCurrentUserOrNull();
+
+        $this->assertNull($result);
+    }
 }

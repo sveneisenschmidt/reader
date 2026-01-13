@@ -10,8 +10,6 @@
 
 namespace App\EventSubscriber;
 
-use App\Service\UserPreferenceService;
-use App\Service\UserService;
 use PhpStaticAnalysis\Attributes\Returns;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -21,13 +19,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class FilterParameterSubscriber implements EventSubscriberInterface
 {
+    public const DEFAULT_UNREAD = false;
     public const DEFAULT_LIMIT = 50;
-
-    public function __construct(
-        private UserService $userService,
-        private UserPreferenceService $userPreferenceService,
-    ) {
-    }
 
     #[Returns('array<string, string>')]
     public static function getSubscribedEvents(): array
@@ -72,18 +65,10 @@ class FilterParameterSubscriber implements EventSubscriberInterface
     {
         $filters = [];
 
-        $user = $this->userService->getCurrentUserOrNull();
-        if (null === $user) {
-            return $filters;
-        }
+        $unread = $request->query->getBoolean('unread', self::DEFAULT_UNREAD);
 
-        $defaultUnread = $this->userPreferenceService->isUnreadOnlyEnabled(
-            $user->getId(),
-        );
-        $unread = $request->query->getBoolean('unread', $defaultUnread);
-
-        if ($unread !== $defaultUnread) {
-            $filters['unread'] = $unread ? '1' : '0';
+        if ($unread !== self::DEFAULT_UNREAD) {
+            $filters['unread'] = '1';
         }
 
         $limit = $request->query->getInt('limit', self::DEFAULT_LIMIT);

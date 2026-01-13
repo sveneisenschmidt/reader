@@ -12,8 +12,9 @@ namespace App\Enum;
 
 enum PreferenceKey: string
 {
-    case ShowNextUnread = 'show_next_unread';
+    case Theme = 'theme';
     case PullToRefresh = 'pull_to_refresh';
+    case AutoMarkRead = 'auto_mark_read';
+    case KeyboardShortcuts = 'keyboard_shortcuts';
     case FilterWords = 'filter_words';
-    case UnreadOnly = 'unread_only';
 }

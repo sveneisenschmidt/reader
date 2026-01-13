@@ -49,15 +49,6 @@
         </div>
         <div class="form-row">
             <div class="form-checkbox">
-                {{ form_widget(preferencesForm.showNextUnread) }}
-                <div class="form-checkbox__content">
-                    {{ form_label(preferencesForm.showNextUnread) }}
-                    <p>When disabled, you'll continue to the next article in the list.</p>
-                </div>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-checkbox">
                 {{ form_widget(preferencesForm.pullToRefresh) }}
                 <div class="form-checkbox__content">
                     {{ form_label(preferencesForm.pullToRefresh) }}
@@ -67,19 +58,19 @@
         </div>
         <div class="form-row">
             <div class="form-checkbox">
-                {{ form_widget(preferencesForm.keyboardShortcuts) }}
+                {{ form_widget(preferencesForm.autoMarkRead) }}
                 <div class="form-checkbox__content">
-                    {{ form_label(preferencesForm.keyboardShortcuts) }}
-                    <p>Use keyboard shortcuts to navigate and manage articles.</p>
+                    {{ form_label(preferencesForm.autoMarkRead) }}
+                    <p>Automatically mark articles as read after viewing for 5 seconds.</p>
                 </div>
             </div>
         </div>
         <div class="form-row">
             <div class="form-checkbox">
-                {{ form_widget(preferencesForm.unreadOnly) }}
+                {{ form_widget(preferencesForm.keyboardShortcuts) }}
                 <div class="form-checkbox__content">
-                    {{ form_label(preferencesForm.unreadOnly) }}
-                    <p>When disabled, all articles are shown by default.</p>
+                    {{ form_label(preferencesForm.keyboardShortcuts) }}
+                    <p>Use keyboard shortcuts to navigate and manage articles.</p>
                 </div>
             </div>
         </div>

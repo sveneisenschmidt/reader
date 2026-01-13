@@ -10,7 +10,6 @@
 
 namespace App\Tests\Controller;
 
-use App\Service\UserPreferenceService;
 use App\Tests\Trait\AuthenticatedTestTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -320,31 +319,6 @@ class FeedControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function markAsReadStayRequiresCsrfToken(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscription($client);
-
-        $client->request('POST', '/f/0123456789abcdef/read-stay');
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
-    #[Test]
-    public function filteredMarkAsReadStayRequiresCsrfToken(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscription($client);
-
-        $client->request(
-            'POST',
-            '/s/0123456789abcdef/f/fedcba9876543210/read-stay',
-        );
-
-        $this->assertResponseStatusCodeSame(403);
-    }
-
-    #[Test]
     public function markAllReadWithValidCsrfTokenRedirects(): void
     {
         $client = static::createClient();
@@ -385,7 +359,7 @@ class FeedControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function markAsReadWithValidCsrfTokenRedirects(): void
+    public function markAsReadWithValidCsrfTokenRedirectsToSameItem(): void
     {
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
@@ -399,7 +373,7 @@ class FeedControllerTest extends WebTestCase
                 '_token' => $token,
             ]);
 
-            $this->assertResponseRedirects();
+            $this->assertResponseRedirects('/f/0123456789abcdef');
         } else {
             $this->assertTrue(true);
         }
@@ -427,28 +401,7 @@ class FeedControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function markAsReadStayWithValidCsrfTokenRedirects(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscription($client);
-
-        $crawler = $client->request('GET', '/f/0123456789abcdef');
-        $form = $crawler->filter('form[action$="/read-stay"]');
-        if ($form->count() > 0) {
-            $token = $form->filter('input[name="_token"]')->attr('value');
-
-            $client->request('POST', '/f/0123456789abcdef/read-stay', [
-                '_token' => $token,
-            ]);
-
-            $this->assertResponseRedirects('/f/0123456789abcdef');
-        } else {
-            $this->assertTrue(true);
-        }
-    }
-
-    #[Test]
-    public function filteredMarkAsReadWithValidCsrfTokenRedirects(): void
+    public function filteredMarkAsReadWithValidCsrfTokenRedirectsToSameItem(): void
     {
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
@@ -467,7 +420,9 @@ class FeedControllerTest extends WebTestCase
                 ['_token' => $token],
             );
 
-            $this->assertResponseRedirects();
+            $this->assertResponseRedirects(
+                '/s/0123456789abcdef/f/fedcba9876543210',
+            );
         } else {
             $this->assertTrue(true);
         }
@@ -490,34 +445,6 @@ class FeedControllerTest extends WebTestCase
             $client->request(
                 'POST',
                 '/s/0123456789abcdef/f/fedcba9876543210/unread',
-                ['_token' => $token],
-            );
-
-            $this->assertResponseRedirects(
-                '/s/0123456789abcdef/f/fedcba9876543210',
-            );
-        } else {
-            $this->assertTrue(true);
-        }
-    }
-
-    #[Test]
-    public function filteredMarkAsReadStayWithValidCsrfTokenRedirects(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscription($client);
-
-        $crawler = $client->request(
-            'GET',
-            '/s/0123456789abcdef/f/fedcba9876543210',
-        );
-        $form = $crawler->filter('form[action$="/read-stay"]');
-        if ($form->count() > 0) {
-            $token = $form->filter('input[name="_token"]')->attr('value');
-
-            $client->request(
-                'POST',
-                '/s/0123456789abcdef/f/fedcba9876543210/read-stay',
                 ['_token' => $token],
             );
 
@@ -567,7 +494,7 @@ class FeedControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function markAsReadWithItemRedirects(): void
+    public function markAsReadWithItemRedirectsToSameItem(): void
     {
         $client = static::createClient();
         $this->ensureTestUserHasSubscriptionWithItem($client);
@@ -588,7 +515,7 @@ class FeedControllerTest extends WebTestCase
             '_token' => $token,
         ]);
 
-        $this->assertResponseRedirects();
+        $this->assertResponseRedirects('/f/fedcba9876543210');
     }
 
     #[Test]
@@ -614,27 +541,6 @@ class FeedControllerTest extends WebTestCase
             $token = $form->filter('input[name="_token"]')->attr('value');
 
             $client->request('POST', '/f/fedcba9876543210/unread', [
-                '_token' => $token,
-            ]);
-
-            $this->assertResponseRedirects('/f/fedcba9876543210');
-        } else {
-            $this->assertTrue(true);
-        }
-    }
-
-    #[Test]
-    public function markAsReadStayWithItemRedirects(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscriptionWithItem($client);
-
-        $crawler = $client->request('GET', '/f/fedcba9876543210');
-        $form = $crawler->filter('form[action$="/read-stay"]');
-        if ($form->count() > 0) {
-            $token = $form->filter('input[name="_token"]')->attr('value');
-
-            $client->request('POST', '/f/fedcba9876543210/read-stay', [
                 '_token' => $token,
             ]);
 
@@ -697,7 +603,7 @@ class FeedControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function filteredMarkAsReadWithItemRedirects(): void
+    public function filteredMarkAsReadWithItemRedirectsToSameItem(): void
     {
         $client = static::createClient();
         $this->ensureTestUserHasSubscriptionWithItem($client);
@@ -713,32 +619,6 @@ class FeedControllerTest extends WebTestCase
             $client->request(
                 'POST',
                 '/s/0123456789abcdef/f/fedcba9876543210/read',
-                ['_token' => $token],
-            );
-
-            $this->assertResponseRedirects();
-        } else {
-            $this->assertTrue(true);
-        }
-    }
-
-    #[Test]
-    public function filteredMarkAsReadStayWithItemRedirects(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscriptionWithItem($client);
-
-        $crawler = $client->request(
-            'GET',
-            '/s/0123456789abcdef/f/fedcba9876543210',
-        );
-        $form = $crawler->filter('form[action$="/read-stay"]');
-        if ($form->count() > 0) {
-            $token = $form->filter('input[name="_token"]')->attr('value');
-
-            $client->request(
-                'POST',
-                '/s/0123456789abcdef/f/fedcba9876543210/read-stay',
                 ['_token' => $token],
             );
 
@@ -788,136 +668,6 @@ class FeedControllerTest extends WebTestCase
         ]);
 
         $this->assertResponseRedirects('/s/0123456789abcdef');
-    }
-
-    #[Test]
-    public function markAsReadWithStayParameterRedirectsToSameItem(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscriptionWithItem($client);
-
-        $crawler = $client->request('GET', '/f/fedcba9876543210');
-        $form = $crawler->filter('form[action$="/read"]');
-        if ($form->count() > 0) {
-            $token = $form->filter('input[name="_token"]')->attr('value');
-
-            $client->request('POST', '/f/fedcba9876543210/read', [
-                '_token' => $token,
-                'stay' => '1',
-            ]);
-
-            $this->assertResponseRedirects('/f/fedcba9876543210');
-        } else {
-            $this->assertTrue(true);
-        }
-    }
-
-    #[Test]
-    public function filteredMarkAsReadWithStayParameterRedirectsToSameItem(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscriptionWithItem($client);
-
-        $crawler = $client->request(
-            'GET',
-            '/s/0123456789abcdef/f/fedcba9876543210',
-        );
-        $form = $crawler->filter('form[action$="/read"]');
-        if ($form->count() > 0) {
-            $token = $form->filter('input[name="_token"]')->attr('value');
-
-            $client->request(
-                'POST',
-                '/s/0123456789abcdef/f/fedcba9876543210/read',
-                [
-                    '_token' => $token,
-                    'stay' => '1',
-                ],
-            );
-
-            $this->assertResponseRedirects(
-                '/s/0123456789abcdef/f/fedcba9876543210',
-            );
-        } else {
-            $this->assertTrue(true);
-        }
-    }
-
-    #[Test]
-    public function markAsReadWithShowNextUnreadEnabledRedirects(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscriptionWithItem($client);
-
-        // Enable showNextUnread preference
-        $userPreferenceService = static::getContainer()->get(
-            UserPreferenceService::class,
-        );
-        $userPreferenceService->setShowNextUnread(
-            $this->testUser->getId(),
-            true,
-        );
-
-        $crawler = $client->request('GET', '/f/fedcba9876543210');
-        $form = $crawler->filter('form[action$="/read"]');
-        if ($form->count() > 0) {
-            $token = $form->filter('input[name="_token"]')->attr('value');
-
-            $client->request('POST', '/f/fedcba9876543210/read', [
-                '_token' => $token,
-            ]);
-
-            $this->assertResponseRedirects();
-        } else {
-            $this->assertTrue(true);
-        }
-
-        // Reset preference
-        $userPreferenceService->setShowNextUnread(
-            $this->testUser->getId(),
-            false,
-        );
-    }
-
-    #[Test]
-    public function filteredMarkAsReadWithShowNextUnreadEnabledRedirects(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscriptionWithItem($client);
-
-        // Enable showNextUnread preference
-        $userPreferenceService = static::getContainer()->get(
-            UserPreferenceService::class,
-        );
-        $userPreferenceService->setShowNextUnread(
-            $this->testUser->getId(),
-            true,
-        );
-
-        $crawler = $client->request(
-            'GET',
-            '/s/0123456789abcdef/f/fedcba9876543210',
-        );
-        $form = $crawler->filter('form[action$="/read"]');
-        if ($form->count() > 0) {
-            $token = $form->filter('input[name="_token"]')->attr('value');
-
-            $client->request(
-                'POST',
-                '/s/0123456789abcdef/f/fedcba9876543210/read',
-                ['_token' => $token],
-            );
-
-            $this->assertResponseRedirects();
-        } else {
-            $this->assertTrue(true);
-        }
-
-        // Reset preference
-        $userPreferenceService->setShowNextUnread(
-            $this->testUser->getId(),
-            false,
-        );
     }
 
     #[Test]
@@ -1063,18 +813,12 @@ class FeedControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function indexPageWithUnreadOnlyPreferenceEnabledFiltersUnread(): void
+    public function indexPageWithUnreadFilterShowsOnlyUnread(): void
     {
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        // Enable unreadOnly preference (default is true, but set explicitly)
-        $userPreferenceService = static::getContainer()->get(
-            UserPreferenceService::class,
-        );
-        $userPreferenceService->setUnreadOnly($this->testUser->getId(), true);
-
-        $crawler = $client->request('GET', '/');
+        $crawler = $client->request('GET', '/?unread=1');
 
         $this->assertResponseIsSuccessful();
         // The "Show unread (turn off)" link should be visible when filter is active
@@ -1082,45 +826,19 @@ class FeedControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function indexPageWithExplicitUnreadParamOverridesPreference(): void
+    public function indexPageDefaultShowsAllArticles(): void
     {
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        // Enable unreadOnly preference
-        $userPreferenceService = static::getContainer()->get(
-            UserPreferenceService::class,
-        );
-        $userPreferenceService->setUnreadOnly($this->testUser->getId(), true);
-
-        // Request with explicit unread=0 should override preference
-        $crawler = $client->request('GET', '/?unread=0');
+        // Request without unread param - default is now false (show all)
+        $crawler = $client->request('GET', '/');
 
         $this->assertResponseIsSuccessful();
         // The toggle should show "Show unread" (without "turn off") when filter is disabled
         $filterToggle = $crawler->filter('.filter-toggle')->text();
         $this->assertStringContainsString('Show unread', $filterToggle);
         $this->assertStringNotContainsString('turn off', $filterToggle);
-    }
-
-    #[Test]
-    public function markAsReadStayExecutesSuccessfully(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscriptionWithItem($client);
-
-        // Get CSRF token from feed item page
-        $crawler = $client->request('GET', '/f/fedcba9876543210');
-        $csrfToken = $crawler
-            ->filter('input[name="_token"]')
-            ->first()
-            ->attr('value');
-
-        $client->request('POST', '/f/fedcba9876543210/read-stay', [
-            '_token' => $csrfToken,
-        ]);
-
-        $this->assertResponseRedirects('/f/fedcba9876543210');
     }
 
     #[Test]
@@ -1143,31 +861,6 @@ class FeedControllerTest extends WebTestCase
             'POST',
             '/s/0123456789abcdef/f/fedcba9876543210/read',
             ['_token' => $csrfToken],
-        );
-
-        $this->assertResponseRedirects();
-    }
-
-    #[Test]
-    public function filteredMarkAsReadWithStayExecutesSuccessfully(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscriptionWithItem($client);
-
-        // Get CSRF token from filtered feed item page
-        $crawler = $client->request(
-            'GET',
-            '/s/0123456789abcdef/f/fedcba9876543210',
-        );
-        $csrfToken = $crawler
-            ->filter('input[name="_token"]')
-            ->first()
-            ->attr('value');
-
-        $client->request(
-            'POST',
-            '/s/0123456789abcdef/f/fedcba9876543210/read',
-            ['_token' => $csrfToken, 'stay' => '1'],
         );
 
         $this->assertResponseRedirects(
@@ -1216,119 +909,5 @@ class FeedControllerTest extends WebTestCase
         $this->assertResponseRedirects(
             '/s/0123456789abcdef/f/fedcba9876543210',
         );
-    }
-
-    #[Test]
-    public function filteredMarkAsReadStayExecutesSuccessfully(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscriptionWithItem($client);
-
-        // Get CSRF token from filtered feed item page
-        $crawler = $client->request(
-            'GET',
-            '/s/0123456789abcdef/f/fedcba9876543210',
-        );
-        $csrfToken = $crawler
-            ->filter('input[name="_token"]')
-            ->first()
-            ->attr('value');
-
-        $client->request(
-            'POST',
-            '/s/0123456789abcdef/f/fedcba9876543210/read-stay',
-            ['_token' => $csrfToken],
-        );
-
-        $this->assertResponseRedirects(
-            '/s/0123456789abcdef/f/fedcba9876543210',
-        );
-    }
-
-    #[Test]
-    public function markAsReadWithUnreadFilterUsesUnreadNavigation(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscriptionWithTwoItems($client);
-
-        // Disable showNextUnread preference
-        $userPreferenceService = static::getContainer()->get(
-            UserPreferenceService::class,
-        );
-        $userPreferenceService->setShowNextUnread(
-            $this->testUser->getId(),
-            false,
-        );
-
-        // Mark the second item as read so only the first is unread
-        $readStatusRepo = static::getContainer()->get(
-            \App\Repository\Users\ReadStatusRepository::class,
-        );
-        $readStatusRepo->markAsRead(
-            $this->testUser->getId(),
-            'aaaaaaaaaaaaaaa2',
-        );
-
-        // Get CSRF token with unread filter active
-        $crawler = $client->request('GET', '/f/aaaaaaaaaaaaaaa1?unread=1');
-        $csrfToken = $crawler
-            ->filter('input[name="_token"]')
-            ->first()
-            ->attr('value');
-
-        // Mark the first (unread) item as read with unread filter active
-        $client->request('POST', '/f/aaaaaaaaaaaaaaa1/read?unread=1', [
-            '_token' => $csrfToken,
-        ]);
-
-        // Should redirect to feed index (no more unread items)
-        // NOT to the next read item
-        $this->assertResponseRedirects('/');
-    }
-
-    #[Test]
-    public function filteredMarkAsReadWithUnreadFilterUsesUnreadNavigation(): void
-    {
-        $client = static::createClient();
-        $this->ensureTestUserHasSubscriptionWithTwoItems($client);
-
-        // Disable showNextUnread preference
-        $userPreferenceService = static::getContainer()->get(
-            UserPreferenceService::class,
-        );
-        $userPreferenceService->setShowNextUnread(
-            $this->testUser->getId(),
-            false,
-        );
-
-        // Mark the second item as read so only the first is unread
-        $readStatusRepo = static::getContainer()->get(
-            \App\Repository\Users\ReadStatusRepository::class,
-        );
-        $readStatusRepo->markAsRead(
-            $this->testUser->getId(),
-            'aaaaaaaaaaaaaaa2',
-        );
-
-        // Get CSRF token with unread filter active
-        $crawler = $client->request(
-            'GET',
-            '/s/0123456789abcdef/f/aaaaaaaaaaaaaaa1?unread=1',
-        );
-        $csrfToken = $crawler
-            ->filter('input[name="_token"]')
-            ->first()
-            ->attr('value');
-
-        // Mark the first (unread) item as read with unread filter active
-        $client->request(
-            'POST',
-            '/s/0123456789abcdef/f/aaaaaaaaaaaaaaa1/read?unread=1',
-            ['_token' => $csrfToken],
-        );
-
-        // Should redirect to subscription view (no more unread items)
-        // NOT to the next read item
-        $this->assertResponseRedirects('/s/0123456789abcdef');
     }
 }

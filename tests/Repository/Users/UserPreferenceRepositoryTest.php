@@ -32,7 +32,7 @@ class UserPreferenceRepositoryTest extends KernelTestCase
     {
         $result = $this->repository->isEnabled(
             99999,
-            PreferenceKey::ShowNextUnread,
+            PreferenceKey::PullToRefresh,
         );
 
         $this->assertFalse($result);
@@ -42,7 +42,7 @@ class UserPreferenceRepositoryTest extends KernelTestCase
     public function setEnabledCreatesNewPreference(): void
     {
         $userId = 99998;
-        $key = PreferenceKey::ShowNextUnread;
+        $key = PreferenceKey::PullToRefresh;
 
         $this->repository->setEnabled($userId, $key, true);
 
@@ -53,7 +53,7 @@ class UserPreferenceRepositoryTest extends KernelTestCase
     public function setEnabledUpdatesExistingPreference(): void
     {
         $userId = 99997;
-        $key = PreferenceKey::ShowNextUnread;
+        $key = PreferenceKey::PullToRefresh;
 
         $this->repository->setEnabled($userId, $key, true);
         $this->assertTrue($this->repository->isEnabled($userId, $key));
@@ -77,14 +77,14 @@ class UserPreferenceRepositoryTest extends KernelTestCase
 
         $this->repository->setEnabled(
             $userId,
-            PreferenceKey::ShowNextUnread,
+            PreferenceKey::PullToRefresh,
             true,
         );
 
         $result = $this->repository->getAllForUser($userId);
 
         $this->assertCount(1, $result);
-        $this->assertTrue($result[PreferenceKey::ShowNextUnread->value]);
+        $this->assertTrue($result[PreferenceKey::PullToRefresh->value]);
     }
 
     #[Test]

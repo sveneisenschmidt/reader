@@ -13,14 +13,14 @@
 {% block body_class %}{% if app.request.attributes.get('_route') in ['feed_item', 'feed_item_filtered'] %} class="has-active-item"{% endif %}{% endblock %}
 
 {% block keyboard_shortcuts %}
-    {% if app.user.keyboardShortcuts %}
+    {% if user_keyboard_shortcuts() %}
     <div class="keyboard-shortcuts">
         {% if activeItem %}
             <span class="shortcut"><span class="key">{{ source('@icons/arrow-up.svg') }}</span> Previous article</span>
             <span class="shortcut"><span class="key">{{ source('@icons/arrow-down.svg') }}</span> Next article</span>
             <span class="shortcut"><span class="key">{{ source('@icons/space.svg') }}</span> Mark as read/unread</span>
             <span class="shortcut"><span class="key">{{ source('@icons/corner-down-left.svg') }}</span> Read original</span>
-            <span class="shortcut"><span class="key">Esc</span> Close</span>
+            <span class="shortcut"><span class="key">Esc</span> Close article</span>
         {% else %}
             <span class="shortcut"><span class="key">Shift</span> + <span class="key">{{ source('@icons/arrow-right-to-line.svg') }}</span> Previous subscription</span>
             <span class="shortcut"><span class="key">{{ source('@icons/arrow-right-to-line.svg') }}</span> Next subscription</span>
@@ -117,7 +117,7 @@
         <div class="feed-empty">No unread items.<br><a href="{{ filter_url({unread: 0}) }}">Show all items</a></div>
         {% endif %}
         {% for item in items %}
-        <div class="feed-item{% if activeItem and item.guid == activeItem.guid %} active{% endif %}{% if item.isRead %} read{% endif %}"{% if activeItem and item.guid == activeItem.guid %} data-active{% endif %}>
+        <div class="feed-item{% if activeItem and item.guid == activeItem.guid %} active{% endif %}{% if item.isRead %} read{% endif %}"{% if activeItem and item.guid == activeItem.guid %} data-active="{{ item.guid }}"{% endif %}>
             <a href="{% if activeFeed %}{{ path_with_filters('feed_item_filtered', {sguid: activeFeed, fguid: item.guid}) }}{% else %}{{ path_with_filters('feed_item', {fguid: item.guid}) }}{% endif %}" class="feed-item-link">
                 <h2>{% if item.isNew %}<span class="new-indicator">●</span> {% endif %}{{ item.title }}</h2>
                 <p class="meta">
@@ -132,7 +132,7 @@
     <script src="{{ asset('js/scroll-restore.js') }}"></script>
 
     {% if activeItem %}
-    <article data-reading-pane>
+    <article data-reading-pane{% if not activeItem.isRead %} data-unread{% endif %}>
         <header>
             <h1><a href="{{ path('feed_item_open', {fguid: activeItem.guid, url: activeItem.link}) }}" target="_blank" rel="noopener noreferrer">{{ activeItem.title }}</a></h1>
             <p class="meta">
@@ -159,8 +159,11 @@
         </footer>
     </article>
     <script src="{{ asset('js/open-link-refresh.js') }}"></script>
+    {% if user_auto_mark_read() %}
+    <script src="{{ asset('js/auto-mark-read.js') }}"></script>
     {% endif %}
-    {% if app.user.keyboardShortcuts %}
+    {% endif %}
+    {% if user_keyboard_shortcuts() %}
     <script src="{{ asset('js/keyboard-shortcuts.js') }}"></script>
     {% endif %}
     {% if pullToRefresh %}

@@ -75,10 +75,25 @@ Use the filters in the sidebar:
 Click the gear icon in the header to access your preferences:
 
 - **Theme** - Choose between Auto, Light, or Dark mode
-- **Skip read articles** - When marking an article as read, automatically jump to the next unread article instead of the next in the list
 - **Pull to refresh** - Enable or disable the pull-down gesture to refresh feeds
+- **Auto mark as read** - Automatically mark articles as read after 5 seconds of viewing
+- **Keyboard shortcuts** - Enable keyboard navigation (arrow keys, space, enter, escape)
 - **Filter words** - Hide articles containing specific words (one word per line, case-insensitive)
 - **Worker Status** - Shows if background refresh is running
+
+### Keyboard Shortcuts
+
+When enabled in preferences, you can navigate Reader with your keyboard:
+
+**In the article list:**
+- **Tab / Shift+Tab** - Navigate between subscriptions
+- **Enter** - Open first article
+
+**When reading an article:**
+- **Arrow Up / Down** - Previous / next article
+- **Space** - Toggle read/unread
+- **Enter** - Open original article in new tab
+- **Escape** - Close article
 
 ## Security
 
