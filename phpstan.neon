@@ -15,8 +15,7 @@ parameters:
         - '#Call to an undefined method Symfony\\Component\\Form\\FormInterface::isClicked#'
         # Doctrine DBAL 4.x deprecated ConnectionEventArgs but it still works
         - '#Doctrine\\DBAL\\Event\\ConnectionEventArgs#'
-        # Intentional infinite loop for tail-like behavior
-        - '#While loop condition is always true#'
+
         # Generic type specifications for Symfony/Doctrine classes
         -
             identifier: missingType.generics

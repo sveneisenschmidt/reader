@@ -35,7 +35,3 @@ services:
     App\Twig\AssetInlineExtension:
         arguments:
             $publicDir: "%kernel.project_dir%/public"
-
-    App\Command\MigrateDataCommand:
-        arguments:
-            $projectDir: "%kernel.project_dir%"
