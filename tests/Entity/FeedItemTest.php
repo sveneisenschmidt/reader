@@ -19,13 +19,13 @@ class FeedItemTest extends TestCase
     private function createFeedItem(): FeedItem
     {
         return new FeedItem(
-            guid: "abc123def456",
-            subscriptionGuid: "feed123456789",
-            title: "Test Article",
-            link: "https://example.com/article",
-            source: "Test Blog",
-            excerpt: "This is a test excerpt",
-            publishedAt: new \DateTimeImmutable("2024-01-15 10:00:00"),
+            guid: 'abc123def456',
+            subscriptionGuid: 'feed123456789',
+            title: 'Test Article',
+            link: 'https://example.com/article',
+            source: 'Test Blog',
+            excerpt: 'This is a test excerpt',
+            publishedAt: new \DateTimeImmutable('2024-01-15 10:00:00'),
         );
     }
 
@@ -34,15 +34,15 @@ class FeedItemTest extends TestCase
     {
         $item = $this->createFeedItem();
 
-        $this->assertEquals("abc123def456", $item->getGuid());
-        $this->assertEquals("feed123456789", $item->getSubscriptionGuid());
-        $this->assertEquals("Test Article", $item->getTitle());
-        $this->assertEquals("https://example.com/article", $item->getLink());
-        $this->assertEquals("Test Blog", $item->getSource());
-        $this->assertEquals("This is a test excerpt", $item->getExcerpt());
+        $this->assertEquals('abc123def456', $item->getGuid());
+        $this->assertEquals('feed123456789', $item->getSubscriptionGuid());
+        $this->assertEquals('Test Article', $item->getTitle());
+        $this->assertEquals('https://example.com/article', $item->getLink());
+        $this->assertEquals('Test Blog', $item->getSource());
+        $this->assertEquals('This is a test excerpt', $item->getExcerpt());
         $this->assertEquals(
-            "2024-01-15",
-            $item->getPublishedAt()->format("Y-m-d"),
+            '2024-01-15',
+            $item->getPublishedAt()->format('Y-m-d'),
         );
     }
 
@@ -70,9 +70,9 @@ class FeedItemTest extends TestCase
     {
         $item = $this->createFeedItem();
 
-        $result = $item->setTitle("New Title");
+        $result = $item->setTitle('New Title');
 
-        $this->assertEquals("New Title", $item->getTitle());
+        $this->assertEquals('New Title', $item->getTitle());
         $this->assertSame($item, $result);
     }
 
@@ -81,9 +81,9 @@ class FeedItemTest extends TestCase
     {
         $item = $this->createFeedItem();
 
-        $result = $item->setLink("https://new.example.com");
+        $result = $item->setLink('https://new.example.com');
 
-        $this->assertEquals("https://new.example.com", $item->getLink());
+        $this->assertEquals('https://new.example.com', $item->getLink());
         $this->assertSame($item, $result);
     }
 
@@ -92,9 +92,9 @@ class FeedItemTest extends TestCase
     {
         $item = $this->createFeedItem();
 
-        $result = $item->setSource("New Source");
+        $result = $item->setSource('New Source');
 
-        $this->assertEquals("New Source", $item->getSource());
+        $this->assertEquals('New Source', $item->getSource());
         $this->assertSame($item, $result);
     }
 
@@ -103,9 +103,9 @@ class FeedItemTest extends TestCase
     {
         $item = $this->createFeedItem();
 
-        $result = $item->setExcerpt("New excerpt content");
+        $result = $item->setExcerpt('New excerpt content');
 
-        $this->assertEquals("New excerpt content", $item->getExcerpt());
+        $this->assertEquals('New excerpt content', $item->getExcerpt());
         $this->assertSame($item, $result);
     }
 
@@ -116,12 +116,12 @@ class FeedItemTest extends TestCase
 
         $array = $item->toArray();
 
-        $this->assertEquals("abc123def456", $array["guid"]);
-        $this->assertEquals("feed123456789", $array["sguid"]);
-        $this->assertEquals("Test Article", $array["title"]);
-        $this->assertEquals("https://example.com/article", $array["link"]);
-        $this->assertEquals("Test Blog", $array["source"]);
-        $this->assertEquals("This is a test excerpt", $array["excerpt"]);
-        $this->assertInstanceOf(\DateTimeImmutable::class, $array["date"]);
+        $this->assertEquals('abc123def456', $array['guid']);
+        $this->assertEquals('feed123456789', $array['sguid']);
+        $this->assertEquals('Test Article', $array['title']);
+        $this->assertEquals('https://example.com/article', $array['link']);
+        $this->assertEquals('Test Blog', $array['source']);
+        $this->assertEquals('This is a test excerpt', $array['excerpt']);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $array['date']);
     }
 }

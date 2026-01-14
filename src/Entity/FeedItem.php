@@ -15,39 +15,39 @@ use Doctrine\ORM\Mapping as ORM;
 use PhpStaticAnalysis\Attributes\Returns;
 
 #[ORM\Entity(repositoryClass: FeedItemRepository::class)]
-#[ORM\Table(name: "feed_item")]
-#[ORM\Index(name: "idx_subscription_guid", columns: ["subscription_guid"])]
-#[ORM\Index(name: "idx_published_at", columns: ["published_at"])]
-#[ORM\Index(name: "idx_fetched_at", columns: ["fetched_at"])]
+#[ORM\Table(name: 'feed_item')]
+#[ORM\Index(name: 'idx_subscription_guid', columns: ['subscription_guid'])]
+#[ORM\Index(name: 'idx_published_at', columns: ['published_at'])]
+#[ORM\Index(name: 'idx_fetched_at', columns: ['fetched_at'])]
 class FeedItem
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: "string", length: 16, unique: true)]
+    #[ORM\Column(type: 'string', length: 16, unique: true)]
     private string $guid;
 
-    #[ORM\Column(name: "subscription_guid", type: "string", length: 16)]
+    #[ORM\Column(name: 'subscription_guid', type: 'string', length: 16)]
     private string $subscriptionGuid;
 
-    #[ORM\Column(type: "string", length: 500)]
+    #[ORM\Column(type: 'string', length: 500)]
     private string $title;
 
-    #[ORM\Column(type: "string", length: 1000)]
+    #[ORM\Column(type: 'string', length: 1000)]
     private string $link;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $source;
 
-    #[ORM\Column(type: "text")]
+    #[ORM\Column(type: 'text')]
     private string $excerpt;
 
-    #[ORM\Column(type: "datetime_immutable")]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $publishedAt;
 
-    #[ORM\Column(type: "datetime_immutable")]
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $fetchedAt;
 
     public function __construct(
@@ -142,17 +142,17 @@ class FeedItem
         return $this->fetchedAt;
     }
 
-    #[Returns("array<string, mixed>")]
+    #[Returns('array<string, mixed>')]
     public function toArray(): array
     {
         return [
-            "guid" => $this->guid,
-            "sguid" => $this->subscriptionGuid,
-            "title" => $this->title,
-            "link" => $this->link,
-            "source" => $this->source,
-            "excerpt" => $this->excerpt,
-            "date" => $this->publishedAt,
+            'guid' => $this->guid,
+            'sguid' => $this->subscriptionGuid,
+            'title' => $this->title,
+            'link' => $this->link,
+            'source' => $this->source,
+            'excerpt' => $this->excerpt,
+            'date' => $this->publishedAt,
         ];
     }
 }
