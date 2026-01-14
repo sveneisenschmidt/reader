@@ -25,9 +25,6 @@
         {% block form %}{% endblock %}
     </main>
 
-    <script>
-    document.body.focus();
-    document.activeElement?.blur();
-</script>
+    <script>{{ asset_inline('js/global.js') }}</script>
 </body>
 </html>

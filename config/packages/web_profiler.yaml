@@ -1,13 +1,9 @@
-when@dev:
-    web_profiler:
-        toolbar: false
+framework:
+    profiler:
+        enabled: "%env(bool:PROFILER_ENABLED)%"
+        collect: "%env(bool:PROFILER_ENABLED)%"
+        dsn: "file:%kernel.project_dir%/var/profiler"
 
-    framework:
-        profiler:
-            collect_serializer_data: true
-
-when@test:
-    framework:
-        profiler:
-            collect: false
-            collect_serializer_data: true
+web_profiler:
+    toolbar:
+        enabled: "%env(bool:PROFILER_ENABLED)%"
