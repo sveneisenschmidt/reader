@@ -11,18 +11,21 @@ final class Version20260114092826 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return "Add fetched_at index to feed_item table";
+        return 'Add fetched_at index to feed_item table';
     }
 
     public function up(Schema $schema): void
     {
-        $this->addSql(
-            "CREATE INDEX IF NOT EXISTS idx_fetched_at ON feed_item (fetched_at)",
-        );
+        // Only create index if table exists (may not exist in fresh CI environments)
+        if ($schema->hasTable('feed_item')) {
+            $this->addSql(
+                'CREATE INDEX IF NOT EXISTS idx_fetched_at ON feed_item (fetched_at)',
+            );
+        }
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql("DROP INDEX IF EXISTS idx_fetched_at");
+        $this->addSql('DROP INDEX IF EXISTS idx_fetched_at');
     }
 }
