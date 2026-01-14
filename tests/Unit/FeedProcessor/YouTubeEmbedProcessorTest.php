@@ -18,43 +18,43 @@ use PHPUnit\Framework\TestCase;
 class YouTubeEmbedProcessorTest extends TestCase
 {
     #[Test]
-    #[DataProvider("youtubeUrlProvider")]
+    #[DataProvider('youtubeUrlProvider')]
     public function processCreatesEmbedCodeForYouTubeUrls(
         string $url,
         string $expectedVideoId,
     ): void {
         $processor = new YouTubeEmbedProcessor();
 
-        $item = ["link" => $url, "excerpt" => "Original content"];
+        $item = ['link' => $url, 'excerpt' => 'Original content'];
         $result = $processor->process($item);
 
         $this->assertStringContainsString(
-            "https://www.youtube.com/embed/" . $expectedVideoId,
-            $result["excerpt"],
+            'https://www.youtube.com/embed/'.$expectedVideoId,
+            $result['excerpt'],
         );
-        $this->assertStringContainsString("<iframe", $result["excerpt"]);
+        $this->assertStringContainsString('<iframe', $result['excerpt']);
         $this->assertStringContainsString(
-            "allowfullscreen",
-            $result["excerpt"],
+            'allowfullscreen',
+            $result['excerpt'],
         );
     }
 
     public static function youtubeUrlProvider(): array
     {
         return [
-            "standard watch url" => [
-                "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                "dQw4w9WgXcQ",
+            'standard watch url' => [
+                'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                'dQw4w9WgXcQ',
             ],
-            "short url" => ["https://youtu.be/dQw4w9WgXcQ", "dQw4w9WgXcQ"],
-            "embed url" => [
-                "https://www.youtube.com/embed/dQw4w9WgXcQ",
-                "dQw4w9WgXcQ",
+            'short url' => ['https://youtu.be/dQw4w9WgXcQ', 'dQw4w9WgXcQ'],
+            'embed url' => [
+                'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                'dQw4w9WgXcQ',
             ],
-            "v url" => ["https://www.youtube.com/v/dQw4w9WgXcQ", "dQw4w9WgXcQ"],
-            "watch url with extra params" => [
-                "https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=30",
-                "dQw4w9WgXcQ",
+            'v url' => ['https://www.youtube.com/v/dQw4w9WgXcQ', 'dQw4w9WgXcQ'],
+            'watch url with extra params' => [
+                'https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=30',
+                'dQw4w9WgXcQ',
             ],
         ];
     }
@@ -64,10 +64,10 @@ class YouTubeEmbedProcessorTest extends TestCase
     {
         $processor = new YouTubeEmbedProcessor();
 
-        $item = ["link" => "https://example.com/video", "excerpt" => "Content"];
+        $item = ['link' => 'https://example.com/video', 'excerpt' => 'Content'];
         $result = $processor->process($item);
 
-        $this->assertEquals("Content", $result["excerpt"]);
+        $this->assertEquals('Content', $result['excerpt']);
     }
 
     #[Test]
@@ -76,24 +76,24 @@ class YouTubeEmbedProcessorTest extends TestCase
         $processor = new YouTubeEmbedProcessor();
 
         $item = [
-            "link" => "https://www.youtube.com/watch?v=abc123_-XYZ",
-            "excerpt" => "Original",
+            'link' => 'https://www.youtube.com/watch?v=abc123_-XYZ',
+            'excerpt' => 'Original',
         ];
         $result = $processor->process($item);
 
-        $this->assertStringContainsString("abc123_-XYZ", $result["excerpt"]);
-        $this->assertStringNotContainsString("<script", $result["excerpt"]);
+        $this->assertStringContainsString('abc123_-XYZ', $result['excerpt']);
+        $this->assertStringNotContainsString('<script', $result['excerpt']);
     }
 
     #[Test]
-    #[DataProvider("youtubeUrlProvider")]
+    #[DataProvider('youtubeUrlProvider')]
     public function supportsReturnsTrueForYouTubeUrls(
         string $url,
         string $expectedVideoId,
     ): void {
         $processor = new YouTubeEmbedProcessor();
 
-        $this->assertTrue($processor->supports(["link" => $url]));
+        $this->assertTrue($processor->supports(['link' => $url]));
     }
 
     #[Test]
@@ -102,10 +102,10 @@ class YouTubeEmbedProcessorTest extends TestCase
         $processor = new YouTubeEmbedProcessor();
 
         $this->assertFalse(
-            $processor->supports(["link" => "https://example.com"]),
+            $processor->supports(['link' => 'https://example.com']),
         );
         $this->assertFalse(
-            $processor->supports(["link" => "https://vimeo.com/12345"]),
+            $processor->supports(['link' => 'https://vimeo.com/12345']),
         );
     }
 
@@ -114,7 +114,7 @@ class YouTubeEmbedProcessorTest extends TestCase
     {
         $processor = new YouTubeEmbedProcessor();
 
-        $this->assertFalse($processor->supports(["title" => "test"]));
+        $this->assertFalse($processor->supports(['title' => 'test']));
     }
 
     #[Test]
@@ -122,8 +122,8 @@ class YouTubeEmbedProcessorTest extends TestCase
     {
         $processor = new YouTubeEmbedProcessor();
 
-        $this->assertFalse($processor->supports(["link" => 123]));
-        $this->assertFalse($processor->supports(["link" => null]));
+        $this->assertFalse($processor->supports(['link' => 123]));
+        $this->assertFalse($processor->supports(['link' => null]));
     }
 
     #[Test]
