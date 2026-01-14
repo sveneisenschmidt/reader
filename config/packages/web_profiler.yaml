@@ -2,8 +2,10 @@ framework:
     profiler:
         enabled: "%env(bool:PROFILER_ENABLED)%"
         collect: "%env(bool:PROFILER_ENABLED)%"
+        only_exceptions: false
         dsn: "file:%kernel.project_dir%/var/profiler"
 
 web_profiler:
     toolbar:
         enabled: "%env(bool:PROFILER_ENABLED)%"
+    intercept_redirects: false
