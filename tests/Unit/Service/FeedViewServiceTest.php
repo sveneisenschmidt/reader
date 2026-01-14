@@ -38,21 +38,110 @@ class FeedViewServiceTest extends TestCase
     public function getViewDataFiltersItemsBySubscription(): void
     {
         $userId = 1;
-        $service = $this->createServiceWithItems();
+
+        $subscription1 = $this->createStub(Subscription::class);
+        $subscription1->method('getGuid')->willReturn('sguid1');
+        $subscription1->method('getName')->willReturn('Feed 1');
+
+        $subscriptionService = $this->createStub(SubscriptionService::class);
+        $subscriptionService
+            ->method('getSubscriptionsForUser')
+            ->willReturn([$subscription1]);
+        $subscriptionService
+            ->method('getSubscriptionsWithUnreadCounts')
+            ->willReturn([]);
+
+        // Repository should receive sguid filter
+        $feedItemRepository = $this->createMock(FeedItemRepository::class);
+        $feedItemRepository
+            ->method('getUnreadCountsBySubscription')
+            ->willReturn([]);
+        $feedItemRepository
+            ->expects($this->once())
+            ->method('findItemsWithStatus')
+            ->with(
+                ['sguid1'],
+                $userId,
+                [], // filterWords
+                false, // unreadOnly
+                50, // limit (default)
+                'sguid1', // subscriptionGuid filter
+                null, // excludeFromUnreadFilter
+            )
+            ->willReturn([
+                [
+                    'guid' => 'guid1',
+                    'sguid' => 'sguid1',
+                    'isRead' => false,
+                    'isNew' => true,
+                ],
+                [
+                    'guid' => 'guid2',
+                    'sguid' => 'sguid1',
+                    'isRead' => false,
+                    'isNew' => true,
+                ],
+            ]);
+
+        $service = new FeedViewService(
+            $feedItemRepository,
+            $subscriptionService,
+            $this->createUserPreferenceServiceStub(),
+        );
 
         $result = $service->getViewData($userId, 'sguid1');
 
         $this->assertCount(2, $result['items']);
-        foreach ($result['items'] as $item) {
-            $this->assertEquals('sguid1', $item['sguid']);
-        }
     }
 
     #[Test]
     public function getViewDataFiltersUnreadOnly(): void
     {
         $userId = 1;
-        $service = $this->createServiceWithItems();
+
+        $subscription1 = $this->createStub(Subscription::class);
+        $subscription1->method('getGuid')->willReturn('sguid1');
+        $subscription1->method('getName')->willReturn('Feed 1');
+
+        $subscriptionService = $this->createStub(SubscriptionService::class);
+        $subscriptionService
+            ->method('getSubscriptionsForUser')
+            ->willReturn([$subscription1]);
+        $subscriptionService
+            ->method('getSubscriptionsWithUnreadCounts')
+            ->willReturn([]);
+
+        // Repository should receive unreadOnly=true
+        $feedItemRepository = $this->createMock(FeedItemRepository::class);
+        $feedItemRepository
+            ->method('getUnreadCountsBySubscription')
+            ->willReturn([]);
+        $feedItemRepository
+            ->expects($this->once())
+            ->method('findItemsWithStatus')
+            ->with(
+                ['sguid1'],
+                $userId,
+                [], // filterWords
+                true, // unreadOnly
+                50, // limit (default)
+                null, // subscriptionGuid
+                null, // excludeFromUnreadFilter
+            )
+            ->willReturn([
+                [
+                    'guid' => 'guid1',
+                    'sguid' => 'sguid1',
+                    'isRead' => false,
+                    'isNew' => true,
+                ],
+            ]);
+
+        $service = new FeedViewService(
+            $feedItemRepository,
+            $subscriptionService,
+            $this->createUserPreferenceServiceStub(),
+        );
 
         $result = $service->getViewData($userId, null, null, true);
 
@@ -65,7 +154,56 @@ class FeedViewServiceTest extends TestCase
     public function getViewDataAppliesLimit(): void
     {
         $userId = 1;
-        $service = $this->createServiceWithItems();
+
+        $subscription1 = $this->createStub(Subscription::class);
+        $subscription1->method('getGuid')->willReturn('sguid1');
+        $subscription1->method('getName')->willReturn('Feed 1');
+
+        $subscriptionService = $this->createStub(SubscriptionService::class);
+        $subscriptionService
+            ->method('getSubscriptionsForUser')
+            ->willReturn([$subscription1]);
+        $subscriptionService
+            ->method('getSubscriptionsWithUnreadCounts')
+            ->willReturn([]);
+
+        // Repository should receive limit=2
+        $feedItemRepository = $this->createMock(FeedItemRepository::class);
+        $feedItemRepository
+            ->method('getUnreadCountsBySubscription')
+            ->willReturn([]);
+        $feedItemRepository
+            ->expects($this->once())
+            ->method('findItemsWithStatus')
+            ->with(
+                ['sguid1'],
+                $userId,
+                [], // filterWords
+                false, // unreadOnly
+                2, // limit
+                null, // subscriptionGuid
+                null, // excludeFromUnreadFilter
+            )
+            ->willReturn([
+                [
+                    'guid' => 'guid1',
+                    'sguid' => 'sguid1',
+                    'isRead' => false,
+                    'isNew' => true,
+                ],
+                [
+                    'guid' => 'guid2',
+                    'sguid' => 'sguid1',
+                    'isRead' => false,
+                    'isNew' => true,
+                ],
+            ]);
+
+        $service = new FeedViewService(
+            $feedItemRepository,
+            $subscriptionService,
+            $this->createUserPreferenceServiceStub(),
+        );
 
         $result = $service->getViewData($userId, null, null, false, 2);
 
@@ -106,22 +244,20 @@ class FeedViewServiceTest extends TestCase
             ->willReturn(['sguid1']);
 
         $feedItemRepository = $this->createStub(FeedItemRepository::class);
-        $feedItemRepository
-            ->method('findItemsWithStatus')
-            ->willReturn([
-                [
-                    'guid' => 'guid1',
-                    'sguid' => 'sguid1',
-                    'isRead' => false,
-                    'isNew' => true,
-                ],
-                [
-                    'guid' => 'guid2',
-                    'sguid' => 'sguid1',
-                    'isRead' => false,
-                    'isNew' => true,
-                ],
-            ]);
+        $feedItemRepository->method('findItemsWithStatus')->willReturn([
+            [
+                'guid' => 'guid1',
+                'sguid' => 'sguid1',
+                'isRead' => false,
+                'isNew' => true,
+            ],
+            [
+                'guid' => 'guid2',
+                'sguid' => 'sguid1',
+                'isRead' => false,
+                'isNew' => true,
+            ],
+        ]);
 
         $service = new FeedViewService(
             $feedItemRepository,
@@ -135,38 +271,18 @@ class FeedViewServiceTest extends TestCase
     }
 
     #[Test]
-    public function getItemGuidsForSubscriptionFiltersCorrectly(): void
+    public function getItemGuidsForSubscriptionUsesRepository(): void
     {
         $userId = 1;
 
         $subscriptionService = $this->createStub(SubscriptionService::class);
-        $subscriptionService
-            ->method('getSubscriptionGuids')
-            ->willReturn(['sguid1', 'sguid2']);
 
-        $feedItemRepository = $this->createStub(FeedItemRepository::class);
+        $feedItemRepository = $this->createMock(FeedItemRepository::class);
         $feedItemRepository
-            ->method('findItemsWithStatus')
-            ->willReturn([
-                [
-                    'guid' => 'guid1',
-                    'sguid' => 'sguid1',
-                    'isRead' => false,
-                    'isNew' => true,
-                ],
-                [
-                    'guid' => 'guid2',
-                    'sguid' => 'sguid2',
-                    'isRead' => false,
-                    'isNew' => true,
-                ],
-                [
-                    'guid' => 'guid3',
-                    'sguid' => 'sguid1',
-                    'isRead' => false,
-                    'isNew' => true,
-                ],
-            ]);
+            ->expects($this->once())
+            ->method('getItemGuidsBySubscription')
+            ->with('sguid1')
+            ->willReturn(['guid1', 'guid3']);
 
         $service = new FeedViewService(
             $feedItemRepository,
@@ -197,38 +313,39 @@ class FeedViewServiceTest extends TestCase
             ->method('getSubscriptionGuids')
             ->willReturn(['sguid1', 'sguid2']);
         $subscriptionService
-            ->method('getSubscriptionsWithCounts')
+            ->method('getSubscriptionsWithUnreadCounts')
             ->willReturn([]);
 
         $feedItemRepository = $this->createStub(FeedItemRepository::class);
         $feedItemRepository
-            ->method('findItemsWithStatus')
-            ->willReturn([
-                [
-                    'guid' => 'guid1',
-                    'sguid' => 'sguid1',
-                    'isRead' => true,
-                    'isNew' => false,
-                ],
-                [
-                    'guid' => 'guid2',
-                    'sguid' => 'sguid1',
-                    'isRead' => false,
-                    'isNew' => true,
-                ],
-                [
-                    'guid' => 'guid3',
-                    'sguid' => 'sguid2',
-                    'isRead' => true,
-                    'isNew' => false,
-                ],
-                [
-                    'guid' => 'guid4',
-                    'sguid' => 'sguid2',
-                    'isRead' => false,
-                    'isNew' => true,
-                ],
-            ]);
+            ->method('getUnreadCountsBySubscription')
+            ->willReturn(['sguid1' => 1, 'sguid2' => 1]);
+        $feedItemRepository->method('findItemsWithStatus')->willReturn([
+            [
+                'guid' => 'guid1',
+                'sguid' => 'sguid1',
+                'isRead' => true,
+                'isNew' => false,
+            ],
+            [
+                'guid' => 'guid2',
+                'sguid' => 'sguid1',
+                'isRead' => false,
+                'isNew' => true,
+            ],
+            [
+                'guid' => 'guid3',
+                'sguid' => 'sguid2',
+                'isRead' => true,
+                'isNew' => false,
+            ],
+            [
+                'guid' => 'guid4',
+                'sguid' => 'sguid2',
+                'isRead' => false,
+                'isNew' => true,
+            ],
+        ]);
 
         return new FeedViewService(
             $feedItemRepository,
@@ -262,15 +379,26 @@ class FeedViewServiceTest extends TestCase
             ->method('getSubscriptionGuids')
             ->willReturn(['sguid1']);
         $subscriptionService
-            ->method('getSubscriptionsWithCounts')
+            ->method('getSubscriptionsWithUnreadCounts')
             ->willReturn([]);
 
-        // The repository is expected to receive the filter words and filter accordingly
+        // The repository is expected to receive the filter words
         $feedItemRepository = $this->createMock(FeedItemRepository::class);
+        $feedItemRepository
+            ->method('getUnreadCountsBySubscription')
+            ->willReturn([]);
         $feedItemRepository
             ->expects($this->once())
             ->method('findItemsWithStatus')
-            ->with(['sguid1'], $userId, ['sponsored'])
+            ->with(
+                ['sguid1'],
+                $userId,
+                ['sponsored'], // filterWords
+                false,
+                50, // limit (default)
+                null,
+                null,
+            )
             ->willReturn([
                 [
                     'guid' => 'guid1',

@@ -177,6 +177,8 @@ class FeedItemRepository extends ServiceEntityRepository
         array $filterWords = [],
         bool $unreadOnly = false,
         int $limit = 0,
+        ?string $subscriptionGuid = null,
+        ?string $excludeFromUnreadFilter = null,
     ): array {
         if (empty($subscriptionGuids)) {
             return [];
@@ -218,6 +220,14 @@ class FeedItemRepository extends ServiceEntityRepository
             ->setParameter('userId', $userId)
             ->orderBy('f.publishedAt', 'DESC');
 
+        // Filter by specific subscription
+        if ($subscriptionGuid !== null) {
+            $qb->andWhere('f.subscriptionGuid = :sguid')->setParameter(
+                'sguid',
+                $subscriptionGuid,
+            );
+        }
+
         // Add filter words conditions
         foreach ($filterWords as $i => $word) {
             $paramName = 'word'.$i;
@@ -227,9 +237,24 @@ class FeedItemRepository extends ServiceEntityRepository
             $qb->setParameter($paramName, '%'.$word.'%');
         }
 
-        // Filter unread only
+        // Filter unread only (with optional exclusion for active item)
         if ($unreadOnly) {
-            $qb->andWhere("NOT EXISTS({$readSubDql})");
+            // Use separate alias for unread filter subquery to avoid conflict
+            $unreadSubDql = $em
+                ->createQueryBuilder()
+                ->select('1')
+                ->from(ReadStatus::class, 'rs2')
+                ->where('rs2.feedItemGuid = f.guid')
+                ->andWhere('rs2.userId = :userId')
+                ->getDQL();
+
+            if ($excludeFromUnreadFilter !== null) {
+                $qb->andWhere(
+                    "(NOT EXISTS({$unreadSubDql}) OR f.guid = :excludeGuid)",
+                )->setParameter('excludeGuid', $excludeFromUnreadFilter);
+            } else {
+                $qb->andWhere("NOT EXISTS({$unreadSubDql})");
+            }
         }
 
         if ($limit > 0) {
@@ -251,6 +276,20 @@ class FeedItemRepository extends ServiceEntityRepository
                 'isNew' => !(bool) $row['isSeen'],
             ];
         }, $results);
+    }
+
+    #[Returns('list<string>')]
+    public function getItemGuidsBySubscription(string $subscriptionGuid): array
+    {
+        $results = $this->createQueryBuilder('f')
+            ->select('f.guid')
+            ->where('f.subscriptionGuid = :sguid')
+            ->setParameter('sguid', $subscriptionGuid)
+            ->orderBy('f.publishedAt', 'DESC')
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($results, 'guid');
     }
 
     #[Param(subscriptionGuids: 'list<string>')]

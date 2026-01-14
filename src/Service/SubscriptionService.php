@@ -77,6 +77,36 @@ class SubscriptionService
         return $result;
     }
 
+    #[Returns('list<array<string, mixed>>')]
+    public function getSubscriptionsWithUnreadCounts(int $userId): array
+    {
+        $subscriptions = $this->getSubscriptionsForUser($userId);
+        $sguids = array_map(
+            fn (Subscription $s) => $s->getGuid(),
+            $subscriptions,
+        );
+
+        // Get unread counts from database query
+        $unreadCounts = $this->feedItemRepository->getUnreadCountsBySubscription(
+            $sguids,
+            $userId,
+        );
+
+        $result = [];
+        foreach ($subscriptions as $subscription) {
+            $sguid = $subscription->getGuid();
+            $result[] = [
+                'sguid' => $sguid,
+                'name' => $subscription->getName(),
+                'url' => $subscription->getUrl(),
+                'count' => $unreadCounts[$sguid] ?? 0,
+                'folder' => $subscription->getFolder(),
+            ];
+        }
+
+        return $result;
+    }
+
     #[Returns('list<string>')]
     public function getFeedUrls(int $userId): array
     {
