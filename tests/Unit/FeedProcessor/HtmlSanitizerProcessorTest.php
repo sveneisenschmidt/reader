@@ -94,8 +94,8 @@ class HtmlSanitizerProcessorTest extends TestCase
     }
 
     #[Test]
-    public function getPriorityReturns100(): void
+    public function getPriorityReturns300(): void
     {
-        $this->assertEquals(100, HtmlSanitizerProcessor::getPriority());
+        $this->assertEquals(300, HtmlSanitizerProcessor::getPriority());
     }
 }

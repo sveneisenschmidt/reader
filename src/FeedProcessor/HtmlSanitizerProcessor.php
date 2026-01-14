@@ -38,7 +38,7 @@ class HtmlSanitizerProcessor implements FeedItemProcessorInterface
 
     public static function getPriority(): int
     {
-        return 100;
+        return 300;
     }
 
     private function cleanExcerpt(string $text): string

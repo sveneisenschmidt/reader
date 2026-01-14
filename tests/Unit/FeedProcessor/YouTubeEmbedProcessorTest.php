@@ -127,8 +127,8 @@ class YouTubeEmbedProcessorTest extends TestCase
     }
 
     #[Test]
-    public function getPriorityReturns300(): void
+    public function getPriorityReturns100(): void
     {
-        $this->assertEquals(300, YouTubeEmbedProcessor::getPriority());
+        $this->assertEquals(100, YouTubeEmbedProcessor::getPriority());
     }
 }
