@@ -19,7 +19,7 @@ use PhpStaticAnalysis\Attributes\Param;
 use PhpStaticAnalysis\Attributes\Returns;
 use PhpStaticAnalysis\Attributes\Template;
 
-#[Template('T', FeedItem::class)]
+#[Template("T", FeedItem::class)]
 class FeedItemRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -29,20 +29,20 @@ class FeedItemRepository extends ServiceEntityRepository
 
     public function findByGuid(string $guid): ?FeedItem
     {
-        return $this->findOneBy(['guid' => $guid]);
+        return $this->findOneBy(["guid" => $guid]);
     }
 
-    #[Param(guids: 'list<string>')]
-    #[Returns('array<string, FeedItem>')]
+    #[Param(guids: "list<string>")]
+    #[Returns("array<string, FeedItem>")]
     public function findByGuids(array $guids): array
     {
         if (empty($guids)) {
             return [];
         }
 
-        $items = $this->createQueryBuilder('f')
-            ->where('f.guid IN (:guids)')
-            ->setParameter('guids', $guids)
+        $items = $this->createQueryBuilder("f")
+            ->where("f.guid IN (:guids)")
+            ->setParameter("guids", $guids)
             ->getQuery()
             ->getResult();
 
@@ -54,18 +54,18 @@ class FeedItemRepository extends ServiceEntityRepository
         return $result;
     }
 
-    #[Param(subscriptionGuids: 'list<string>')]
-    #[Returns('list<FeedItem>')]
+    #[Param(subscriptionGuids: "list<string>")]
+    #[Returns("list<FeedItem>")]
     public function findBySubscriptionGuids(array $subscriptionGuids): array
     {
         if (empty($subscriptionGuids)) {
             return [];
         }
 
-        return $this->createQueryBuilder('f')
-            ->where('f.subscriptionGuid IN (:subscriptionGuids)')
-            ->setParameter('subscriptionGuids', $subscriptionGuids)
-            ->orderBy('f.publishedAt', 'DESC')
+        return $this->createQueryBuilder("f")
+            ->where("f.subscriptionGuid IN (:subscriptionGuids)")
+            ->setParameter("subscriptionGuids", $subscriptionGuids)
+            ->orderBy("f.fetchedAt", "DESC")
             ->getQuery()
             ->getResult();
     }
@@ -79,7 +79,6 @@ class FeedItemRepository extends ServiceEntityRepository
             $existing->setLink($feedItem->getLink());
             $existing->setSource($feedItem->getSource());
             $existing->setExcerpt($feedItem->getExcerpt());
-            $existing->updateFetchedAt();
         } else {
             $this->getEntityManager()->persist($feedItem);
         }
@@ -87,14 +86,14 @@ class FeedItemRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
-    #[Param(feedItems: 'list<FeedItem>')]
+    #[Param(feedItems: "list<FeedItem>")]
     public function upsertBatch(array $feedItems): void
     {
         if (empty($feedItems)) {
             return;
         }
 
-        $guids = array_map(fn ($item) => $item->getGuid(), $feedItems);
+        $guids = array_map(fn($item) => $item->getGuid(), $feedItems);
         $existingItems = $this->findByGuids($guids);
 
         foreach ($feedItems as $feedItem) {
@@ -105,7 +104,6 @@ class FeedItemRepository extends ServiceEntityRepository
                 $existing->setLink($feedItem->getLink());
                 $existing->setSource($feedItem->getSource());
                 $existing->setExcerpt($feedItem->getExcerpt());
-                $existing->updateFetchedAt();
             } else {
                 $this->getEntityManager()->persist($feedItem);
             }
@@ -117,45 +115,45 @@ class FeedItemRepository extends ServiceEntityRepository
     public function getItemCountBySubscriptionGuid(
         string $subscriptionGuid,
     ): int {
-        return $this->count(['subscriptionGuid' => $subscriptionGuid]);
+        return $this->count(["subscriptionGuid" => $subscriptionGuid]);
     }
 
     public function deleteOlderThan(\DateTimeInterface $date): int
     {
-        return $this->createQueryBuilder('f')
+        return $this->createQueryBuilder("f")
             ->delete()
-            ->where('f.publishedAt < :date')
-            ->setParameter('date', $date)
+            ->where("f.publishedAt < :date")
+            ->setParameter("date", $date)
             ->getQuery()
             ->execute();
     }
 
-    #[Returns('list<string>')]
+    #[Returns("list<string>")]
     public function getGuidsBySubscriptionGuid(string $subscriptionGuid): array
     {
-        $results = $this->createQueryBuilder('f')
-            ->select('f.guid')
-            ->where('f.subscriptionGuid = :subscriptionGuid')
-            ->setParameter('subscriptionGuid', $subscriptionGuid)
+        $results = $this->createQueryBuilder("f")
+            ->select("f.guid")
+            ->where("f.subscriptionGuid = :subscriptionGuid")
+            ->setParameter("subscriptionGuid", $subscriptionGuid)
             ->getQuery()
             ->getScalarResult();
 
-        return array_column($results, 'guid');
+        return array_column($results, "guid");
     }
 
     public function deleteBySubscriptionGuid(string $subscriptionGuid): int
     {
-        return $this->createQueryBuilder('f')
+        return $this->createQueryBuilder("f")
             ->delete()
-            ->where('f.subscriptionGuid = :subscriptionGuid')
-            ->setParameter('subscriptionGuid', $subscriptionGuid)
+            ->where("f.subscriptionGuid = :subscriptionGuid")
+            ->setParameter("subscriptionGuid", $subscriptionGuid)
             ->getQuery()
             ->execute();
     }
 
-    #[Param(subscriptionGuids: 'list<string>')]
-    #[Param(filterWords: 'list<string>')]
-    #[Returns('list<array<string, mixed>>')]
+    #[Param(subscriptionGuids: "list<string>")]
+    #[Param(filterWords: "list<string>")]
+    #[Returns("list<array<string, mixed>>")]
     public function findItemsWithStatus(
         array $subscriptionGuids,
         int $userId,
@@ -174,52 +172,52 @@ class FeedItemRepository extends ServiceEntityRepository
         // Build subqueries for read/seen status using DQL
         $readSubDql = $em
             ->createQueryBuilder()
-            ->select('1')
-            ->from(ReadStatus::class, 'rs')
-            ->where('rs.feedItemGuid = f.guid')
-            ->andWhere('rs.userId = :userId')
+            ->select("1")
+            ->from(ReadStatus::class, "rs")
+            ->where("rs.feedItemGuid = f.guid")
+            ->andWhere("rs.userId = :userId")
             ->getDQL();
 
         $seenSubDql = $em
             ->createQueryBuilder()
-            ->select('1')
-            ->from(SeenStatus::class, 'ss')
-            ->where('ss.feedItemGuid = f.guid')
-            ->andWhere('ss.userId = :userId')
+            ->select("1")
+            ->from(SeenStatus::class, "ss")
+            ->where("ss.feedItemGuid = f.guid")
+            ->andWhere("ss.userId = :userId")
             ->getDQL();
 
-        $qb = $this->createQueryBuilder('f')
+        $qb = $this->createQueryBuilder("f")
             ->select(
-                'f.guid',
-                'f.subscriptionGuid as sguid',
-                'f.title',
-                'f.link',
-                'f.source',
-                'f.excerpt',
-                'f.publishedAt as date',
+                "f.guid",
+                "f.subscriptionGuid as sguid",
+                "f.title",
+                "f.link",
+                "f.source",
+                "f.excerpt",
+                "f.publishedAt as date",
                 "CASE WHEN EXISTS({$readSubDql}) THEN true ELSE false END as isRead",
                 "CASE WHEN EXISTS({$seenSubDql}) THEN true ELSE false END as isSeen",
             )
-            ->where('f.subscriptionGuid IN (:sguids)')
-            ->setParameter('sguids', $subscriptionGuids)
-            ->setParameter('userId', $userId)
-            ->orderBy('f.publishedAt', 'DESC');
+            ->where("f.subscriptionGuid IN (:sguids)")
+            ->setParameter("sguids", $subscriptionGuids)
+            ->setParameter("userId", $userId)
+            ->orderBy("f.fetchedAt", "DESC");
 
         // Filter by specific subscription
         if ($subscriptionGuid !== null) {
-            $qb->andWhere('f.subscriptionGuid = :sguid')->setParameter(
-                'sguid',
+            $qb->andWhere("f.subscriptionGuid = :sguid")->setParameter(
+                "sguid",
                 $subscriptionGuid,
             );
         }
 
         // Add filter words conditions
         foreach ($filterWords as $i => $word) {
-            $paramName = 'word'.$i;
+            $paramName = "word" . $i;
             $qb->andWhere(
                 "f.title NOT LIKE :{$paramName} AND f.excerpt NOT LIKE :{$paramName}",
             );
-            $qb->setParameter($paramName, '%'.$word.'%');
+            $qb->setParameter($paramName, "%" . $word . "%");
         }
 
         // Filter unread only (with optional exclusion for active item)
@@ -227,16 +225,16 @@ class FeedItemRepository extends ServiceEntityRepository
             // Use separate alias for unread filter subquery to avoid conflict
             $unreadSubDql = $em
                 ->createQueryBuilder()
-                ->select('1')
-                ->from(ReadStatus::class, 'rs2')
-                ->where('rs2.feedItemGuid = f.guid')
-                ->andWhere('rs2.userId = :userId')
+                ->select("1")
+                ->from(ReadStatus::class, "rs2")
+                ->where("rs2.feedItemGuid = f.guid")
+                ->andWhere("rs2.userId = :userId")
                 ->getDQL();
 
             if ($excludeFromUnreadFilter !== null) {
                 $qb->andWhere(
                     "(NOT EXISTS({$unreadSubDql}) OR f.guid = :excludeGuid)",
-                )->setParameter('excludeGuid', $excludeFromUnreadFilter);
+                )->setParameter("excludeGuid", $excludeFromUnreadFilter);
             } else {
                 $qb->andWhere("NOT EXISTS({$unreadSubDql})");
             }
@@ -250,35 +248,35 @@ class FeedItemRepository extends ServiceEntityRepository
 
         return array_map(function ($row) {
             return [
-                'guid' => $row['guid'],
-                'sguid' => $row['sguid'],
-                'title' => $row['title'],
-                'link' => $row['link'],
-                'source' => $row['source'],
-                'excerpt' => $row['excerpt'],
-                'date' => $row['date'],
-                'isRead' => (bool) $row['isRead'],
-                'isNew' => !(bool) $row['isSeen'],
+                "guid" => $row["guid"],
+                "sguid" => $row["sguid"],
+                "title" => $row["title"],
+                "link" => $row["link"],
+                "source" => $row["source"],
+                "excerpt" => $row["excerpt"],
+                "date" => $row["date"],
+                "isRead" => (bool) $row["isRead"],
+                "isNew" => !(bool) $row["isSeen"],
             ];
         }, $results);
     }
 
-    #[Returns('list<string>')]
+    #[Returns("list<string>")]
     public function getItemGuidsBySubscription(string $subscriptionGuid): array
     {
-        $results = $this->createQueryBuilder('f')
-            ->select('f.guid')
-            ->where('f.subscriptionGuid = :sguid')
-            ->setParameter('sguid', $subscriptionGuid)
-            ->orderBy('f.publishedAt', 'DESC')
+        $results = $this->createQueryBuilder("f")
+            ->select("f.guid")
+            ->where("f.subscriptionGuid = :sguid")
+            ->setParameter("sguid", $subscriptionGuid)
+            ->orderBy("f.fetchedAt", "DESC")
             ->getQuery()
             ->getScalarResult();
 
-        return array_column($results, 'guid');
+        return array_column($results, "guid");
     }
 
-    #[Param(subscriptionGuids: 'list<string>')]
-    #[Returns('array<string, int>')]
+    #[Param(subscriptionGuids: "list<string>")]
+    #[Returns("array<string, int>")]
     public function getUnreadCountsBySubscription(
         array $subscriptionGuids,
         int $userId,
@@ -292,28 +290,28 @@ class FeedItemRepository extends ServiceEntityRepository
         // Build subquery for read status using DQL
         $readSubDql = $em
             ->createQueryBuilder()
-            ->select('1')
-            ->from(ReadStatus::class, 'rs')
-            ->where('rs.feedItemGuid = f.guid')
-            ->andWhere('rs.userId = :userId')
+            ->select("1")
+            ->from(ReadStatus::class, "rs")
+            ->where("rs.feedItemGuid = f.guid")
+            ->andWhere("rs.userId = :userId")
             ->getDQL();
 
-        $results = $this->createQueryBuilder('f')
+        $results = $this->createQueryBuilder("f")
             ->select(
-                'f.subscriptionGuid as sguid',
-                'COUNT(f.id) as unreadCount',
+                "f.subscriptionGuid as sguid",
+                "COUNT(f.id) as unreadCount",
             )
-            ->where('f.subscriptionGuid IN (:sguids)')
+            ->where("f.subscriptionGuid IN (:sguids)")
             ->andWhere("NOT EXISTS({$readSubDql})")
-            ->setParameter('sguids', $subscriptionGuids)
-            ->setParameter('userId', $userId)
-            ->groupBy('f.subscriptionGuid')
+            ->setParameter("sguids", $subscriptionGuids)
+            ->setParameter("userId", $userId)
+            ->groupBy("f.subscriptionGuid")
             ->getQuery()
             ->getResult();
 
         $counts = [];
         foreach ($results as $row) {
-            $counts[$row['sguid']] = (int) $row['unreadCount'];
+            $counts[$row["sguid"]] = (int) $row["unreadCount"];
         }
 
         return $counts;
