@@ -76,12 +76,41 @@ class FeedViewService
         // Find active item
         $activeItem = $fguid ? $this->findItemByGuid($items, $fguid) : null;
 
+        // Group feeds by folder
+        $groupedFeeds = $this->groupFeedsByFolder($feeds);
+
         return [
             'feeds' => $feeds,
+            'groupedFeeds' => $groupedFeeds['grouped'],
+            'ungroupedFeeds' => $groupedFeeds['ungrouped'],
             'items' => $items,
             'allItemsCount' => $totalUnreadCount,
             'activeItem' => $activeItem,
         ];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $feeds
+     *
+     * @return array{grouped: array<string, list<array<string, mixed>>>, ungrouped: list<array<string, mixed>>}
+     */
+    private function groupFeedsByFolder(array $feeds): array
+    {
+        $grouped = [];
+        $ungrouped = [];
+
+        foreach ($feeds as $feed) {
+            $folder = $feed['folder'] ?? null;
+            if ($folder !== null && $folder !== '') {
+                $grouped[$folder][] = $feed;
+            } else {
+                $ungrouped[] = $feed;
+            }
+        }
+
+        ksort($grouped);
+
+        return ['grouped' => $grouped, 'ungrouped' => $ungrouped];
     }
 
     #[Returns('list<string>')]

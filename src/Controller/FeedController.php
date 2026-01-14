@@ -417,6 +417,8 @@ class FeedController extends AbstractController
         $this->stopwatch?->start('render', 'controller');
         $response = $this->render('feed/index.html.twig', [
             'feeds' => $viewData['feeds'],
+            'groupedFeeds' => $viewData['groupedFeeds'],
+            'ungroupedFeeds' => $viewData['ungroupedFeeds'],
             'items' => $viewData['items'],
             'allItemsCount' => $viewData['allItemsCount'],
             'activeItem' => $viewData['activeItem'],
