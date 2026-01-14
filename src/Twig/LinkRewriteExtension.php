@@ -54,6 +54,10 @@ class LinkRewriteExtension extends AbstractExtension
                     return $matches[0];
                 }
 
+                // Remove event handlers (XSS protection)
+                $before = $this->removeEventHandlers($before);
+                $after = $this->removeEventHandlers($after);
+
                 $newUrl = $this->urlGenerator->generate('feed_item_open', [
                     'fguid' => $fguid,
                     'url' => $originalUrl,
@@ -68,5 +72,15 @@ class LinkRewriteExtension extends AbstractExtension
             },
             $html,
         ) ?? $html;
+    }
+
+    private function removeEventHandlers(string $attributes): string
+    {
+        // Remove on* event handlers (onclick, onmouseover, etc.)
+        return preg_replace(
+            '/\s*on\w+\s*=\s*["\'][^"\']*["\']/i',
+            '',
+            $attributes,
+        ) ?? $attributes;
     }
 }

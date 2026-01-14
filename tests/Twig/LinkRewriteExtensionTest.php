@@ -95,7 +95,8 @@ class LinkRewriteExtensionTest extends TestCase
                 return '/f/abc123/open?url='.urlencode($params['url']);
             });
 
-        $html = '<p><a href="https://example.com/1">First</a> and <a href="https://example.com/2">Second</a></p>';
+        $html =
+            '<p><a href="https://example.com/1">First</a> and <a href="https://example.com/2">Second</a></p>';
         $result = $this->extension->rewriteLinks($html, 'abc123');
 
         $this->assertStringContainsString(
@@ -116,7 +117,8 @@ class LinkRewriteExtensionTest extends TestCase
             ->method('generate')
             ->willReturn('/f/abc123/open?url=https%3A%2F%2Fexample.com');
 
-        $html = '<a class="my-class" href="https://example.com" data-id="123">Link</a>';
+        $html =
+            '<a class="my-class" href="https://example.com" data-id="123">Link</a>';
         $result = $this->extension->rewriteLinks($html, 'abc123');
 
         $this->assertStringContainsString('class="my-class"', $result);
@@ -159,7 +161,9 @@ class LinkRewriteExtensionTest extends TestCase
         $this->urlGenerator
             ->expects($this->once())
             ->method('generate')
-            ->willReturn('/f/abc123/open?url=https%3A%2F%2Fexample.com%2Fpage%3Ffoo%3Dbar%26baz%3D1');
+            ->willReturn(
+                '/f/abc123/open?url=https%3A%2F%2Fexample.com%2Fpage%3Ffoo%3Dbar%26baz%3D1',
+            );
 
         $html = '<a href="https://example.com/page?foo=bar&baz=1">Link</a>';
         $result = $this->extension->rewriteLinks($html, 'abc123');
@@ -168,5 +172,41 @@ class LinkRewriteExtensionTest extends TestCase
             'href="/f/abc123/open?url=https%3A%2F%2Fexample.com%2Fpage%3Ffoo%3Dbar%26baz%3D1"',
             $result,
         );
+    }
+
+    #[Test]
+    public function rewriteLinksRemovesEventHandlers(): void
+    {
+        $this->urlGenerator
+            ->expects($this->once())
+            ->method('generate')
+            ->willReturn('/f/abc123/open?url=https%3A%2F%2Fexample.com');
+
+        $html =
+            '<a onclick="alert(\'xss\')" href="https://example.com" onmouseover="evil()">Link</a>';
+        $result = $this->extension->rewriteLinks($html, 'abc123');
+
+        $this->assertStringNotContainsString('onclick', $result);
+        $this->assertStringNotContainsString('onmouseover', $result);
+        $this->assertStringNotContainsString('alert', $result);
+        $this->assertStringNotContainsString('evil', $result);
+        $this->assertStringContainsString('href="/f/abc123/open', $result);
+    }
+
+    #[Test]
+    public function rewriteLinksRemovesVariousEventHandlers(): void
+    {
+        $this->urlGenerator
+            ->expects($this->once())
+            ->method('generate')
+            ->willReturn('/f/abc123/open?url=https%3A%2F%2Fexample.com');
+
+        $html =
+            '<a onload="x()" onerror="y()" onfocus="z()" href="https://example.com">Link</a>';
+        $result = $this->extension->rewriteLinks($html, 'abc123');
+
+        $this->assertStringNotContainsString('onload', $result);
+        $this->assertStringNotContainsString('onerror', $result);
+        $this->assertStringNotContainsString('onfocus', $result);
     }
 }
