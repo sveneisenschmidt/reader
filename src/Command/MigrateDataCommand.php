@@ -11,6 +11,7 @@
 namespace App\Command;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,7 +25,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
         description: "Migrate data from old multi-database structure to single database",
     ),
 ]
-#[\CodeCoverageIgnore]
+#[CodeCoverageIgnore]
 class MigrateDataCommand extends Command
 {
     public function __construct(
