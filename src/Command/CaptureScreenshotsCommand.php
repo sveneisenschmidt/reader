@@ -208,9 +208,8 @@ class CaptureScreenshotsCommand extends Command
                 0,
                 16,
             );
-            $allItems = $this->feedViewService->loadEnrichedItems(
-                $user->getId(),
-            );
+            $viewData = $this->feedViewService->getViewData($user->getId());
+            $allItems = $viewData['items'];
             $svensItems = array_values(
                 array_filter(
                     $allItems,

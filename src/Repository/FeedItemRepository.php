@@ -11,6 +11,8 @@
 namespace App\Repository;
 
 use App\Entity\FeedItem;
+use App\Entity\ReadStatus;
+use App\Entity\SeenStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use PhpStaticAnalysis\Attributes\Param;
@@ -164,5 +166,132 @@ class FeedItemRepository extends ServiceEntityRepository
             ->setParameter('subscriptionGuid', $subscriptionGuid)
             ->getQuery()
             ->execute();
+    }
+
+    #[Param(subscriptionGuids: 'list<string>')]
+    #[Param(filterWords: 'list<string>')]
+    #[Returns('list<array<string, mixed>>')]
+    public function findItemsWithStatus(
+        array $subscriptionGuids,
+        int $userId,
+        array $filterWords = [],
+        bool $unreadOnly = false,
+        int $limit = 0,
+    ): array {
+        if (empty($subscriptionGuids)) {
+            return [];
+        }
+
+        $em = $this->getEntityManager();
+
+        // Build subqueries for read/seen status using DQL
+        $readSubDql = $em
+            ->createQueryBuilder()
+            ->select('1')
+            ->from(ReadStatus::class, 'rs')
+            ->where('rs.feedItemGuid = f.guid')
+            ->andWhere('rs.userId = :userId')
+            ->getDQL();
+
+        $seenSubDql = $em
+            ->createQueryBuilder()
+            ->select('1')
+            ->from(SeenStatus::class, 'ss')
+            ->where('ss.feedItemGuid = f.guid')
+            ->andWhere('ss.userId = :userId')
+            ->getDQL();
+
+        $qb = $this->createQueryBuilder('f')
+            ->select(
+                'f.guid',
+                'f.subscriptionGuid as sguid',
+                'f.title',
+                'f.link',
+                'f.source',
+                'f.excerpt',
+                'f.publishedAt as date',
+                "CASE WHEN EXISTS({$readSubDql}) THEN true ELSE false END as isRead",
+                "CASE WHEN EXISTS({$seenSubDql}) THEN true ELSE false END as isSeen",
+            )
+            ->where('f.subscriptionGuid IN (:sguids)')
+            ->setParameter('sguids', $subscriptionGuids)
+            ->setParameter('userId', $userId)
+            ->orderBy('f.publishedAt', 'DESC');
+
+        // Add filter words conditions
+        foreach ($filterWords as $i => $word) {
+            $paramName = 'word'.$i;
+            $qb->andWhere(
+                "f.title NOT LIKE :{$paramName} AND f.excerpt NOT LIKE :{$paramName}",
+            );
+            $qb->setParameter($paramName, '%'.$word.'%');
+        }
+
+        // Filter unread only
+        if ($unreadOnly) {
+            $qb->andWhere("NOT EXISTS({$readSubDql})");
+        }
+
+        if ($limit > 0) {
+            $qb->setMaxResults($limit);
+        }
+
+        $results = $qb->getQuery()->getResult();
+
+        return array_map(function ($row) {
+            return [
+                'guid' => $row['guid'],
+                'sguid' => $row['sguid'],
+                'title' => $row['title'],
+                'link' => $row['link'],
+                'source' => $row['source'],
+                'excerpt' => $row['excerpt'],
+                'date' => $row['date'],
+                'isRead' => (bool) $row['isRead'],
+                'isNew' => !(bool) $row['isSeen'],
+            ];
+        }, $results);
+    }
+
+    #[Param(subscriptionGuids: 'list<string>')]
+    #[Returns('array<string, int>')]
+    public function getUnreadCountsBySubscription(
+        array $subscriptionGuids,
+        int $userId,
+    ): array {
+        if (empty($subscriptionGuids)) {
+            return [];
+        }
+
+        $em = $this->getEntityManager();
+
+        // Build subquery for read status using DQL
+        $readSubDql = $em
+            ->createQueryBuilder()
+            ->select('1')
+            ->from(ReadStatus::class, 'rs')
+            ->where('rs.feedItemGuid = f.guid')
+            ->andWhere('rs.userId = :userId')
+            ->getDQL();
+
+        $results = $this->createQueryBuilder('f')
+            ->select(
+                'f.subscriptionGuid as sguid',
+                'COUNT(f.id) as unreadCount',
+            )
+            ->where('f.subscriptionGuid IN (:sguids)')
+            ->andWhere("NOT EXISTS({$readSubDql})")
+            ->setParameter('sguids', $subscriptionGuids)
+            ->setParameter('userId', $userId)
+            ->groupBy('f.subscriptionGuid')
+            ->getQuery()
+            ->getResult();
+
+        $counts = [];
+        foreach ($results as $row) {
+            $counts[$row['sguid']] = (int) $row['unreadCount'];
+        }
+
+        return $counts;
     }
 }

@@ -12,7 +12,6 @@ namespace App\Service;
 
 use App\Repository\SeenStatusRepository;
 use PhpStaticAnalysis\Attributes\Param;
-use PhpStaticAnalysis\Attributes\Returns;
 
 class SeenStatusService
 {
@@ -35,31 +34,5 @@ class SeenStatusService
     public function isSeen(int $userId, string $feedItemGuid): bool
     {
         return $this->seenStatusRepository->isSeen($userId, $feedItemGuid);
-    }
-
-    #[Param(filterGuids: 'list<string>')]
-    #[Returns('list<string>')]
-    public function getSeenGuidsForUser(
-        int $userId,
-        array $filterGuids = [],
-    ): array {
-        return $this->seenStatusRepository->getSeenGuidsForUser(
-            $userId,
-            $filterGuids,
-        );
-    }
-
-    #[Param(items: 'list<array<string, mixed>>')]
-    #[Returns('list<array<string, mixed>>')]
-    public function enrichItemsWithSeenStatus(array $items, int $userId): array
-    {
-        $guids = array_column($items, 'guid');
-        $seenGuids = $this->getSeenGuidsForUser($userId, $guids);
-
-        return array_map(function ($item) use ($seenGuids) {
-            $item['isNew'] = !in_array($item['guid'], $seenGuids, true);
-
-            return $item;
-        }, $items);
     }
 }

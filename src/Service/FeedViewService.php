@@ -11,16 +11,15 @@
 namespace App\Service;
 
 use App\EventSubscriber\FilterParameterSubscriber;
+use App\Repository\FeedItemRepository;
 use PhpStaticAnalysis\Attributes\Param;
 use PhpStaticAnalysis\Attributes\Returns;
 
 class FeedViewService
 {
     public function __construct(
-        private FeedPersistenceService $feedPersistenceService,
+        private FeedItemRepository $feedItemRepository,
         private SubscriptionService $subscriptionService,
-        private ReadStatusService $readStatusService,
-        private SeenStatusService $seenStatusService,
         private UserPreferenceService $userPreferenceService,
     ) {
     }
@@ -33,10 +32,33 @@ class FeedViewService
         bool $unreadOnly = FilterParameterSubscriber::DEFAULT_UNREAD,
         int $limit = FilterParameterSubscriber::DEFAULT_LIMIT,
     ): array {
-        $allItems = $this->applyWordFilter(
-            $this->loadEnrichedItems($userId),
+        $subscriptions = $this->subscriptionService->getSubscriptionsForUser(
             $userId,
         );
+        $sguids = array_map(fn ($s) => $s->getGuid(), $subscriptions);
+        $filterWords = $this->userPreferenceService->getFilterWords($userId);
+
+        // Build subscription name map
+        $nameMap = [];
+        foreach ($subscriptions as $subscription) {
+            $nameMap[$subscription->getGuid()] = $subscription->getName();
+        }
+
+        // Load all items (without limit/unread filter) for sidebar counts
+        $allItems = $this->feedItemRepository->findItemsWithStatus(
+            $sguids,
+            $userId,
+            $filterWords,
+        );
+
+        // Apply subscription names
+        $allItems = array_map(function ($item) use ($nameMap) {
+            if (isset($nameMap[$item['sguid']])) {
+                $item['source'] = $nameMap[$item['sguid']];
+            }
+
+            return $item;
+        }, $allItems);
 
         $feeds = $this->subscriptionService->getSubscriptionsWithCounts(
             $userId,
@@ -46,6 +68,7 @@ class FeedViewService
             array_filter($allItems, fn ($item) => !$item['isRead']),
         );
 
+        // Filter by subscription if specified
         $items = $sguid
             ? array_values(
                 array_filter($allItems, fn ($item) => $item['sguid'] === $sguid),
@@ -54,8 +77,8 @@ class FeedViewService
 
         $activeItem = $fguid ? $this->findItemByGuid($items, $fguid) : null;
 
+        // Apply unread filter
         if ($unreadOnly) {
-            // Keep active item visible even if read, so it stays in list after marking read
             $items = array_values(
                 array_filter(
                     $items,
@@ -64,6 +87,7 @@ class FeedViewService
             );
         }
 
+        // Apply limit
         if ($limit > 0) {
             $items = array_slice($items, 0, $limit);
         }
@@ -76,45 +100,14 @@ class FeedViewService
         ];
     }
 
-    #[Returns('list<array<string, mixed>>')]
-    public function loadEnrichedItems(int $userId): array
-    {
-        $subscriptions = $this->subscriptionService->getSubscriptionsForUser(
-            $userId,
-        );
-        $sguids = array_map(fn ($s) => $s->getGuid(), $subscriptions);
-
-        $items = $this->feedPersistenceService->getAllItems($sguids);
-
-        $nameMap = [];
-        foreach ($subscriptions as $subscription) {
-            $nameMap[$subscription->getGuid()] = $subscription->getName();
-        }
-
-        $items = array_map(function ($item) use ($nameMap) {
-            if (isset($nameMap[$item['sguid']])) {
-                $item['source'] = $nameMap[$item['sguid']];
-            }
-
-            return $item;
-        }, $items);
-
-        $items = $this->readStatusService->enrichItemsWithReadStatus(
-            $items,
-            $userId,
-        );
-
-        return $this->seenStatusService->enrichItemsWithSeenStatus(
-            $items,
-            $userId,
-        );
-    }
-
     #[Returns('list<string>')]
     public function getAllItemGuids(int $userId): array
     {
         $sguids = $this->subscriptionService->getSubscriptionGuids($userId);
-        $items = $this->feedPersistenceService->getAllItems($sguids);
+        $items = $this->feedItemRepository->findItemsWithStatus(
+            $sguids,
+            $userId,
+        );
 
         return array_column($items, 'guid');
     }
@@ -125,7 +118,10 @@ class FeedViewService
         string $sguid,
     ): array {
         $sguids = $this->subscriptionService->getSubscriptionGuids($userId);
-        $items = $this->feedPersistenceService->getAllItems($sguids);
+        $items = $this->feedItemRepository->findItemsWithStatus(
+            $sguids,
+            $userId,
+        );
         $items = array_filter($items, fn ($item) => $item['sguid'] === $sguid);
 
         return array_column($items, 'guid');
@@ -142,28 +138,5 @@ class FeedViewService
         }
 
         return null;
-    }
-
-    #[Param(items: 'list<array<string, mixed>>')]
-    #[Returns('list<array<string, mixed>>')]
-    private function applyWordFilter(array $items, int $userId): array
-    {
-        $filterWords = $this->userPreferenceService->getFilterWords($userId);
-        if (empty($filterWords)) {
-            return $items;
-        }
-
-        return array_values(
-            array_filter($items, function ($item) use ($filterWords) {
-                $text = ($item['title'] ?? '').' '.($item['excerpt'] ?? '');
-                foreach ($filterWords as $word) {
-                    if (stripos($text, $word) !== false) {
-                        return false;
-                    }
-                }
-
-                return true;
-            }),
-        );
     }
 }

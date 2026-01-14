@@ -85,7 +85,9 @@ class ReadStatusServiceTest extends KernelTestCase
         ];
 
         foreach ($guids as $guid) {
-            $this->assertFalse($this->service->isRead($this->testUserId, $guid));
+            $this->assertFalse(
+                $this->service->isRead($this->testUserId, $guid),
+            );
         }
 
         $this->service->markManyAsRead($this->testUserId, $guids);
@@ -93,42 +95,5 @@ class ReadStatusServiceTest extends KernelTestCase
         foreach ($guids as $guid) {
             $this->assertTrue($this->service->isRead($this->testUserId, $guid));
         }
-    }
-
-    #[Test]
-    public function getReadGuidsForUser(): void
-    {
-        $guid1 = 'getguids1_'.uniqid();
-        $guid2 = 'getguids2_'.uniqid();
-
-        $this->service->markAsRead($this->testUserId, $guid1);
-        $this->service->markAsRead($this->testUserId, $guid2);
-
-        $readGuids = $this->service->getReadGuidsForUser($this->testUserId);
-
-        $this->assertContains($guid1, $readGuids);
-        $this->assertContains($guid2, $readGuids);
-    }
-
-    #[Test]
-    public function enrichItemsWithReadStatus(): void
-    {
-        $readGuid = 'enrich_read_'.uniqid();
-        $unreadGuid = 'enrich_unread_'.uniqid();
-
-        $this->service->markAsRead($this->testUserId, $readGuid);
-
-        $items = [
-            ['guid' => $readGuid, 'title' => 'Read Item'],
-            ['guid' => $unreadGuid, 'title' => 'Unread Item'],
-        ];
-
-        $enrichedItems = $this->service->enrichItemsWithReadStatus(
-            $items,
-            $this->testUserId,
-        );
-
-        $this->assertTrue($enrichedItems[0]['isRead']);
-        $this->assertFalse($enrichedItems[1]['isRead']);
     }
 }

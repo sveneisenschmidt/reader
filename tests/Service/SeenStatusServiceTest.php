@@ -73,7 +73,9 @@ class SeenStatusServiceTest extends KernelTestCase
         ];
 
         foreach ($guids as $guid) {
-            $this->assertFalse($this->service->isSeen($this->testUserId, $guid));
+            $this->assertFalse(
+                $this->service->isSeen($this->testUserId, $guid),
+            );
         }
 
         $this->service->markManyAsSeen($this->testUserId, $guids);
@@ -81,63 +83,5 @@ class SeenStatusServiceTest extends KernelTestCase
         foreach ($guids as $guid) {
             $this->assertTrue($this->service->isSeen($this->testUserId, $guid));
         }
-    }
-
-    #[Test]
-    public function getSeenGuidsForUser(): void
-    {
-        $guid1 = 'getseenguids1_'.uniqid();
-        $guid2 = 'getseenguids2_'.uniqid();
-
-        $this->service->markAsSeen($this->testUserId, $guid1);
-        $this->service->markAsSeen($this->testUserId, $guid2);
-
-        $seenGuids = $this->service->getSeenGuidsForUser($this->testUserId);
-
-        $this->assertContains($guid1, $seenGuids);
-        $this->assertContains($guid2, $seenGuids);
-    }
-
-    #[Test]
-    public function getSeenGuidsForUserWithFilter(): void
-    {
-        $guid1 = 'filterseen1_'.uniqid();
-        $guid2 = 'filterseen2_'.uniqid();
-        $guid3 = 'filterseen3_'.uniqid();
-
-        $this->service->markAsSeen($this->testUserId, $guid1);
-        $this->service->markAsSeen($this->testUserId, $guid2);
-        $this->service->markAsSeen($this->testUserId, $guid3);
-
-        $seenGuids = $this->service->getSeenGuidsForUser(
-            $this->testUserId,
-            [$guid1, $guid2],
-        );
-
-        $this->assertContains($guid1, $seenGuids);
-        $this->assertContains($guid2, $seenGuids);
-        $this->assertNotContains($guid3, $seenGuids);
-    }
-
-    #[Test]
-    public function enrichItemsWithSeenStatus(): void
-    {
-        $seenGuid = 'enrich_seen_'.uniqid();
-        $newGuid = 'enrich_new_'.uniqid();
-
-        $this->service->markAsSeen($this->testUserId, $seenGuid);
-
-        $items = [
-            ['guid' => $seenGuid, 'title' => 'Seen Item'],
-            ['guid' => $newGuid, 'title' => 'New Item'],
-        ];
-
-        $enrichedItems = $this->service->enrichItemsWithSeenStatus(
-            $items,
-            $this->testUserId,
-        );
-
-        $this->assertFalse($enrichedItems[0]['isNew']);
-        $this->assertTrue($enrichedItems[1]['isNew']);
     }
 }

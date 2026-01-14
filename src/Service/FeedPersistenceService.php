@@ -66,25 +66,6 @@ class FeedPersistenceService
         $this->entityManager->flush();
     }
 
-    #[Param(subscriptionGuids: 'list<string>')]
-    #[Returns('list<array<string, mixed>>')]
-    public function getAllItems(array $subscriptionGuids): array
-    {
-        $feedItems = $this->feedItemRepository->findBySubscriptionGuids(
-            $subscriptionGuids,
-        );
-
-        return array_map(fn (FeedItem $item) => $item->toArray(), $feedItems);
-    }
-
-    #[Returns('array<string, mixed>|null')]
-    public function getItemByGuid(string $guid): ?array
-    {
-        $feedItem = $this->feedItemRepository->findByGuid($guid);
-
-        return $feedItem?->toArray();
-    }
-
     public function getItemCountForSubscription(string $subscriptionGuid): int
     {
         return $this->feedItemRepository->getItemCountBySubscriptionGuid(

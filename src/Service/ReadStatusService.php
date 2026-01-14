@@ -12,7 +12,6 @@ namespace App\Service;
 
 use App\Repository\ReadStatusRepository;
 use PhpStaticAnalysis\Attributes\Param;
-use PhpStaticAnalysis\Attributes\Returns;
 
 class ReadStatusService
 {
@@ -40,24 +39,5 @@ class ReadStatusService
     public function isRead(int $userId, string $feedItemGuid): bool
     {
         return $this->readStatusRepository->isRead($userId, $feedItemGuid);
-    }
-
-    #[Returns('list<string>')]
-    public function getReadGuidsForUser(int $userId): array
-    {
-        return $this->readStatusRepository->getReadGuidsForUser($userId);
-    }
-
-    #[Param(items: 'list<array<string, mixed>>')]
-    #[Returns('list<array<string, mixed>>')]
-    public function enrichItemsWithReadStatus(array $items, int $userId): array
-    {
-        $readGuids = $this->getReadGuidsForUser($userId);
-
-        return array_map(function ($item) use ($readGuids) {
-            $item['isRead'] = in_array($item['guid'], $readGuids, true);
-
-            return $item;
-        }, $items);
     }
 }

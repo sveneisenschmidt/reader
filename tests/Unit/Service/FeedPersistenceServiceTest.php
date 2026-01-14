@@ -185,62 +185,6 @@ class FeedPersistenceServiceTest extends TestCase
     }
 
     #[Test]
-    public function getAllItemsReturnsMappedItems(): void
-    {
-        $feedItem = $this->createMock(FeedItem::class);
-        $feedItem
-            ->method('toArray')
-            ->willReturn(['guid' => 'item-1', 'title' => 'Test']);
-
-        $repository = $this->createMock(FeedItemRepository::class);
-        $repository
-            ->method('findBySubscriptionGuids')
-            ->with(['feed-1', 'feed-2'])
-            ->willReturn([$feedItem]);
-
-        $service = $this->createService($repository);
-
-        $result = $service->getAllItems(['feed-1', 'feed-2']);
-
-        $this->assertCount(1, $result);
-        $this->assertEquals('item-1', $result[0]['guid']);
-    }
-
-    #[Test]
-    public function getItemByGuidReturnsItemArray(): void
-    {
-        $feedItem = $this->createMock(FeedItem::class);
-        $feedItem
-            ->method('toArray')
-            ->willReturn(['guid' => 'item-1', 'title' => 'Test']);
-
-        $repository = $this->createMock(FeedItemRepository::class);
-        $repository
-            ->method('findByGuid')
-            ->with('item-1')
-            ->willReturn($feedItem);
-
-        $service = $this->createService($repository);
-
-        $result = $service->getItemByGuid('item-1');
-
-        $this->assertEquals('item-1', $result['guid']);
-    }
-
-    #[Test]
-    public function getItemByGuidReturnsNullIfNotFound(): void
-    {
-        $repository = $this->createMock(FeedItemRepository::class);
-        $repository->method('findByGuid')->willReturn(null);
-
-        $service = $this->createService($repository);
-
-        $result = $service->getItemByGuid('nonexistent');
-
-        $this->assertNull($result);
-    }
-
-    #[Test]
     public function getItemCountForSubscriptionReturnsCount(): void
     {
         $repository = $this->createMock(FeedItemRepository::class);
