@@ -27,6 +27,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 class FeedController extends AbstractController
 {
@@ -40,6 +41,7 @@ class FeedController extends AbstractController
         private CsrfTokenManagerInterface $csrfTokenManager,
         private MessageBusInterface $messageBus,
         private FeedItemRepository $feedItemRepository,
+        private ?Stopwatch $stopwatch = null,
     ) {
     }
 
@@ -314,7 +316,10 @@ class FeedController extends AbstractController
         ?string $sguid = null,
         ?string $fguid = null,
     ): Response {
+        $this->stopwatch?->start('getCurrentUser', 'controller');
         $user = $this->userService->getCurrentUser();
+        $this->stopwatch?->stop('getCurrentUser');
+
         $unread = $request->query->getBoolean(
             'unread',
             FilterParameterSubscriber::DEFAULT_UNREAD,
@@ -324,6 +329,7 @@ class FeedController extends AbstractController
             FilterParameterSubscriber::DEFAULT_LIMIT,
         );
 
+        $this->stopwatch?->start('getViewData', 'controller');
         $viewData = $this->feedViewService->getViewData(
             $user->getId(),
             $sguid,
@@ -331,19 +337,25 @@ class FeedController extends AbstractController
             $unread,
             $limit,
         );
+        $this->stopwatch?->stop('getViewData');
 
         if ($viewData['activeItem']) {
+            $this->stopwatch?->start('markAsSeen', 'controller');
             $this->seenStatusService->markAsSeen(
                 $user->getId(),
                 $viewData['activeItem']['guid'],
             );
+            $this->stopwatch?->stop('markAsSeen');
         }
 
+        $this->stopwatch?->start('isPullToRefreshEnabled', 'controller');
         $pullToRefresh = $this->userPreferenceService->isPullToRefreshEnabled(
             $user->getId(),
         );
+        $this->stopwatch?->stop('isPullToRefreshEnabled');
 
-        return $this->render('feed/index.html.twig', [
+        $this->stopwatch?->start('render', 'controller');
+        $response = $this->render('feed/index.html.twig', [
             'feeds' => $viewData['feeds'],
             'items' => $viewData['items'],
             'allItemsCount' => $viewData['allItemsCount'],
@@ -353,6 +365,9 @@ class FeedController extends AbstractController
             'limit' => $limit,
             'pullToRefresh' => $pullToRefresh,
         ]);
+        $this->stopwatch?->stop('render');
+
+        return $response;
     }
 
     private function validateCsrfToken(Request $request, string $tokenId): void
