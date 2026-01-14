@@ -122,10 +122,22 @@ class FeedController extends AbstractController
     public function markAllAsRead(Request $request): Response
     {
         $this->validateCsrfToken($request, 'mark_all_read');
+
+        $this->stopwatch?->start('getCurrentUser', 'controller');
         $user = $this->userService->getCurrentUser();
+        $this->stopwatch?->stop('getCurrentUser');
+
+        $this->stopwatch?->start('getAllItemGuids', 'controller');
         $guids = $this->feedViewService->getAllItemGuids($user->getId());
+        $this->stopwatch?->stop('getAllItemGuids');
+
+        $this->stopwatch?->start('markManyAsRead', 'controller');
         $this->readStatusService->markManyAsRead($user->getId(), $guids);
+        $this->stopwatch?->stop('markManyAsRead');
+
+        $this->stopwatch?->start('markManyAsSeen', 'controller');
         $this->seenStatusService->markManyAsSeen($user->getId(), $guids);
+        $this->stopwatch?->stop('markManyAsSeen');
 
         return $this->redirectToRoute('feed_index');
     }
@@ -143,13 +155,25 @@ class FeedController extends AbstractController
         string $sguid,
     ): Response {
         $this->validateCsrfToken($request, 'mark_all_read');
+
+        $this->stopwatch?->start('getCurrentUser', 'controller');
         $user = $this->userService->getCurrentUser();
+        $this->stopwatch?->stop('getCurrentUser');
+
+        $this->stopwatch?->start('getItemGuidsForSubscription', 'controller');
         $guids = $this->feedViewService->getItemGuidsForSubscription(
             $user->getId(),
             $sguid,
         );
+        $this->stopwatch?->stop('getItemGuidsForSubscription');
+
+        $this->stopwatch?->start('markManyAsRead', 'controller');
         $this->readStatusService->markManyAsRead($user->getId(), $guids);
+        $this->stopwatch?->stop('markManyAsRead');
+
+        $this->stopwatch?->start('markManyAsSeen', 'controller');
         $this->seenStatusService->markManyAsSeen($user->getId(), $guids);
+        $this->stopwatch?->stop('markManyAsSeen');
 
         return $this->redirectToRoute('subscription_show', ['sguid' => $sguid]);
     }
@@ -165,8 +189,14 @@ class FeedController extends AbstractController
     public function markAsRead(Request $request, string $fguid): Response
     {
         $this->validateCsrfToken($request, 'mark_read');
+
+        $this->stopwatch?->start('getCurrentUser', 'controller');
         $user = $this->userService->getCurrentUser();
+        $this->stopwatch?->stop('getCurrentUser');
+
+        $this->stopwatch?->start('markAsRead', 'controller');
         $this->readStatusService->markAsRead($user->getId(), $fguid);
+        $this->stopwatch?->stop('markAsRead');
 
         // redirect=list: back to feed list, redirect=article: stay on article
         if ($request->request->get('redirect') === 'list') {
@@ -187,8 +217,14 @@ class FeedController extends AbstractController
     public function markAsUnread(Request $request, string $fguid): Response
     {
         $this->validateCsrfToken($request, 'mark_read');
+
+        $this->stopwatch?->start('getCurrentUser', 'controller');
         $user = $this->userService->getCurrentUser();
+        $this->stopwatch?->stop('getCurrentUser');
+
+        $this->stopwatch?->start('markAsUnread', 'controller');
         $this->readStatusService->markAsUnread($user->getId(), $fguid);
+        $this->stopwatch?->stop('markAsUnread');
 
         // redirect=list: back to feed list, redirect=article: stay on article
         if ($request->request->get('redirect') === 'list') {
@@ -215,8 +251,14 @@ class FeedController extends AbstractController
         string $fguid,
     ): Response {
         $this->validateCsrfToken($request, 'mark_read');
+
+        $this->stopwatch?->start('getCurrentUser', 'controller');
         $user = $this->userService->getCurrentUser();
+        $this->stopwatch?->stop('getCurrentUser');
+
+        $this->stopwatch?->start('markAsRead', 'controller');
         $this->readStatusService->markAsRead($user->getId(), $fguid);
+        $this->stopwatch?->stop('markAsRead');
 
         // redirect=list: back to subscription list, redirect=article: stay on article
         if ($request->request->get('redirect') === 'list') {
@@ -248,8 +290,14 @@ class FeedController extends AbstractController
         string $fguid,
     ): Response {
         $this->validateCsrfToken($request, 'mark_read');
+
+        $this->stopwatch?->start('getCurrentUser', 'controller');
         $user = $this->userService->getCurrentUser();
+        $this->stopwatch?->stop('getCurrentUser');
+
+        $this->stopwatch?->start('markAsUnread', 'controller');
         $this->readStatusService->markAsUnread($user->getId(), $fguid);
+        $this->stopwatch?->stop('markAsUnread');
 
         // redirect=list: back to subscription list, redirect=article: stay on article
         if ($request->request->get('redirect') === 'list') {
@@ -279,15 +327,27 @@ class FeedController extends AbstractController
             return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
         }
 
+        $this->stopwatch?->start('findByGuid', 'controller');
         $feedItem = $this->feedItemRepository->findByGuid($fguid);
+        $this->stopwatch?->stop('findByGuid');
+
         if (!$feedItem || !$this->isUrlAllowed($url, $feedItem)) {
             return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
         }
 
+        $this->stopwatch?->start('getCurrentUser', 'controller');
         $user = $this->userService->getCurrentUser();
+        $this->stopwatch?->stop('getCurrentUser');
+
         $userId = $user->getId();
+
+        $this->stopwatch?->start('markAsRead', 'controller');
         $this->readStatusService->markAsRead($userId, $fguid);
+        $this->stopwatch?->stop('markAsRead');
+
+        $this->stopwatch?->start('markAsSeen', 'controller');
         $this->seenStatusService->markAsSeen($userId, $fguid);
+        $this->stopwatch?->stop('markAsSeen');
 
         return $this->redirect($url);
     }
