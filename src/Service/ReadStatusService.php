@@ -10,7 +10,7 @@
 
 namespace App\Service;
 
-use App\Repository\Users\ReadStatusRepository;
+use App\Repository\ReadStatusRepository;
 use PhpStaticAnalysis\Attributes\Param;
 use PhpStaticAnalysis\Attributes\Returns;
 

@@ -10,8 +10,8 @@
 
 namespace App\Command;
 
-use App\Repository\Content\FeedItemRepository;
-use App\Repository\Users\UserRepository;
+use App\Repository\FeedItemRepository;
+use App\Repository\UserRepository;
 use App\Service\ReadStatusService;
 use App\Service\SubscriptionService;
 use PHPUnit\Framework\Attributes\CodeCoverageIgnore;

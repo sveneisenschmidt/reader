@@ -10,12 +10,12 @@
 
 namespace App\Tests\Unit\Messenger\Middleware;
 
-use App\Entity\Messages\ProcessedMessage;
+use App\Entity\ProcessedMessage;
 use App\Enum\MessageSource;
 use App\Message\HeartbeatMessage;
 use App\Message\RefreshFeedsMessage;
 use App\Messenger\Middleware\ProcessedMessageMiddleware;
-use App\Repository\Messages\ProcessedMessageRepository;
+use App\Repository\ProcessedMessageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\Test;
@@ -51,7 +51,7 @@ class ProcessedMessageMiddlewareTest extends TestCase
         $em->method('isOpen')->willReturn(true);
 
         $registry = $this->createMock(ManagerRegistry::class);
-        $registry->method('getManager')->with('messages')->willReturn($em);
+        $registry->method('getManager')->with(null)->willReturn($em);
 
         $stack = $this->createMock(StackInterface::class);
         $nextMiddleware = $this->createMock(MiddlewareInterface::class);
@@ -90,7 +90,7 @@ class ProcessedMessageMiddlewareTest extends TestCase
         $em->method('isOpen')->willReturn(true);
 
         $registry = $this->createMock(ManagerRegistry::class);
-        $registry->method('getManager')->with('messages')->willReturn($em);
+        $registry->method('getManager')->with(null)->willReturn($em);
 
         $stack = $this->createMock(StackInterface::class);
         $nextMiddleware = $this->createMock(MiddlewareInterface::class);
@@ -121,7 +121,7 @@ class ProcessedMessageMiddlewareTest extends TestCase
         $em->method('isOpen')->willReturn(true);
 
         $registry = $this->createMock(ManagerRegistry::class);
-        $registry->method('getManager')->with('messages')->willReturn($em);
+        $registry->method('getManager')->with(null)->willReturn($em);
 
         $stack = $this->createMock(StackInterface::class);
         $nextMiddleware = $this->createMock(MiddlewareInterface::class);
@@ -148,14 +148,8 @@ class ProcessedMessageMiddlewareTest extends TestCase
         $openEm->method('isOpen')->willReturn(true);
 
         $registry = $this->createMock(ManagerRegistry::class);
-        $registry
-            ->method('getManager')
-            ->with('messages')
-            ->willReturn($closedEm);
-        $registry
-            ->expects($this->once())
-            ->method('resetManager')
-            ->with('messages');
+        $registry->method('getManager')->with(null)->willReturn($closedEm);
+        $registry->expects($this->once())->method('resetManager')->with(null);
 
         $stack = $this->createMock(StackInterface::class);
         $nextMiddleware = $this->createMock(MiddlewareInterface::class);

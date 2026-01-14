@@ -10,8 +10,8 @@
 
 namespace App\Tests\Service;
 
-use App\Entity\Users\User;
-use App\Repository\Users\UserRepository;
+use App\Entity\User;
+use App\Repository\UserRepository;
 use App\Service\SeenStatusService;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

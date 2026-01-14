@@ -10,7 +10,7 @@
 
 namespace App\Tests\Service;
 
-use App\Repository\Users\UserRepository;
+use App\Repository\UserRepository;
 use App\Service\EncryptionService;
 use App\Service\UserRegistrationService;
 use PHPUnit\Framework\Attributes\Test;

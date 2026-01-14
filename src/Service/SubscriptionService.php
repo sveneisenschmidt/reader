@@ -10,11 +10,11 @@
 
 namespace App\Service;
 
-use App\Entity\Subscriptions\Subscription;
-use App\Repository\Content\FeedItemRepository;
-use App\Repository\Subscriptions\SubscriptionRepository;
-use App\Repository\Users\ReadStatusRepository;
-use App\Repository\Users\SeenStatusRepository;
+use App\Entity\Subscription;
+use App\Repository\FeedItemRepository;
+use App\Repository\ReadStatusRepository;
+use App\Repository\SeenStatusRepository;
+use App\Repository\SubscriptionRepository;
 use PhpStaticAnalysis\Attributes\Param;
 use PhpStaticAnalysis\Attributes\Returns;
 

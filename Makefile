@@ -28,13 +28,10 @@ cache-clear:
 	php bin/console cache:clear
 
 db-migrate:
-	php bin/console doctrine:migrations:migrate --em=users --no-interaction
-	php bin/console doctrine:migrations:migrate --em=subscriptions --no-interaction
-	php bin/console doctrine:migrations:migrate --em=content --no-interaction
-	php bin/console doctrine:migrations:migrate --em=messages --no-interaction
+	php bin/console doctrine:migrations:migrate --no-interaction
 
 db-reset:
-	rm -f var/data/*_users.db var/data/*_subscriptions.db var/data/*_content.db var/data/*_messages.db
+	rm -f var/data/*.db
 	$(MAKE) db-migrate
 	php bin/console cache:pool:clear cache.app
 
@@ -57,7 +54,7 @@ db-create-dev-user:
 		echo "Error: db-create-dev-user can only run in dev environment"; \
 		exit 1; \
 	fi
-	sqlite3 var/data/dev_users.db < fixtures/dev-user.sql
+	sqlite3 var/data/reader.db < fixtures/dev-user.sql
 	@echo "Dev user created: dev@localhost.arpa / devdevdev"
 
 icon:
@@ -81,11 +78,8 @@ screenshots: check-deps
 	-pkill -f chromedriver 2>/dev/null || true
 	-symfony server:stop 2>/dev/null || true
 	@echo "Resetting dev database..."
-	rm -f var/data/dev_users.db var/data/dev_subscriptions.db var/data/dev_content.db var/data/dev_messages.db
-	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=users --no-interaction
-	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=subscriptions --no-interaction
-	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=content --no-interaction
-	APP_ENV=dev php bin/console doctrine:migrations:migrate --em=messages --no-interaction
+	rm -f var/data/*.db
+	APP_ENV=dev php bin/console doctrine:migrations:migrate --no-interaction
 	@echo "Starting ChromeDriver..."
 	chromedriver --port=9515 & CHROME_PID=$$!; \
 	sleep 2; \

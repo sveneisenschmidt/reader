@@ -28,45 +28,6 @@ services:
         arguments:
             $feedContentSanitizer: "@html_sanitizer.sanitizer.app.feed_content_sanitizer"
 
-    App\Service\FeedPersistenceService:
-        arguments:
-            $contentEntityManager: "@doctrine.orm.content_entity_manager"
-
-    App\MessageHandler\RefreshFeedsHandler:
-        arguments:
-            $subscriptionsEntityManager: "@doctrine.orm.subscriptions_entity_manager"
-
-    # Repository configurations with correct entity managers
-    App\Repository\Users\UserRepository:
-        arguments:
-            $registry: "@doctrine"
-        tags:
-            - { name: doctrine.repository_service }
-
-    App\Repository\Users\ReadStatusRepository:
-        arguments:
-            $registry: "@doctrine"
-        tags:
-            - { name: doctrine.repository_service }
-
-    App\Repository\Subscriptions\SubscriptionRepository:
-        arguments:
-            $registry: "@doctrine"
-        tags:
-            - { name: doctrine.repository_service }
-
-    App\Repository\Content\FeedItemRepository:
-        arguments:
-            $registry: "@doctrine"
-        tags:
-            - { name: doctrine.repository_service }
-
-    App\Repository\Messages\ProcessedMessageRepository:
-        arguments:
-            $registry: "@doctrine"
-        tags:
-            - { name: doctrine.repository_service }
-
     App\EventListener\SqliteWalListener:
         tags:
             - { name: doctrine.event_listener, event: postConnect }
@@ -74,3 +35,7 @@ services:
     App\Twig\AssetInlineExtension:
         arguments:
             $publicDir: "%kernel.project_dir%/public"
+
+    App\Command\MigrateDataCommand:
+        arguments:
+            $projectDir: "%kernel.project_dir%"

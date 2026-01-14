@@ -10,7 +10,7 @@
 
 namespace App\Command;
 
-use App\Repository\Content\FeedItemRepository;
+use App\Repository\FeedItemRepository;
 use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

@@ -10,7 +10,7 @@
 
 namespace App\Tests\Service;
 
-use App\Entity\Subscriptions\Subscription;
+use App\Entity\Subscription;
 use App\Enum\SubscriptionStatus;
 use App\Service\FeedExceptionHandler;
 use FeedIo\Adapter\HttpRequestException;

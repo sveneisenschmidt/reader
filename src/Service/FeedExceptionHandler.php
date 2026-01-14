@@ -10,7 +10,7 @@
 
 namespace App\Service;
 
-use App\Entity\Subscriptions\Subscription;
+use App\Entity\Subscription;
 use App\Enum\SubscriptionStatus;
 use FeedIo\Adapter\HttpRequestException;
 use FeedIo\Parser\MissingFieldsException;

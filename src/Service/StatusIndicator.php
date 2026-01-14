@@ -14,7 +14,7 @@ use App\Enum\MessageSource;
 use App\Message\CleanupContentMessage;
 use App\Message\HeartbeatMessage;
 use App\Message\RefreshFeedsMessage;
-use App\Repository\Messages\ProcessedMessageRepository;
+use App\Repository\ProcessedMessageRepository;
 
 class StatusIndicator
 {

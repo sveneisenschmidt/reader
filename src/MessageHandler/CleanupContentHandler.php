@@ -11,7 +11,7 @@
 namespace App\MessageHandler;
 
 use App\Message\CleanupContentMessage;
-use App\Repository\Content\FeedItemRepository;
+use App\Repository\FeedItemRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

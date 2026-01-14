@@ -10,7 +10,7 @@
 
 namespace App\Twig;
 
-use App\Entity\Users\User;
+use App\Entity\User;
 use App\Enum\PreferenceDefault;
 use App\Service\UserPreferenceService;
 use Symfony\Bundle\SecurityBundle\Security;

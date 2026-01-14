@@ -12,39 +12,23 @@ if ($_SERVER['APP_DEBUG']) {
     umask(0000);
 }
 
-// Delete test databases to ensure fresh schema on each test run
+// Delete test database to ensure fresh schema on each test run
 $dataDir = dirname(__DIR__).'/var/data';
-$testDatabases = [
-    'test_users.db',
-    'test_subscriptions.db',
-    'test_content.db',
-    'test_messages.db',
-];
+$testDatabase = 'test.db';
 
-foreach ($testDatabases as $db) {
-    $dbPath = $dataDir.'/'.$db;
-    if (file_exists($dbPath)) {
-        unlink($dbPath);
-    }
-    // Also remove WAL and SHM files if they exist
-    foreach (['-wal', '-shm'] as $suffix) {
-        $walPath = $dbPath.$suffix;
-        if (file_exists($walPath)) {
-            unlink($walPath);
-        }
+$dbPath = $dataDir.'/'.$testDatabase;
+if (file_exists($dbPath)) {
+    unlink($dbPath);
+}
+// Also remove WAL and SHM files if they exist
+foreach (['-wal', '-shm'] as $suffix) {
+    $walPath = $dbPath.$suffix;
+    if (file_exists($walPath)) {
+        unlink($walPath);
     }
 }
 
-// Recreate databases with current schema
+// Recreate database with current schema
 passthru(
-    'php bin/console doctrine:schema:create --env=test --em=users --quiet 2>/dev/null',
-);
-passthru(
-    'php bin/console doctrine:schema:create --env=test --em=subscriptions --quiet 2>/dev/null',
-);
-passthru(
-    'php bin/console doctrine:schema:create --env=test --em=content --quiet 2>/dev/null',
-);
-passthru(
-    'php bin/console doctrine:schema:create --env=test --em=messages --quiet 2>/dev/null',
+    'php bin/console doctrine:schema:create --env=test --quiet 2>/dev/null',
 );

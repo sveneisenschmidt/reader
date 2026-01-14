@@ -8,7 +8,7 @@ security:
     providers:
         app_user_provider:
             entity:
-                class: App\Entity\Users\User
+                class: App\Entity\User
                 property: email
         webhook_user_provider:
             id: App\Security\WebhookUserProvider

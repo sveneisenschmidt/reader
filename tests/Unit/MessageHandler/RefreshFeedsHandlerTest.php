@@ -10,11 +10,11 @@
 
 namespace App\Tests\Unit\MessageHandler;
 
-use App\Entity\Subscriptions\Subscription;
+use App\Entity\Subscription;
 use App\Enum\SubscriptionStatus;
 use App\Message\RefreshFeedsMessage;
 use App\MessageHandler\RefreshFeedsHandler;
-use App\Repository\Subscriptions\SubscriptionRepository;
+use App\Repository\SubscriptionRepository;
 use App\Service\FeedExceptionHandler;
 use App\Service\FeedReaderService;
 use Doctrine\ORM\EntityManagerInterface;

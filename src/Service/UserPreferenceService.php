@@ -12,7 +12,7 @@ namespace App\Service;
 
 use App\Enum\PreferenceDefault;
 use App\Enum\PreferenceKey;
-use App\Repository\Users\UserPreferenceRepository;
+use App\Repository\UserPreferenceRepository;
 use PhpStaticAnalysis\Attributes\Returns;
 
 class UserPreferenceService

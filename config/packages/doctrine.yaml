@@ -1,92 +1,27 @@
 doctrine:
     dbal:
-        default_connection: users
-        connections:
-            users:
-                url: "%env(resolve:DATABASE_USERS_URL)%"
-            subscriptions:
-                url: "%env(resolve:DATABASE_SUBSCRIPTIONS_URL)%"
-            content:
-                url: "%env(resolve:DATABASE_CONTENT_URL)%"
-            messages:
-                url: "%env(resolve:DATABASE_MESSAGES_URL)%"
+        url: "%env(resolve:DATABASE_URL)%"
 
     orm:
-        default_entity_manager: users
-        entity_managers:
-            users:
-                connection: users
-                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
-                mappings:
-                    Users:
-                        type: attribute
-                        is_bundle: false
-                        dir: "%kernel.project_dir%/src/Entity/Users"
-                        prefix: 'App\Entity\Users'
-                        alias: Users
-            subscriptions:
-                connection: subscriptions
-                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
-                mappings:
-                    Subscriptions:
-                        type: attribute
-                        is_bundle: false
-                        dir: "%kernel.project_dir%/src/Entity/Subscriptions"
-                        prefix: 'App\Entity\Subscriptions'
-                        alias: Subscriptions
-            content:
-                connection: content
-                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
-                mappings:
-                    Content:
-                        type: attribute
-                        is_bundle: false
-                        dir: "%kernel.project_dir%/src/Entity/Content"
-                        prefix: 'App\Entity\Content'
-                        alias: Content
-            messages:
-                connection: messages
-                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
-                mappings:
-                    Messages:
-                        type: attribute
-                        is_bundle: false
-                        dir: "%kernel.project_dir%/src/Entity/Messages"
-                        prefix: 'App\Entity\Messages'
-                        alias: Messages
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        auto_mapping: true
+        mappings:
+            App:
+                type: attribute
+                is_bundle: false
+                dir: "%kernel.project_dir%/src/Entity"
+                prefix: 'App\Entity'
+                alias: App
 
 when@prod:
     doctrine:
         orm:
-            entity_managers:
-                users:
-                    metadata_cache_driver:
-                        type: pool
-                        pool: doctrine.system_cache_pool
-                    query_cache_driver:
-                        type: pool
-                        pool: doctrine.system_cache_pool
-                subscriptions:
-                    metadata_cache_driver:
-                        type: pool
-                        pool: doctrine.system_cache_pool
-                    query_cache_driver:
-                        type: pool
-                        pool: doctrine.system_cache_pool
-                content:
-                    metadata_cache_driver:
-                        type: pool
-                        pool: doctrine.system_cache_pool
-                    query_cache_driver:
-                        type: pool
-                        pool: doctrine.system_cache_pool
-                messages:
-                    metadata_cache_driver:
-                        type: pool
-                        pool: doctrine.system_cache_pool
-                    query_cache_driver:
-                        type: pool
-                        pool: doctrine.system_cache_pool
+            metadata_cache_driver:
+                type: pool
+                pool: doctrine.system_cache_pool
+            query_cache_driver:
+                type: pool
+                pool: doctrine.system_cache_pool
 
     framework:
         cache:

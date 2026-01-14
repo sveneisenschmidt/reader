@@ -10,12 +10,12 @@
 
 namespace App\Command;
 
-use App\Entity\Messages\ProcessedMessage;
-use App\Entity\Users\User;
+use App\Entity\ProcessedMessage;
+use App\Entity\User;
 use App\Enum\MessageSource;
 use App\Message\RefreshFeedsMessage;
-use App\Repository\Messages\ProcessedMessageRepository;
-use App\Repository\Users\UserRepository;
+use App\Repository\ProcessedMessageRepository;
+use App\Repository\UserRepository;
 use App\Service\EncryptionService;
 use App\Service\FeedViewService;
 use App\Service\ReadStatusService;

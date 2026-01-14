@@ -10,7 +10,7 @@
 
 namespace App\Service;
 
-use App\Entity\Users\User;
+use App\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 

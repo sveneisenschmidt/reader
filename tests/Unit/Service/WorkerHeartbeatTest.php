@@ -10,9 +10,9 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\Messages\ProcessedMessage;
+use App\Entity\ProcessedMessage;
 use App\Message\HeartbeatMessage;
-use App\Repository\Messages\ProcessedMessageRepository;
+use App\Repository\ProcessedMessageRepository;
 use App\Service\WorkerHeartbeat;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

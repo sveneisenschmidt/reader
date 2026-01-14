@@ -10,10 +10,10 @@
 
 namespace App\Tests\Controller;
 
-use App\Entity\Messages\ProcessedMessage;
+use App\Entity\ProcessedMessage;
 use App\Message\CleanupContentMessage;
 use App\Message\RefreshFeedsMessage;
-use App\Repository\Messages\ProcessedMessageRepository;
+use App\Repository\ProcessedMessageRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Messenger\MessageBusInterface;

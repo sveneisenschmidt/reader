@@ -12,7 +12,7 @@ namespace App\Tests\Unit\Service;
 
 use App\Enum\PreferenceDefault;
 use App\Enum\PreferenceKey;
-use App\Repository\Users\UserPreferenceRepository;
+use App\Repository\UserPreferenceRepository;
 use App\Service\UserPreferenceService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

@@ -10,12 +10,12 @@
 
 namespace App\Messenger\Middleware;
 
-use App\Entity\Messages\ProcessedMessage;
+use App\Entity\ProcessedMessage;
 use App\Enum\MessageSource;
 use App\Message\RetainableMessageInterface;
 use App\Message\SourceAwareMessageInterface;
 use App\Messenger\Stamp\ProcessedMessageStamp;
-use App\Repository\Messages\ProcessedMessageRepository;
+use App\Repository\ProcessedMessageRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
@@ -83,10 +83,10 @@ class ProcessedMessageMiddleware implements MiddlewareInterface
         ?int $retentionLimit,
         ?MessageSource $source,
     ): void {
-        $em = $this->registry->getManager('messages');
+        $em = $this->registry->getManager();
 
         if (!$em->isOpen()) {
-            $this->registry->resetManager('messages');
+            $this->registry->resetManager();
         }
 
         $processedMessage = new ProcessedMessage(

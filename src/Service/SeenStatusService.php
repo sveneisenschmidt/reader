@@ -10,7 +10,7 @@
 
 namespace App\Service;
 
-use App\Repository\Users\SeenStatusRepository;
+use App\Repository\SeenStatusRepository;
 use PhpStaticAnalysis\Attributes\Param;
 use PhpStaticAnalysis\Attributes\Returns;
 

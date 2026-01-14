@@ -12,7 +12,7 @@ namespace App\Controller;
 
 use App\Form\LoginType;
 use App\Form\SetupType;
-use App\Repository\Users\UserRepository;
+use App\Repository\UserRepository;
 use App\Service\TotpService;
 use App\Service\UserRegistrationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

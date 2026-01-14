@@ -12,7 +12,7 @@ namespace App\Tests\Unit\MessageHandler;
 
 use App\Message\CleanupContentMessage;
 use App\MessageHandler\CleanupContentHandler;
-use App\Repository\Content\FeedItemRepository;
+use App\Repository\FeedItemRepository;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;

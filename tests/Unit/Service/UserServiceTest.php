@@ -10,7 +10,7 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\Users\User;
+use App\Entity\User;
 use App\Service\UserService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

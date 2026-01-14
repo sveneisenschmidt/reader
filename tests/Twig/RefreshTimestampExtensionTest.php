@@ -10,7 +10,7 @@
 
 namespace App\Tests\Twig;
 
-use App\Entity\Users\User;
+use App\Entity\User;
 use App\Service\SubscriptionService;
 use App\Service\UserService;
 use App\Twig\RefreshTimestampExtension;

@@ -11,7 +11,7 @@
 namespace App\Service;
 
 use App\Message\HeartbeatMessage;
-use App\Repository\Messages\ProcessedMessageRepository;
+use App\Repository\ProcessedMessageRepository;
 
 class WorkerHeartbeat
 {

@@ -10,11 +10,11 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\Subscriptions\Subscription;
-use App\Repository\Content\FeedItemRepository;
-use App\Repository\Subscriptions\SubscriptionRepository;
-use App\Repository\Users\ReadStatusRepository;
-use App\Repository\Users\SeenStatusRepository;
+use App\Entity\Subscription;
+use App\Repository\FeedItemRepository;
+use App\Repository\ReadStatusRepository;
+use App\Repository\SeenStatusRepository;
+use App\Repository\SubscriptionRepository;
 use App\Service\FeedReaderService;
 use App\Service\SubscriptionService;
 use PHPUnit\Framework\Attributes\Test;

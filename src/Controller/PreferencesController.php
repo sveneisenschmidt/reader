@@ -10,7 +10,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Users\User;
+use App\Entity\User;
 use App\Enum\PreferenceKey;
 use App\Form\PreferencesType;
 use App\Form\ProfileType;

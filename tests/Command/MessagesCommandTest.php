@@ -10,8 +10,8 @@
 
 namespace App\Tests\Command;
 
-use App\Entity\Messages\ProcessedMessage;
-use App\Repository\Messages\ProcessedMessageRepository;
+use App\Entity\ProcessedMessage;
+use App\Repository\ProcessedMessageRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -40,7 +40,7 @@ class MessagesCommandTest extends KernelTestCase
     private function clearMessages(): void
     {
         $em = $this->repository->getEntityManager();
-        $em->createQuery("DELETE FROM App\Entity\Messages\ProcessedMessage")->execute();
+        $em->createQuery("DELETE FROM App\Entity\ProcessedMessage")->execute();
     }
 
     #[Test]

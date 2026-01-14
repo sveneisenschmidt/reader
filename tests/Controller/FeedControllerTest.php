@@ -773,7 +773,7 @@ class FeedControllerTest extends WebTestCase
 
         // Clear any existing read status
         $readStatusRepo = static::getContainer()->get(
-            \App\Repository\Users\ReadStatusRepository::class,
+            \App\Repository\ReadStatusRepository::class,
         );
         $readStatusRepo->markAsUnread(
             $this->testUser->getId(),
@@ -817,7 +817,7 @@ class FeedControllerTest extends WebTestCase
 
         // Verify item is seen after opening
         $seenStatusRepo = static::getContainer()->get(
-            \App\Repository\Users\SeenStatusRepository::class,
+            \App\Repository\SeenStatusRepository::class,
         );
         $this->assertTrue(
             $seenStatusRepo->isSeen(

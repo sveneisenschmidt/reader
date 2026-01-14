@@ -10,8 +10,8 @@
 
 namespace App\Service;
 
-use App\Entity\Content\FeedItem;
-use App\Repository\Content\FeedItemRepository;
+use App\Entity\FeedItem;
+use App\Repository\FeedItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpStaticAnalysis\Attributes\Param;
 use PhpStaticAnalysis\Attributes\Returns;
@@ -20,7 +20,7 @@ class FeedPersistenceService
 {
     public function __construct(
         private FeedItemRepository $feedItemRepository,
-        private EntityManagerInterface $contentEntityManager,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -54,7 +54,7 @@ class FeedPersistenceService
                     $itemData['excerpt'],
                     $publishedAt,
                 );
-                $this->contentEntityManager->persist($feedItem);
+                $this->entityManager->persist($feedItem);
             } elseif ($existing->getPublishedAt() > $twoDaysAgo) {
                 $existing->setTitle($itemData['title']);
                 $existing->setLink($itemData['link']);
@@ -63,7 +63,7 @@ class FeedPersistenceService
             }
         }
 
-        $this->contentEntityManager->flush();
+        $this->entityManager->flush();
     }
 
     #[Param(subscriptionGuids: 'list<string>')]

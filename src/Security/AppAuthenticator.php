@@ -10,7 +10,7 @@
 
 namespace App\Security;
 
-use App\Repository\Users\UserRepository;
+use App\Repository\UserRepository;
 use App\Service\EncryptionService;
 use App\Service\TotpService;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;

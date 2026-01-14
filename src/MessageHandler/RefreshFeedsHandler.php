@@ -12,7 +12,7 @@ namespace App\MessageHandler;
 
 use App\Enum\SubscriptionStatus;
 use App\Message\RefreshFeedsMessage;
-use App\Repository\Subscriptions\SubscriptionRepository;
+use App\Repository\SubscriptionRepository;
 use App\Service\FeedExceptionHandler;
 use App\Service\FeedReaderService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,7 +26,7 @@ class RefreshFeedsHandler
     public function __construct(
         private FeedReaderService $feedReaderService,
         private SubscriptionRepository $subscriptionRepository,
-        private EntityManagerInterface $subscriptionsEntityManager,
+        private EntityManagerInterface $entityManager,
         private LoggerInterface $logger,
         private FeedExceptionHandler $exceptionHandler,
         private LockFactory $lockFactory,
@@ -99,7 +99,7 @@ class RefreshFeedsHandler
                 }
 
                 $lastRequestByHost[$host] = microtime(true);
-                $this->subscriptionsEntityManager->flush();
+                $this->entityManager->flush();
             }
         }
 

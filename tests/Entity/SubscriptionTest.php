@@ -10,7 +10,7 @@
 
 namespace App\Tests\Entity;
 
-use App\Entity\Subscriptions\Subscription;
+use App\Entity\Subscription;
 use App\Enum\SubscriptionStatus;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

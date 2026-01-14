@@ -13,7 +13,7 @@ namespace App\Controller;
 use App\Enum\MessageSource;
 use App\EventSubscriber\FilterParameterSubscriber;
 use App\Message\RefreshFeedsMessage;
-use App\Repository\Content\FeedItemRepository;
+use App\Repository\FeedItemRepository;
 use App\Service\FeedViewService;
 use App\Service\ReadStatusService;
 use App\Service\SeenStatusService;
@@ -354,7 +354,7 @@ class FeedController extends AbstractController
 
     private function isUrlAllowed(
         string $url,
-        \App\Entity\Content\FeedItem $feedItem,
+        \App\Entity\FeedItem $feedItem,
     ): bool {
         if ($feedItem->getLink() === $url) {
             return true;

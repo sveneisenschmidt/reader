@@ -10,11 +10,11 @@
 
 namespace App\Service;
 
-use App\Repository\Content\FeedItemRepository;
-use App\Repository\Messages\ProcessedMessageRepository;
-use App\Repository\Subscriptions\SubscriptionRepository;
-use App\Repository\Users\ReadStatusRepository;
-use App\Repository\Users\SeenStatusRepository;
+use App\Repository\FeedItemRepository;
+use App\Repository\ProcessedMessageRepository;
+use App\Repository\ReadStatusRepository;
+use App\Repository\SeenStatusRepository;
+use App\Repository\SubscriptionRepository;
 
 class StatusService
 {
