@@ -137,13 +137,13 @@
         <footer>
             <a href="{{ path('feed_item_open', {fguid: activeItem.guid, url: activeItem.link}) }}" target="_blank" rel="noopener noreferrer" class="btn-link">Read original</a>
             {% if activeItem.isRead %}
-                <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_unread', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_unread', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
+                <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_unread', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_unread', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline" data-form-mark-unread>
                     <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
                     <button type="submit" name="redirect" value="article" class="btn-link" data-mark-action-article>Mark as unread</button>
                     <button type="submit" name="redirect" value="list" class="btn-link" data-mark-action-list>Mark as unread</button>
                 </form>
             {% else %}
-                <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_read', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_read', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
+                <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_read', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_read', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline" data-form-mark-read>
                     <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
                     <button type="submit" name="redirect" value="article" class="btn-link" data-mark-action-article>Mark as read</button>
                     <button type="submit" name="redirect" value="list" class="btn-link" data-mark-action-list>Mark as read</button>
