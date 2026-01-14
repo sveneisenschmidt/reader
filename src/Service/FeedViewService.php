@@ -37,15 +37,17 @@ class FeedViewService
         $sguids = array_map(fn ($s) => $s->getGuid(), $subscriptions);
         $filterWords = $this->userPreferenceService->getFilterWords($userId);
 
-        // Get unread counts for sidebar (uses optimized query)
+        // Get unread counts for sidebar (uses optimized query with word filter)
         $feeds = $this->subscriptionService->getSubscriptionsWithUnreadCounts(
             $userId,
+            $filterWords,
         );
 
-        // Get total unread count
+        // Get total unread count (with word filter applied)
         $unreadCounts = $this->feedItemRepository->getUnreadCountsBySubscription(
             $sguids,
             $userId,
+            $filterWords,
         );
         $totalUnreadCount = array_sum($unreadCounts);
 

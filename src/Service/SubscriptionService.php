@@ -77,19 +77,23 @@ class SubscriptionService
         return $result;
     }
 
+    #[Param(filterWords: 'list<string>')]
     #[Returns('list<array<string, mixed>>')]
-    public function getSubscriptionsWithUnreadCounts(int $userId): array
-    {
+    public function getSubscriptionsWithUnreadCounts(
+        int $userId,
+        array $filterWords = [],
+    ): array {
         $subscriptions = $this->getSubscriptionsForUser($userId);
         $sguids = array_map(
             fn (Subscription $s) => $s->getGuid(),
             $subscriptions,
         );
 
-        // Get unread counts from database query
+        // Get unread counts from database query (with word filter applied)
         $unreadCounts = $this->feedItemRepository->getUnreadCountsBySubscription(
             $sguids,
             $userId,
+            $filterWords,
         );
 
         $result = [];

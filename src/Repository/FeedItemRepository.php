@@ -276,10 +276,12 @@ class FeedItemRepository extends ServiceEntityRepository
     }
 
     #[Param(subscriptionGuids: 'list<string>')]
+    #[Param(filterWords: 'list<string>')]
     #[Returns('array<string, int>')]
     public function getUnreadCountsBySubscription(
         array $subscriptionGuids,
         int $userId,
+        array $filterWords = [],
     ): array {
         if (empty($subscriptionGuids)) {
             return [];
@@ -296,7 +298,7 @@ class FeedItemRepository extends ServiceEntityRepository
             ->andWhere('rs.userId = :userId')
             ->getDQL();
 
-        $results = $this->createQueryBuilder('f')
+        $qb = $this->createQueryBuilder('f')
             ->select(
                 'f.subscriptionGuid as sguid',
                 'COUNT(f.id) as unreadCount',
@@ -304,10 +306,18 @@ class FeedItemRepository extends ServiceEntityRepository
             ->where('f.subscriptionGuid IN (:sguids)')
             ->andWhere("NOT EXISTS({$readSubDql})")
             ->setParameter('sguids', $subscriptionGuids)
-            ->setParameter('userId', $userId)
-            ->groupBy('f.subscriptionGuid')
-            ->getQuery()
-            ->getResult();
+            ->setParameter('userId', $userId);
+
+        // Add filter words conditions
+        foreach ($filterWords as $i => $word) {
+            $paramName = 'word'.$i;
+            $qb->andWhere(
+                "f.title NOT LIKE :{$paramName} AND f.excerpt NOT LIKE :{$paramName}",
+            );
+            $qb->setParameter($paramName, '%'.$word.'%');
+        }
+
+        $results = $qb->groupBy('f.subscriptionGuid')->getQuery()->getResult();
 
         $counts = [];
         foreach ($results as $row) {
