@@ -1,7 +1,11 @@
 framework:
     profiler:
+        enabled: "%kernel.debug%"
+        collect: "%kernel.debug%"
         only_exceptions: false
         dsn: "file:%kernel.project_dir%/var/profiler"
 
 web_profiler:
+    toolbar:
+        enabled: "%kernel.debug%"
     intercept_redirects: false
