@@ -3,5 +3,6 @@
 <meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="{{ asset('site.webmanifest') }}">
-<link rel="preload" href="{{ asset('fonts/Nunito-VariableFont_wght.ttf') }}" as="font" type="font/ttf" crossorigin>
+<!-- Preload WOFF2 font (64% smaller than TTF) for faster initial render -->
+<link rel="preload" href="{{ asset('fonts/Nunito-VariableFont_wght.woff2') }}" as="font" type="font/woff2" crossorigin>
 <style>{{ asset_inline('css/shared-base.css') }}</style>

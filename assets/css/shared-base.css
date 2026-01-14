@@ -8,10 +8,22 @@
     animation-duration: 150ms;
 }
 
-/* Fonts */
+/* Disable view transitions on touch devices (mobile) for better performance.
+   Safari iOS has slower view transition implementation - creating screenshots
+   and animating between pages adds noticeable delay on page navigation. */
+@media (pointer: coarse) {
+    @view-transition {
+        navigation: none;
+    }
+}
+
+/* Fonts - WOFF2 is ~64% smaller than TTF with better compression.
+   TTF fallback for older browsers that don't support WOFF2. */
 @font-face {
     font-family: Nunito;
-    src: url("/fonts/Nunito-VariableFont_wght.ttf") format("truetype");
+    src:
+        url("/fonts/Nunito-VariableFont_wght.woff2") format("woff2"),
+        url("/fonts/Nunito-VariableFont_wght.ttf") format("truetype");
     font-weight: 100 900;
     font-style: normal;
     font-display: swap;
@@ -161,6 +173,14 @@
 html {
     height: 100dvh;
     scroll-behavior: smooth;
+}
+
+/* Disable smooth scrolling on touch devices - Safari iOS has poor
+   smooth scroll performance, especially combined with scroll listeners. */
+@media (pointer: coarse) {
+    html {
+        scroll-behavior: auto;
+    }
 }
 
 html,

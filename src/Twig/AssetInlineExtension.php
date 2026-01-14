@@ -19,15 +19,16 @@ class AssetInlineExtension extends AbstractExtension
     public function __construct(
         private AssetMapperInterface $assetMapper,
         private string $publicDir,
-    ) {}
+    ) {
+    }
 
     public function getFunctions(): array
     {
         return [
             new TwigFunction(
-                "asset_inline",
-                [$this, "assetInline"],
-                ["is_safe" => ["html"]],
+                'asset_inline',
+                [$this, 'assetInline'],
+                ['is_safe' => ['html']],
             ),
         ];
     }
@@ -37,11 +38,11 @@ class AssetInlineExtension extends AbstractExtension
         $asset = $this->assetMapper->getAsset($path);
 
         if ($asset === null) {
-            return "";
+            return '';
         }
 
         // Try compiled file in public/ first, then fall back to source
-        $publicFile = $this->publicDir . $asset->publicPath;
+        $publicFile = $this->publicDir.$asset->publicPath;
         if (file_exists($publicFile)) {
             $content = file_get_contents($publicFile);
         } else {
@@ -49,9 +50,9 @@ class AssetInlineExtension extends AbstractExtension
         }
 
         if ($content === false) {
-            return "";
+            return '';
         }
 
-        return "/* " . $asset->publicPath . " */\n" . $content;
+        return '/* '.$asset->publicPath." */\n".$content;
     }
 }

@@ -234,6 +234,8 @@ header h1 .back {
    Pull to refresh / Refresh overlay
    ======================================== */
 
+/* GPU compositing via translateZ(0) reduces repaints on Safari iOS
+   when fixed elements are shown/hidden during pull-to-refresh. */
 [data-pull-indicator] {
     position: fixed;
     top: 0;
@@ -244,6 +246,8 @@ header h1 .back {
     text-align: center;
     font-size: 1.25rem;
     z-index: 9998;
+    transform: translateZ(0);
+    will-change: transform;
 }
 
 [data-pull-indicator="pulling"] {
@@ -256,6 +260,7 @@ header h1 .back {
     color: var(--color-bg);
 }
 
+/* GPU compositing for smoother overlay appearance on mobile Safari. */
 [data-refresh-overlay] {
     position: fixed;
     top: 0;
@@ -269,6 +274,8 @@ header h1 .back {
     font-size: 4rem;
     color: #fff;
     z-index: 9999;
+    transform: translateZ(0);
+    will-change: opacity;
 }
 
 /* ========================================
