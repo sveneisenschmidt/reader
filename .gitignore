@@ -42,6 +42,8 @@ Thumbs.db
 coverage.xml
 coverage-html
 coverage-report
+*coverage.xml
+cov-*
 
 # Node
 node_modules/

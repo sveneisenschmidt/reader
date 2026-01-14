@@ -97,4 +97,32 @@ class SeenStatusRepositoryTest extends KernelTestCase
             $this->assertTrue($this->repository->isSeen($userId, $guid));
         }
     }
+
+    #[Test]
+    public function getSeenGuidsForUserReturnsSeenGuids(): void
+    {
+        $userId = 999;
+        $guids = ['seenguids-test-1', 'seenguids-test-2'];
+
+        $this->repository->markManyAsSeen($userId, $guids);
+
+        $result = $this->repository->getSeenGuidsForUser($userId, $guids);
+
+        $this->assertContains('seenguids-test-1', $result);
+        $this->assertContains('seenguids-test-2', $result);
+    }
+
+    #[Test]
+    public function getSeenGuidsForUserWithEmptyFilterReturnsAllSeenGuids(): void
+    {
+        $userId = 998;
+        $guids = ['seenguids-all-1', 'seenguids-all-2'];
+
+        $this->repository->markManyAsSeen($userId, $guids);
+
+        $result = $this->repository->getSeenGuidsForUser($userId);
+
+        $this->assertContains('seenguids-all-1', $result);
+        $this->assertContains('seenguids-all-2', $result);
+    }
 }

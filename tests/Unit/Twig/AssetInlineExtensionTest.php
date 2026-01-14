@@ -140,6 +140,51 @@ class AssetInlineExtensionTest extends TestCase
         $this->assertContains('html', $options['is_safe']);
     }
 
+    #[Test]
+    public function assetInlineUsesAssetContentWhenAvailable(): void
+    {
+        $asset = new MappedAsset(
+            'js/inline.js',
+            '/nonexistent/path.js',
+            publicPath: '/assets/js/inline-abc123.js',
+            content: '/* inline content */console.log("inline");',
+        );
+
+        $assetMapper = $this->createMock(AssetMapperInterface::class);
+        $assetMapper
+            ->method('getAsset')
+            ->with('js/inline.js')
+            ->willReturn($asset);
+
+        $extension = $this->createExtension($assetMapper);
+
+        $result = $extension->assetInline('js/inline.js');
+
+        $this->assertStringContainsString('/* inline content */', $result);
+    }
+
+    #[Test]
+    public function assetInlineReturnsEmptyStringWhenSourceFileNotFound(): void
+    {
+        $asset = new MappedAsset(
+            'js/missing.js',
+            '/nonexistent/path/that/does/not/exist.js',
+            publicPath: '/assets/js/missing-abc123.js',
+        );
+
+        $assetMapper = $this->createMock(AssetMapperInterface::class);
+        $assetMapper
+            ->method('getAsset')
+            ->with('js/missing.js')
+            ->willReturn($asset);
+
+        $extension = $this->createExtension($assetMapper);
+
+        $result = $extension->assetInline('js/missing.js');
+
+        $this->assertEquals('', $result);
+    }
+
     private function createExtension(
         ?AssetMapperInterface $assetMapper = null,
         string $publicDir = '/tmp',

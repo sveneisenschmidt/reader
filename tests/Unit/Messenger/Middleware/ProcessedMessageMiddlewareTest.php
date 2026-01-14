@@ -181,4 +181,28 @@ class ProcessedMessageMiddlewareTest extends TestCase
 
         $this->assertSame($message, $result->getMessage());
     }
+
+    #[Test]
+    public function skipsProcessingWhenAlreadyHasProcessedMessageStamp(): void
+    {
+        $message = new HeartbeatMessage();
+        $envelope = new Envelope($message)
+            ->with(new ReceivedStamp('sync'))
+            ->with(new \App\Messenger\Stamp\ProcessedMessageStamp());
+
+        $repository = $this->createMock(ProcessedMessageRepository::class);
+        $repository->expects($this->never())->method('save');
+
+        $registry = $this->createMock(ManagerRegistry::class);
+
+        $stack = $this->createMock(StackInterface::class);
+        $nextMiddleware = $this->createMock(MiddlewareInterface::class);
+        $nextMiddleware->method('handle')->willReturn($envelope);
+        $stack->method('next')->willReturn($nextMiddleware);
+
+        $middleware = new ProcessedMessageMiddleware($registry, $repository);
+        $result = $middleware->handle($envelope, $stack);
+
+        $this->assertSame($message, $result->getMessage());
+    }
 }

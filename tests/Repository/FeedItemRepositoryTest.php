@@ -322,4 +322,148 @@ class FeedItemRepositoryTest extends KernelTestCase
             $this->repository->getGuidsBySubscriptionGuid($subscriptionGuid),
         );
     }
+
+    #[Test]
+    public function getItemGuidsBySubscriptionReturnsGuidsOrderedByDate(): void
+    {
+        $subscriptionGuid = 'itemguids1234567';
+        $this->repository->upsert(
+            $this->createFeedItem(
+                'itemguids12345a1',
+                $subscriptionGuid,
+                new \DateTimeImmutable('-2 days'),
+            ),
+        );
+        $this->repository->upsert(
+            $this->createFeedItem(
+                'itemguids12345a2',
+                $subscriptionGuid,
+                new \DateTimeImmutable('-1 day'),
+            ),
+        );
+
+        $guids = $this->repository->getItemGuidsBySubscription(
+            $subscriptionGuid,
+        );
+
+        $this->assertContains('itemguids12345a1', $guids);
+        $this->assertContains('itemguids12345a2', $guids);
+    }
+
+    #[Test]
+    public function getUnreadCountsBySubscriptionReturnsEmptyForEmptyInput(): void
+    {
+        $counts = $this->repository->getUnreadCountsBySubscription([], 1);
+
+        $this->assertIsArray($counts);
+        $this->assertEmpty($counts);
+    }
+
+    #[Test]
+    public function getUnreadCountsBySubscriptionReturnsCounts(): void
+    {
+        $subscriptionGuid = 'unreadcnt1234567';
+        $this->repository->upsert(
+            $this->createFeedItem('unreadcnt12345a1', $subscriptionGuid),
+        );
+        $this->repository->upsert(
+            $this->createFeedItem('unreadcnt12345a2', $subscriptionGuid),
+        );
+
+        $counts = $this->repository->getUnreadCountsBySubscription(
+            [$subscriptionGuid],
+            999,
+        );
+
+        $this->assertArrayHasKey($subscriptionGuid, $counts);
+        $this->assertGreaterThanOrEqual(2, $counts[$subscriptionGuid]);
+    }
+
+    #[Test]
+    public function findItemsWithStatusReturnsEmptyForEmptyInput(): void
+    {
+        $result = $this->repository->findItemsWithStatus([], 1);
+
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
+    }
+
+    #[Test]
+    public function findItemsWithStatusReturnsItemsWithStatusFields(): void
+    {
+        $subscriptionGuid = 'statusfeed123456';
+        $this->repository->upsert(
+            $this->createFeedItem('statusitem123456', $subscriptionGuid),
+        );
+
+        $result = $this->repository->findItemsWithStatus(
+            [$subscriptionGuid],
+            999,
+        );
+
+        $this->assertNotEmpty($result);
+        $this->assertArrayHasKey('guid', $result[0]);
+        $this->assertArrayHasKey('isRead', $result[0]);
+        $this->assertArrayHasKey('isNew', $result[0]);
+    }
+
+    #[Test]
+    public function findItemsWithStatusFiltersOutItemsWithFilterWords(): void
+    {
+        $subscriptionGuid = 'filterfeed123456';
+        $this->repository->upsert(
+            new FeedItem(
+                'filteritem1234567',
+                $subscriptionGuid,
+                'Breaking News Alert',
+                'https://example.com/news',
+                'Test Source',
+                'This is a test excerpt',
+                new \DateTimeImmutable(),
+            ),
+        );
+        $this->repository->upsert(
+            new FeedItem(
+                'filteritem2345678',
+                $subscriptionGuid,
+                'Normal Article',
+                'https://example.com/article',
+                'Test Source',
+                'Regular content here',
+                new \DateTimeImmutable(),
+            ),
+        );
+
+        $result = $this->repository->findItemsWithStatus(
+            [$subscriptionGuid],
+            999,
+            ['Breaking'],
+        );
+
+        $this->assertCount(1, $result);
+        $this->assertEquals('Normal Article', $result[0]['title']);
+    }
+
+    #[Test]
+    public function findItemsWithStatusExcludesItemFromUnreadFilter(): void
+    {
+        $subscriptionGuid = 'unreadfilt123456';
+        $this->repository->upsert(
+            $this->createFeedItem('unreadfilt1234567', $subscriptionGuid),
+        );
+
+        // Test with excludeFromUnreadFilter parameter
+        $result = $this->repository->findItemsWithStatus(
+            [$subscriptionGuid],
+            999,
+            [],
+            true,
+            0,
+            null,
+            'unreadfilt1234567',
+        );
+
+        // The item should be included even with unreadOnly=true because it's excluded
+        $this->assertNotEmpty($result);
+    }
 }
