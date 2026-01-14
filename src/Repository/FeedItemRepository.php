@@ -54,21 +54,6 @@ class FeedItemRepository extends ServiceEntityRepository
         return $result;
     }
 
-    #[Returns('list<FeedItem>')]
-    public function findBySubscriptionGuid(string $subscriptionGuid): array
-    {
-        return $this->findBy(
-            ['subscriptionGuid' => $subscriptionGuid],
-            ['publishedAt' => 'DESC'],
-        );
-    }
-
-    #[Returns('list<FeedItem>')]
-    public function findAllOrderedByDate(): array
-    {
-        return $this->findBy([], ['publishedAt' => 'DESC']);
-    }
-
     #[Param(subscriptionGuids: 'list<string>')]
     #[Returns('list<FeedItem>')]
     public function findBySubscriptionGuids(array $subscriptionGuids): array

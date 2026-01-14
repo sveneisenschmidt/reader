@@ -64,48 +64,6 @@ class FeedItemRepositoryTest extends KernelTestCase
     }
 
     #[Test]
-    public function findBySubscriptionGuidReturnsEmptyArrayWhenNoItems(): void
-    {
-        $result = $this->repository->findBySubscriptionGuid('nonexistentfeed1');
-
-        $this->assertIsArray($result);
-        $this->assertEmpty($result);
-    }
-
-    #[Test]
-    public function findBySubscriptionGuidReturnsItemsOrderedByDate(): void
-    {
-        $subscriptionGuid = 'orderedfeed12345';
-        $older = $this->createFeedItem(
-            'olderitem1234567',
-            $subscriptionGuid,
-            new \DateTimeImmutable('-1 day'),
-        );
-        $newer = $this->createFeedItem(
-            'neweritem1234567',
-            $subscriptionGuid,
-            new \DateTimeImmutable('now'),
-        );
-
-        $this->repository->upsert($older);
-        $this->repository->upsert($newer);
-
-        $result = $this->repository->findBySubscriptionGuid($subscriptionGuid);
-
-        $this->assertCount(2, $result);
-        $this->assertEquals('neweritem1234567', $result[0]->getGuid());
-        $this->assertEquals('olderitem1234567', $result[1]->getGuid());
-    }
-
-    #[Test]
-    public function findAllOrderedByDateReturnsItems(): void
-    {
-        $result = $this->repository->findAllOrderedByDate();
-
-        $this->assertIsArray($result);
-    }
-
-    #[Test]
     public function findByGuidsReturnsEmptyArrayForEmptyInput(): void
     {
         $result = $this->repository->findByGuids([]);
@@ -361,7 +319,7 @@ class FeedItemRepositoryTest extends KernelTestCase
 
         $this->assertGreaterThanOrEqual(0, $deleted);
         $this->assertEmpty(
-            $this->repository->findBySubscriptionGuid($subscriptionGuid),
+            $this->repository->getGuidsBySubscriptionGuid($subscriptionGuid),
         );
     }
 }
