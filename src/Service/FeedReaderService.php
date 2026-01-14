@@ -10,6 +10,7 @@
 
 namespace App\Service;
 
+use App\FeedProcessor\FeedItemProcessorChain;
 use FeedIo\FeedInterface;
 use FeedIo\FeedIo;
 use PhpStaticAnalysis\Attributes\Param;
@@ -20,7 +21,7 @@ class FeedReaderService
 {
     public function __construct(
         private FeedIo $feedIo,
-        private FeedContentService $contentService,
+        private FeedItemProcessorChain $processorChain,
         private FeedPersistenceService $persistenceService,
         private LoggerInterface $logger,
     ) {
@@ -47,7 +48,7 @@ class FeedReaderService
     public function fetchAndPersistFeed(string $url): array
     {
         $feedData = $this->fetchFeed($url);
-        $feedData['items'] = $this->contentService->sanitizeItems(
+        $feedData['items'] = $this->processorChain->processItems(
             $feedData['items'],
         );
         $this->persistenceService->persistFeedItems($feedData['items']);
@@ -63,7 +64,7 @@ class FeedReaderService
         foreach ($feedUrls as $feedUrl) {
             try {
                 $feedData = $this->fetchFeed($feedUrl);
-                $feedData['items'] = $this->contentService->sanitizeItems(
+                $feedData['items'] = $this->processorChain->processItems(
                     $feedData['items'],
                 );
                 $this->persistenceService->persistFeedItems($feedData['items']);
@@ -106,12 +107,6 @@ class FeedReaderService
         $id = $item->getPublicId() ?? $link;
         $excerpt = $item->getSummary() ?? ($item->getContent() ?? '');
         $itemTitle = $item->getTitle() ?? '';
-
-        if (empty(trim($itemTitle))) {
-            $itemTitle = $this->contentService->createTitleFromExcerpt(
-                $excerpt,
-            );
-        }
 
         $date = $item->getLastModified();
 

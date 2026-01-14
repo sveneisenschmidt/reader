@@ -10,7 +10,7 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Service\FeedContentService;
+use App\FeedProcessor\FeedItemProcessorChain;
 use App\Service\FeedPersistenceService;
 use App\Service\FeedReaderService;
 use FeedIo\Feed;
@@ -90,7 +90,7 @@ class FeedReaderServiceTest extends TestCase
     }
 
     #[Test]
-    public function fetchFeedCreatesTitleFromExcerptIfEmpty(): void
+    public function fetchFeedReturnsEmptyTitleIfNotSet(): void
     {
         $item = new Item();
         $item->setLink('https://example.com/post1');
@@ -108,21 +108,11 @@ class FeedReaderServiceTest extends TestCase
         $feedIo = $this->createMock(FeedIo::class);
         $feedIo->method('read')->willReturn($result);
 
-        $contentService = $this->createMock(FeedContentService::class);
-        $contentService
-            ->expects($this->once())
-            ->method('createTitleFromExcerpt')
-            ->with('This is the summary')
-            ->willReturn('This is the summary');
-
-        $service = $this->createService($feedIo, $contentService);
+        $service = $this->createService($feedIo);
 
         $feedData = $service->fetchFeed('https://example.com/feed.xml');
 
-        $this->assertEquals(
-            'This is the summary',
-            $feedData['items'][0]['title'],
-        );
+        $this->assertEquals('', $feedData['items'][0]['title']);
     }
 
     #[Test]
@@ -163,7 +153,7 @@ class FeedReaderServiceTest extends TestCase
     }
 
     #[Test]
-    public function fetchAndPersistFeedSanitizesAndPersists(): void
+    public function fetchAndPersistFeedProcessesAndPersists(): void
     {
         $feed = new Feed();
         $feed->setTitle('Test Feed');
@@ -174,10 +164,10 @@ class FeedReaderServiceTest extends TestCase
         $feedIo = $this->createMock(FeedIo::class);
         $feedIo->method('read')->willReturn($result);
 
-        $contentService = $this->createMock(FeedContentService::class);
-        $contentService
+        $processorChain = $this->createMock(FeedItemProcessorChain::class);
+        $processorChain
             ->expects($this->once())
-            ->method('sanitizeItems')
+            ->method('processItems')
             ->willReturn([]);
 
         $persistenceService = $this->createMock(FeedPersistenceService::class);
@@ -188,7 +178,7 @@ class FeedReaderServiceTest extends TestCase
 
         $service = $this->createService(
             $feedIo,
-            $contentService,
+            $processorChain,
             $persistenceService,
         );
 
@@ -214,8 +204,8 @@ class FeedReaderServiceTest extends TestCase
             ->method('read')
             ->willReturn($result);
 
-        $contentService = $this->createMock(FeedContentService::class);
-        $contentService->method('sanitizeItems')->willReturn([]);
+        $processorChain = $this->createMock(FeedItemProcessorChain::class);
+        $processorChain->method('processItems')->willReturn([]);
 
         $persistenceService = $this->createMock(FeedPersistenceService::class);
         $persistenceService
@@ -224,7 +214,7 @@ class FeedReaderServiceTest extends TestCase
 
         $service = $this->createService(
             $feedIo,
-            $contentService,
+            $processorChain,
             $persistenceService,
         );
 
@@ -257,8 +247,8 @@ class FeedReaderServiceTest extends TestCase
                 return $result;
             });
 
-        $contentService = $this->createMock(FeedContentService::class);
-        $contentService->method('sanitizeItems')->willReturn([]);
+        $processorChain = $this->createMock(FeedItemProcessorChain::class);
+        $processorChain->method('processItems')->willReturn([]);
 
         $persistenceService = $this->createMock(FeedPersistenceService::class);
         $persistenceService->expects($this->once())->method('persistFeedItems');
@@ -271,7 +261,7 @@ class FeedReaderServiceTest extends TestCase
 
         $service = $this->createService(
             $feedIo,
-            $contentService,
+            $processorChain,
             $persistenceService,
             $logger,
         );
@@ -286,13 +276,13 @@ class FeedReaderServiceTest extends TestCase
 
     private function createService(
         ?FeedIo $feedIo = null,
-        ?FeedContentService $contentService = null,
+        ?FeedItemProcessorChain $processorChain = null,
         ?FeedPersistenceService $persistenceService = null,
         ?LoggerInterface $logger = null,
     ): FeedReaderService {
         return new FeedReaderService(
             $feedIo ?? $this->createStub(FeedIo::class),
-            $contentService ?? $this->createStub(FeedContentService::class),
+            $processorChain ?? $this->createStub(FeedItemProcessorChain::class),
             $persistenceService ??
                 $this->createStub(FeedPersistenceService::class),
             $logger ?? $this->createStub(LoggerInterface::class),

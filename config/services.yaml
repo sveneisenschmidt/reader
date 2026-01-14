@@ -23,8 +23,8 @@ services:
             $client: '@FeedIo\Adapter\Http\Client'
             $logger: "@logger"
 
-    # Feed Services configuration
-    App\Service\FeedContentService:
+    # Feed Processor configuration
+    App\FeedProcessor\HtmlSanitizerProcessor:
         arguments:
             $feedContentSanitizer: "@html_sanitizer.sanitizer.app.feed_content_sanitizer"
 
