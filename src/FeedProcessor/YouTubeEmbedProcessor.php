@@ -66,9 +66,9 @@ class YouTubeEmbedProcessor implements FeedItemProcessorInterface
         $escapedId = htmlspecialchars($videoId, ENT_QUOTES, 'UTF-8');
 
         return sprintf(
-            '<iframe width="560" height="315" src="https://www.youtube.com/embed/%s" '.
+            '<div class="embed embed--youtube"><iframe src="https://www.youtube.com/embed/%s" '.
                 'frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; '.
-                'gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>',
+                'gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>',
             $escapedId,
         );
     }
