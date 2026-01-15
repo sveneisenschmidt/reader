@@ -22,27 +22,27 @@ class YouTubeEmbedProcessor implements FeedItemProcessorInterface
         "/youtube\.com\/v\/([a-zA-Z0-9_-]+)/",
     ];
 
-    #[Param(item: "array<string, mixed>")]
-    #[Returns("array<string, mixed>")]
+    #[Param(item: 'array<string, mixed>')]
+    #[Returns('array<string, mixed>')]
     public function process(array $item): array
     {
-        $videoId = $this->extractVideoId($item["link"]);
+        $videoId = $this->extractVideoId($item['link']);
 
         if ($videoId !== null) {
-            $item["excerpt"] = $this->createEmbedCode($videoId);
+            $item['excerpt'] = $this->createEmbedCode($videoId);
         }
 
         return $item;
     }
 
-    #[Param(item: "array<string, mixed>")]
+    #[Param(item: 'array<string, mixed>')]
     public function supports(array $item): bool
     {
-        if (!isset($item["link"]) || !is_string($item["link"])) {
+        if (!isset($item['link']) || !is_string($item['link'])) {
             return false;
         }
 
-        return $this->extractVideoId($item["link"]) !== null;
+        return $this->extractVideoId($item['link']) !== null;
     }
 
     public static function getPriority(): int
@@ -63,11 +63,11 @@ class YouTubeEmbedProcessor implements FeedItemProcessorInterface
 
     private function createEmbedCode(string $videoId): string
     {
-        $escapedId = htmlspecialchars($videoId, ENT_QUOTES, "UTF-8");
+        $escapedId = htmlspecialchars($videoId, ENT_QUOTES, 'UTF-8');
 
         return sprintf(
-            '<div class="embed"><iframe src="https://www.youtube.com/embed/%s" ' .
-                'frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; ' .
+            '<div class="embed"><iframe src="https://www.youtube.com/embed/%s" '.
+                'frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; '.
                 'gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>',
             $escapedId,
         );
