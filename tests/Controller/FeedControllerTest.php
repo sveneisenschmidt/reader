@@ -1048,4 +1048,15 @@ class FeedControllerTest extends WebTestCase
 
         $this->assertResponseRedirects('/s/0123456789abcdef');
     }
+
+    #[Test]
+    public function bookmarksRouteRedirectsToIndexWhenNoBookmarks(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscription($client);
+
+        $client->request('GET', '/bookmarks');
+
+        $this->assertResponseRedirects('/');
+    }
 }

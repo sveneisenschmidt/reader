@@ -73,6 +73,7 @@
     --color-new: var(--color-green);
     --color-pending: var(--color-orange);
     --color-error: var(--color-red);
+    --color-starred: var(--color-orange);
 
     /* Button colors */
     --button-primary-bg: var(--color-text);
@@ -373,6 +374,9 @@ h3 {
     font-size: inherit;
     cursor: pointer;
     padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
 
     &:hover {
         color: var(--color-link);

@@ -17,6 +17,7 @@ enum PreferenceDefault
     case AutoMarkRead;
     case KeyboardShortcuts;
     case FilterWords;
+    case Bookmarks;
 
     public function value(): string
     {
@@ -26,6 +27,7 @@ enum PreferenceDefault
             self::AutoMarkRead => '0',
             self::KeyboardShortcuts => '0',
             self::FilterWords => '',
+            self::Bookmarks => '1',
         };
     }
 

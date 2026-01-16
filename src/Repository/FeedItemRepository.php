@@ -10,6 +10,7 @@
 
 namespace App\Repository;
 
+use App\Entity\BookmarkStatus;
 use App\Entity\FeedItem;
 use App\Entity\ReadStatus;
 use App\Entity\SeenStatus;
@@ -120,9 +121,20 @@ class FeedItemRepository extends ServiceEntityRepository
 
     public function deleteOlderThan(\DateTimeInterface $date): int
     {
+        $em = $this->getEntityManager();
+
+        // Build subquery to exclude bookmarked items
+        $bookmarkSubDql = $em
+            ->createQueryBuilder()
+            ->select('1')
+            ->from(BookmarkStatus::class, 'bm')
+            ->where('bm.feedItemGuid = f.guid')
+            ->getDQL();
+
         return $this->createQueryBuilder('f')
             ->delete()
             ->where('f.publishedAt < :date')
+            ->andWhere("NOT EXISTS({$bookmarkSubDql})")
             ->setParameter('date', $date)
             ->getQuery()
             ->execute();
@@ -162,6 +174,7 @@ class FeedItemRepository extends ServiceEntityRepository
         int $limit = 0,
         ?string $subscriptionGuid = null,
         ?string $excludeFromUnreadFilter = null,
+        bool $bookmarkedOnly = false,
     ): array {
         if (empty($subscriptionGuids)) {
             return [];
@@ -169,7 +182,7 @@ class FeedItemRepository extends ServiceEntityRepository
 
         $em = $this->getEntityManager();
 
-        // Build subqueries for read/seen status using DQL
+        // Build subqueries for read/seen/bookmarked status using DQL
         $readSubDql = $em
             ->createQueryBuilder()
             ->select('1')
@@ -186,6 +199,14 @@ class FeedItemRepository extends ServiceEntityRepository
             ->andWhere('ss.userId = :userId')
             ->getDQL();
 
+        $bookmarkSubDql = $em
+            ->createQueryBuilder()
+            ->select('1')
+            ->from(BookmarkStatus::class, 'bm')
+            ->where('bm.feedItemGuid = f.guid')
+            ->andWhere('bm.userId = :userId')
+            ->getDQL();
+
         $qb = $this->createQueryBuilder('f')
             ->select(
                 'f.guid',
@@ -198,6 +219,7 @@ class FeedItemRepository extends ServiceEntityRepository
                 'f.publishedAt as publishedAt',
                 "CASE WHEN EXISTS({$readSubDql}) THEN true ELSE false END as isRead",
                 "CASE WHEN EXISTS({$seenSubDql}) THEN true ELSE false END as isSeen",
+                "CASE WHEN EXISTS({$bookmarkSubDql}) THEN true ELSE false END as isBookmarked",
             )
             ->where('f.subscriptionGuid IN (:sguids)')
             ->setParameter('sguids', $subscriptionGuids)
@@ -241,6 +263,19 @@ class FeedItemRepository extends ServiceEntityRepository
             }
         }
 
+        // Filter bookmarked only
+        if ($bookmarkedOnly) {
+            $bookmarkFilterDql = $em
+                ->createQueryBuilder()
+                ->select('1')
+                ->from(BookmarkStatus::class, 'bm2')
+                ->where('bm2.feedItemGuid = f.guid')
+                ->andWhere('bm2.userId = :userId')
+                ->getDQL();
+
+            $qb->andWhere("EXISTS({$bookmarkFilterDql})");
+        }
+
         if ($limit > 0) {
             $qb->setMaxResults($limit);
         }
@@ -259,6 +294,7 @@ class FeedItemRepository extends ServiceEntityRepository
                 'publishedAt' => $row['publishedAt'],
                 'isRead' => (bool) $row['isRead'],
                 'isNew' => !(bool) $row['isSeen'],
+                'isBookmarked' => (bool) $row['isBookmarked'],
             ];
         }, $results);
     }

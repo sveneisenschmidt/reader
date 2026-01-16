@@ -28,6 +28,7 @@ Every login requires:
 
 - Clean three-column layout: feeds, articles, reading pane
 - Track read/unread articles
+- Bookmark articles for later reading
 - Green dot shows new articles you haven't seen yet
 - Pull down to refresh on any device
 - Light, dark, and auto theme
@@ -42,6 +43,10 @@ Click any article in the list to read it. The content appears in the reading pan
 - Click "Mark as read" on an article
 - Click "Mark all as read" in the sidebar
 - Click "Read original" to open the source and mark as read
+
+**Bookmarking articles:**
+- Click "Bookmark" to save an article for later
+- Access your bookmarks via the "Bookmarks" link in the sidebar
 
 The green dot next to new articles disappears once you've viewed them.
 
@@ -84,6 +89,7 @@ Click the gear icon in the header to access your preferences:
 - **Pull to refresh** - Enable or disable the pull-down gesture to refresh feeds
 - **Auto mark as read** - Automatically mark articles as read after 5 seconds of viewing
 - **Keyboard shortcuts** - Enable keyboard navigation (arrow keys, space, enter, escape)
+- **Bookmarks** - Enable or disable the bookmarks feature
 - **Filter words** - Hide articles containing specific words (one word per line, case-insensitive)
 - **Worker Status** - Shows if background refresh is running
 

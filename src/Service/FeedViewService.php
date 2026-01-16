@@ -11,6 +11,7 @@
 namespace App\Service;
 
 use App\EventSubscriber\FilterParameterSubscriber;
+use App\Repository\BookmarkStatusRepository;
 use App\Repository\FeedItemRepository;
 use PhpStaticAnalysis\Attributes\Returns;
 
@@ -18,6 +19,7 @@ class FeedViewService
 {
     public function __construct(
         private FeedItemRepository $feedItemRepository,
+        private BookmarkStatusRepository $bookmarkStatusRepository,
         private SubscriptionService $subscriptionService,
         private UserPreferenceService $userPreferenceService,
     ) {
@@ -30,6 +32,7 @@ class FeedViewService
         ?string $fguid = null,
         bool $unreadOnly = FilterParameterSubscriber::DEFAULT_UNREAD,
         int $limit = FilterParameterSubscriber::DEFAULT_LIMIT,
+        bool $bookmarksOnly = false,
     ): array {
         $subscriptions = $this->subscriptionService->getSubscriptionsForUser(
             $userId,
@@ -60,6 +63,7 @@ class FeedViewService
             $limit,
             $sguid,
             $fguid, // Exclude active item from unread filter
+            $bookmarksOnly,
         );
 
         // Apply subscription names
@@ -81,12 +85,16 @@ class FeedViewService
         // Group feeds by folder
         $groupedFeeds = $this->groupFeedsByFolder($feeds);
 
+        // Get bookmarks count
+        $bookmarksCount = $this->bookmarkStatusRepository->countByUser($userId);
+
         return [
             'feeds' => $feeds,
             'groupedFeeds' => $groupedFeeds['grouped'],
             'ungroupedFeeds' => $groupedFeeds['ungrouped'],
             'items' => $items,
             'allItemsCount' => $totalUnreadCount,
+            'bookmarksCount' => $bookmarksCount,
             'activeItem' => $activeItem,
         ];
     }

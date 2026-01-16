@@ -32,6 +32,10 @@ header h1 .back {
                     font-weight: var(--font-weight-medium);
                 }
 
+                &.bookmarks .count {
+                    display: none;
+                }
+
                 &.folder {
                     flex-direction: column;
 

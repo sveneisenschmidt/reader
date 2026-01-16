@@ -13,6 +13,7 @@ namespace App\Controller;
 use App\Enum\MessageSource;
 use App\EventSubscriber\FilterParameterSubscriber;
 use App\Message\RefreshFeedsMessage;
+use App\Repository\BookmarkStatusRepository;
 use App\Repository\FeedItemRepository;
 use App\Service\FeedViewService;
 use App\Service\ReadStatusService;
@@ -36,6 +37,7 @@ class FeedController extends AbstractController
         private SubscriptionService $subscriptionService,
         private ReadStatusService $readStatusService,
         private SeenStatusService $seenStatusService,
+        private BookmarkStatusRepository $bookmarkStatusRepository,
         private FeedViewService $feedViewService,
         private UserPreferenceService $userPreferenceService,
         private CsrfTokenManagerInterface $csrfTokenManager,
@@ -54,6 +56,26 @@ class FeedController extends AbstractController
         }
 
         return $this->renderFeedView($request);
+    }
+
+    #[Route('/bookmarks', name: 'feed_bookmarks')]
+    public function bookmarks(Request $request): Response
+    {
+        $user = $this->userService->getCurrentUser();
+
+        if (!$this->userPreferenceService->isBookmarksEnabled($user->getId())) {
+            return $this->redirectToRoute('feed_index');
+        }
+
+        $bookmarksCount = $this->bookmarkStatusRepository->countByUser(
+            $user->getId(),
+        );
+
+        if ($bookmarksCount === 0) {
+            return $this->redirectToRoute('feed_index');
+        }
+
+        return $this->renderFeedView($request, null, null, true);
     }
 
     #[Route('/refresh', name: 'feed_refresh', methods: ['POST'])]
@@ -314,6 +336,96 @@ class FeedController extends AbstractController
 
     #[
         Route(
+            '/f/{fguid}/bookmark',
+            name: 'feed_item_bookmark',
+            requirements: ['fguid' => '[a-f0-9]{16}'],
+            methods: ['POST'],
+        ),
+    ]
+    public function bookmark(Request $request, string $fguid): Response
+    {
+        $this->validateCsrfToken($request, 'bookmark');
+
+        $user = $this->userService->getCurrentUser();
+        $this->bookmarkStatusRepository->bookmark($user->getId(), $fguid);
+
+        return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
+    }
+
+    #[
+        Route(
+            '/f/{fguid}/unbookmark',
+            name: 'feed_item_unbookmark',
+            requirements: ['fguid' => '[a-f0-9]{16}'],
+            methods: ['POST'],
+        ),
+    ]
+    public function unbookmark(Request $request, string $fguid): Response
+    {
+        $this->validateCsrfToken($request, 'bookmark');
+
+        $user = $this->userService->getCurrentUser();
+        $this->bookmarkStatusRepository->unbookmark($user->getId(), $fguid);
+
+        return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
+    }
+
+    #[
+        Route(
+            '/s/{sguid}/f/{fguid}/bookmark',
+            name: 'feed_item_filtered_bookmark',
+            requirements: [
+                'sguid' => '[a-f0-9]{16}',
+                'fguid' => '[a-f0-9]{16}',
+            ],
+            methods: ['POST'],
+        ),
+    ]
+    public function bookmarkFiltered(
+        Request $request,
+        string $sguid,
+        string $fguid,
+    ): Response {
+        $this->validateCsrfToken($request, 'bookmark');
+
+        $user = $this->userService->getCurrentUser();
+        $this->bookmarkStatusRepository->bookmark($user->getId(), $fguid);
+
+        return $this->redirectToRoute('feed_item_filtered', [
+            'sguid' => $sguid,
+            'fguid' => $fguid,
+        ]);
+    }
+
+    #[
+        Route(
+            '/s/{sguid}/f/{fguid}/unbookmark',
+            name: 'feed_item_filtered_unbookmark',
+            requirements: [
+                'sguid' => '[a-f0-9]{16}',
+                'fguid' => '[a-f0-9]{16}',
+            ],
+            methods: ['POST'],
+        ),
+    ]
+    public function unbookmarkFiltered(
+        Request $request,
+        string $sguid,
+        string $fguid,
+    ): Response {
+        $this->validateCsrfToken($request, 'bookmark');
+
+        $user = $this->userService->getCurrentUser();
+        $this->bookmarkStatusRepository->unbookmark($user->getId(), $fguid);
+
+        return $this->redirectToRoute('feed_item_filtered', [
+            'sguid' => $sguid,
+            'fguid' => $fguid,
+        ]);
+    }
+
+    #[
+        Route(
             '/f/{fguid}/open',
             name: 'feed_item_open',
             requirements: ['fguid' => '[a-f0-9]{16}'],
@@ -375,6 +487,7 @@ class FeedController extends AbstractController
         Request $request,
         ?string $sguid = null,
         ?string $fguid = null,
+        bool $bookmarksOnly = false,
     ): Response {
         $this->stopwatch?->start('getCurrentUser', 'controller');
         $user = $this->userService->getCurrentUser();
@@ -396,6 +509,7 @@ class FeedController extends AbstractController
             $fguid,
             $unread,
             $limit,
+            $bookmarksOnly,
         );
         $this->stopwatch?->stop('getViewData');
 
@@ -414,6 +528,12 @@ class FeedController extends AbstractController
         );
         $this->stopwatch?->stop('isPullToRefreshEnabled');
 
+        $this->stopwatch?->start('isBookmarksEnabled', 'controller');
+        $bookmarksEnabled = $this->userPreferenceService->isBookmarksEnabled(
+            $user->getId(),
+        );
+        $this->stopwatch?->stop('isBookmarksEnabled');
+
         $this->stopwatch?->start('render', 'controller');
         $response = $this->render('feed/index.html.twig', [
             'feeds' => $viewData['feeds'],
@@ -421,8 +541,11 @@ class FeedController extends AbstractController
             'ungroupedFeeds' => $viewData['ungroupedFeeds'],
             'items' => $viewData['items'],
             'allItemsCount' => $viewData['allItemsCount'],
+            'bookmarksCount' => $viewData['bookmarksCount'],
             'activeItem' => $viewData['activeItem'],
             'activeFeed' => $sguid,
+            'bookmarksOnly' => $bookmarksOnly,
+            'bookmarksEnabled' => $bookmarksEnabled,
             'unread' => $unread,
             'limit' => $limit,
             'pullToRefresh' => $pullToRefresh,

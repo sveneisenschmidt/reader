@@ -17,4 +17,5 @@ enum PreferenceKey: string
     case AutoMarkRead = 'auto_mark_read';
     case KeyboardShortcuts = 'keyboard_shortcuts';
     case FilterWords = 'filter_words';
+    case Bookmarks = 'bookmarks';
 }

@@ -94,6 +94,24 @@ class UserPreferenceService
         );
     }
 
+    public function isBookmarksEnabled(int $userId): bool
+    {
+        return $this->userPreferenceRepository->isEnabled(
+            $userId,
+            PreferenceKey::Bookmarks,
+            PreferenceDefault::Bookmarks->asBool(),
+        );
+    }
+
+    public function setBookmarks(int $userId, bool $enabled): void
+    {
+        $this->userPreferenceRepository->setEnabled(
+            $userId,
+            PreferenceKey::Bookmarks,
+            $enabled,
+        );
+    }
+
     #[Returns('list<string>')]
     public function getFilterWords(int $userId): array
     {
@@ -140,6 +158,9 @@ class UserPreferenceService
             PreferenceKey::KeyboardShortcuts
                 ->value => $this->isKeyboardShortcutsEnabled($userId),
             PreferenceKey::FilterWords->value => $this->getFilterWordsRaw(
+                $userId,
+            ),
+            PreferenceKey::Bookmarks->value => $this->isBookmarksEnabled(
                 $userId,
             ),
         ];

@@ -187,6 +187,12 @@ class UserPreferenceServiceTest extends TestCase
                     PreferenceDefault::KeyboardShortcuts->asBool(),
                     true,
                 ],
+                [
+                    $userId,
+                    PreferenceKey::Bookmarks,
+                    PreferenceDefault::Bookmarks->asBool(),
+                    true,
+                ],
             ]);
         $repository
             ->method('getValue')
@@ -212,6 +218,7 @@ class UserPreferenceServiceTest extends TestCase
         $this->assertFalse($result[PreferenceKey::PullToRefresh->value]);
         $this->assertTrue($result[PreferenceKey::AutoMarkRead->value]);
         $this->assertTrue($result[PreferenceKey::KeyboardShortcuts->value]);
+        $this->assertTrue($result[PreferenceKey::Bookmarks->value]);
         $this->assertEquals(
             "word1\nword2",
             $result[PreferenceKey::FilterWords->value],
@@ -245,6 +252,12 @@ class UserPreferenceServiceTest extends TestCase
                     PreferenceDefault::KeyboardShortcuts->asBool(),
                     false,
                 ],
+                [
+                    $userId,
+                    PreferenceKey::Bookmarks,
+                    PreferenceDefault::Bookmarks->asBool(),
+                    true,
+                ],
             ]);
         $repository
             ->method('getValue')
@@ -270,6 +283,7 @@ class UserPreferenceServiceTest extends TestCase
         $this->assertTrue($result[PreferenceKey::PullToRefresh->value]);
         $this->assertFalse($result[PreferenceKey::AutoMarkRead->value]);
         $this->assertFalse($result[PreferenceKey::KeyboardShortcuts->value]);
+        $this->assertTrue($result[PreferenceKey::Bookmarks->value]);
         $this->assertEquals('', $result[PreferenceKey::FilterWords->value]);
     }
 }

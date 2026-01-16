@@ -59,10 +59,16 @@
 {% block main %}
     <aside data-sidebar>
         <ul class="subscription-list">
-            <li{% if not activeFeed %} class="active"{% endif %}>
+            <li{% if not activeFeed and not bookmarksOnly %} class="active"{% endif %}>
                 <a href="{{ path_with_filters('feed_index') }}">All</a>
                 {% if allItemsCount > 0 %}<span class="count">{{ allItemsCount }}</span>{% endif %}
             </li>
+            {% if bookmarksEnabled and bookmarksCount > 0 %}
+            <li class="bookmarks{% if bookmarksOnly %} active{% endif %}">
+                <a href="{{ path('feed_bookmarks') }}">Bookmarks</a>
+                <span class="count">{{ bookmarksCount }}</span>
+            </li>
+            {% endif %}
             {% for folder, folderFeeds in groupedFeeds %}
             <li class="folder">
                 <span class="folder-name">{{ folder }}</span>
@@ -136,6 +142,19 @@
         </div>
         <footer>
             <a href="{{ path('feed_item_open', {fguid: activeItem.guid, url: activeItem.link}) }}" target="_blank" rel="noopener noreferrer" class="btn-link">Read original</a>
+            {% if bookmarksEnabled %}
+                {% if activeItem.isBookmarked %}
+                    <form action="{% if activeFeed %}{{ path('feed_item_filtered_unbookmark', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path('feed_item_unbookmark', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('bookmark') }}">
+                        <button type="submit" class="btn-link">Remove bookmark</button>
+                    </form>
+                {% else %}
+                    <form action="{% if activeFeed %}{{ path('feed_item_filtered_bookmark', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path('feed_item_bookmark', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('bookmark') }}">
+                        <button type="submit" class="btn-link">Bookmark</button>
+                    </form>
+                {% endif %}
+            {% endif %}
             {% if activeItem.isRead %}
                 <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_unread', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_unread', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline" data-form-mark-unread>
                     <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">

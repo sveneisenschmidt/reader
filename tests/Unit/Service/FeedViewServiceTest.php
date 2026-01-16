@@ -11,6 +11,7 @@
 namespace App\Tests\Unit\Service;
 
 use App\Entity\Subscription;
+use App\Repository\BookmarkStatusRepository;
 use App\Repository\FeedItemRepository;
 use App\Service\FeedViewService;
 use App\Service\SubscriptionService;
@@ -85,6 +86,7 @@ class FeedViewServiceTest extends TestCase
 
         $service = new FeedViewService(
             $feedItemRepository,
+            $this->createBookmarkStatusRepositoryStub(),
             $subscriptionService,
             $this->createUserPreferenceServiceStub(),
         );
@@ -139,6 +141,7 @@ class FeedViewServiceTest extends TestCase
 
         $service = new FeedViewService(
             $feedItemRepository,
+            $this->createBookmarkStatusRepositoryStub(),
             $subscriptionService,
             $this->createUserPreferenceServiceStub(),
         );
@@ -201,6 +204,7 @@ class FeedViewServiceTest extends TestCase
 
         $service = new FeedViewService(
             $feedItemRepository,
+            $this->createBookmarkStatusRepositoryStub(),
             $subscriptionService,
             $this->createUserPreferenceServiceStub(),
         );
@@ -261,6 +265,7 @@ class FeedViewServiceTest extends TestCase
 
         $service = new FeedViewService(
             $feedItemRepository,
+            $this->createBookmarkStatusRepositoryStub(),
             $subscriptionService,
             $this->createUserPreferenceServiceStub(),
         );
@@ -286,6 +291,7 @@ class FeedViewServiceTest extends TestCase
 
         $service = new FeedViewService(
             $feedItemRepository,
+            $this->createBookmarkStatusRepositoryStub(),
             $subscriptionService,
             $this->createUserPreferenceServiceStub(),
         );
@@ -349,6 +355,7 @@ class FeedViewServiceTest extends TestCase
 
         return new FeedViewService(
             $feedItemRepository,
+            $this->createBookmarkStatusRepositoryStub(),
             $subscriptionService,
             $this->createUserPreferenceServiceStub(),
         );
@@ -358,6 +365,14 @@ class FeedViewServiceTest extends TestCase
     {
         $stub = $this->createStub(UserPreferenceService::class);
         $stub->method('getFilterWords')->willReturn([]);
+
+        return $stub;
+    }
+
+    private function createBookmarkStatusRepositoryStub(): BookmarkStatusRepository
+    {
+        $stub = $this->createStub(BookmarkStatusRepository::class);
+        $stub->method('countByUser')->willReturn(0);
 
         return $stub;
     }
@@ -427,6 +442,7 @@ class FeedViewServiceTest extends TestCase
 
         $service = new FeedViewService(
             $feedItemRepository,
+            $this->createBookmarkStatusRepositoryStub(),
             $subscriptionService,
             $userPreferenceService,
         );
@@ -470,6 +486,7 @@ class FeedViewServiceTest extends TestCase
 
         $service = new FeedViewService(
             $feedItemRepository,
+            $this->createBookmarkStatusRepositoryStub(),
             $subscriptionService,
             $this->createUserPreferenceServiceStub(),
         );

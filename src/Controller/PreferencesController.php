@@ -51,6 +51,7 @@ class PreferencesController extends AbstractController
             'pullToRefresh' => $userPrefs[PreferenceKey::PullToRefresh->value],
             'autoMarkRead' => $userPrefs[PreferenceKey::AutoMarkRead->value],
             'keyboardShortcuts' => $userPrefs[PreferenceKey::KeyboardShortcuts->value],
+            'bookmarks' => $userPrefs[PreferenceKey::Bookmarks->value],
             'filterWords' => $userPrefs[PreferenceKey::FilterWords->value],
         ]);
 
@@ -81,6 +82,10 @@ class PreferencesController extends AbstractController
             $this->userPreferenceService->setKeyboardShortcuts(
                 $userId,
                 $data['keyboardShortcuts'],
+            );
+            $this->userPreferenceService->setBookmarks(
+                $userId,
+                $data['bookmarks'],
             );
             $this->userPreferenceService->setFilterWords(
                 $userId,
