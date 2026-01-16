@@ -40,7 +40,11 @@ document.addEventListener("keydown", (e) => {
         case "Space":
             if (!hasActiveItem) return;
             e.preventDefault();
-            document.querySelector("[data-reading-pane] footer form")?.submit();
+            document
+                .querySelector(
+                    "[data-reading-pane] footer form[data-form-mark-read], [data-reading-pane] footer form[data-form-mark-unread]",
+                )
+                ?.submit();
             break;
 
         case "ArrowDown": {
