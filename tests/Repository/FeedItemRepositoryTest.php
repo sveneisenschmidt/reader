@@ -11,6 +11,7 @@
 namespace App\Tests\Repository;
 
 use App\Entity\FeedItem;
+use App\Repository\BookmarkStatusRepository;
 use App\Repository\FeedItemRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -18,12 +19,16 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 class FeedItemRepositoryTest extends KernelTestCase
 {
     private FeedItemRepository $repository;
+    private BookmarkStatusRepository $bookmarkRepository;
 
     protected function setUp(): void
     {
         self::bootKernel();
         $this->repository = static::getContainer()->get(
             FeedItemRepository::class,
+        );
+        $this->bookmarkRepository = static::getContainer()->get(
+            BookmarkStatusRepository::class,
         );
     }
 
@@ -270,6 +275,31 @@ class FeedItemRepositoryTest extends KernelTestCase
         );
 
         $this->assertGreaterThanOrEqual(0, $deleted);
+    }
+
+    #[Test]
+    public function deleteOlderThanDoesNotRemoveBookmarkedItems(): void
+    {
+        $subscriptionGuid = 'bookmarkdel12345';
+        $userId = 994;
+        $oldItemGuid = 'oldbookmarked123';
+
+        $oldItem = $this->createFeedItem(
+            $oldItemGuid,
+            $subscriptionGuid,
+            new \DateTimeImmutable('-30 days'),
+        );
+        $this->repository->upsert($oldItem);
+
+        // Bookmark the item
+        $this->bookmarkRepository->bookmark($userId, $oldItemGuid);
+
+        // Try to delete old items
+        $this->repository->deleteOlderThan(new \DateTimeImmutable('-7 days'));
+
+        // Bookmarked item should still exist
+        $result = $this->repository->findByGuid($oldItemGuid);
+        $this->assertNotNull($result);
     }
 
     #[Test]
