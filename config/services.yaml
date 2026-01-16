@@ -9,6 +9,7 @@ services:
 
     App\:
         resource: "../src/"
+        exclude: "../src/Service/FeedDiscovery/Resolver"
 
     # FeedIo configuration
     Psr\Http\Client\ClientInterface:
@@ -35,3 +36,22 @@ services:
     App\Twig\AssetInlineExtension:
         arguments:
             $publicDir: "%kernel.project_dir%/public"
+
+    App\Service\FeedDiscovery\Resolver\YouTubeChannelResolverService:
+        tags:
+            - { name: "app.feed_resolver", priority: 20 }
+
+    App\Service\FeedDiscovery\Resolver\RedditSubredditResolverService:
+        tags:
+            - { name: "app.feed_resolver", priority: 10 }
+
+    App\Service\FeedDiscovery\Resolver\FeedIoResolverService:
+        tags:
+            - { name: "app.feed_resolver", priority: 0 }
+
+    App\Service\FeedDiscovery\Resolver\ChainedResolverService:
+        arguments:
+            $resolvers: !tagged_iterator app.feed_resolver
+
+    App\Service\FeedDiscovery\FeedResolverInterface:
+        alias: App\Service\FeedDiscovery\Resolver\ChainedResolverService

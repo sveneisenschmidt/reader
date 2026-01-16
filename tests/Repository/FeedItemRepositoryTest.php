@@ -466,4 +466,57 @@ class FeedItemRepositoryTest extends KernelTestCase
         // The item should be included even with unreadOnly=true because it's excluded
         $this->assertNotEmpty($result);
     }
+
+    #[Test]
+    public function getUnreadCountsBySubscriptionFiltersWithFilterWords(): void
+    {
+        $subscriptionGuid = 'filtercnt1234567';
+
+        // Create item with filter word in title
+        $this->repository->upsert(
+            new FeedItem(
+                'filtercnt12345a1',
+                $subscriptionGuid,
+                'Sponsored Content',
+                'https://example.com/sponsored',
+                'Test Source',
+                'Regular excerpt',
+                new \DateTimeImmutable(),
+            ),
+        );
+
+        // Create item without filter word
+        $this->repository->upsert(
+            new FeedItem(
+                'filtercnt12345a2',
+                $subscriptionGuid,
+                'Normal Article',
+                'https://example.com/article',
+                'Test Source',
+                'Regular excerpt',
+                new \DateTimeImmutable(),
+            ),
+        );
+
+        // Without filter words - should count both
+        $countsWithoutFilter = $this->repository->getUnreadCountsBySubscription(
+            [$subscriptionGuid],
+            999,
+            [],
+        );
+
+        // With filter words - should exclude sponsored item
+        $countsWithFilter = $this->repository->getUnreadCountsBySubscription(
+            [$subscriptionGuid],
+            999,
+            ['Sponsored'],
+        );
+
+        $this->assertArrayHasKey($subscriptionGuid, $countsWithoutFilter);
+        $this->assertArrayHasKey($subscriptionGuid, $countsWithFilter);
+        $this->assertGreaterThan(
+            $countsWithFilter[$subscriptionGuid],
+            $countsWithoutFilter[$subscriptionGuid],
+        );
+    }
 }

@@ -59,6 +59,12 @@ Click **Subscriptions** in the header to add, edit, or remove feeds.
 
 **Adding a feed:** Enter a feed URL and click "Subscribe".
 
+Reader automatically detects and resolves feeds from various sources:
+
+- **Standard RSS/Atom feeds** - Direct feed URLs
+- **YouTube channels** - Paste any YouTube channel URL
+- **Reddit subreddits** - Paste any subreddit URL, resolves to top weekly posts
+
 **Editing a feed:** Change the title and click "Save".
 
 **Removing a feed:** Click "Unsubscribe" next to the feed you want to remove.

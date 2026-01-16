@@ -437,4 +437,50 @@ class FeedViewServiceTest extends TestCase
         $this->assertEquals('guid1', $result['items'][0]['guid']);
         $this->assertEquals('guid3', $result['items'][1]['guid']);
     }
+
+    #[Test]
+    public function getViewDataGroupsFeedsByFolder(): void
+    {
+        $userId = 1;
+
+        $subscription1 = $this->createStub(Subscription::class);
+        $subscription1->method('getGuid')->willReturn('sguid1');
+        $subscription1->method('getName')->willReturn('Feed 1');
+
+        $subscription2 = $this->createStub(Subscription::class);
+        $subscription2->method('getGuid')->willReturn('sguid2');
+        $subscription2->method('getName')->willReturn('Feed 2');
+
+        $subscriptionService = $this->createStub(SubscriptionService::class);
+        $subscriptionService
+            ->method('getSubscriptionsForUser')
+            ->willReturn([$subscription1, $subscription2]);
+        $subscriptionService
+            ->method('getSubscriptionsWithUnreadCounts')
+            ->willReturn([
+                ['guid' => 'sguid1', 'name' => 'Feed 1', 'folder' => 'Tech'],
+                ['guid' => 'sguid2', 'name' => 'Feed 2', 'folder' => null],
+            ]);
+
+        $feedItemRepository = $this->createStub(FeedItemRepository::class);
+        $feedItemRepository
+            ->method('getUnreadCountsBySubscription')
+            ->willReturn([]);
+        $feedItemRepository->method('findItemsWithStatus')->willReturn([]);
+
+        $service = new FeedViewService(
+            $feedItemRepository,
+            $subscriptionService,
+            $this->createUserPreferenceServiceStub(),
+        );
+
+        $result = $service->getViewData($userId);
+
+        $this->assertArrayHasKey('groupedFeeds', $result);
+        $this->assertArrayHasKey('ungroupedFeeds', $result);
+        $this->assertArrayHasKey('Tech', $result['groupedFeeds']);
+        $this->assertCount(1, $result['groupedFeeds']['Tech']);
+        $this->assertCount(1, $result['ungroupedFeeds']);
+        $this->assertEquals('sguid2', $result['ungroupedFeeds'][0]['guid']);
+    }
 }

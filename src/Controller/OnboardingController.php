@@ -13,7 +13,7 @@ namespace App\Controller;
 use App\Enum\MessageSource;
 use App\Form\FirstFeedType;
 use App\Message\RefreshFeedsMessage;
-use App\Service\FeedDiscoveryService;
+use App\Service\FeedDiscovery\FeedResolverInterface;
 use App\Service\SubscriptionService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,7 +27,7 @@ class OnboardingController extends AbstractController
     public function __construct(
         private UserService $userService,
         private SubscriptionService $subscriptionService,
-        private FeedDiscoveryService $feedDiscoveryService,
+        private FeedResolverInterface $feedResolver,
         private MessageBusInterface $messageBus,
     ) {
     }
@@ -48,15 +48,17 @@ class OnboardingController extends AbstractController
             $data = $form->getData();
             $inputUrl = $data['feedUrl'];
 
-            $result = $this->feedDiscoveryService->resolveToFeedUrl($inputUrl);
-            if ($result['error'] !== null) {
+            $result = $this->feedResolver->resolve($inputUrl);
+            if ($result->getError() !== null) {
                 $form
                     ->get('feedUrl')
                     ->addError(
-                        new \Symfony\Component\Form\FormError($result['error']),
+                        new \Symfony\Component\Form\FormError(
+                            $result->getError(),
+                        ),
                     );
             } else {
-                $feedUrl = $result['feedUrl'];
+                $feedUrl = $result->getFeedUrl();
                 $user = $this->userService->getCurrentUser();
 
                 $this->subscriptionService->addSubscription(

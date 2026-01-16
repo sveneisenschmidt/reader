@@ -11,7 +11,7 @@
 namespace App\Controller;
 
 use App\Form\SubscriptionsType;
-use App\Service\FeedDiscoveryService;
+use App\Service\FeedDiscovery\FeedResolverInterface;
 use App\Service\SubscriptionService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,7 +25,7 @@ class SubscriptionController extends AbstractController
     public function __construct(
         private SubscriptionService $subscriptionService,
         private UserService $userService,
-        private FeedDiscoveryService $feedDiscoveryService,
+        private FeedResolverInterface $feedResolver,
     ) {
     }
 
@@ -76,18 +76,16 @@ class SubscriptionController extends AbstractController
             // Handle new subscription
             $newData = $data['new'];
             if (!empty($newData['url'])) {
-                $result = $this->feedDiscoveryService->resolveToFeedUrl(
-                    $newData['url'],
-                );
+                $result = $this->feedResolver->resolve($newData['url']);
 
-                if ($result['error'] !== null) {
+                if ($result->getError() !== null) {
                     $form
                         ->get('new')
                         ->get('url')
-                        ->addError(new FormError($result['error']));
+                        ->addError(new FormError($result->getError()));
                     $hasError = true;
                 } else {
-                    $feedUrl = $result['feedUrl'];
+                    $feedUrl = $result->getFeedUrl();
 
                     // Check if feed already exists
                     $existingUrls = array_map(
