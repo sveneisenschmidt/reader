@@ -16,8 +16,13 @@ header h1 .back {
         border-right: 1px solid var(--color-border);
         padding: var(--spacing-md);
         overflow-y: auto;
+        scrollbar-width: none;
         display: flex;
         flex-direction: column;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
 
         & > ul {
             list-style: none;
