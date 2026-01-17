@@ -23,7 +23,7 @@ class SubscriptionControllerTest extends WebTestCase
     public function subscriptionsPageRedirectsWhenNotAuthenticated(): void
     {
         $client = static::createClient();
-        $client->request("GET", "/subscriptions");
+        $client->request('GET', '/subscriptions');
 
         $this->assertResponseRedirects();
     }
@@ -34,7 +34,7 @@ class SubscriptionControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $client->request("GET", "/subscriptions");
+        $client->request('GET', '/subscriptions');
 
         $this->assertResponseIsSuccessful();
     }
@@ -45,10 +45,10 @@ class SubscriptionControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $crawler = $client->request('GET', '/subscriptions');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists("form");
+        $this->assertSelectorExists('form');
         $this->assertSelectorExists('input[name="subscriptions[new][url]"]');
     }
 
@@ -58,7 +58,7 @@ class SubscriptionControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $client->request("GET", "/subscriptions");
+        $client->request('GET', '/subscriptions');
 
         $this->assertSelectorExists('input[name="subscriptions[_token]"]');
     }
@@ -69,7 +69,7 @@ class SubscriptionControllerTest extends WebTestCase
         $client = static::createClient();
         $this->loginAsTestUser($client);
 
-        $client->request("GET", "/subscriptions");
+        $client->request('GET', '/subscriptions');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('button[name="subscriptions[add]"]');
@@ -82,10 +82,10 @@ class SubscriptionControllerTest extends WebTestCase
         $this->loginAsTestUser($client);
         $this->createTestSubscription();
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $crawler = $client->request('GET', '/subscriptions');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists(".page-section--bordered");
+        $this->assertSelectorExists('.page-section--bordered');
         $this->assertSelectorExists(
             'button[name="subscriptions[existing][0][save]"]',
         );
@@ -98,7 +98,7 @@ class SubscriptionControllerTest extends WebTestCase
         $this->loginAsTestUser($client);
         $this->createTestSubscription();
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $crawler = $client->request('GET', '/subscriptions');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists(
@@ -113,18 +113,18 @@ class SubscriptionControllerTest extends WebTestCase
         $this->loginAsTestUser($client);
         $this->deleteAllSubscriptionsForTestUser();
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $crawler = $client->request('GET', '/subscriptions');
 
-        $form = $crawler->selectButton("Subscribe")->form();
-        $form["subscriptions[new][url]"] = "https://example.com/new-feed.xml";
+        $form = $crawler->selectButton('Subscribe')->form();
+        $form['subscriptions[new][url]'] = 'https://example.com/new-feed.xml';
 
         $client->submit($form);
 
-        $this->assertResponseRedirects("/subscriptions");
+        $this->assertResponseRedirects('/subscriptions');
         $client->followRedirect();
 
-        $this->assertSelectorExists("p.flash-success");
-        $this->assertSelectorTextContains("p.flash-success", "Feed added");
+        $this->assertSelectorExists('p.flash-success');
+        $this->assertSelectorTextContains('p.flash-success', 'Feed added');
     }
 
     #[Test]
@@ -135,15 +135,15 @@ class SubscriptionControllerTest extends WebTestCase
         $this->deleteAllSubscriptionsForTestUser();
         $this->createTestSubscription();
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $crawler = $client->request('GET', '/subscriptions');
 
-        $form = $crawler->selectButton("Subscribe")->form();
-        $form["subscriptions[new][url]"] = "https://example.com/feed.xml";
+        $form = $crawler->selectButton('Subscribe')->form();
+        $form['subscriptions[new][url]'] = 'https://example.com/feed.xml';
 
         $client->submit($form);
 
-        $this->assertSelectorExists("p.form-error");
-        $this->assertSelectorTextContains("p.form-error", "already subscribed");
+        $this->assertSelectorExists('p.form-error');
+        $this->assertSelectorTextContains('p.form-error', 'already subscribed');
     }
 
     #[Test]
@@ -154,16 +154,16 @@ class SubscriptionControllerTest extends WebTestCase
         $this->deleteAllSubscriptionsForTestUser();
         $this->createTestSubscription();
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $crawler = $client->request('GET', '/subscriptions');
 
-        $form = $crawler->selectButton("Remove")->form();
+        $form = $crawler->selectButton('Remove')->form();
         $client->submit($form);
 
-        $this->assertResponseRedirects("/subscriptions");
+        $this->assertResponseRedirects('/subscriptions');
         $client->followRedirect();
 
-        $this->assertSelectorExists("p.flash-success");
-        $this->assertSelectorTextContains("p.flash-success", "Feed removed");
+        $this->assertSelectorExists('p.flash-success');
+        $this->assertSelectorTextContains('p.flash-success', 'Feed removed');
     }
 
     #[Test]
@@ -174,18 +174,18 @@ class SubscriptionControllerTest extends WebTestCase
         $this->deleteAllSubscriptionsForTestUser();
         $this->createTestSubscription();
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $crawler = $client->request('GET', '/subscriptions');
 
-        $form = $crawler->selectButton("Update")->form();
-        $form["subscriptions[existing][0][name]"] = "Updated Feed Name";
+        $form = $crawler->selectButton('Update')->form();
+        $form['subscriptions[existing][0][name]'] = 'Updated Feed Name';
 
         $client->submit($form);
 
-        $this->assertResponseRedirects("/subscriptions");
+        $this->assertResponseRedirects('/subscriptions');
         $client->followRedirect();
 
-        $this->assertSelectorExists("p.flash-success");
-        $this->assertSelectorTextContains("p.flash-success", "Feed updated");
+        $this->assertSelectorExists('p.flash-success');
+        $this->assertSelectorTextContains('p.flash-success', 'Feed updated');
     }
 
     #[Test]
@@ -196,12 +196,12 @@ class SubscriptionControllerTest extends WebTestCase
         $this->deleteAllSubscriptionsForTestUser();
         $this->createTestSubscription();
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $crawler = $client->request('GET', '/subscriptions');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains(
-            ".subscription-item__url",
-            "https://example.com/feed.xml",
+            '.subscription-item__url',
+            'https://example.com/feed.xml',
         );
     }
 
@@ -212,14 +212,14 @@ class SubscriptionControllerTest extends WebTestCase
         $user = $this->loginAsTestUser($client);
         $this->deleteAllSubscriptionsForTestUser();
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $crawler = $client->request('GET', '/subscriptions');
 
-        $form = $crawler->selectButton("Subscribe")->form();
-        $form["subscriptions[new][url]"] = "https://example.com/new-feed.xml";
+        $form = $crawler->selectButton('Subscribe')->form();
+        $form['subscriptions[new][url]'] = 'https://example.com/new-feed.xml';
 
         $client->submit($form);
 
-        $this->assertResponseRedirects("/subscriptions");
+        $this->assertResponseRedirects('/subscriptions');
 
         // Verify the subscription has a refresh timestamp
         $container = static::getContainer();
@@ -231,7 +231,7 @@ class SubscriptionControllerTest extends WebTestCase
         $this->assertCount(1, $subscriptions);
         $this->assertNotNull(
             $subscriptions[0]->getLastRefreshedAt(),
-            "New subscription should have refresh timestamp set",
+            'New subscription should have refresh timestamp set',
         );
     }
 
@@ -242,15 +242,15 @@ class SubscriptionControllerTest extends WebTestCase
         $this->loginAsTestUser($client);
         $this->deleteAllSubscriptionsForTestUser();
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $crawler = $client->request('GET', '/subscriptions');
 
-        $form = $crawler->selectButton("Subscribe")->form();
-        $form["subscriptions[new][url]"] =
-            "https://example.com/invalid-feed.xml";
+        $form = $crawler->selectButton('Subscribe')->form();
+        $form['subscriptions[new][url]'] =
+            'https://example.com/invalid-feed.xml';
 
         $client->submit($form);
 
-        $this->assertSelectorExists("p.form-error");
+        $this->assertSelectorExists('p.form-error');
     }
 
     #[Test]
@@ -261,7 +261,7 @@ class SubscriptionControllerTest extends WebTestCase
         $this->deleteAllSubscriptionsForTestUser();
         $this->createTestSubscription();
 
-        $client->request("GET", "/subscriptions");
+        $client->request('GET', '/subscriptions');
 
         $this->assertSelectorExists('input[name*="useArchiveIs"]');
     }
@@ -274,17 +274,17 @@ class SubscriptionControllerTest extends WebTestCase
         $this->deleteAllSubscriptionsForTestUser();
         $this->createTestSubscription();
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $crawler = $client->request('GET', '/subscriptions');
 
-        $form = $crawler->selectButton("Update")->form();
-        $form["subscriptions[existing][0][useArchiveIs]"]->tick();
+        $form = $crawler->selectButton('Update')->form();
+        $form['subscriptions[existing][0][useArchiveIs]']->tick();
 
         $client->submit($form);
 
-        $this->assertResponseRedirects("/subscriptions");
+        $this->assertResponseRedirects('/subscriptions');
         $client->followRedirect();
 
-        $this->assertSelectorExists("p.flash-success");
+        $this->assertSelectorExists('p.flash-success');
     }
 
     #[Test]
@@ -295,10 +295,10 @@ class SubscriptionControllerTest extends WebTestCase
         $this->deleteAllSubscriptionsForTestUser();
         $subscription = $this->createTestSubscription();
 
-        $crawler = $client->request("GET", "/subscriptions");
+        $crawler = $client->request('GET', '/subscriptions');
 
-        $form = $crawler->selectButton("Update")->form();
-        $form["subscriptions[existing][0][useArchiveIs]"]->tick();
+        $form = $crawler->selectButton('Update')->form();
+        $form['subscriptions[existing][0][useArchiveIs]']->tick();
 
         $client->submit($form);
 
