@@ -44,6 +44,7 @@ class SubscriptionController extends AbstractController
                 'url' => $subscription->getUrl(),
                 'name' => $subscription->getName(),
                 'folder' => $subscription->getFolder(),
+                'useArchiveIs' => $subscription->getUseArchiveIs(),
             ];
         }
 
@@ -57,7 +58,7 @@ class SubscriptionController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            // Check if a remove button was clicked
+            // Check if a remove or save button was clicked for a specific subscription
             foreach ($form->get('existing') as $index => $subscriptionForm) {
                 if ($subscriptionForm->get('remove')->isClicked()) {
                     $guid = $data['existing'][$index]['guid'];
@@ -66,6 +67,20 @@ class SubscriptionController extends AbstractController
                         $guid,
                     );
                     $this->addFlash('success', 'Feed removed.');
+
+                    return $this->redirectToRoute('subscriptions');
+                }
+
+                if ($subscriptionForm->get('save')->isClicked()) {
+                    $item = $data['existing'][$index];
+                    $this->subscriptionService->updateSubscription(
+                        $user->getId(),
+                        $item['guid'],
+                        $item['name'],
+                        $item['folder'] ?? null,
+                        $item['useArchiveIs'] ?? false,
+                    );
+                    $this->addFlash('success', 'Feed updated.');
 
                     return $this->redirectToRoute('subscriptions');
                 }
@@ -117,45 +132,7 @@ class SubscriptionController extends AbstractController
                 }
             }
 
-            // Handle existing subscriptions updates
             if (!$hasError) {
-                $updatedCount = 0;
-                foreach ($data['existing'] as $item) {
-                    $guid = $item['guid'];
-
-                    $subscription = $this->subscriptionService->getSubscriptionByGuid(
-                        $user->getId(),
-                        $guid,
-                    );
-
-                    if ($subscription) {
-                        $nameChanged =
-                            $item['name'] !== $subscription->getName();
-                        $folderChanged =
-                            ($item['folder'] ?? null) !==
-                            $subscription->getFolder();
-
-                        if ($nameChanged || $folderChanged) {
-                            $this->subscriptionService->updateSubscription(
-                                $user->getId(),
-                                $guid,
-                                $item['name'],
-                                $item['folder'] ?? null,
-                            );
-                            ++$updatedCount;
-                        }
-                    }
-                }
-
-                if ($updatedCount > 0) {
-                    $this->addFlash(
-                        'success',
-                        $updatedCount === 1
-                            ? 'Feed updated.'
-                            : 'Feeds updated.',
-                    );
-                }
-
                 return $this->redirectToRoute('subscriptions');
             }
         }

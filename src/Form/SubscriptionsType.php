@@ -36,9 +36,6 @@ class SubscriptionsType extends AbstractType
                 'label' => false,
                 'required' => false,
             ])
-            ->add('save', SubmitType::class, [
-                'label' => 'Update',
-            ])
             ->add('add', SubmitType::class, [
                 'label' => 'Subscribe',
             ]);

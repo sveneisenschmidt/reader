@@ -184,6 +184,7 @@ class SubscriptionService
         string $guid,
         string $name,
         ?string $folder,
+        bool $useArchiveIs = false,
     ): void {
         $subscription = $this->subscriptionRepository->findByGuid(
             $userId,
@@ -192,6 +193,7 @@ class SubscriptionService
         if ($subscription) {
             $subscription->setName($name);
             $subscription->setFolder($folder);
+            $subscription->setUseArchiveIs($useArchiveIs);
             $this->subscriptionRepository->flush();
         }
     }

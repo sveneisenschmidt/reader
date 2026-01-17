@@ -10,6 +10,7 @@
 
 namespace App\Controller;
 
+use App\Domain\Feed\Repository\SubscriptionRepository;
 use App\Domain\Feed\Service\FeedItemService;
 use App\Domain\Feed\Service\FeedViewService;
 use App\Domain\ItemStatus\Service\BookmarkService;
@@ -38,6 +39,7 @@ class FeedItemController extends AbstractController
         private FeedViewService $feedViewService,
         private UrlValidatorService $urlValidatorService,
         private CsrfTokenManagerInterface $csrfTokenManager,
+        private SubscriptionRepository $subscriptionRepository,
     ) {
     }
 
@@ -298,7 +300,13 @@ class FeedItemController extends AbstractController
 
         $feedItem = $this->feedItemService->findByGuid($fguid);
 
-        if (!$feedItem || !$this->urlValidatorService->isUrlAllowedForFeedItem($url, $feedItem)) {
+        if (
+            !$feedItem
+            || !$this->urlValidatorService->isUrlAllowedForFeedItem(
+                $url,
+                $feedItem,
+            )
+        ) {
             return $this->redirectToRoute('feed_item', ['fguid' => $fguid]);
         }
 
@@ -308,7 +316,16 @@ class FeedItemController extends AbstractController
         $this->readStatusService->markAsRead($userId, $fguid);
         $this->seenStatusService->markAsSeen($userId, $fguid);
 
-        return $this->redirect($url);
+        $subscription = $this->subscriptionRepository->findBySubscriptionGuid(
+            $feedItem->getSubscriptionGuid(),
+        );
+
+        $finalUrl = $url;
+        if ($subscription?->getUseArchiveIs()) {
+            $finalUrl = 'https://archive.is/newest/'.$url;
+        }
+
+        return $this->redirect($finalUrl);
     }
 
     private function validateCsrfToken(Request $request, string $tokenId): void

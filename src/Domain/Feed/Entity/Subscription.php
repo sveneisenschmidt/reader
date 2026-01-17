@@ -49,6 +49,9 @@ class Subscription
     #[ORM\Column(type: 'string', length: 20)]
     private string $status = 'pending';
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $useArchiveIs = false;
+
     public function __construct(
         int $userId,
         string $url,
@@ -138,6 +141,18 @@ class Subscription
     public function setStatus(SubscriptionStatus $status): self
     {
         $this->status = $status->value;
+
+        return $this;
+    }
+
+    public function getUseArchiveIs(): bool
+    {
+        return $this->useArchiveIs;
+    }
+
+    public function setUseArchiveIs(bool $useArchiveIs): self
+    {
+        $this->useArchiveIs = $useArchiveIs;
 
         return $this;
     }

@@ -82,6 +82,11 @@ class SubscriptionRepository extends ServiceEntityRepository
         return $this->findByUserIdAndGuid($userId, $guid);
     }
 
+    public function findBySubscriptionGuid(string $guid): ?Subscription
+    {
+        return $this->findOneBy(['guid' => $guid]);
+    }
+
     public function updateName(int $userId, string $guid, string $name): void
     {
         $subscription = $this->findByUserIdAndGuid($userId, $guid);

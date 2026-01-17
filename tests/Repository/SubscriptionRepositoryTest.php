@@ -356,4 +356,28 @@ class SubscriptionRepositoryTest extends KernelTestCase
 
         $this->assertInstanceOf(\DateTimeImmutable::class, $result);
     }
+
+    #[Test]
+    public function findBySubscriptionGuidReturnsSubscription(): void
+    {
+        $this->repository->addSubscription(
+            $this->testUserId,
+            'https://example.com/archive-test.xml',
+            'Archive Test Feed',
+            'archivetest12345',
+        );
+
+        $result = $this->repository->findBySubscriptionGuid('archivetest12345');
+
+        $this->assertNotNull($result);
+        $this->assertEquals('archivetest12345', $result->getGuid());
+    }
+
+    #[Test]
+    public function findBySubscriptionGuidReturnsNullForNonexistent(): void
+    {
+        $result = $this->repository->findBySubscriptionGuid('nonexistent99999');
+
+        $this->assertNull($result);
+    }
 }

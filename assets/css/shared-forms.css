@@ -33,6 +33,11 @@
     justify-content: flex-end;
 }
 
+/* Form actions space between */
+.form-actions--space-between {
+    justify-content: space-between;
+}
+
 /* Labels */
 .form label,
 .form-row label {

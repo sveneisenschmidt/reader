@@ -180,4 +180,32 @@ class SubscriptionTest extends TestCase
             $this->assertEquals($status, $subscription->getStatus());
         }
     }
+
+    #[Test]
+    public function useArchiveIsDefaultsToFalse(): void
+    {
+        $subscription = $this->createSubscription();
+
+        $this->assertFalse($subscription->getUseArchiveIs());
+    }
+
+    #[Test]
+    public function setUseArchiveIsUpdatesValue(): void
+    {
+        $subscription = $this->createSubscription();
+
+        $subscription->setUseArchiveIs(true);
+
+        $this->assertTrue($subscription->getUseArchiveIs());
+    }
+
+    #[Test]
+    public function setUseArchiveIsReturnsSelf(): void
+    {
+        $subscription = $this->createSubscription();
+
+        $result = $subscription->setUseArchiveIs(true);
+
+        $this->assertSame($subscription, $result);
+    }
 }

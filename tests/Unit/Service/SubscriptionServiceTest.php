@@ -409,6 +409,10 @@ class SubscriptionServiceTest extends TestCase
             ->expects($this->once())
             ->method('setFolder')
             ->with($folder);
+        $subscription
+            ->expects($this->once())
+            ->method('setUseArchiveIs')
+            ->with(false);
 
         $repository = $this->createMock(SubscriptionRepository::class);
         $repository
@@ -421,6 +425,45 @@ class SubscriptionServiceTest extends TestCase
         $service = $this->createService(subscriptionRepository: $repository);
 
         $service->updateSubscription($userId, $guid, $name, $folder);
+    }
+
+    #[Test]
+    public function updateSubscriptionSetsUseArchiveIs(): void
+    {
+        $userId = 1;
+        $guid = 'test-guid';
+        $name = 'Name';
+        $folder = null;
+        $useArchiveIs = true;
+
+        $subscription = $this->createMock(Subscription::class);
+        $subscription->expects($this->once())->method('setName')->with($name);
+        $subscription
+            ->expects($this->once())
+            ->method('setFolder')
+            ->with($folder);
+        $subscription
+            ->expects($this->once())
+            ->method('setUseArchiveIs')
+            ->with($useArchiveIs);
+
+        $repository = $this->createMock(SubscriptionRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('findByGuid')
+            ->with($userId, $guid)
+            ->willReturn($subscription);
+        $repository->expects($this->once())->method('flush');
+
+        $service = $this->createService(subscriptionRepository: $repository);
+
+        $service->updateSubscription(
+            $userId,
+            $guid,
+            $name,
+            $folder,
+            $useArchiveIs,
+        );
     }
 
     #[Test]

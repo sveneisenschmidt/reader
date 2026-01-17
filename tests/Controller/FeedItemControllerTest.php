@@ -10,6 +10,7 @@
 
 namespace App\Tests\Controller;
 
+use App\Domain\Feed\Repository\SubscriptionRepository;
 use App\Tests\Trait\AuthenticatedTestTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -964,5 +965,55 @@ class FeedItemControllerTest extends WebTestCase
                 'fedcba9876543210',
             ),
         );
+    }
+
+    #[Test]
+    public function openRouteWithArchiveIsEnabledRedirectsToArchiveIs(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItemContainingLink($client);
+
+        // Enable archive.is for the subscription
+        $subscriptionRepo = static::getContainer()->get(
+            SubscriptionRepository::class,
+        );
+        $subscription = $subscriptionRepo->findBySubscriptionGuid(
+            '0123456789abcdef',
+        );
+        $subscription->setUseArchiveIs(true);
+        $subscriptionRepo->flush();
+
+        $client->request(
+            'GET',
+            '/f/fedcba9876543210/open?url=https://example.com/article',
+        );
+
+        $this->assertResponseRedirects(
+            'https://archive.is/newest/https://example.com/article',
+        );
+    }
+
+    #[Test]
+    public function openRouteWithArchiveIsDisabledRedirectsToOriginalUrl(): void
+    {
+        $client = static::createClient();
+        $this->ensureTestUserHasSubscriptionWithItemContainingLink($client);
+
+        // Ensure archive.is is disabled
+        $subscriptionRepo = static::getContainer()->get(
+            SubscriptionRepository::class,
+        );
+        $subscription = $subscriptionRepo->findBySubscriptionGuid(
+            '0123456789abcdef',
+        );
+        $subscription->setUseArchiveIs(false);
+        $subscriptionRepo->flush();
+
+        $client->request(
+            'GET',
+            '/f/fedcba9876543210/open?url=https://example.com/article',
+        );
+
+        $this->assertResponseRedirects('https://example.com/article');
     }
 }

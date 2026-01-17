@@ -4,8 +4,77 @@
 
 #subscriptions {
     --width-content: 768px;
+}
 
-    & .form-row p a {
-        word-break: break-all;
+/* Subscription item (details element) */
+.subscription-item {
+    margin-bottom: 0;
+}
+
+/* Summary (clickable header) */
+.subscription-item__summary {
+    padding: var(--spacing-sm) 0;
+    cursor: pointer;
+    font-weight: var(--font-weight-medium);
+    list-style: none;
+
+    &::-webkit-details-marker {
+        display: none;
+    }
+
+    &::before {
+        content: "\25B6";
+        display: inline-block;
+        margin-right: var(--spacing-sm);
+        font-size: 0.75em;
+        transition: transform 0.2s;
+    }
+
+    &:hover {
+        color: var(--color-link);
+    }
+}
+
+/* URL link */
+.subscription-item__url {
+    color: var(--color-text-muted);
+    word-break: break-all;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+/* Rotate arrow when open */
+.subscription-item[open] > .subscription-item__summary::before {
+    transform: rotate(90deg);
+}
+
+/* Content area */
+.subscription-item__content {
+    padding: var(--spacing-md) 0 var(--spacing-lg);
+}
+
+/* Two-column layout for Name/Folder */
+.form-row--two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+
+    @media (width < 600px) {
+        grid-template-columns: 1fr;
+    }
+
+    & > div {
+        & label {
+            display: block;
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        & p {
+            margin-top: var(--spacing-xs);
+        }
     }
 }
