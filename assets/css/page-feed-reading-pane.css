@@ -89,8 +89,8 @@
     #feed > article {
         display: none;
         width: 100%;
-        min-height: calc(100dvh - 8rem);
-        overflow: visible;
+        height: 100%;
+        overflow-y: auto;
 
         & > a:first-child {
             display: block;
@@ -104,7 +104,6 @@
 
         & > div {
             padding: var(--spacing-md);
-            overflow: visible;
         }
 
         & > footer {

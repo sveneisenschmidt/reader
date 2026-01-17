@@ -256,7 +256,7 @@ header h1 .back {
 @media (width <= 768px) {
     #feed {
         display: block;
-        overflow-y: auto;
+        overflow: hidden;
 
         & aside {
             display: none;
@@ -266,6 +266,7 @@ header h1 .back {
 
         & > section {
             border-right: none;
+            height: 100%;
         }
     }
 

@@ -5,8 +5,6 @@
  * Desktop only - mobile uses native scroll restoration.
  */
 (function () {
-    if (window.matchMedia("(max-width: 768px)").matches) return;
-
     const element = document.querySelector("[data-reading-list]");
     if (!element) return;
 
