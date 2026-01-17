@@ -19,11 +19,34 @@ use App\Domain\User\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+/**
+ * Trait for authenticated controller tests with database isolation.
+ *
+ * This trait provides test user authentication helpers and ensures
+ * database isolation between tests using transaction rollback.
+ */
 trait AuthenticatedTestTrait
 {
     private ?User $testUser = null;
 
+    protected function tearDown(): void
+    {
+        $this->testUser = null;
+        parent::tearDown();
+    }
+
     private function loginAsTestUser(KernelBrowser $client): User
+    {
+        $user = $this->ensureTestUserExists();
+        $client->loginUser($user);
+
+        return $user;
+    }
+
+    /**
+     * Ensures a test user exists in the database without logging in.
+     */
+    private function ensureTestUserExists(): User
     {
         $container = static::getContainer();
         $userRepository = $container->get(UserRepository::class);
@@ -41,7 +64,6 @@ trait AuthenticatedTestTrait
         }
 
         $this->testUser = $user;
-        $client->loginUser($user);
 
         return $user;
     }

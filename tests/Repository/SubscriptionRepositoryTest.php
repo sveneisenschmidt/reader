@@ -11,33 +11,23 @@
 namespace App\Tests\Repository;
 
 use App\Domain\Feed\Repository\SubscriptionRepository;
+use App\Tests\Trait\DatabaseIsolationTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SubscriptionRepositoryTest extends KernelTestCase
 {
+    use DatabaseIsolationTrait;
+
     private SubscriptionRepository $repository;
     private int $testUserId = 99999;
 
     protected function setUp(): void
     {
-        self::bootKernel();
+        parent::setUp();
         $this->repository = static::getContainer()->get(
             SubscriptionRepository::class,
         );
-    }
-
-    protected function tearDown(): void
-    {
-        // Clean up test subscriptions
-        $subscriptions = $this->repository->findByUserId($this->testUserId);
-        foreach ($subscriptions as $subscription) {
-            $this->repository->removeSubscription(
-                $this->testUserId,
-                $subscription->getGuid(),
-            );
-        }
-        parent::tearDown();
     }
 
     #[Test]

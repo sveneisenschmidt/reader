@@ -11,16 +11,19 @@
 namespace App\Tests\Repository;
 
 use App\Domain\ItemStatus\Repository\SeenStatusRepository;
+use App\Tests\Trait\DatabaseIsolationTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class SeenStatusRepositoryTest extends KernelTestCase
 {
+    use DatabaseIsolationTrait;
+
     private SeenStatusRepository $repository;
 
     protected function setUp(): void
     {
-        self::bootKernel();
+        parent::setUp();
         $this->repository = static::getContainer()->get(
             SeenStatusRepository::class,
         );

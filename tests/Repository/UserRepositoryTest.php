@@ -11,16 +11,19 @@
 namespace App\Tests\Repository;
 
 use App\Domain\User\Repository\UserRepository;
+use App\Tests\Trait\DatabaseIsolationTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class UserRepositoryTest extends KernelTestCase
 {
+    use DatabaseIsolationTrait;
+
     private UserRepository $repository;
 
     protected function setUp(): void
     {
-        self::bootKernel();
+        parent::setUp();
         $this->repository = static::getContainer()->get(UserRepository::class);
     }
 

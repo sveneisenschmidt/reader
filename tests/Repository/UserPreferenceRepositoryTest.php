@@ -12,16 +12,19 @@ namespace App\Tests\Repository;
 
 use App\Domain\User\Repository\UserPreferenceRepository;
 use App\Enum\PreferenceKey;
+use App\Tests\Trait\DatabaseIsolationTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class UserPreferenceRepositoryTest extends KernelTestCase
 {
+    use DatabaseIsolationTrait;
+
     private UserPreferenceRepository $repository;
 
     protected function setUp(): void
     {
-        self::bootKernel();
+        parent::setUp();
         $this->repository = static::getContainer()->get(
             UserPreferenceRepository::class,
         );

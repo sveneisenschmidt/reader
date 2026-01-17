@@ -14,17 +14,20 @@ use App\Domain\Feed\Entity\FeedItem;
 use App\Domain\Feed\Repository\FeedItemQueryCriteria;
 use App\Domain\Feed\Repository\FeedItemRepository;
 use App\Domain\ItemStatus\Repository\BookmarkStatusRepository;
+use App\Tests\Trait\DatabaseIsolationTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class FeedItemRepositoryTest extends KernelTestCase
 {
+    use DatabaseIsolationTrait;
+
     private FeedItemRepository $repository;
     private BookmarkStatusRepository $bookmarkRepository;
 
     protected function setUp(): void
     {
-        self::bootKernel();
+        parent::setUp();
         $this->repository = static::getContainer()->get(
             FeedItemRepository::class,
         );

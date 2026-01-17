@@ -50,6 +50,10 @@ class FeedViewControllerTest extends WebTestCase
     public function indexPageRedirectsToLoginWhenNotAuthenticated(): void
     {
         $client = static::createClient();
+
+        // Ensure a user exists but don't log in
+        $this->ensureTestUserExists();
+
         $client->request('GET', '/');
 
         $this->assertResponseRedirects('/login');
@@ -305,7 +309,7 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        // Clean up any bookmarks from previous tests
+        // Ensure no bookmarks exist for the test item
         $bookmarkService = static::getContainer()->get(
             \App\Domain\ItemStatus\Service\BookmarkService::class,
         );
@@ -334,9 +338,6 @@ class FeedViewControllerTest extends WebTestCase
         $client->request('GET', '/bookmarks');
 
         $this->assertResponseRedirects('/');
-
-        // Re-enable bookmarks for other tests
-        $userPreferenceService->setBookmarks($this->testUser->getId(), true);
     }
 
     #[Test]
@@ -364,11 +365,5 @@ class FeedViewControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('main#feed');
-
-        // Clean up
-        $bookmarkService->unbookmark(
-            $this->testUser->getId(),
-            'fedcba9876543210',
-        );
     }
 }

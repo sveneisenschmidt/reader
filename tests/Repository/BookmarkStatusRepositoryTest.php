@@ -11,16 +11,19 @@
 namespace App\Tests\Repository;
 
 use App\Domain\ItemStatus\Repository\BookmarkStatusRepository;
+use App\Tests\Trait\DatabaseIsolationTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class BookmarkStatusRepositoryTest extends KernelTestCase
 {
+    use DatabaseIsolationTrait;
+
     private BookmarkStatusRepository $repository;
 
     protected function setUp(): void
     {
-        self::bootKernel();
+        parent::setUp();
         $this->repository = static::getContainer()->get(
             BookmarkStatusRepository::class,
         );
@@ -32,11 +35,15 @@ class BookmarkStatusRepositoryTest extends KernelTestCase
         $userId = 1;
         $feedItemGuid = 'bookmark-test-new';
 
-        $this->assertFalse($this->repository->isBookmarked($userId, $feedItemGuid));
+        $this->assertFalse(
+            $this->repository->isBookmarked($userId, $feedItemGuid),
+        );
 
         $this->repository->bookmark($userId, $feedItemGuid);
 
-        $this->assertTrue($this->repository->isBookmarked($userId, $feedItemGuid));
+        $this->assertTrue(
+            $this->repository->isBookmarked($userId, $feedItemGuid),
+        );
     }
 
     #[Test]
@@ -48,7 +55,9 @@ class BookmarkStatusRepositoryTest extends KernelTestCase
         $this->repository->bookmark($userId, $feedItemGuid);
         $this->repository->bookmark($userId, $feedItemGuid);
 
-        $this->assertTrue($this->repository->isBookmarked($userId, $feedItemGuid));
+        $this->assertTrue(
+            $this->repository->isBookmarked($userId, $feedItemGuid),
+        );
     }
 
     #[Test]
@@ -58,11 +67,15 @@ class BookmarkStatusRepositoryTest extends KernelTestCase
         $feedItemGuid = 'bookmark-test-remove';
 
         $this->repository->bookmark($userId, $feedItemGuid);
-        $this->assertTrue($this->repository->isBookmarked($userId, $feedItemGuid));
+        $this->assertTrue(
+            $this->repository->isBookmarked($userId, $feedItemGuid),
+        );
 
         $this->repository->unbookmark($userId, $feedItemGuid);
 
-        $this->assertFalse($this->repository->isBookmarked($userId, $feedItemGuid));
+        $this->assertFalse(
+            $this->repository->isBookmarked($userId, $feedItemGuid),
+        );
     }
 
     #[Test]
@@ -73,7 +86,9 @@ class BookmarkStatusRepositoryTest extends KernelTestCase
 
         $this->repository->unbookmark($userId, $feedItemGuid);
 
-        $this->assertFalse($this->repository->isBookmarked($userId, $feedItemGuid));
+        $this->assertFalse(
+            $this->repository->isBookmarked($userId, $feedItemGuid),
+        );
     }
 
     #[Test]
