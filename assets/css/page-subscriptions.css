@@ -13,13 +13,20 @@
 
 /* Summary (clickable header) */
 .subscription-item__summary {
+    display: block;
     padding: var(--spacing-sm) 0;
     cursor: pointer;
     font-weight: var(--font-weight-medium);
     list-style: none;
 
+    /* Safari */
     &::-webkit-details-marker {
         display: none;
+    }
+
+    &::marker {
+        display: none;
+        content: "";
     }
 
     &::before {
