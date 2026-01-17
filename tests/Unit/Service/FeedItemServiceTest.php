@@ -21,19 +21,19 @@ class FeedItemServiceTest extends TestCase
     #[Test]
     public function findByGuidReturnsRepositoryResult(): void
     {
-        $guid = "item-guid";
+        $guid = 'item-guid';
         $feedItem = new FeedItem(
             guid: $guid,
-            subscriptionGuid: "sub-guid",
-            title: "Test Item",
-            link: "https://example.com",
-            source: "Test Source",
-            excerpt: "Test excerpt",
+            subscriptionGuid: 'sub-guid',
+            title: 'Test Item',
+            link: 'https://example.com',
+            source: 'Test Source',
+            excerpt: 'Test excerpt',
             publishedAt: new \DateTimeImmutable(),
         );
 
         $repository = $this->createStub(FeedItemRepository::class);
-        $repository->method("findByGuid")->willReturn($feedItem);
+        $repository->method('findByGuid')->willReturn($feedItem);
 
         $service = new FeedItemService($repository);
 
@@ -43,10 +43,10 @@ class FeedItemServiceTest extends TestCase
     #[Test]
     public function findByGuidReturnsNullWhenNotFound(): void
     {
-        $guid = "non-existent-guid";
+        $guid = 'non-existent-guid';
 
         $repository = $this->createStub(FeedItemRepository::class);
-        $repository->method("findByGuid")->willReturn(null);
+        $repository->method('findByGuid')->willReturn(null);
 
         $service = new FeedItemService($repository);
 

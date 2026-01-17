@@ -27,14 +27,14 @@ class UrlValidatorServiceTest extends TestCase
     #[Test]
     public function isUrlAllowedReturnsTrueWhenUrlMatchesItemLink(): void
     {
-        $url = "https://example.com/article";
+        $url = 'https://example.com/article';
         $feedItem = new FeedItem(
-            guid: "item-guid",
-            subscriptionGuid: "sub-guid",
-            title: "Test Item",
+            guid: 'item-guid',
+            subscriptionGuid: 'sub-guid',
+            title: 'Test Item',
             link: $url,
-            source: "Test Source",
-            excerpt: "Some content without the URL",
+            source: 'Test Source',
+            excerpt: 'Some content without the URL',
             publishedAt: new \DateTimeImmutable(),
         );
 
@@ -46,13 +46,13 @@ class UrlValidatorServiceTest extends TestCase
     #[Test]
     public function isUrlAllowedReturnsTrueWhenUrlExistsInContent(): void
     {
-        $url = "https://linked-site.com/page";
+        $url = 'https://linked-site.com/page';
         $feedItem = new FeedItem(
-            guid: "item-guid",
-            subscriptionGuid: "sub-guid",
-            title: "Test Item",
-            link: "https://example.com/article",
-            source: "Test Source",
+            guid: 'item-guid',
+            subscriptionGuid: 'sub-guid',
+            title: 'Test Item',
+            link: 'https://example.com/article',
+            source: 'Test Source',
             excerpt: '<p>Check out <a href="https://linked-site.com/page">this link</a></p>',
             publishedAt: new \DateTimeImmutable(),
         );
@@ -65,13 +65,13 @@ class UrlValidatorServiceTest extends TestCase
     #[Test]
     public function isUrlAllowedReturnsFalseWhenUrlNotInContentOrLink(): void
     {
-        $url = "https://malicious.com/hack";
+        $url = 'https://malicious.com/hack';
         $feedItem = new FeedItem(
-            guid: "item-guid",
-            subscriptionGuid: "sub-guid",
-            title: "Test Item",
-            link: "https://example.com/article",
-            source: "Test Source",
+            guid: 'item-guid',
+            subscriptionGuid: 'sub-guid',
+            title: 'Test Item',
+            link: 'https://example.com/article',
+            source: 'Test Source',
             excerpt: '<p>Check out <a href="https://safe-site.com/page">this link</a></p>',
             publishedAt: new \DateTimeImmutable(),
         );
@@ -84,14 +84,14 @@ class UrlValidatorServiceTest extends TestCase
     #[Test]
     public function isUrlAllowedReturnsFalseWhenContentIsEmpty(): void
     {
-        $url = "https://some-site.com/page";
+        $url = 'https://some-site.com/page';
         $feedItem = new FeedItem(
-            guid: "item-guid",
-            subscriptionGuid: "sub-guid",
-            title: "Test Item",
-            link: "https://example.com/article",
-            source: "Test Source",
-            excerpt: "",
+            guid: 'item-guid',
+            subscriptionGuid: 'sub-guid',
+            title: 'Test Item',
+            link: 'https://example.com/article',
+            source: 'Test Source',
+            excerpt: '',
             publishedAt: new \DateTimeImmutable(),
         );
 
@@ -103,13 +103,13 @@ class UrlValidatorServiceTest extends TestCase
     #[Test]
     public function isUrlAllowedHandlesMultipleLinksInContent(): void
     {
-        $url = "https://third-site.com/page";
+        $url = 'https://third-site.com/page';
         $feedItem = new FeedItem(
-            guid: "item-guid",
-            subscriptionGuid: "sub-guid",
-            title: "Test Item",
-            link: "https://example.com/article",
-            source: "Test Source",
+            guid: 'item-guid',
+            subscriptionGuid: 'sub-guid',
+            title: 'Test Item',
+            link: 'https://example.com/article',
+            source: 'Test Source',
             excerpt: '<p>Links: <a href="https://first-site.com">first</a>, <a href="https://second-site.com">second</a>, <a href="https://third-site.com/page">third</a></p>',
             publishedAt: new \DateTimeImmutable(),
         );
@@ -122,13 +122,13 @@ class UrlValidatorServiceTest extends TestCase
     #[Test]
     public function isUrlAllowedReturnsFalseForUrlNotInMultipleLinks(): void
     {
-        $url = "https://not-in-content.com/page";
+        $url = 'https://not-in-content.com/page';
         $feedItem = new FeedItem(
-            guid: "item-guid",
-            subscriptionGuid: "sub-guid",
-            title: "Test Item",
-            link: "https://example.com/article",
-            source: "Test Source",
+            guid: 'item-guid',
+            subscriptionGuid: 'sub-guid',
+            title: 'Test Item',
+            link: 'https://example.com/article',
+            source: 'Test Source',
             excerpt: '<p>Links: <a href="https://first-site.com">first</a>, <a href="https://second-site.com">second</a></p>',
             publishedAt: new \DateTimeImmutable(),
         );
@@ -141,14 +141,14 @@ class UrlValidatorServiceTest extends TestCase
     #[Test]
     public function isUrlAllowedHandlesContentWithNoLinks(): void
     {
-        $url = "https://some-site.com/page";
+        $url = 'https://some-site.com/page';
         $feedItem = new FeedItem(
-            guid: "item-guid",
-            subscriptionGuid: "sub-guid",
-            title: "Test Item",
-            link: "https://example.com/article",
-            source: "Test Source",
-            excerpt: "<p>This is content without any links.</p>",
+            guid: 'item-guid',
+            subscriptionGuid: 'sub-guid',
+            title: 'Test Item',
+            link: 'https://example.com/article',
+            source: 'Test Source',
+            excerpt: '<p>This is content without any links.</p>',
             publishedAt: new \DateTimeImmutable(),
         );
 

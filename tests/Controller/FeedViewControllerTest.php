@@ -28,10 +28,10 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $client->request("GET", "/");
+        $client->request('GET', '/');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists("main#feed");
+        $this->assertSelectorExists('main#feed');
     }
 
     #[Test]
@@ -40,19 +40,19 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $crawler = $client->request("GET", "/");
+        $crawler = $client->request('GET', '/');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists("aside");
+        $this->assertSelectorExists('aside');
     }
 
     #[Test]
     public function indexPageRedirectsToLoginWhenNotAuthenticated(): void
     {
         $client = static::createClient();
-        $client->request("GET", "/");
+        $client->request('GET', '/');
 
-        $this->assertResponseRedirects("/login");
+        $this->assertResponseRedirects('/login');
     }
 
     #[Test]
@@ -63,9 +63,9 @@ class FeedViewControllerTest extends WebTestCase
 
         $this->deleteAllSubscriptionsForTestUser();
 
-        $client->request("GET", "/");
+        $client->request('GET', '/');
 
-        $this->assertResponseRedirects("/onboarding");
+        $this->assertResponseRedirects('/onboarding');
     }
 
     #[Test]
@@ -74,7 +74,7 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $client->request("GET", "/refresh");
+        $client->request('GET', '/refresh');
 
         $this->assertResponseStatusCodeSame(405);
     }
@@ -85,7 +85,7 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $client->request("POST", "/refresh");
+        $client->request('POST', '/refresh');
 
         $this->assertResponseStatusCodeSame(403);
     }
@@ -96,16 +96,16 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $crawler = $client->request("GET", "/");
+        $crawler = $client->request('GET', '/');
         $this->assertResponseIsSuccessful();
 
         $token = $crawler
             ->filter('form[data-refresh-form] input[name="_token"]')
-            ->attr("value");
+            ->attr('value');
 
-        $client->request("POST", "/refresh", ["_token" => $token]);
+        $client->request('POST', '/refresh', ['_token' => $token]);
 
-        $this->assertResponseRedirects("/");
+        $this->assertResponseRedirects('/');
     }
 
     #[Test]
@@ -114,22 +114,22 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $crawler = $client->request("GET", "/");
+        $crawler = $client->request('GET', '/');
         $this->assertResponseIsSuccessful();
 
         $token = $crawler
             ->filter('form[data-refresh-form] input[name="_token"]')
-            ->attr("value");
+            ->attr('value');
 
         $client->request(
-            "POST",
-            "/refresh",
-            ["_token" => $token],
+            'POST',
+            '/refresh',
+            ['_token' => $token],
             [],
-            ["HTTP_REFERER" => "http://localhost/s/0123456789abcdef"],
+            ['HTTP_REFERER' => 'http://localhost/s/0123456789abcdef'],
         );
 
-        $this->assertResponseRedirects("http://localhost/s/0123456789abcdef");
+        $this->assertResponseRedirects('http://localhost/s/0123456789abcdef');
     }
 
     #[Test]
@@ -138,23 +138,23 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $crawler = $client->request("GET", "/");
+        $crawler = $client->request('GET', '/');
         $this->assertResponseIsSuccessful();
 
         $token = $crawler
             ->filter('form[data-refresh-form] input[name="_token"]')
-            ->attr("value");
+            ->attr('value');
 
         $client->request(
-            "POST",
-            "/refresh",
-            ["_token" => $token],
+            'POST',
+            '/refresh',
+            ['_token' => $token],
             [],
-            ["HTTP_REFERER" => "http://localhost/s/0123456789abcdef?unread=1"],
+            ['HTTP_REFERER' => 'http://localhost/s/0123456789abcdef?unread=1'],
         );
 
         $this->assertResponseRedirects(
-            "http://localhost/s/0123456789abcdef?unread=1",
+            'http://localhost/s/0123456789abcdef?unread=1',
         );
     }
 
@@ -164,10 +164,10 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $client->request("GET", "/s/abc");
+        $client->request('GET', '/s/abc');
         $this->assertResponseStatusCodeSame(404);
 
-        $client->request("GET", "/s/ghijklmnopqrstuv");
+        $client->request('GET', '/s/ghijklmnopqrstuv');
         $this->assertResponseStatusCodeSame(404);
     }
 
@@ -177,7 +177,7 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $client->request("GET", "/s/0123456789abcdef");
+        $client->request('GET', '/s/0123456789abcdef');
         $this->assertResponseIsSuccessful();
     }
 
@@ -187,7 +187,7 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $client->request("GET", "/f/invalid");
+        $client->request('GET', '/f/invalid');
         $this->assertResponseStatusCodeSame(404);
     }
 
@@ -197,7 +197,7 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $client->request("GET", "/f/0123456789abcdef");
+        $client->request('GET', '/f/0123456789abcdef');
         $this->assertResponseIsSuccessful();
     }
 
@@ -207,13 +207,13 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $client->request("GET", "/s/invalid/f/invalid");
+        $client->request('GET', '/s/invalid/f/invalid');
         $this->assertResponseStatusCodeSame(404);
 
-        $client->request("GET", "/s/0123456789abcdef/f/invalid");
+        $client->request('GET', '/s/0123456789abcdef/f/invalid');
         $this->assertResponseStatusCodeSame(404);
 
-        $client->request("GET", "/s/invalid/f/0123456789abcdef");
+        $client->request('GET', '/s/invalid/f/0123456789abcdef');
         $this->assertResponseStatusCodeSame(404);
     }
 
@@ -223,7 +223,7 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $client->request("GET", "/s/0123456789abcdef/f/fedcba9876543210");
+        $client->request('GET', '/s/0123456789abcdef/f/fedcba9876543210');
 
         $this->assertResponseIsSuccessful();
     }
@@ -234,7 +234,7 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $client->request("GET", "/?unread=1");
+        $client->request('GET', '/?unread=1');
 
         $this->assertResponseIsSuccessful();
     }
@@ -245,7 +245,7 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $client->request("GET", "/?limit=50");
+        $client->request('GET', '/?limit=50');
 
         $this->assertResponseIsSuccessful();
     }
@@ -256,10 +256,10 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscriptionWithItem($client);
 
-        $crawler = $client->request("GET", "/f/fedcba9876543210");
+        $crawler = $client->request('GET', '/f/fedcba9876543210');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists("main#feed");
+        $this->assertSelectorExists('main#feed');
     }
 
     #[Test]
@@ -268,7 +268,7 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscriptionWithItem($client);
 
-        $client->request("GET", "/s/0123456789abcdef/f/fedcba9876543210");
+        $client->request('GET', '/s/0123456789abcdef/f/fedcba9876543210');
 
         $this->assertResponseIsSuccessful();
     }
@@ -279,10 +279,10 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $crawler = $client->request("GET", "/?unread=1");
+        $crawler = $client->request('GET', '/?unread=1');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains(".filter-toggle", "Show unread");
+        $this->assertSelectorTextContains('.filter-toggle', 'Show unread');
     }
 
     #[Test]
@@ -291,12 +291,12 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $crawler = $client->request("GET", "/");
+        $crawler = $client->request('GET', '/');
 
         $this->assertResponseIsSuccessful();
-        $filterToggle = $crawler->filter(".filter-toggle")->text();
-        $this->assertStringContainsString("Show unread", $filterToggle);
-        $this->assertStringNotContainsString("turn off", $filterToggle);
+        $filterToggle = $crawler->filter('.filter-toggle')->text();
+        $this->assertStringContainsString('Show unread', $filterToggle);
+        $this->assertStringNotContainsString('turn off', $filterToggle);
     }
 
     #[Test]
@@ -305,9 +305,9 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
-        $client->request("GET", "/bookmarks");
+        $client->request('GET', '/bookmarks');
 
-        $this->assertResponseRedirects("/");
+        $this->assertResponseRedirects('/');
     }
 
     #[Test]
@@ -322,9 +322,9 @@ class FeedViewControllerTest extends WebTestCase
         );
         $userPreferenceService->setBookmarks($this->testUser->getId(), false);
 
-        $client->request("GET", "/bookmarks");
+        $client->request('GET', '/bookmarks');
 
-        $this->assertResponseRedirects("/");
+        $this->assertResponseRedirects('/');
 
         // Re-enable bookmarks for other tests
         $userPreferenceService->setBookmarks($this->testUser->getId(), true);
@@ -348,18 +348,18 @@ class FeedViewControllerTest extends WebTestCase
         );
         $bookmarkService->bookmark(
             $this->testUser->getId(),
-            "fedcba9876543210",
+            'fedcba9876543210',
         );
 
-        $client->request("GET", "/bookmarks");
+        $client->request('GET', '/bookmarks');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists("main#feed");
+        $this->assertSelectorExists('main#feed');
 
         // Clean up
         $bookmarkService->unbookmark(
             $this->testUser->getId(),
-            "fedcba9876543210",
+            'fedcba9876543210',
         );
     }
 }
