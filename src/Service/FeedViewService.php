@@ -12,6 +12,7 @@ namespace App\Service;
 
 use App\EventSubscriber\FilterParameterSubscriber;
 use App\Repository\BookmarkStatusRepository;
+use App\Repository\FeedItemQueryCriteria;
 use App\Repository\FeedItemRepository;
 use PhpStaticAnalysis\Attributes\Returns;
 
@@ -56,14 +57,16 @@ class FeedViewService
 
         // Load items with all filters applied at query level
         $items = $this->feedItemRepository->findItemsWithStatus(
-            $sguids,
-            $userId,
-            $filterWords,
-            $unreadOnly,
-            $limit,
-            $sguid,
-            $fguid, // Exclude active item from unread filter
-            $bookmarksOnly,
+            new FeedItemQueryCriteria(
+                subscriptionGuids: $sguids,
+                userId: $userId,
+                filterWords: $filterWords,
+                unreadOnly: $unreadOnly,
+                limit: $limit,
+                subscriptionGuid: $sguid,
+                excludeFromUnreadFilter: $fguid,
+                bookmarkedOnly: $bookmarksOnly,
+            ),
         );
 
         // Apply subscription names
@@ -128,8 +131,10 @@ class FeedViewService
     {
         $sguids = $this->subscriptionService->getSubscriptionGuids($userId);
         $items = $this->feedItemRepository->findItemsWithStatus(
-            $sguids,
-            $userId,
+            new FeedItemQueryCriteria(
+                subscriptionGuids: $sguids,
+                userId: $userId,
+            ),
         );
 
         return array_column($items, 'guid');

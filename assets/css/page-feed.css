@@ -163,85 +163,6 @@ header h1 .back {
             }
         }
     }
-
-    & > article {
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-
-        & > a:first-child {
-            display: none;
-        }
-
-        & > header {
-            margin: 0 var(--spacing-xl);
-            border-bottom: 1px solid var(--color-border);
-            padding: var(--spacing-xl) 0 var(--spacing-md) 0;
-
-            & h1 {
-                font-size: 1.5rem;
-                margin-bottom: var(--spacing-sm);
-            }
-
-            & p {
-                display: flex;
-                justify-content: space-between;
-            }
-        }
-
-        & > div {
-            flex: 1;
-            overflow-y: auto;
-            padding: var(--spacing-lg) var(--spacing-xl);
-
-            & .embed {
-                display: flex;
-                justify-content: center;
-            }
-
-            & .embed iframe {
-                aspect-ratio: 16 / 9;
-                width: 100% !important;
-            }
-
-            & p {
-                margin-bottom: var(--spacing-md);
-            }
-
-            & a {
-                text-decoration: underline;
-            }
-
-            & img {
-                max-width: 100%;
-                height: auto;
-            }
-
-            & ul,
-            & ol {
-                padding-left: var(--spacing-lg);
-                margin-bottom: var(--spacing-md);
-
-                & ul,
-                & ol {
-                    margin-bottom: 0;
-                }
-            }
-        }
-
-        & > footer {
-            margin: 0 var(--spacing-xl);
-            border-top: 1px solid var(--color-border);
-            padding: var(--spacing-md) 0;
-            display: flex;
-            justify-content: space-between;
-
-            /* Hide "redirect to list" button on desktop, show "stay on article" */
-            & [data-mark-action-list] {
-                display: none;
-            }
-        }
-    }
 }
 
 /* ========================================
@@ -346,32 +267,6 @@ header h1 .back {
         & > section {
             border-right: none;
         }
-
-        & > article {
-            display: none;
-            width: 100%;
-            min-height: calc(100dvh - 8rem);
-            overflow: visible;
-
-            & > a:first-child {
-                display: block;
-                margin: var(--spacing-md);
-            }
-
-            & > header {
-                margin: 0 var(--spacing-md);
-                padding-top: var(--spacing-md);
-            }
-
-            & > div {
-                padding: var(--spacing-md);
-                overflow: visible;
-            }
-
-            & > footer {
-                margin: 0 var(--spacing-md);
-            }
-        }
     }
 
     .menu-toggle {
@@ -399,14 +294,8 @@ header h1 .back {
         display: none;
     }
 
-    body.has-active-item #feed {
-        & > section {
-            display: none;
-        }
-
-        & > article {
-            display: flex;
-        }
+    body.has-active-item #feed > section {
+        display: none;
     }
 
     body.has-active-item header h1 {
@@ -417,15 +306,6 @@ header h1 .back {
         & .back {
             display: inline;
         }
-    }
-
-    /* Hide "stay on article" button on mobile, show "redirect to list" */
-    #feed > article > footer [data-mark-action-article] {
-        display: none;
-    }
-
-    #feed > article > footer [data-mark-action-list] {
-        display: inline;
     }
 }
 

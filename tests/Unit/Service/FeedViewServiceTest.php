@@ -12,6 +12,7 @@ namespace App\Tests\Unit\Service;
 
 use App\Entity\Subscription;
 use App\Repository\BookmarkStatusRepository;
+use App\Repository\FeedItemQueryCriteria;
 use App\Repository\FeedItemRepository;
 use App\Service\FeedViewService;
 use App\Service\SubscriptionService;
@@ -61,13 +62,17 @@ class FeedViewServiceTest extends TestCase
             ->expects($this->once())
             ->method('findItemsWithStatus')
             ->with(
-                ['sguid1'],
-                $userId,
-                [], // filterWords
-                false, // unreadOnly
-                50, // limit (default)
-                'sguid1', // subscriptionGuid filter
-                null, // excludeFromUnreadFilter
+                $this->callback(function (FeedItemQueryCriteria $criteria) use (
+                    $userId,
+                ) {
+                    return $criteria->subscriptionGuids === ['sguid1']
+                        && $criteria->userId === $userId
+                        && $criteria->filterWords === []
+                        && $criteria->unreadOnly === false
+                        && $criteria->limit === 50
+                        && $criteria->subscriptionGuid === 'sguid1'
+                        && $criteria->excludeFromUnreadFilter === null;
+                }),
             )
             ->willReturn([
                 [
@@ -122,13 +127,17 @@ class FeedViewServiceTest extends TestCase
             ->expects($this->once())
             ->method('findItemsWithStatus')
             ->with(
-                ['sguid1'],
-                $userId,
-                [], // filterWords
-                true, // unreadOnly
-                50, // limit (default)
-                null, // subscriptionGuid
-                null, // excludeFromUnreadFilter
+                $this->callback(function (FeedItemQueryCriteria $criteria) use (
+                    $userId,
+                ) {
+                    return $criteria->subscriptionGuids === ['sguid1']
+                        && $criteria->userId === $userId
+                        && $criteria->filterWords === []
+                        && $criteria->unreadOnly === true
+                        && $criteria->limit === 50
+                        && $criteria->subscriptionGuid === null
+                        && $criteria->excludeFromUnreadFilter === null;
+                }),
             )
             ->willReturn([
                 [
@@ -179,13 +188,17 @@ class FeedViewServiceTest extends TestCase
             ->expects($this->once())
             ->method('findItemsWithStatus')
             ->with(
-                ['sguid1'],
-                $userId,
-                [], // filterWords
-                false, // unreadOnly
-                2, // limit
-                null, // subscriptionGuid
-                null, // excludeFromUnreadFilter
+                $this->callback(function (FeedItemQueryCriteria $criteria) use (
+                    $userId,
+                ) {
+                    return $criteria->subscriptionGuids === ['sguid1']
+                        && $criteria->userId === $userId
+                        && $criteria->filterWords === []
+                        && $criteria->unreadOnly === false
+                        && $criteria->limit === 2
+                        && $criteria->subscriptionGuid === null
+                        && $criteria->excludeFromUnreadFilter === null;
+                }),
             )
             ->willReturn([
                 [
@@ -406,13 +419,17 @@ class FeedViewServiceTest extends TestCase
             ->expects($this->once())
             ->method('findItemsWithStatus')
             ->with(
-                ['sguid1'],
-                $userId,
-                ['sponsored'], // filterWords
-                false,
-                50, // limit (default)
-                null,
-                null,
+                $this->callback(function (FeedItemQueryCriteria $criteria) use (
+                    $userId,
+                ) {
+                    return $criteria->subscriptionGuids === ['sguid1']
+                        && $criteria->userId === $userId
+                        && $criteria->filterWords === ['sponsored']
+                        && $criteria->unreadOnly === false
+                        && $criteria->limit === 50
+                        && $criteria->subscriptionGuid === null
+                        && $criteria->excludeFromUnreadFilter === null;
+                }),
             )
             ->willReturn([
                 [

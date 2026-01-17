@@ -4,6 +4,7 @@
 
 {% block stylesheets %}
     <style>{{ asset_inline('css/page-feed.css') }}</style>
+    <style>{{ asset_inline('css/page-feed-reading-pane.css') }}</style>
 {% endblock %}
 
 {% block body_class %}{% if app.request.attributes.get('_route') in ['feed_item', 'feed_item_filtered'] %} class="has-active-item"{% endif %}{% endblock %}
@@ -129,47 +130,7 @@
     <script>{{ asset_inline('js/scroll-restore.js') }}</script>
 
     {% if activeItem %}
-    <article data-reading-pane data-item="{{ activeItem.guid }}"{% if not activeItem.isRead %} data-unread{% endif %}>
-        <header>
-            <h1><a href="{{ path('feed_item_open', {fguid: activeItem.guid, url: activeItem.link}) }}" target="_blank" rel="noopener noreferrer">{{ activeItem.title }}</a></h1>
-            <p class="meta">
-                <a href="{{ path_with_filters('subscription_show', {sguid: activeItem.sguid}) }}" class="source">{{ activeItem.source }}</a>
-                <time datetime="{{ activeItem.fetchedAt|date('Y-m-d\\TH:i') }}" title="Published at: {{ activeItem.publishedAt|date('j F Y, H:i') }}">{% if activeItem.fetchedAt|date('Y-m-d') == 'now'|date('Y-m-d') %}{{ activeItem.fetchedAt|date('H:i') }}{% else %}{{ activeItem.fetchedAt|date('j F Y, H:i') }}{% endif %}</time>
-            </p>
-        </header>
-        <div class="content">
-            {{ activeItem.excerpt|rewrite_links(activeItem.guid)|raw }}
-        </div>
-        <footer>
-            <a href="{{ path('feed_item_open', {fguid: activeItem.guid, url: activeItem.link}) }}" target="_blank" rel="noopener noreferrer" class="btn-link">Read original</a>
-            {% if bookmarksEnabled %}
-                {% if activeItem.isBookmarked %}
-                    <form action="{% if activeFeed %}{{ path('feed_item_filtered_unbookmark', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path('feed_item_unbookmark', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
-                        <input type="hidden" name="_token" value="{{ csrf_token('bookmark') }}">
-                        <button type="submit" class="btn-link">Remove bookmark</button>
-                    </form>
-                {% else %}
-                    <form action="{% if activeFeed %}{{ path('feed_item_filtered_bookmark', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path('feed_item_bookmark', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline">
-                        <input type="hidden" name="_token" value="{{ csrf_token('bookmark') }}">
-                        <button type="submit" class="btn-link">Bookmark</button>
-                    </form>
-                {% endif %}
-            {% endif %}
-            {% if activeItem.isRead %}
-                <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_unread', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_unread', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline" data-form-mark-unread>
-                    <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
-                    <button type="submit" name="redirect" value="article" class="btn-link" data-mark-action-article>Mark as unread</button>
-                    <button type="submit" name="redirect" value="list" class="btn-link" data-mark-action-list>Mark as unread</button>
-                </form>
-            {% else %}
-                <form action="{% if activeFeed %}{{ path_with_filters('feed_item_filtered_mark_read', {sguid: activeFeed, fguid: activeItem.guid}) }}{% else %}{{ path_with_filters('feed_item_mark_read', {fguid: activeItem.guid}) }}{% endif %}" method="post" class="inline" data-form-mark-read>
-                    <input type="hidden" name="_token" value="{{ csrf_token('mark_read') }}">
-                    <button type="submit" name="redirect" value="article" class="btn-link" data-mark-action-article>Mark as read</button>
-                    <button type="submit" name="redirect" value="list" class="btn-link" data-mark-action-list>Mark as read</button>
-                </form>
-            {% endif %}
-        </footer>
-    </article>
+    {% include 'feed/_reading-pane.html.twig' with {activeItem: activeItem, activeFeed: activeFeed, bookmarksEnabled: bookmarksEnabled} %}
     {% if user_auto_mark_read() %}
     <script>{{ asset_inline('js/auto-mark-read.js') }}</script>
     {% endif %}

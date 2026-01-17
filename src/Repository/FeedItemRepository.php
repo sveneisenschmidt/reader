@@ -163,22 +163,21 @@ class FeedItemRepository extends ServiceEntityRepository
             ->execute();
     }
 
-    #[Param(subscriptionGuids: 'list<string>')]
-    #[Param(filterWords: 'list<string>')]
     #[Returns('list<array<string, mixed>>')]
-    public function findItemsWithStatus(
-        array $subscriptionGuids,
-        int $userId,
-        array $filterWords = [],
-        bool $unreadOnly = false,
-        int $limit = 0,
-        ?string $subscriptionGuid = null,
-        ?string $excludeFromUnreadFilter = null,
-        bool $bookmarkedOnly = false,
-    ): array {
-        if (empty($subscriptionGuids)) {
+    public function findItemsWithStatus(FeedItemQueryCriteria $criteria): array
+    {
+        if (empty($criteria->subscriptionGuids)) {
             return [];
         }
+
+        $subscriptionGuids = $criteria->subscriptionGuids;
+        $userId = $criteria->userId;
+        $filterWords = $criteria->filterWords;
+        $unreadOnly = $criteria->unreadOnly;
+        $limit = $criteria->limit;
+        $subscriptionGuid = $criteria->subscriptionGuid;
+        $excludeFromUnreadFilter = $criteria->excludeFromUnreadFilter;
+        $bookmarkedOnly = $criteria->bookmarkedOnly;
 
         $em = $this->getEntityManager();
 

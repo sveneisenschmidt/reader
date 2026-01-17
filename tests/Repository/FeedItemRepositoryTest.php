@@ -12,6 +12,7 @@ namespace App\Tests\Repository;
 
 use App\Entity\FeedItem;
 use App\Repository\BookmarkStatusRepository;
+use App\Repository\FeedItemQueryCriteria;
 use App\Repository\FeedItemRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -412,7 +413,9 @@ class FeedItemRepositoryTest extends KernelTestCase
     #[Test]
     public function findItemsWithStatusReturnsEmptyForEmptyInput(): void
     {
-        $result = $this->repository->findItemsWithStatus([], 1);
+        $result = $this->repository->findItemsWithStatus(
+            new FeedItemQueryCriteria(subscriptionGuids: [], userId: 1),
+        );
 
         $this->assertIsArray($result);
         $this->assertEmpty($result);
@@ -427,8 +430,10 @@ class FeedItemRepositoryTest extends KernelTestCase
         );
 
         $result = $this->repository->findItemsWithStatus(
-            [$subscriptionGuid],
-            999,
+            new FeedItemQueryCriteria(
+                subscriptionGuids: [$subscriptionGuid],
+                userId: 999,
+            ),
         );
 
         $this->assertNotEmpty($result);
@@ -465,9 +470,11 @@ class FeedItemRepositoryTest extends KernelTestCase
         );
 
         $result = $this->repository->findItemsWithStatus(
-            [$subscriptionGuid],
-            999,
-            ['Breaking'],
+            new FeedItemQueryCriteria(
+                subscriptionGuids: [$subscriptionGuid],
+                userId: 999,
+                filterWords: ['Breaking'],
+            ),
         );
 
         $this->assertCount(1, $result);
@@ -484,13 +491,12 @@ class FeedItemRepositoryTest extends KernelTestCase
 
         // Test with excludeFromUnreadFilter parameter
         $result = $this->repository->findItemsWithStatus(
-            [$subscriptionGuid],
-            999,
-            [],
-            true,
-            0,
-            null,
-            'unreadfilt1234567',
+            new FeedItemQueryCriteria(
+                subscriptionGuids: [$subscriptionGuid],
+                userId: 999,
+                unreadOnly: true,
+                excludeFromUnreadFilter: 'unreadfilt1234567',
+            ),
         );
 
         // The item should be included even with unreadOnly=true because it's excluded
