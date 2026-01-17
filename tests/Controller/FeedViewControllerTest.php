@@ -305,6 +305,15 @@ class FeedViewControllerTest extends WebTestCase
         $client = static::createClient();
         $this->ensureTestUserHasSubscription($client);
 
+        // Clean up any bookmarks from previous tests
+        $bookmarkService = static::getContainer()->get(
+            \App\Service\BookmarkService::class,
+        );
+        $bookmarkService->unbookmark(
+            $this->testUser->getId(),
+            'fedcba9876543210',
+        );
+
         $client->request('GET', '/bookmarks');
 
         $this->assertResponseRedirects('/');
