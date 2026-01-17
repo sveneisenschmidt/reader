@@ -10,11 +10,11 @@
 
 namespace App\Controller;
 
+use App\Domain\User\Repository\UserRepository;
+use App\Domain\User\Service\TotpService;
+use App\Domain\User\Service\UserRegistrationService;
 use App\Form\LoginType;
 use App\Form\SetupType;
-use App\Repository\UserRepository;
-use App\Service\TotpService;
-use App\Service\UserRegistrationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

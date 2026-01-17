@@ -10,7 +10,7 @@
 
 namespace App\Tests\Repository;
 
-use App\Repository\UserRepository;
+use App\Domain\User\Repository\UserRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

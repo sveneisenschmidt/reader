@@ -10,7 +10,7 @@
 
 namespace App\Tests\Repository;
 
-use App\Repository\SubscriptionRepository;
+use App\Domain\Feed\Repository\SubscriptionRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

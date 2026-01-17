@@ -10,7 +10,7 @@
 
 namespace App\Tests\Service;
 
-use App\Service\TotpService;
+use App\Domain\User\Service\TotpService;
 use OTPHP\TOTP;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

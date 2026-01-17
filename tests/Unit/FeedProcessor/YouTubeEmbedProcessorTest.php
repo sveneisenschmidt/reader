@@ -10,7 +10,7 @@
 
 namespace App\Tests\Unit\FeedProcessor;
 
-use App\FeedProcessor\YouTubeEmbedProcessor;
+use App\Domain\Feed\Processor\YouTubeEmbedProcessor;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

@@ -10,7 +10,7 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Service\FeedDiscoveryService;
+use App\Domain\Discovery\FeedDiscoveryService;
 use FeedIo\Feed;
 use FeedIo\FeedIo;
 use FeedIo\Reader\Result;

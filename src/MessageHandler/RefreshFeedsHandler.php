@@ -10,11 +10,11 @@
 
 namespace App\MessageHandler;
 
+use App\Domain\Feed\Repository\SubscriptionRepository;
+use App\Domain\Feed\Service\FeedExceptionHandler;
+use App\Domain\Feed\Service\FeedReaderService;
 use App\Enum\SubscriptionStatus;
 use App\Message\RefreshFeedsMessage;
-use App\Repository\SubscriptionRepository;
-use App\Service\FeedExceptionHandler;
-use App\Service\FeedReaderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Lock\LockFactory;

@@ -10,7 +10,7 @@
 
 namespace App\Tests\Entity;
 
-use App\Entity\ReadStatus;
+use App\Domain\ItemStatus\Entity\ReadStatus;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

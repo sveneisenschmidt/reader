@@ -10,10 +10,10 @@
 
 namespace App\Controller;
 
+use App\Domain\Discovery\FeedResolverInterface;
+use App\Domain\Feed\Service\SubscriptionService;
+use App\Domain\User\Service\UserService;
 use App\Form\SubscriptionsType;
-use App\Service\FeedDiscovery\FeedResolverInterface;
-use App\Service\SubscriptionService;
-use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;

@@ -10,10 +10,10 @@
 
 namespace App\Tests\Repository;
 
-use App\Entity\FeedItem;
-use App\Repository\BookmarkStatusRepository;
-use App\Repository\FeedItemQueryCriteria;
-use App\Repository\FeedItemRepository;
+use App\Domain\Feed\Entity\FeedItem;
+use App\Domain\Feed\Repository\FeedItemQueryCriteria;
+use App\Domain\Feed\Repository\FeedItemRepository;
+use App\Domain\ItemStatus\Repository\BookmarkStatusRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

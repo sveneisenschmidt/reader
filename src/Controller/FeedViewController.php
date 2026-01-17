@@ -10,15 +10,15 @@
 
 namespace App\Controller;
 
+use App\Domain\Feed\Service\FeedViewService;
+use App\Domain\Feed\Service\SubscriptionService;
+use App\Domain\ItemStatus\Service\BookmarkService;
+use App\Domain\ItemStatus\Service\SeenStatusService;
+use App\Domain\User\Service\UserPreferenceService;
+use App\Domain\User\Service\UserService;
 use App\Enum\MessageSource;
 use App\EventSubscriber\FilterParameterSubscriber;
 use App\Message\RefreshFeedsMessage;
-use App\Service\BookmarkService;
-use App\Service\FeedViewService;
-use App\Service\SeenStatusService;
-use App\Service\SubscriptionService;
-use App\Service\UserPreferenceService;
-use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

@@ -10,9 +10,9 @@
 
 namespace App\Tests\Unit\MessageHandler;
 
+use App\Domain\Feed\Repository\FeedItemRepository;
 use App\Message\CleanupContentMessage;
 use App\MessageHandler\CleanupContentHandler;
-use App\Repository\FeedItemRepository;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;

@@ -10,7 +10,7 @@
 
 namespace App\Service;
 
-use App\Entity\FeedItem;
+use App\Domain\Feed\Entity\FeedItem;
 use Symfony\Component\DomCrawler\Crawler;
 
 class UrlValidatorService

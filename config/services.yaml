@@ -9,7 +9,8 @@ services:
 
     App\:
         resource: "../src/"
-        exclude: "../src/Service/FeedDiscovery/Resolver"
+        exclude:
+            - "../src/Domain/Discovery/Resolver/"
 
     # FeedIo configuration
     Psr\Http\Client\ClientInterface:
@@ -25,7 +26,7 @@ services:
             $logger: "@logger"
 
     # Feed Processor configuration
-    App\FeedProcessor\HtmlSanitizerProcessor:
+    App\Domain\Feed\Processor\HtmlSanitizerProcessor:
         arguments:
             $feedContentSanitizer: "@html_sanitizer.sanitizer.app.feed_content_sanitizer"
 
@@ -37,21 +38,21 @@ services:
         arguments:
             $publicDir: "%kernel.project_dir%/public"
 
-    App\Service\FeedDiscovery\Resolver\YouTubeChannelResolverService:
+    App\Domain\Discovery\Resolver\YouTubeChannelResolverService:
         tags:
             - { name: "app.feed_resolver", priority: 20 }
 
-    App\Service\FeedDiscovery\Resolver\RedditSubredditResolverService:
+    App\Domain\Discovery\Resolver\RedditSubredditResolverService:
         tags:
             - { name: "app.feed_resolver", priority: 10 }
 
-    App\Service\FeedDiscovery\Resolver\FeedIoResolverService:
+    App\Domain\Discovery\Resolver\FeedIoResolverService:
         tags:
             - { name: "app.feed_resolver", priority: 0 }
 
-    App\Service\FeedDiscovery\Resolver\ChainedResolverService:
+    App\Domain\Discovery\Resolver\ChainedResolverService:
         arguments:
             $resolvers: !tagged_iterator app.feed_resolver
 
-    App\Service\FeedDiscovery\FeedResolverInterface:
-        alias: App\Service\FeedDiscovery\Resolver\ChainedResolverService
+    App\Domain\Discovery\FeedResolverInterface:
+        alias: App\Domain\Discovery\Resolver\ChainedResolverService

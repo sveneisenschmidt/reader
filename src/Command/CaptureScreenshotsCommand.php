@@ -10,17 +10,17 @@
 
 namespace App\Command;
 
+use App\Domain\Feed\Service\FeedViewService;
+use App\Domain\ItemStatus\Service\ReadStatusService;
+use App\Domain\ItemStatus\Service\SeenStatusService;
+use App\Domain\User\Entity\User;
+use App\Domain\User\Repository\UserRepository;
+use App\Domain\User\Service\TotpService;
 use App\Entity\ProcessedMessage;
-use App\Entity\User;
 use App\Enum\MessageSource;
 use App\Message\RefreshFeedsMessage;
 use App\Repository\ProcessedMessageRepository;
-use App\Repository\UserRepository;
 use App\Service\EncryptionService;
-use App\Service\FeedViewService;
-use App\Service\ReadStatusService;
-use App\Service\SeenStatusService;
-use App\Service\TotpService;
 use Doctrine\ORM\EntityManagerInterface;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
@@ -89,7 +89,7 @@ class CaptureScreenshotsCommand extends Command
         private ReadStatusService $readStatusService,
         private SeenStatusService $seenStatusService,
         private ProcessedMessageRepository $processedMessageRepository,
-        private \App\Service\UserPreferenceService $userPreferenceService,
+        private \App\Domain\User\Service\UserPreferenceService $userPreferenceService,
     ) {
         parent::__construct();
     }

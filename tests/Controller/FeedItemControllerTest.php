@@ -642,7 +642,7 @@ class FeedItemControllerTest extends WebTestCase
 
         // Enable bookmarks for the test user
         $userPreferenceService = static::getContainer()->get(
-            \App\Service\UserPreferenceService::class,
+            \App\Domain\User\Service\UserPreferenceService::class,
         );
         $userPreferenceService->setBookmarks($this->testUser->getId(), true);
 
@@ -669,7 +669,7 @@ class FeedItemControllerTest extends WebTestCase
 
         // Enable bookmarks for the test user
         $userPreferenceService = static::getContainer()->get(
-            \App\Service\UserPreferenceService::class,
+            \App\Domain\User\Service\UserPreferenceService::class,
         );
         $userPreferenceService->setBookmarks($this->testUser->getId(), true);
 
@@ -737,7 +737,7 @@ class FeedItemControllerTest extends WebTestCase
 
         // Enable bookmarks for the test user
         $userPreferenceService = static::getContainer()->get(
-            \App\Service\UserPreferenceService::class,
+            \App\Domain\User\Service\UserPreferenceService::class,
         );
         $userPreferenceService->setBookmarks($this->testUser->getId(), true);
 
@@ -771,7 +771,7 @@ class FeedItemControllerTest extends WebTestCase
 
         // Enable bookmarks for the test user
         $userPreferenceService = static::getContainer()->get(
-            \App\Service\UserPreferenceService::class,
+            \App\Domain\User\Service\UserPreferenceService::class,
         );
         $userPreferenceService->setBookmarks($this->testUser->getId(), true);
 
@@ -917,7 +917,7 @@ class FeedItemControllerTest extends WebTestCase
         $this->ensureTestUserHasSubscriptionWithItemContainingLink($client);
 
         $readStatusRepo = static::getContainer()->get(
-            \App\Repository\ReadStatusRepository::class,
+            \App\Domain\ItemStatus\Repository\ReadStatusRepository::class,
         );
         $readStatusRepo->markAsUnread(
             $this->testUser->getId(),
@@ -956,7 +956,7 @@ class FeedItemControllerTest extends WebTestCase
         );
 
         $seenStatusRepo = static::getContainer()->get(
-            \App\Repository\SeenStatusRepository::class,
+            \App\Domain\ItemStatus\Repository\SeenStatusRepository::class,
         );
         $this->assertTrue(
             $seenStatusRepo->isSeen(

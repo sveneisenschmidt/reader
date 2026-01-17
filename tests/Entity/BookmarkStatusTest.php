@@ -10,7 +10,7 @@
 
 namespace App\Tests\Entity;
 
-use App\Entity\BookmarkStatus;
+use App\Domain\ItemStatus\Entity\BookmarkStatus;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

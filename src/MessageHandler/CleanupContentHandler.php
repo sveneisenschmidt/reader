@@ -10,8 +10,8 @@
 
 namespace App\MessageHandler;
 
+use App\Domain\Feed\Repository\FeedItemRepository;
 use App\Message\CleanupContentMessage;
-use App\Repository\FeedItemRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 

@@ -10,7 +10,7 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
+use App\Domain\User\Entity\User;
 use App\Service\StatusIndicator;
 use App\Service\StatusService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

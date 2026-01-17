@@ -10,7 +10,7 @@
 
 namespace App\Tests\Unit\Service\FeedDiscovery;
 
-use App\Service\FeedDiscovery\FeedResolverResult;
+use App\Domain\Discovery\FeedResolverResult;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

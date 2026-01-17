@@ -10,7 +10,7 @@
 
 namespace App\Tests\Entity;
 
-use App\Entity\FeedItem;
+use App\Domain\Feed\Entity\FeedItem;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

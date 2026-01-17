@@ -10,8 +10,8 @@
 
 namespace App\Tests\Repository;
 
+use App\Domain\User\Repository\UserPreferenceRepository;
 use App\Enum\PreferenceKey;
-use App\Repository\UserPreferenceRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

@@ -10,8 +10,8 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Repository\ReadStatusRepository;
-use App\Service\ReadStatusService;
+use App\Domain\ItemStatus\Repository\ReadStatusRepository;
+use App\Domain\ItemStatus\Service\ReadStatusService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

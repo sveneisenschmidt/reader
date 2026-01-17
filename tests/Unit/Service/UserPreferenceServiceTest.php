@@ -10,10 +10,10 @@
 
 namespace App\Tests\Unit\Service;
 
+use App\Domain\User\Repository\UserPreferenceRepository;
+use App\Domain\User\Service\UserPreferenceService;
 use App\Enum\PreferenceDefault;
 use App\Enum\PreferenceKey;
-use App\Repository\UserPreferenceRepository;
-use App\Service\UserPreferenceService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

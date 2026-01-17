@@ -307,7 +307,7 @@ class FeedViewControllerTest extends WebTestCase
 
         // Clean up any bookmarks from previous tests
         $bookmarkService = static::getContainer()->get(
-            \App\Service\BookmarkService::class,
+            \App\Domain\ItemStatus\Service\BookmarkService::class,
         );
         $bookmarkService->unbookmark(
             $this->testUser->getId(),
@@ -327,7 +327,7 @@ class FeedViewControllerTest extends WebTestCase
 
         // Disable bookmarks in preferences
         $userPreferenceService = static::getContainer()->get(
-            \App\Service\UserPreferenceService::class,
+            \App\Domain\User\Service\UserPreferenceService::class,
         );
         $userPreferenceService->setBookmarks($this->testUser->getId(), false);
 
@@ -347,13 +347,13 @@ class FeedViewControllerTest extends WebTestCase
 
         // Ensure bookmarks are enabled
         $userPreferenceService = static::getContainer()->get(
-            \App\Service\UserPreferenceService::class,
+            \App\Domain\User\Service\UserPreferenceService::class,
         );
         $userPreferenceService->setBookmarks($this->testUser->getId(), true);
 
         // Bookmark the test item
         $bookmarkService = static::getContainer()->get(
-            \App\Service\BookmarkService::class,
+            \App\Domain\ItemStatus\Service\BookmarkService::class,
         );
         $bookmarkService->bookmark(
             $this->testUser->getId(),

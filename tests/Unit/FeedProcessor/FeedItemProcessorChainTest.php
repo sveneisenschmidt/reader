@@ -10,8 +10,8 @@
 
 namespace App\Tests\Unit\FeedProcessor;
 
-use App\FeedProcessor\FeedItemProcessorChain;
-use App\FeedProcessor\FeedItemProcessorInterface;
+use App\Domain\Feed\Processor\FeedItemProcessorChain;
+use App\Domain\Feed\Processor\FeedItemProcessorInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

@@ -10,12 +10,12 @@
 
 namespace App\Tests\Trait;
 
-use App\Entity\FeedItem;
-use App\Entity\Subscription;
-use App\Entity\User;
-use App\Repository\FeedItemRepository;
-use App\Repository\SubscriptionRepository;
-use App\Repository\UserRepository;
+use App\Domain\Feed\Entity\FeedItem;
+use App\Domain\Feed\Entity\Subscription;
+use App\Domain\Feed\Repository\FeedItemRepository;
+use App\Domain\Feed\Repository\SubscriptionRepository;
+use App\Domain\User\Entity\User;
+use App\Domain\User\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 

@@ -10,13 +10,13 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\Subscription;
+use App\Domain\Feed\Entity\Subscription;
+use App\Domain\Feed\Repository\FeedItemRepository;
+use App\Domain\Feed\Repository\SubscriptionRepository;
+use App\Domain\ItemStatus\Repository\ReadStatusRepository;
+use App\Domain\ItemStatus\Repository\SeenStatusRepository;
 use App\Enum\SubscriptionStatus;
-use App\Repository\FeedItemRepository;
 use App\Repository\ProcessedMessageRepository;
-use App\Repository\ReadStatusRepository;
-use App\Repository\SeenStatusRepository;
-use App\Repository\SubscriptionRepository;
 use App\Service\StatusService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

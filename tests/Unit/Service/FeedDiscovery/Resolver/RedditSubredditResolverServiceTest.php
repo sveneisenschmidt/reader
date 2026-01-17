@@ -10,7 +10,7 @@
 
 namespace App\Tests\Unit\Service\FeedDiscovery\Resolver;
 
-use App\Service\FeedDiscovery\Resolver\RedditSubredditResolverService;
+use App\Domain\Discovery\Resolver\RedditSubredditResolverService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

@@ -10,13 +10,13 @@
 
 namespace App\Controller;
 
-use App\Service\BookmarkService;
-use App\Service\FeedItemService;
-use App\Service\FeedViewService;
-use App\Service\ReadStatusService;
-use App\Service\SeenStatusService;
+use App\Domain\Feed\Service\FeedItemService;
+use App\Domain\Feed\Service\FeedViewService;
+use App\Domain\ItemStatus\Service\BookmarkService;
+use App\Domain\ItemStatus\Service\ReadStatusService;
+use App\Domain\ItemStatus\Service\SeenStatusService;
+use App\Domain\User\Service\UserService;
 use App\Service\UrlValidatorService;
-use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

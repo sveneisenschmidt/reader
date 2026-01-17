@@ -10,7 +10,7 @@
 
 namespace App\Tests\Unit\FeedProcessor;
 
-use App\FeedProcessor\HtmlSanitizerProcessor;
+use App\Domain\Feed\Processor\HtmlSanitizerProcessor;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;

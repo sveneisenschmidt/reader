@@ -10,12 +10,12 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
+use App\Domain\User\Entity\User;
+use App\Domain\User\Service\UserPreferenceService;
 use App\Enum\PreferenceKey;
 use App\Form\PreferencesType;
 use App\Form\ProfileType;
 use App\Service\StatusIndicator;
-use App\Service\UserPreferenceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

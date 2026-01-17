@@ -10,9 +10,9 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\FeedProcessor\FeedItemProcessorChain;
-use App\Service\FeedPersistenceService;
-use App\Service\FeedReaderService;
+use App\Domain\Feed\Processor\FeedItemProcessorChain;
+use App\Domain\Feed\Service\FeedPersistenceService;
+use App\Domain\Feed\Service\FeedReaderService;
 use FeedIo\Feed;
 use FeedIo\Feed\Item;
 use FeedIo\FeedIo;

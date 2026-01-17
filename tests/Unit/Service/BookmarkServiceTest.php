@@ -10,8 +10,8 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Repository\BookmarkStatusRepository;
-use App\Service\BookmarkService;
+use App\Domain\ItemStatus\Repository\BookmarkStatusRepository;
+use App\Domain\ItemStatus\Service\BookmarkService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

@@ -10,7 +10,7 @@
 
 namespace App\Tests\Controller;
 
-use App\Repository\SubscriptionRepository;
+use App\Domain\Feed\Repository\SubscriptionRepository;
 use App\Tests\Trait\AuthenticatedTestTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;

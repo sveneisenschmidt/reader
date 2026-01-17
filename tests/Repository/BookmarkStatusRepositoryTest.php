@@ -10,7 +10,7 @@
 
 namespace App\Tests\Repository;
 
-use App\Repository\BookmarkStatusRepository;
+use App\Domain\ItemStatus\Repository\BookmarkStatusRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

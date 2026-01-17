@@ -10,9 +10,9 @@
 
 namespace App\Twig;
 
-use App\Entity\User;
+use App\Domain\User\Entity\User;
+use App\Domain\User\Service\UserPreferenceService;
 use App\Enum\PreferenceDefault;
-use App\Service\UserPreferenceService;
 use Symfony\Bundle\SecurityBundle\Security;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;

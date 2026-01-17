@@ -10,8 +10,8 @@
 
 namespace App\Twig;
 
-use App\Service\SubscriptionService;
-use App\Service\UserService;
+use App\Domain\Feed\Service\SubscriptionService;
+use App\Domain\User\Service\UserService;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 

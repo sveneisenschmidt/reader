@@ -10,9 +10,9 @@
 
 namespace App\Security;
 
-use App\Repository\UserRepository;
+use App\Domain\User\Repository\UserRepository;
+use App\Domain\User\Service\TotpService;
 use App\Service\EncryptionService;
-use App\Service\TotpService;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

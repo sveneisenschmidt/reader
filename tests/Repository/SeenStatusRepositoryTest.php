@@ -10,7 +10,7 @@
 
 namespace App\Tests\Repository;
 
-use App\Repository\SeenStatusRepository;
+use App\Domain\ItemStatus\Repository\SeenStatusRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

@@ -10,8 +10,8 @@
 
 namespace App\Tests\Security;
 
-use App\Entity\User;
-use App\Repository\UserRepository;
+use App\Domain\User\Entity\User;
+use App\Domain\User\Repository\UserRepository;
 use App\Security\AppAuthenticator;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -143,7 +143,7 @@ class AppAuthenticatorTest extends KernelTestCase
         $container = static::getContainer();
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $entityManager
-            ->createQuery("DELETE FROM App\Entity\User")
+            ->createQuery("DELETE FROM App\Domain\User\Entity\User")
             ->execute();
 
         $request = Request::create('/protected', 'GET');

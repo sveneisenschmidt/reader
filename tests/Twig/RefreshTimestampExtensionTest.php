@@ -10,9 +10,9 @@
 
 namespace App\Tests\Twig;
 
-use App\Entity\User;
-use App\Service\SubscriptionService;
-use App\Service\UserService;
+use App\Domain\Feed\Service\SubscriptionService;
+use App\Domain\User\Entity\User;
+use App\Domain\User\Service\UserService;
 use App\Twig\RefreshTimestampExtension;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;

@@ -10,7 +10,7 @@
 
 namespace App\Tests\Unit\FeedProcessor;
 
-use App\FeedProcessor\TitleFromExcerptProcessor;
+use App\Domain\Feed\Processor\TitleFromExcerptProcessor;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

@@ -10,7 +10,7 @@
 
 namespace App\Tests\Unit\Entity;
 
-use App\Entity\UserPreference;
+use App\Domain\User\Entity\UserPreference;
 use App\Enum\PreferenceKey;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

@@ -10,9 +10,9 @@
 
 namespace App\Tests\Service;
 
-use App\Repository\UserRepository;
+use App\Domain\User\Repository\UserRepository;
+use App\Domain\User\Service\UserRegistrationService;
 use App\Service\EncryptionService;
-use App\Service\UserRegistrationService;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

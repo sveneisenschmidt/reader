@@ -10,7 +10,7 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\FeedItem;
+use App\Domain\Feed\Entity\FeedItem;
 use App\Service\UrlValidatorService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

@@ -10,8 +10,8 @@
 
 namespace App\Tests\Controller;
 
-use App\Entity\User;
-use App\Repository\UserRepository;
+use App\Domain\User\Entity\User;
+use App\Domain\User\Repository\UserRepository;
 use App\Service\EncryptionService;
 use OTPHP\TOTP;
 use PHPUnit\Framework\Attributes\Test;
@@ -131,7 +131,7 @@ class AuthControllerTest extends WebTestCase
         $container = static::getContainer();
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $entityManager
-            ->createQuery("DELETE FROM App\Entity\User")
+            ->createQuery("DELETE FROM App\Domain\User\Entity\User")
             ->execute();
 
         $client->request('GET', '/login');
@@ -272,7 +272,7 @@ class AuthControllerTest extends WebTestCase
         $container = static::getContainer();
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $entityManager
-            ->createQuery("DELETE FROM App\Entity\User")
+            ->createQuery("DELETE FROM App\Domain\User\Entity\User")
             ->execute();
 
         $crawler = $client->request('GET', '/setup');
@@ -300,7 +300,7 @@ class AuthControllerTest extends WebTestCase
         $container = static::getContainer();
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $entityManager
-            ->createQuery("DELETE FROM App\Entity\User")
+            ->createQuery("DELETE FROM App\Domain\User\Entity\User")
             ->execute();
 
         $crawler = $client->request('GET', '/setup');
@@ -327,7 +327,7 @@ class AuthControllerTest extends WebTestCase
         $container = static::getContainer();
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $entityManager
-            ->createQuery("DELETE FROM App\Entity\User")
+            ->createQuery("DELETE FROM App\Domain\User\Entity\User")
             ->execute();
 
         // First request - get TOTP secret
@@ -370,7 +370,7 @@ class AuthControllerTest extends WebTestCase
         $container = static::getContainer();
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $entityManager
-            ->createQuery("DELETE FROM App\Entity\User")
+            ->createQuery("DELETE FROM App\Domain\User\Entity\User")
             ->execute();
 
         // Load setup page and get the TOTP secret from the page

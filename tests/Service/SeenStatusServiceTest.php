@@ -10,9 +10,9 @@
 
 namespace App\Tests\Service;
 
-use App\Entity\User;
-use App\Repository\UserRepository;
-use App\Service\SeenStatusService;
+use App\Domain\ItemStatus\Service\SeenStatusService;
+use App\Domain\User\Entity\User;
+use App\Domain\User\Repository\UserRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;

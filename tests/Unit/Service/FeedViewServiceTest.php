@@ -10,13 +10,13 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\Subscription;
-use App\Repository\BookmarkStatusRepository;
-use App\Repository\FeedItemQueryCriteria;
-use App\Repository\FeedItemRepository;
-use App\Service\FeedViewService;
-use App\Service\SubscriptionService;
-use App\Service\UserPreferenceService;
+use App\Domain\Feed\Entity\Subscription;
+use App\Domain\Feed\Repository\FeedItemQueryCriteria;
+use App\Domain\Feed\Repository\FeedItemRepository;
+use App\Domain\Feed\Service\FeedViewService;
+use App\Domain\Feed\Service\SubscriptionService;
+use App\Domain\ItemStatus\Repository\BookmarkStatusRepository;
+use App\Domain\User\Service\UserPreferenceService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

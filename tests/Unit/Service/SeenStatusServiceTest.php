@@ -10,8 +10,8 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Repository\SeenStatusRepository;
-use App\Service\SeenStatusService;
+use App\Domain\ItemStatus\Repository\SeenStatusRepository;
+use App\Domain\ItemStatus\Service\SeenStatusService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

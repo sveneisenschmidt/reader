@@ -10,8 +10,8 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\User;
-use App\Service\UserService;
+use App\Domain\User\Entity\User;
+use App\Domain\User\Service\UserService;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;

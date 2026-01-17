@@ -10,9 +10,9 @@
 
 namespace App\Tests\Service;
 
-use App\Entity\Subscription;
+use App\Domain\Feed\Entity\Subscription;
+use App\Domain\Feed\Service\FeedExceptionHandler;
 use App\Enum\SubscriptionStatus;
-use App\Service\FeedExceptionHandler;
 use FeedIo\Adapter\HttpRequestException;
 use FeedIo\Adapter\NotFoundException;
 use FeedIo\Adapter\ServerErrorException;

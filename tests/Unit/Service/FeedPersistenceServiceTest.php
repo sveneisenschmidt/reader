@@ -10,9 +10,9 @@
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\FeedItem;
-use App\Repository\FeedItemRepository;
-use App\Service\FeedPersistenceService;
+use App\Domain\Feed\Entity\FeedItem;
+use App\Domain\Feed\Repository\FeedItemRepository;
+use App\Domain\Feed\Service\FeedPersistenceService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

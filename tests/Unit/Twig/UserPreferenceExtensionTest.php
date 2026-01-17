@@ -10,9 +10,9 @@
 
 namespace App\Tests\Unit\Twig;
 
-use App\Entity\User;
+use App\Domain\User\Entity\User;
+use App\Domain\User\Service\UserPreferenceService;
 use App\Enum\PreferenceDefault;
-use App\Service\UserPreferenceService;
 use App\Twig\UserPreferenceExtension;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
