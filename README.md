@@ -70,9 +70,11 @@ Reader automatically detects and resolves feeds from various sources:
 - **YouTube channels** - Paste any YouTube channel URL
 - **Reddit subreddits** - Paste any subreddit URL, resolves to top weekly posts
 
-**Editing a feed:** Change the title and click "Save".
+**Editing a feed:** Change the name, folder, or settings and click "Update".
 
-**Removing a feed:** Click "Unsubscribe" next to the feed you want to remove.
+**Archive.is integration:** Enable "Open links via archive.is" for any subscription to open article links through archive.is. This helps bypass paywalls and preserves article content.
+
+**Removing a feed:** Click "Remove" next to the feed you want to remove.
 
 ### Filtering Articles
 
