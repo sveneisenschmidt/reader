@@ -25,7 +25,7 @@ enum PreferenceDefault
             self::Theme => 'auto',
             self::PullToRefresh => '1',
             self::AutoMarkRead => '0',
-            self::KeyboardShortcuts => '0',
+            self::KeyboardShortcuts => '1',
             self::FilterWords => '',
             self::Bookmarks => '1',
         };

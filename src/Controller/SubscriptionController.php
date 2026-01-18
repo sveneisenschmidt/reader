@@ -14,6 +14,7 @@ use App\Domain\Discovery\FeedResolverInterface;
 use App\Domain\Feed\Service\SubscriptionService;
 use App\Domain\User\Service\UserService;
 use App\Form\SubscriptionsType;
+use App\Service\OpmlService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +27,7 @@ class SubscriptionController extends AbstractController
         private SubscriptionService $subscriptionService,
         private UserService $userService,
         private FeedResolverInterface $feedResolver,
+        private OpmlService $opmlService,
     ) {
     }
 
@@ -86,6 +88,97 @@ class SubscriptionController extends AbstractController
                 }
             }
 
+            // Handle OPML import
+            if ($form->get('import')->isClicked()) {
+                $file = $form->get('opml')->getData();
+
+                if ($file === null) {
+                    $this->addFlash('error', 'No file uploaded.');
+
+                    return $this->redirectToRoute('subscriptions');
+                }
+
+                $content = file_get_contents($file->getPathname());
+                $feeds = $this->opmlService->parse($content);
+
+                if (empty($feeds)) {
+                    $this->addFlash('error', 'No feeds found in file.');
+
+                    return $this->redirectToRoute('subscriptions');
+                }
+
+                $imported = 0;
+                $skipped = 0;
+
+                foreach ($feeds as $feed) {
+                    $result = $this->feedResolver->resolve($feed['url']);
+
+                    if ($result->getError() !== null) {
+                        ++$skipped;
+
+                        continue;
+                    }
+
+                    $feedUrl = $result->getFeedUrl();
+
+                    // Check for duplicates
+                    $existingUrls = array_map(
+                        fn ($s) => $s->getUrl(),
+                        $subscriptions,
+                    );
+
+                    if (in_array($feedUrl, $existingUrls)) {
+                        ++$skipped;
+
+                        continue;
+                    }
+
+                    $subscription = $this->subscriptionService->addSubscription(
+                        $user->getId(),
+                        $feedUrl,
+                    );
+
+                    // Update folder if provided
+                    if (!empty($feed['folder'])) {
+                        $this->subscriptionService->updateSubscription(
+                            $user->getId(),
+                            $subscription->getGuid(),
+                            $subscription->getName(),
+                            $feed['folder'],
+                            $subscription->getUseArchiveIs(),
+                        );
+                    }
+
+                    $this->subscriptionService->updateRefreshTimestamp(
+                        $subscription,
+                    );
+                    ++$imported;
+
+                    // Update subscriptions list for duplicate check
+                    $subscriptions = $this->subscriptionService->getSubscriptionsForUser(
+                        $user->getId(),
+                    );
+                }
+
+                if ($imported > 0) {
+                    $this->addFlash(
+                        'success',
+                        sprintf('%d feed(s) imported.', $imported),
+                    );
+                }
+                if ($skipped > 0) {
+                    $this->addFlash(
+                        'success',
+                        sprintf(
+                            '%d feed(s) skipped (duplicates or errors).',
+                            $skipped,
+                        ),
+                    );
+                }
+
+                return $this->redirectToRoute('subscriptions');
+            }
+
             $hasError = false;
 
             // Handle new subscription
@@ -140,5 +233,31 @@ class SubscriptionController extends AbstractController
         return $this->render('subscription/index.html.twig', [
             'form' => $form,
         ]);
+    }
+
+    #[
+        Route(
+            '/subscriptions/export',
+            name: 'subscription_export',
+            methods: ['GET'],
+        ),
+    ]
+    public function export(): Response
+    {
+        $user = $this->userService->getCurrentUser();
+        $subscriptions = $this->subscriptionService->getSubscriptionsForUser(
+            $user->getId(),
+        );
+
+        $content = $this->opmlService->generate($subscriptions);
+
+        $response = new Response($content);
+        $response->headers->set('Content-Type', 'application/xml');
+        $response->headers->set(
+            'Content-Disposition',
+            'attachment; filename="reader-subscriptions.opml"',
+        );
+
+        return $response;
     }
 }

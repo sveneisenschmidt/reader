@@ -76,6 +76,10 @@ Reader automatically detects and resolves feeds from various sources:
 
 **Removing a feed:** Click "Remove" next to the feed you want to remove.
 
+**Import/Export (OPML):** Use the Import/Export section to migrate your subscriptions:
+- **Import:** Upload an OPML file to import feeds from other RSS readers. Duplicate feeds are automatically skipped.
+- **Export:** Download all your subscriptions as an OPML file for backup or migration.
+
 ### Filtering Articles
 
 Use the filters in the sidebar:

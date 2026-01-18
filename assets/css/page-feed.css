@@ -14,16 +14,18 @@ header h1 .back {
 
     & aside {
         border-right: 1px solid var(--color-border);
-        padding: var(--spacing-md);
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: var(--color-border) transparent;
         display: flex;
         flex-direction: column;
+        overflow: hidden;
 
         & > ul {
             list-style: none;
             flex: 1;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--color-border) transparent;
+            padding: var(--spacing-md);
+            padding-bottom: 0;
 
             & > li {
                 display: flex;
@@ -64,11 +66,10 @@ header h1 .back {
         }
 
         & .sidebar-nav {
-            margin-top: auto;
             display: flex;
             flex-direction: column;
             gap: var(--spacing-xs);
-            padding-top: var(--spacing-md);
+            padding: var(--spacing-md);
             border-top: 1px solid var(--color-border);
 
             & .sidebar-nav-link {
@@ -257,7 +258,6 @@ header h1 .back {
             display: none;
             border-right: none;
             height: 100%;
-            overflow-y: auto;
         }
 
         & > section {

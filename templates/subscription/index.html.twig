@@ -24,7 +24,7 @@
         <p class="flash-success">{{ message }}</p>
     {% endfor %}
 
-    {{ form_start(form, {'attr': {'class': 'form', 'novalidate': 'novalidate'}}) }}
+    {{ form_start(form, {'attr': {'class': 'form', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
 
     <section class="page-section">
         <h2>Add Subscription</h2>
@@ -91,6 +91,28 @@
         {% endfor %}
     </section>
     {% endif %}
+
+    <section class="page-section">
+        <h2>Import / Export</h2>
+
+        <div class="form-row">
+            {{ form_label(form.opml) }}
+            <div class="form-inline">
+                {{ form_widget(form.opml, {'attr': {'accept': '.opml,.xml'}}) }}
+                {{ form_widget(form.import) }}
+            </div>
+            {{ form_errors(form.opml) }}
+            <p>Import subscriptions from an OPML file.</p>
+        </div>
+
+        {% for message in app.flashes('error') %}
+            <p class="flash-error">{{ message }}</p>
+        {% endfor %}
+
+        <div class="form-links">
+            <a href="{{ path('subscription_export') }}">Export Subscriptions →</a>
+        </div>
+    </section>
 
     {{ form_end(form, {'render_rest': false}) }}
 {% endblock %}
