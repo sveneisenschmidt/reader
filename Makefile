@@ -61,7 +61,7 @@ icon:
 	@if [ -z "$(name)" ]; then echo "Usage: make icon name=<icon-name>"; exit 1; fi
 	@curl -s "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/$(name).svg"
 
-ICONS = settings-2 refresh-ccw-dot space arrow-up arrow-down corner-down-left arrow-right-to-line panel-left-open panel-left-close bookmark bookmark-minus eye eye-off link-2
+ICONS = settings-2 refresh-ccw-dot space arrow-up arrow-down corner-down-left arrow-right-to-line panel-left-open panel-left-close bookmark bookmark-minus eye eye-off link-2 check-check hash rss
 
 install-icons:
 	@mkdir -p assets/icons

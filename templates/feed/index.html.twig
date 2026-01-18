@@ -42,8 +42,26 @@
     <input type="checkbox" id="menu-toggle" class="menu-checkbox">
 {% endblock %}
 
-{% block menu_link %}
-    <a href="{{ path_with_filters('feed_index') }}" class="feeds-link active">Feeds</a>
+{% block header_actions %}
+    <a href="{{ filter_url({unread: unread ? 0 : 1}) }}" class="icon-btn" title="{{ unread ? 'Show all' : 'Show unread only' }}">
+        {{ unread ? source('@icons/eye.svg') : source('@icons/eye-off.svg') }}
+    </a>
+    <form action="{% if activeFeed %}{{ path_with_filters('subscription_mark_all_read', {sguid: activeFeed}) }}{% else %}{{ path_with_filters('feed_mark_all_read') }}{% endif %}" method="post" class="inline">
+        <input type="hidden" name="_token" value="{{ csrf_token('mark_all_read') }}">
+        <button type="submit" class="btn-link icon-btn" title="Mark all as read"{% if allItemsCount == 0 %} disabled{% endif %}>
+            {{ source('@icons/check-check.svg') }}
+        </button>
+    </form>
+    {% set nextLimit = limit == 25 ? 50 : (limit == 50 ? 0 : 25) %}
+    {% set displayLimit = limit == 0 ? '99' : limit %}
+    <a href="{{ filter_url({limit: nextLimit}) }}" class="icon-btn limit-toggle" title="Items per page: {{ displayLimit }}">
+        {{ source('@icons/hash.svg') }}
+        <span class="limit-value">{{ displayLimit }}</span>
+    </a>
+    <form action="{{ path_with_filters('feed_refresh') }}" method="post" class="inline" data-refresh-form>
+        <input type="hidden" name="_token" value="{{ csrf_token('refresh') }}">
+        <button type="submit" class="btn-link icon-btn" title="Refresh">{{ source('@icons/refresh-ccw-dot.svg') }}</button>
+    </form>
 {% endblock %}
 
 {% block footer_toggle %}
@@ -90,24 +108,16 @@
             </li>
             {% endfor %}
         </ul>
-        <div class="sidebar-filters">
-            <div class="filter-group">
-                <a href="{{ filter_url({unread: unread ? 0 : 1}) }}" class="filter-toggle{% if unread %} active{% endif %}">{% if unread %}● Show unread (turn off){% else %}○ Show unread{% endif %}</a>
-            </div>
-            <div class="filter-group">
-                <a href="{{ filter_url({limit: 25}) }}" class="filter-limit{% if limit == 25 %} active{% endif %}">{% if limit == 25 %}●{% else %}○{% endif %} 25</a>
-                <a href="{{ filter_url({limit: 50}) }}" class="filter-limit{% if limit == 50 %} active{% endif %}">{% if limit == 50 %}●{% else %}○{% endif %} 50</a>
-                <a href="{{ filter_url({limit: 0}) }}" class="filter-limit{% if limit == 0 %} active{% endif %}">{% if limit == 0 %}●{% else %}○{% endif %} 99+</a>
-            </div>
-        </div>
-        {% if allItemsCount > 0 %}
-        <footer class="sidebar-footer">
-            <form action="{% if activeFeed %}{{ path_with_filters('subscription_mark_all_read', {sguid: activeFeed}) }}{% else %}{{ path_with_filters('feed_mark_all_read') }}{% endif %}" method="post" class="inline">
-                <input type="hidden" name="_token" value="{{ csrf_token('mark_all_read') }}">
-                <button type="submit" class="btn-link">Mark all as read</button>
-            </form>
-        </footer>
-        {% endif %}
+        <nav class="sidebar-nav">
+            <a href="{{ path('subscriptions') }}" class="sidebar-nav-link{% if app.request.attributes.get('_route') == 'subscriptions' %} active{% endif %}">
+                {{ source('@icons/rss.svg') }}
+                <span>Subscriptions</span>
+            </a>
+            <a href="{{ path('preferences') }}" class="sidebar-nav-link{% if app.request.attributes.get('_route') == 'preferences' %} active{% endif %}">
+                {{ source('@icons/settings-2.svg') }}
+                <span>Settings</span>
+            </a>
+        </nav>
     </aside>
 
     <section data-reading-list{% if activeFeed %} data-subscription="{{ activeFeed }}"{% endif %}{% if not activeItem %} data-full-width{% endif %}>

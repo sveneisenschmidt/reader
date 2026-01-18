@@ -31,6 +31,8 @@
         flex: 1;
         overflow-y: auto;
         padding: var(--spacing-lg) var(--spacing-xl);
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-border) transparent;
 
         & .embed {
             display: flex;

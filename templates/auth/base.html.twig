@@ -13,6 +13,9 @@
 <body>
     <header>
         <h1>Reader</h1>
+        <nav class="header-actions">
+            <span>{% block header_actions %}{% endblock %}</span>
+        </nav>
     </header>
 
     <main id="{% block page_id %}{% endblock %}" class="page-container">

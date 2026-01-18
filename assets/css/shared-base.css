@@ -243,17 +243,19 @@ body {
             }
         }
 
-        & nav {
+        & nav.header-actions {
             display: flex;
             align-items: center;
-            gap: var(--spacing-sm);
+            gap: var(--spacing-xs);
 
             & .icon-btn {
                 display: flex;
                 align-items: center;
+                padding: var(--spacing-xs);
 
-                &:first-of-type {
-                    margin-left: var(--spacing-sm);
+                &:disabled {
+                    opacity: 0.3;
+                    cursor: not-allowed;
                 }
             }
 
@@ -263,25 +265,13 @@ body {
                 height: 18px;
             }
 
-            & .icon-btn.active svg {
-                stroke-width: 3;
-            }
+            & .limit-toggle {
+                gap: var(--spacing-xs);
 
-            & a:not(.icon-btn) {
-                text-align: center;
-            }
-
-            & .feeds-link {
-                min-width: 3.5rem;
-            }
-
-            & a[href*="subscriptions"] {
-                min-width: 6.5rem;
-            }
-
-            & a.active,
-            & .menu-toggle {
-                font-weight: var(--font-weight-medium);
+                & .limit-value {
+                    font-family: monospace;
+                    font-size: 0.875rem;
+                }
             }
         }
     }
