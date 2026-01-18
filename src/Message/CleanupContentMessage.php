@@ -15,7 +15,7 @@ use App\Enum\MessageSource;
 class CleanupContentMessage implements RetainableMessageInterface, SourceAwareMessageInterface
 {
     public function __construct(
-        public readonly int $olderThanDays = 30,
+        public readonly int $maxItemsPerSubscription = 50,
         private MessageSource $source = MessageSource::Webhook,
     ) {
     }

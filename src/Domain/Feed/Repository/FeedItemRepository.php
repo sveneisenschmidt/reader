@@ -66,7 +66,7 @@ class FeedItemRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('f')
             ->where('f.subscriptionGuid IN (:subscriptionGuids)')
             ->setParameter('subscriptionGuids', $subscriptionGuids)
-            ->orderBy('f.fetchedAt', 'DESC')
+            ->orderBy('f.publishedAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
@@ -119,25 +119,60 @@ class FeedItemRepository extends ServiceEntityRepository
         return $this->count(['subscriptionGuid' => $subscriptionGuid]);
     }
 
-    public function deleteOlderThan(\DateTimeInterface $date): int
+    /**
+     * Trim feed items per subscription to a maximum limit.
+     * Keeps the newest items and preserves bookmarked items.
+     *
+     * @return int Number of deleted items
+     */
+    public function trimToLimitPerSubscription(int $limit = 50): int
     {
         $em = $this->getEntityManager();
+        $conn = $em->getConnection();
 
-        // Build subquery to exclude bookmarked items
-        $bookmarkSubDql = $em
-            ->createQueryBuilder()
-            ->select('1')
-            ->from(BookmarkStatus::class, 'bm')
-            ->where('bm.feedItemGuid = f.guid')
-            ->getDQL();
+        // Get all subscription guids that have items
+        $subscriptionGuids = $conn->fetchFirstColumn(
+            'SELECT DISTINCT subscription_guid FROM feed_item',
+        );
 
-        return $this->createQueryBuilder('f')
-            ->delete()
-            ->where('f.publishedAt < :date')
-            ->andWhere("NOT EXISTS({$bookmarkSubDql})")
-            ->setParameter('date', $date)
-            ->getQuery()
-            ->execute();
+        $totalDeleted = 0;
+
+        foreach ($subscriptionGuids as $subscriptionGuid) {
+            // Get GUIDs to keep (newest N items)
+            $guidsToKeep = $conn->fetchFirstColumn(
+                'SELECT guid FROM feed_item
+                 WHERE subscription_guid = ?
+                 ORDER BY published_at DESC
+                 LIMIT ?',
+                [$subscriptionGuid, $limit],
+            );
+
+            if (empty($guidsToKeep)) {
+                continue;
+            }
+
+            // Delete items that are:
+            // - From this subscription
+            // - Not in the top N
+            // - Not bookmarked
+            $placeholders = implode(
+                ',',
+                array_fill(0, count($guidsToKeep), '?'),
+            );
+            $params = array_merge([$subscriptionGuid], $guidsToKeep);
+
+            $deleted = $conn->executeStatement(
+                "DELETE FROM feed_item
+                 WHERE subscription_guid = ?
+                 AND guid NOT IN ({$placeholders})
+                 AND guid NOT IN (SELECT feed_item_guid FROM bookmark_status)",
+                $params,
+            );
+
+            $totalDeleted += $deleted;
+        }
+
+        return $totalDeleted;
     }
 
     #[Returns('list<string>')]
@@ -215,7 +250,7 @@ class FeedItemRepository extends ServiceEntityRepository
             ->where('f.subscriptionGuid IN (:sguids)')
             ->setParameter('sguids', $subscriptionGuids)
             ->setParameter('userId', $userId)
-            ->orderBy('f.fetchedAt', 'DESC');
+            ->orderBy('f.publishedAt', 'DESC');
 
         // Filter by specific subscription
         if ($subscriptionGuid !== null) {
@@ -280,7 +315,7 @@ class FeedItemRepository extends ServiceEntityRepository
             ->select('f.guid')
             ->where('f.subscriptionGuid = :sguid')
             ->setParameter('sguid', $subscriptionGuid)
-            ->orderBy('f.fetchedAt', 'DESC')
+            ->orderBy('f.publishedAt', 'DESC')
             ->getQuery()
             ->getScalarResult();
 

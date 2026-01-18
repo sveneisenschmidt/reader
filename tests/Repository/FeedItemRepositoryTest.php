@@ -264,45 +264,65 @@ class FeedItemRepositoryTest extends KernelTestCase
     }
 
     #[Test]
-    public function deleteOlderThanRemovesOldItems(): void
+    public function trimToLimitPerSubscriptionRemovesExcessItems(): void
     {
-        $subscriptionGuid = 'deletefeed123456';
-        $oldItem = $this->createFeedItem(
-            'olditem123456789',
+        $subscriptionGuid = 'trimfeed12345678';
+
+        // Create 5 items
+        for ($i = 0; $i < 5; ++$i) {
+            $item = $this->createFeedItem(
+                "trimitem{$i}1234567",
+                $subscriptionGuid,
+                new \DateTimeImmutable("-{$i} days"),
+            );
+            $this->repository->upsert($item);
+        }
+
+        // Trim to 3 items
+        $deleted = $this->repository->trimToLimitPerSubscription(3);
+
+        $this->assertGreaterThanOrEqual(2, $deleted);
+
+        // Verify only 3 items remain
+        $remaining = $this->repository->getGuidsBySubscriptionGuid(
             $subscriptionGuid,
-            new \DateTimeImmutable('-30 days'),
         );
-        $this->repository->upsert($oldItem);
-
-        $deleted = $this->repository->deleteOlderThan(
-            new \DateTimeImmutable('-7 days'),
-        );
-
-        $this->assertGreaterThanOrEqual(0, $deleted);
+        $this->assertCount(3, $remaining);
     }
 
     #[Test]
-    public function deleteOlderThanDoesNotRemoveBookmarkedItems(): void
+    public function trimToLimitPerSubscriptionDoesNotRemoveBookmarkedItems(): void
     {
-        $subscriptionGuid = 'bookmarkdel12345';
+        $subscriptionGuid = 'trimbookmark1234';
         $userId = 994;
-        $oldItemGuid = 'oldbookmarked123';
+        $bookmarkedGuid = 'bookmarkedtrim12';
 
+        // Create 5 items, one will be bookmarked
+        for ($i = 0; $i < 4; ++$i) {
+            $item = $this->createFeedItem(
+                "trimnobook{$i}12345",
+                $subscriptionGuid,
+                new \DateTimeImmutable("-{$i} days"),
+            );
+            $this->repository->upsert($item);
+        }
+
+        // Create an old item that will be bookmarked
         $oldItem = $this->createFeedItem(
-            $oldItemGuid,
+            $bookmarkedGuid,
             $subscriptionGuid,
             new \DateTimeImmutable('-30 days'),
         );
         $this->repository->upsert($oldItem);
 
-        // Bookmark the item
-        $this->bookmarkRepository->bookmark($userId, $oldItemGuid);
+        // Bookmark the old item
+        $this->bookmarkRepository->bookmark($userId, $bookmarkedGuid);
 
-        // Try to delete old items
-        $this->repository->deleteOlderThan(new \DateTimeImmutable('-7 days'));
+        // Trim to 2 items - should keep 2 newest + 1 bookmarked
+        $this->repository->trimToLimitPerSubscription(2);
 
         // Bookmarked item should still exist
-        $result = $this->repository->findByGuid($oldItemGuid);
+        $result = $this->repository->findByGuid($bookmarkedGuid);
         $this->assertNotNull($result);
     }
 

@@ -20,52 +20,49 @@ use Psr\Log\LoggerInterface;
 class CleanupContentHandlerTest extends TestCase
 {
     #[Test]
-    public function deletesOldContent(): void
+    public function trimsItemsPerSubscription(): void
     {
         $feedItemRepository = $this->createMock(FeedItemRepository::class);
-        $feedItemRepository->expects($this->once())
-            ->method('deleteOlderThan')
-            ->with($this->callback(function (\DateTimeInterface $date) {
-                $expected = new \DateTimeImmutable('-30 days');
-
-                return abs($date->getTimestamp() - $expected->getTimestamp()) < 5;
-            }))
+        $feedItemRepository
+            ->expects($this->once())
+            ->method('trimToLimitPerSubscription')
+            ->with(50)
             ->willReturn(10);
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->exactly(2))->method('info');
 
         $handler = new CleanupContentHandler($feedItemRepository, $logger);
-        $handler(new CleanupContentMessage(olderThanDays: 30));
+        $handler(new CleanupContentMessage(maxItemsPerSubscription: 50));
     }
 
     #[Test]
-    public function respectsCustomOlderThanDays(): void
+    public function respectsCustomLimit(): void
     {
         $feedItemRepository = $this->createMock(FeedItemRepository::class);
-        $feedItemRepository->expects($this->once())
-            ->method('deleteOlderThan')
-            ->with($this->callback(function (\DateTimeInterface $date) {
-                $expected = new \DateTimeImmutable('-7 days');
-
-                return abs($date->getTimestamp() - $expected->getTimestamp()) < 5;
-            }))
+        $feedItemRepository
+            ->expects($this->once())
+            ->method('trimToLimitPerSubscription')
+            ->with(100)
             ->willReturn(5);
 
         $logger = $this->createMock(LoggerInterface::class);
 
         $handler = new CleanupContentHandler($feedItemRepository, $logger);
-        $handler(new CleanupContentMessage(olderThanDays: 7));
+        $handler(new CleanupContentMessage(maxItemsPerSubscription: 100));
     }
 
     #[Test]
     public function logsCleanupDetails(): void
     {
         $feedItemRepository = $this->createMock(FeedItemRepository::class);
-        $feedItemRepository->method('deleteOlderThan')->willReturn(15);
+        $feedItemRepository
+            ->method('trimToLimitPerSubscription')
+            ->willReturn(15);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->exactly(2))
+        $logger
+            ->expects($this->exactly(2))
             ->method('info')
             ->willReturnCallback(function (string $message, array $context) {
                 static $callCount = 0;
@@ -73,8 +70,10 @@ class CleanupContentHandlerTest extends TestCase
 
                 if ($callCount === 1) {
                     $this->assertEquals('Cleaning up old content', $message);
-                    $this->assertArrayHasKey('older_than_days', $context);
-                    $this->assertArrayHasKey('cutoff_date', $context);
+                    $this->assertArrayHasKey(
+                        'max_items_per_subscription',
+                        $context,
+                    );
                 }
 
                 if ($callCount === 2) {
@@ -84,6 +83,6 @@ class CleanupContentHandlerTest extends TestCase
             });
 
         $handler = new CleanupContentHandler($feedItemRepository, $logger);
-        $handler(new CleanupContentMessage(olderThanDays: 30));
+        $handler(new CleanupContentMessage(maxItemsPerSubscription: 50));
     }
 }

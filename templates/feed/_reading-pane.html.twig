@@ -3,7 +3,7 @@
         <h1><a href="{{ path('feed_item_open', {fguid: activeItem.guid, url: activeItem.link}) }}" target="_blank" rel="noopener noreferrer">{{ activeItem.title }}</a></h1>
         <p class="meta">
             <a href="{{ path_with_filters('subscription_show', {sguid: activeItem.sguid}) }}" class="source">{{ activeItem.source }}</a>
-            <time datetime="{{ activeItem.fetchedAt|date('Y-m-d\\TH:i') }}" title="Published at: {{ activeItem.publishedAt|date('j F Y, H:i') }}">{% if activeItem.fetchedAt|date('Y-m-d') == 'now'|date('Y-m-d') %}{{ activeItem.fetchedAt|date('H:i') }}{% else %}{{ activeItem.fetchedAt|date('j F Y, H:i') }}{% endif %}</time>
+            <time datetime="{{ activeItem.publishedAt|date('Y-m-d\\TH:i') }}" title="Fetched at: {{ activeItem.fetchedAt|date('j F Y, H:i') }}">{% if activeItem.publishedAt|date('Y-m-d') == 'now'|date('Y-m-d') %}{{ activeItem.publishedAt|date('H:i') }}{% else %}{{ activeItem.publishedAt|date('j F Y, H:i') }}{% endif %}</time>
         </p>
     </header>
     <div class="content">

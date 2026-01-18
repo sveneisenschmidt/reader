@@ -26,15 +26,12 @@ class CleanupContentHandler
 
     public function __invoke(CleanupContentMessage $message): void
     {
-        $cutoffDate = new \DateTimeImmutable("-{$message->olderThanDays} days");
-
         $this->logger->info('Cleaning up old content', [
-            'older_than_days' => $message->olderThanDays,
-            'cutoff_date' => $cutoffDate->format('Y-m-d'),
+            'max_items_per_subscription' => $message->maxItemsPerSubscription,
         ]);
 
-        $deletedContent = $this->feedItemRepository->deleteOlderThan(
-            $cutoffDate,
+        $deletedContent = $this->feedItemRepository->trimToLimitPerSubscription(
+            $message->maxItemsPerSubscription,
         );
 
         $this->logger->info('Cleanup completed', [

@@ -49,7 +49,7 @@ class WebhookController extends AbstractController
     public function cleanupContent(MessageBusInterface $bus): JsonResponse
     {
         try {
-            $bus->dispatch(new CleanupContentMessage(olderThanDays: 30));
+            $bus->dispatch(new CleanupContentMessage());
 
             return new JsonResponse(['status' => 'success']);
         } catch (\Throwable $e) {

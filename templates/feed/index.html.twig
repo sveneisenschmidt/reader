@@ -135,7 +135,7 @@
                 <h2>{% if item.isNew %}<span class="new-indicator">●</span> {% endif %}{{ item.title }}</h2>
                 <p class="meta">
                     <span class="source">{{ item.source }}</span>
-                    <time datetime="{{ item.fetchedAt|date('Y-m-d') }}" title="Published at: {{ item.publishedAt|date('j F Y, H:i') }}">{% if item.fetchedAt|date('Y-m-d') == 'now'|date('Y-m-d') %}{{ item.fetchedAt|date('H:i') }}{% else %}{{ item.fetchedAt|date('j F Y') }}{% endif %}</time>
+                    <time datetime="{{ item.publishedAt|date('Y-m-d') }}">{% if item.publishedAt|date('Y-m-d') == 'now'|date('Y-m-d') %}{{ item.publishedAt|date('H:i') }}{% else %}{{ item.publishedAt|date('j F Y') }}{% endif %}</time>
                 </p>
             </a>
 
