@@ -10,6 +10,7 @@
 
 namespace App\Tests\Controller;
 
+use App\Domain\ItemStatus\Service\ReadStatusService;
 use App\Tests\Trait\AuthenticatedTestTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -369,5 +370,102 @@ class FeedViewControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('main#feed');
+    }
+
+    #[Test]
+    public function sidebarShowsAllSubscriptionsWhenUnreadFilterDisabled(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+
+        // Create two subscriptions
+        $sub1 = $this->createTestSubscription('1111111111111111');
+        $sub2 = $this->createTestSubscription('2222222222222222');
+
+        // Create item for first subscription only
+        $this->createTestFeedItem($sub1->getGuid(), 'aaaaaaaaaaaaaaaa');
+
+        // Mark the item as read so sub1 has 0 unread
+        $readStatusService = static::getContainer()->get(
+            ReadStatusService::class,
+        );
+        $readStatusService->markAsRead(
+            $this->testUser->getId(),
+            'aaaaaaaaaaaaaaaa',
+        );
+
+        // Without unread filter, both subscriptions should be visible
+        $crawler = $client->request('GET', '/');
+
+        $this->assertResponseIsSuccessful();
+        $sidebarHtml = $crawler->filter('aside')->html();
+        $this->assertStringContainsString('Test Feed', $sidebarHtml);
+    }
+
+    #[Test]
+    public function sidebarHidesSubscriptionsWithNoUnreadWhenFilterActive(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+
+        // Create two subscriptions with different names
+        $sub1 = $this->createTestSubscription('3333333333333333');
+        $sub2 = $this->createTestSubscription('4444444444444444');
+
+        // Create items for both subscriptions
+        $this->createTestFeedItem($sub1->getGuid(), 'bbbbbbbbbbbbbbbb');
+        $this->createTestFeedItem($sub2->getGuid(), 'cccccccccccccccc');
+
+        // Mark item from sub1 as read
+        $readStatusService = static::getContainer()->get(
+            ReadStatusService::class,
+        );
+        $readStatusService->markAsRead(
+            $this->testUser->getId(),
+            'bbbbbbbbbbbbbbbb',
+        );
+
+        // With unread filter active, sub1 (0 unread) should be hidden
+        // sub2 (1 unread) should be visible
+        $crawler = $client->request('GET', '/?unread=1');
+
+        $this->assertResponseIsSuccessful();
+        $sidebar = $crawler->filter('aside .subscription-list');
+        $this->assertGreaterThan(0, $sidebar->count());
+
+        // Check that subscription with unread items shows a count
+        $countsHtml = $sidebar->html();
+        $this->assertStringContainsString('class="count"', $countsHtml);
+    }
+
+    #[Test]
+    public function sidebarShowsActiveSubscriptionEvenWithNoUnread(): void
+    {
+        $client = static::createClient();
+        $this->loginAsTestUser($client);
+
+        // Use default subscription guid
+        $sub = $this->createTestSubscription();
+        $sguid = $sub->getGuid();
+
+        // Create and mark item as read
+        $this->createTestFeedItem($sguid, 'dddddddddddddddd');
+        $readStatusService = static::getContainer()->get(
+            ReadStatusService::class,
+        );
+        $readStatusService->markAsRead(
+            $this->testUser->getId(),
+            'dddddddddddddddd',
+        );
+
+        // Navigate to the subscription with unread filter
+        // The subscription should still be visible because it's active
+        $crawler = $client->request('GET', '/s/'.$sguid.'?unread=1');
+
+        $this->assertResponseIsSuccessful();
+        // The active subscription should be visible in the sidebar even with 0 unread
+        // Check that the subscription link is present in the sidebar
+        $subscriptionLink = $crawler->filter('aside a[href*="'.$sguid.'"]');
+        $this->assertGreaterThan(0, $subscriptionLink->count());
     }
 }

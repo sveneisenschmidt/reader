@@ -179,33 +179,7 @@ class FeedItemRepository extends ServiceEntityRepository
         $excludeFromUnreadFilter = $criteria->excludeFromUnreadFilter;
         $bookmarkedOnly = $criteria->bookmarkedOnly;
 
-        $em = $this->getEntityManager();
-
-        // Build subqueries for read/seen/bookmarked status using DQL
-        $readSubDql = $em
-            ->createQueryBuilder()
-            ->select('1')
-            ->from(ReadStatus::class, 'rs')
-            ->where('rs.feedItemGuid = f.guid')
-            ->andWhere('rs.userId = :userId')
-            ->getDQL();
-
-        $seenSubDql = $em
-            ->createQueryBuilder()
-            ->select('1')
-            ->from(SeenStatus::class, 'ss')
-            ->where('ss.feedItemGuid = f.guid')
-            ->andWhere('ss.userId = :userId')
-            ->getDQL();
-
-        $bookmarkSubDql = $em
-            ->createQueryBuilder()
-            ->select('1')
-            ->from(BookmarkStatus::class, 'bm')
-            ->where('bm.feedItemGuid = f.guid')
-            ->andWhere('bm.userId = :userId')
-            ->getDQL();
-
+        // Use LEFT JOINs instead of EXISTS subqueries for better performance
         $qb = $this->createQueryBuilder('f')
             ->select(
                 'f.guid',
@@ -216,9 +190,27 @@ class FeedItemRepository extends ServiceEntityRepository
                 'f.excerpt',
                 'f.fetchedAt as fetchedAt',
                 'f.publishedAt as publishedAt',
-                "CASE WHEN EXISTS({$readSubDql}) THEN true ELSE false END as isRead",
-                "CASE WHEN EXISTS({$seenSubDql}) THEN true ELSE false END as isSeen",
-                "CASE WHEN EXISTS({$bookmarkSubDql}) THEN true ELSE false END as isBookmarked",
+                'CASE WHEN rs.id IS NOT NULL THEN true ELSE false END as isRead',
+                'CASE WHEN ss.id IS NOT NULL THEN true ELSE false END as isSeen',
+                'CASE WHEN bm.id IS NOT NULL THEN true ELSE false END as isBookmarked',
+            )
+            ->leftJoin(
+                ReadStatus::class,
+                'rs',
+                'WITH',
+                'rs.feedItemGuid = f.guid AND rs.userId = :userId',
+            )
+            ->leftJoin(
+                SeenStatus::class,
+                'ss',
+                'WITH',
+                'ss.feedItemGuid = f.guid AND ss.userId = :userId',
+            )
+            ->leftJoin(
+                BookmarkStatus::class,
+                'bm',
+                'WITH',
+                'bm.feedItemGuid = f.guid AND bm.userId = :userId',
             )
             ->where('f.subscriptionGuid IN (:sguids)')
             ->setParameter('sguids', $subscriptionGuids)
@@ -244,35 +236,18 @@ class FeedItemRepository extends ServiceEntityRepository
 
         // Filter unread only (with optional exclusion for active item)
         if ($unreadOnly) {
-            // Use separate alias for unread filter subquery to avoid conflict
-            $unreadSubDql = $em
-                ->createQueryBuilder()
-                ->select('1')
-                ->from(ReadStatus::class, 'rs2')
-                ->where('rs2.feedItemGuid = f.guid')
-                ->andWhere('rs2.userId = :userId')
-                ->getDQL();
-
             if ($excludeFromUnreadFilter !== null) {
                 $qb->andWhere(
-                    "(NOT EXISTS({$unreadSubDql}) OR f.guid = :excludeGuid)",
+                    '(rs.id IS NULL OR f.guid = :excludeGuid)',
                 )->setParameter('excludeGuid', $excludeFromUnreadFilter);
             } else {
-                $qb->andWhere("NOT EXISTS({$unreadSubDql})");
+                $qb->andWhere('rs.id IS NULL');
             }
         }
 
         // Filter bookmarked only
         if ($bookmarkedOnly) {
-            $bookmarkFilterDql = $em
-                ->createQueryBuilder()
-                ->select('1')
-                ->from(BookmarkStatus::class, 'bm2')
-                ->where('bm2.feedItemGuid = f.guid')
-                ->andWhere('bm2.userId = :userId')
-                ->getDQL();
-
-            $qb->andWhere("EXISTS({$bookmarkFilterDql})");
+            $qb->andWhere('bm.id IS NOT NULL');
         }
 
         if ($limit > 0) {
@@ -324,24 +299,20 @@ class FeedItemRepository extends ServiceEntityRepository
             return [];
         }
 
-        $em = $this->getEntityManager();
-
-        // Build subquery for read status using DQL
-        $readSubDql = $em
-            ->createQueryBuilder()
-            ->select('1')
-            ->from(ReadStatus::class, 'rs')
-            ->where('rs.feedItemGuid = f.guid')
-            ->andWhere('rs.userId = :userId')
-            ->getDQL();
-
+        // Use LEFT JOIN instead of EXISTS subquery for better performance
         $qb = $this->createQueryBuilder('f')
             ->select(
                 'f.subscriptionGuid as sguid',
                 'COUNT(f.id) as unreadCount',
             )
+            ->leftJoin(
+                ReadStatus::class,
+                'rs',
+                'WITH',
+                'rs.feedItemGuid = f.guid AND rs.userId = :userId',
+            )
             ->where('f.subscriptionGuid IN (:sguids)')
-            ->andWhere("NOT EXISTS({$readSubDql})")
+            ->andWhere('rs.id IS NULL')
             ->setParameter('sguids', $subscriptionGuids)
             ->setParameter('userId', $userId);
 

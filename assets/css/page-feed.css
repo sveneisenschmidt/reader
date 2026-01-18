@@ -45,6 +45,7 @@ header h1 .back {
 
                     & > span {
                         padding: var(--spacing-sm) 0 var(--spacing-xs) 0;
+                        font-style: italic;
                     }
 
                     & ul {

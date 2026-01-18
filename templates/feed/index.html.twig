@@ -89,10 +89,12 @@
             </li>
             {% endif %}
             {% for folder, folderFeeds in groupedFeeds %}
+            {% set visibleFeeds = folderFeeds|filter(f => not unread or f.count > 0 or activeFeed == f.sguid) %}
+            {% if visibleFeeds is not empty %}
             <li class="folder">
                 <span class="folder-name">{{ folder }}</span>
                 <ul class="folder-feeds">
-                    {% for feed in folderFeeds|sort((a, b) => a.name|lower <=> b.name|lower) %}
+                    {% for feed in visibleFeeds|sort((a, b) => a.name|lower <=> b.name|lower) %}
                     <li{% if activeFeed == feed.sguid %} class="active"{% endif %}>
                         <a href="{{ path_with_filters('subscription_show', {sguid: feed.sguid}) }}">{{ feed.name }}</a>
                         {% if feed.count > 0 %}<span class="count">{{ feed.count }}</span>{% endif %}
@@ -100,12 +102,15 @@
                     {% endfor %}
                 </ul>
             </li>
+            {% endif %}
             {% endfor %}
             {% for feed in ungroupedFeeds|sort((a, b) => a.name|lower <=> b.name|lower) %}
+            {% if not unread or feed.count > 0 or activeFeed == feed.sguid %}
             <li{% if activeFeed == feed.sguid %} class="active"{% endif %}>
                 <a href="{{ path_with_filters('subscription_show', {sguid: feed.sguid}) }}">{{ feed.name }}</a>
                 {% if feed.count > 0 %}<span class="count">{{ feed.count }}</span>{% endif %}
             </li>
+            {% endif %}
             {% endfor %}
         </ul>
         <nav class="sidebar-nav">
