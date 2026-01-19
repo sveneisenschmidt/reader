@@ -11,37 +11,13 @@
 - Use **single quotes** (`'`) for strings, not double quotes (`"`)
 - String concatenation: use `.` with spaces (e.g., `'Hello ' . $name`)
 - Arrow functions: space before parenthesis (e.g., `fn ($x) => $x + 1`)
-- Run `php vendor/bin/php-cs-fixer fix` to auto-format code
+- Run `make lint-fix` to auto-format code
 
 ## Directory Structure
 
-```
-src/
-├── Command/
-├── Controller/
-├── Entity/
-│   ├── Content/
-│   ├── Messages/
-│   ├── Subscriptions/
-│   └── Users/
-├── Enum/
-├── EventListener/
-├── EventSubscriber/
-├── Form/
-├── Message/
-├── MessageHandler/
-├── Messenger/
-│   └── Middleware/
-├── Repository/
-│   ├── Content/
-│   ├── Messages/
-│   ├── Subscriptions/
-│   └── Users/
-├── Scheduler/
-├── Security/
-├── Service/
-└── Twig/
-```
+Top-level directories in `src/`: Command, Controller, Domain, Enum, EventListener, EventSubscriber, Form, Message, MessageHandler, Messenger, Repository, Scheduler, Security, Service, Twig.
+
+Domain entities are grouped by context: Content, Messages, Subscriptions, Users.
 
 ## Naming
 
@@ -108,11 +84,6 @@ Use validator constraints, enable CSRF:
 
 ## Tests
 
-```
-tests/
-├── Controller/   # WebTestCase
-├── Integration/
-└── Unit/
-```
+Test directories: Controller (WebTestCase), Integration, Unit.
 
-Run: `php bin/phpunit`
+Run: `make test`

@@ -9,26 +9,19 @@
 
 ## CSS Files
 
-```
-assets/css/
-├── shared-base.css        # Variables, reset, typography
-├── shared-layout.css      # .page-container, .page-section, .flash-*
-├── shared-forms.css       # .form, .form-row, .form-actions, etc.
-├── page-auth.css
-├── page-feed.css
-├── page-preferences.css
-├── page-subscriptions.css
-└── page-onboarding.css
-```
+Files in `assets/css/`:
+- `shared-base.css` - Variables, reset, typography
+- `shared-layout.css` - .page-container, .page-section, .flash-*
+- `shared-forms.css` - .form, .form-row, .form-actions, etc.
+- `page-auth.css`, `page-feed.css`, `page-preferences.css`, `page-subscriptions.css`, `page-onboarding.css`
 
-Load order: `shared-base` → `shared-layout` → `shared-forms` → `page-*`
+Load order: shared-base → shared-layout → shared-forms → page-*
 
 ## Classes
 
 ### Layout
 - `.page-container` - centered flex container
 - `.page-section` - section with h2 border
-- `.page-section--bordered` - adds top border
 - `.flash-success`, `.flash-error`
 
 ### Forms
@@ -63,23 +56,9 @@ Load order: `shared-base` → `shared-layout` → `shared-forms` → `page-*`
 
 ## Structure
 
-Form pages:
-```
-main#[id].page-container
-└── form.form
-    └── section.page-section
-        ├── h2
-        ├── div.form-row
-        └── div.form-actions
-```
+Form pages: `main#[id].page-container` contains `form.form` with `section.page-section` holding `h2`, `div.form-row`, and `div.form-actions`.
 
-Feed page:
-```
-main#feed
-├── aside[data-sidebar]
-├── section[data-reading-list]
-└── article[data-reading-pane]
-```
+Feed page: `main#feed` contains `aside[data-sidebar]`, `section[data-reading-list]`, and `article[data-reading-pane]`.
 
 ## CSS Variables
 
