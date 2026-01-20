@@ -436,3 +436,24 @@ h3 {
 .status-inactive {
     background-color: var(--color-red);
 }
+
+/* Orientation warning for mobile landscape */
+.orientation-warning {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    justify-content: center;
+    align-items: center;
+    font-size: 1.25rem;
+    text-align: center;
+    padding: var(--spacing-md);
+    z-index: 9999;
+}
+
+@media (orientation: landscape) and (height <= 500px) {
+    .orientation-warning {
+        display: flex;
+    }
+}
