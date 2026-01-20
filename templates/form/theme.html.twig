@@ -26,8 +26,7 @@
 {%- endblock form_errors -%}
 
 {%- block form_start -%}
-    <form method="{{ method|default('post') }}"{% if action %} action="{{ action }}"{% endif %}{{ block('attributes') }}>
-    {%- if form.vars.multipart %} enctype="multipart/form-data"{% endif -%}
+    <form method="{{ method|default('post') }}"{% if action %} action="{{ action }}"{% endif %}{% if form.vars.multipart %} enctype="multipart/form-data"{% endif %}{{ block('attributes') }}>
     {%- if method != 'GET' and method != 'POST' -%}
         <input type="hidden" name="_method" value="{{ method }}">
     {%- endif -%}

@@ -8,16 +8,25 @@
  * SPDX-License-Identifier: MIT
  */
 
+/*
+ * The RSS link extraction and UULF playlist conversion (for excluding Shorts)
+ * were inspired by Jasper Tandy's excellent blog post and Apple Shortcut:
+ *
+ * @see https://jasper.tandy.is/blogging/youtube-rss-shortcut
+ *
+ * Credits to Jasper for documenting this approach!
+ */
+
 namespace App\Domain\Discovery\Resolver;
 
 use App\Domain\Discovery\FeedResolverInterface;
 use App\Domain\Discovery\FeedResolverResult;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class YouTubeChannelResolverService implements FeedResolverInterface
+final class YouTubeResolverService implements FeedResolverInterface
 {
-    private const RESOLVER_NAME = 'youtube-channel';
+    private const RESOLVER_NAME = 'youtube';
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
@@ -123,10 +132,6 @@ final class YouTubeChannelResolverService implements FeedResolverInterface
                 ],
             ]);
             $content = $response->getContent();
-        } catch (TransportExceptionInterface $e) {
-            return $result->setError(
-                'Could not fetch YouTube channel page: '.$e->getMessage(),
-            );
         } catch (\Throwable $e) {
             return $result->setError(
                 'Could not fetch YouTube channel page: '.$e->getMessage(),
@@ -157,11 +162,25 @@ final class YouTubeChannelResolverService implements FeedResolverInterface
         return $url;
     }
 
+    /**
+     * Build the RSS feed URL for a YouTube channel (excluding Shorts).
+     *
+     * Converts the channel ID to a playlist ID that only contains
+     * long-form videos (no Shorts).
+     *
+     * Channel IDs start with "UC" (Upload Channel).
+     * Playlist IDs for long-form content use "UULF" (Upload Long Form).
+     *
+     * @see https://stackoverflow.com/a/76602819
+     */
     private function buildFeedUrl(string $channelId): string
     {
+        // Convert channel ID (UC...) to playlist ID (UULF...)
+        $playlistId = 'UULF'.substr($channelId, 2);
+
         return sprintf(
-            'https://www.youtube.com/feeds/videos.xml?channel_id=%s',
-            $channelId,
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=%s',
+            $playlistId,
         );
     }
 
@@ -178,19 +197,133 @@ final class YouTubeChannelResolverService implements FeedResolverInterface
 
     private function extractChannelIdFromHtml(string $html): ?string
     {
-        $patterns = [
-            '/"channelId":"(UC[a-zA-Z0-9_-]+)"/',
-            '/<meta[^>]+itemprop=["\']channelId["\'][^>]+content=["\'](UC[a-zA-Z0-9_-]+)["\']/i',
-            '/data-channel-external-id=["\'](UC[a-zA-Z0-9_-]+)["\']/',
-        ];
+        $crawler = new Crawler($html);
 
-        foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $html, $matches)) {
-                return $matches[1];
-            }
+        // First, try to extract from the RSS link (most reliable)
+        $channelId = $this->extractChannelIdFromRssLink($crawler);
+        if ($channelId !== null) {
+            return $channelId;
+        }
+
+        // Try meta tag with itemprop="channelId"
+        $channelId = $this->extractChannelIdFromMetaTag($crawler);
+        if ($channelId !== null) {
+            return $channelId;
+        }
+
+        // Try data-channel-external-id attribute
+        $channelId = $this->extractChannelIdFromDataAttribute($crawler);
+        if ($channelId !== null) {
+            return $channelId;
+        }
+
+        // Fallback: search for channelId in JSON (embedded in script tags)
+        return $this->extractChannelIdFromJson($html);
+    }
+
+    /**
+     * Extract channel ID from the RSS link in HTML.
+     *
+     * YouTube provides a <link rel="alternate" type="application/rss+xml"> tag
+     * that contains the direct RSS feed URL with the channel ID.
+     */
+    private function extractChannelIdFromRssLink(Crawler $crawler): ?string
+    {
+        $links = $crawler->filter(
+            'link[rel="alternate"][type="application/rss+xml"]',
+        );
+
+        if ($links->count() === 0) {
+            return null;
+        }
+
+        $href = $links->first()->attr('href');
+        if ($href === null) {
+            return null;
+        }
+
+        return $this->extractChannelIdFromFeedUrl($href);
+    }
+
+    /**
+     * Extract channel ID from meta tag with itemprop="channelId".
+     */
+    private function extractChannelIdFromMetaTag(Crawler $crawler): ?string
+    {
+        $meta = $crawler->filter('meta[itemprop="channelId"]');
+
+        if ($meta->count() === 0) {
+            return null;
+        }
+
+        $content = $meta->first()->attr('content');
+        if ($content === null || !$this->isValidChannelId($content)) {
+            return null;
+        }
+
+        return $content;
+    }
+
+    /**
+     * Extract channel ID from data-channel-external-id attribute.
+     */
+    private function extractChannelIdFromDataAttribute(
+        Crawler $crawler,
+    ): ?string {
+        $elements = $crawler->filter('[data-channel-external-id]');
+
+        if ($elements->count() === 0) {
+            return null;
+        }
+
+        $channelId = $elements->first()->attr('data-channel-external-id');
+        if ($channelId === null || !$this->isValidChannelId($channelId)) {
+            return null;
+        }
+
+        return $channelId;
+    }
+
+    /**
+     * Extract channel ID from JSON embedded in the page (last resort).
+     */
+    private function extractChannelIdFromJson(string $html): ?string
+    {
+        if (preg_match('/"channelId":"(UC[a-zA-Z0-9_-]+)"/', $html, $matches)) {
+            return $matches[1];
         }
 
         return null;
+    }
+
+    /**
+     * Extract channel ID from a YouTube feed URL.
+     */
+    private function extractChannelIdFromFeedUrl(string $url): ?string
+    {
+        $query = parse_url($url, PHP_URL_QUERY);
+        if ($query === null) {
+            return null;
+        }
+
+        parse_str($query, $params);
+
+        if (
+            !isset($params['channel_id'])
+            || !$this->isValidChannelId($params['channel_id'])
+        ) {
+            return null;
+        }
+
+        return $params['channel_id'];
+    }
+
+    /**
+     * Check if a string is a valid YouTube channel ID.
+     */
+    private function isValidChannelId(string $id): bool
+    {
+        return (bool) preg_match('/^UC[a-zA-Z0-9_-]+$/', $id);
     }
 
     private function isChannelPath(string $path): bool

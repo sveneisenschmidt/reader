@@ -38,7 +38,7 @@ services:
         arguments:
             $publicDir: "%kernel.project_dir%/public"
 
-    App\Domain\Discovery\Resolver\YouTubeChannelResolverService:
+    App\Domain\Discovery\Resolver\YouTubeResolverService:
         tags:
             - { name: "app.feed_resolver", priority: 20 }
 

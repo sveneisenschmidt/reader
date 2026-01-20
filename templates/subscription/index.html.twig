@@ -24,7 +24,7 @@
         <p class="flash-success">{{ message }}</p>
     {% endfor %}
 
-    {{ form_start(form, {'attr': {'class': 'form', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+    {{ form_start(form, {'attr': {'class': 'form', 'novalidate': 'novalidate'}, 'multipart': true}) }}
 
     <section class="page-section">
         <h2>Add Subscription</h2>

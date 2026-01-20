@@ -10,7 +10,7 @@
 
 namespace App\Tests\Unit\Service\FeedDiscovery\Resolver;
 
-use App\Domain\Discovery\Resolver\YouTubeChannelResolverService;
+use App\Domain\Discovery\Resolver\YouTubeResolverService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -18,12 +18,12 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class YouTubeChannelResolverServiceTest extends TestCase
+class YouTubeResolverServiceTest extends TestCase
 {
     #[Test]
-    public function resolvesChannelUrlWithoutHttp(): void
+    public function resolvesChannelUrl(): void
     {
-        $resolver = new YouTubeChannelResolverService(
+        $resolver = new YouTubeResolverService(
             $this->createMock(HttpClientInterface::class),
         );
 
@@ -33,7 +33,7 @@ class YouTubeChannelResolverServiceTest extends TestCase
 
         $this->assertTrue($result->isSuccessful());
         $this->assertEquals(
-            'https://www.youtube.com/feeds/videos.xml?channel_id=UC123456789',
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULF123456789',
             $result->getFeedUrl(),
         );
     }
@@ -54,13 +54,13 @@ class YouTubeChannelResolverServiceTest extends TestCase
             ->with('GET', 'https://www.youtube.com/@user')
             ->willReturn($response);
 
-        $resolver = new YouTubeChannelResolverService($client);
+        $resolver = new YouTubeResolverService($client);
 
         $result = $resolver->resolve('https://www.youtube.com/@user');
 
         $this->assertTrue($result->isSuccessful());
         $this->assertEquals(
-            'https://www.youtube.com/feeds/videos.xml?channel_id=UCABCDEF',
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFABCDEF',
             $result->getFeedUrl(),
         );
     }
@@ -80,7 +80,7 @@ class YouTubeChannelResolverServiceTest extends TestCase
             ->with('GET', 'https://www.youtube.com/@user')
             ->willReturn($response);
 
-        $resolver = new YouTubeChannelResolverService($client);
+        $resolver = new YouTubeResolverService($client);
 
         $result = $resolver->resolve('https://www.youtube.com/@user');
 
@@ -102,7 +102,7 @@ class YouTubeChannelResolverServiceTest extends TestCase
                 $this->createMock(TransportExceptionInterface::class),
             );
 
-        $resolver = new YouTubeChannelResolverService($client);
+        $resolver = new YouTubeResolverService($client);
 
         $result = $resolver->resolve('https://www.youtube.com/@user');
 
@@ -119,7 +119,7 @@ class YouTubeChannelResolverServiceTest extends TestCase
         string $url,
         bool $expected,
     ): void {
-        $resolver = new YouTubeChannelResolverService(
+        $resolver = new YouTubeResolverService(
             $this->createMock(HttpClientInterface::class),
         );
 
@@ -178,7 +178,7 @@ class YouTubeChannelResolverServiceTest extends TestCase
     #[Test]
     public function resolvesUrlWithoutProtocol(): void
     {
-        $resolver = new YouTubeChannelResolverService(
+        $resolver = new YouTubeResolverService(
             $this->createMock(HttpClientInterface::class),
         );
 
@@ -186,7 +186,7 @@ class YouTubeChannelResolverServiceTest extends TestCase
 
         $this->assertTrue($result->isSuccessful());
         $this->assertEquals(
-            'https://www.youtube.com/feeds/videos.xml?channel_id=UCtest123',
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFtest123',
             $result->getFeedUrl(),
         );
     }
@@ -194,7 +194,7 @@ class YouTubeChannelResolverServiceTest extends TestCase
     #[Test]
     public function resolvesUrlWithWhitespace(): void
     {
-        $resolver = new YouTubeChannelResolverService(
+        $resolver = new YouTubeResolverService(
             $this->createMock(HttpClientInterface::class),
         );
 
@@ -204,7 +204,7 @@ class YouTubeChannelResolverServiceTest extends TestCase
 
         $this->assertTrue($result->isSuccessful());
         $this->assertEquals(
-            'https://www.youtube.com/feeds/videos.xml?channel_id=UCtest123',
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFtest123',
             $result->getFeedUrl(),
         );
     }
@@ -221,13 +221,13 @@ class YouTubeChannelResolverServiceTest extends TestCase
         $client = $this->createMock(HttpClientInterface::class);
         $client->method('request')->willReturn($response);
 
-        $resolver = new YouTubeChannelResolverService($client);
+        $resolver = new YouTubeResolverService($client);
 
         $result = $resolver->resolve('https://www.youtube.com/@user');
 
         $this->assertTrue($result->isSuccessful());
         $this->assertEquals(
-            'https://www.youtube.com/feeds/videos.xml?channel_id=UCmetaTag123',
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFmetaTag123',
             $result->getFeedUrl(),
         );
     }
@@ -243,13 +243,13 @@ class YouTubeChannelResolverServiceTest extends TestCase
         $client = $this->createMock(HttpClientInterface::class);
         $client->method('request')->willReturn($response);
 
-        $resolver = new YouTubeChannelResolverService($client);
+        $resolver = new YouTubeResolverService($client);
 
         $result = $resolver->resolve('https://www.youtube.com/@user');
 
         $this->assertTrue($result->isSuccessful());
         $this->assertEquals(
-            'https://www.youtube.com/feeds/videos.xml?channel_id=UCdataAttr456',
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFdataAttr456',
             $result->getFeedUrl(),
         );
     }
@@ -269,13 +269,13 @@ class YouTubeChannelResolverServiceTest extends TestCase
             ->with('GET', 'https://www.youtube.com/c/CustomChannel')
             ->willReturn($response);
 
-        $resolver = new YouTubeChannelResolverService($client);
+        $resolver = new YouTubeResolverService($client);
 
         $result = $resolver->resolve('https://www.youtube.com/c/CustomChannel');
 
         $this->assertTrue($result->isSuccessful());
         $this->assertEquals(
-            'https://www.youtube.com/feeds/videos.xml?channel_id=UCcustom789',
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFcustom789',
             $result->getFeedUrl(),
         );
     }
@@ -295,13 +295,13 @@ class YouTubeChannelResolverServiceTest extends TestCase
             ->with('GET', 'https://www.youtube.com/user/SomeUser')
             ->willReturn($response);
 
-        $resolver = new YouTubeChannelResolverService($client);
+        $resolver = new YouTubeResolverService($client);
 
         $result = $resolver->resolve('https://www.youtube.com/user/SomeUser');
 
         $this->assertTrue($result->isSuccessful());
         $this->assertEquals(
-            'https://www.youtube.com/feeds/videos.xml?channel_id=UCuser999',
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFuser999',
             $result->getFeedUrl(),
         );
     }
@@ -315,7 +315,7 @@ class YouTubeChannelResolverServiceTest extends TestCase
             ->method('request')
             ->willThrowException(new \RuntimeException('Connection timeout'));
 
-        $resolver = new YouTubeChannelResolverService($client);
+        $resolver = new YouTubeResolverService($client);
 
         $result = $resolver->resolve('https://www.youtube.com/@user');
 
@@ -327,6 +327,160 @@ class YouTubeChannelResolverServiceTest extends TestCase
         $this->assertStringContainsString(
             'Connection timeout',
             $result->getError(),
+        );
+    }
+
+    #[Test]
+    public function extractsChannelIdFromRssLink(): void
+    {
+        $html = <<<'HTML'
+        <html>
+        <head>
+            <link rel="alternate" type="application/rss+xml" title="RSS"
+                  href="https://www.youtube.com/feeds/videos.xml?channel_id=UCrssLink123">
+        </head>
+        </html>
+        HTML;
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getContent')->willReturn($html);
+
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->method('request')->willReturn($response);
+
+        $resolver = new YouTubeResolverService($client);
+
+        $result = $resolver->resolve('https://www.youtube.com/@user');
+
+        $this->assertTrue($result->isSuccessful());
+        $this->assertEquals(
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFrssLink123',
+            $result->getFeedUrl(),
+        );
+    }
+
+    #[Test]
+    public function rssLinkTakesPriorityOverOtherMethods(): void
+    {
+        $html = <<<'HTML'
+        <html>
+        <head>
+            <link rel="alternate" type="application/rss+xml" title="RSS"
+                  href="https://www.youtube.com/feeds/videos.xml?channel_id=UCfromRss">
+            <meta itemprop="channelId" content="UCfromMeta">
+        </head>
+        <body>
+            <div data-channel-external-id="UCfromData"></div>
+            <script>{"channelId":"UCfromJson"}</script>
+        </body>
+        </html>
+        HTML;
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getContent')->willReturn($html);
+
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->method('request')->willReturn($response);
+
+        $resolver = new YouTubeResolverService($client);
+
+        $result = $resolver->resolve('https://www.youtube.com/@user');
+
+        $this->assertTrue($result->isSuccessful());
+        $this->assertEquals(
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFfromRss',
+            $result->getFeedUrl(),
+        );
+    }
+
+    #[Test]
+    #[DataProvider('channelIdConversionProvider')]
+    public function convertsChannelIdToPlaylistIdCorrectly(
+        string $channelId,
+        string $expectedPlaylistId,
+    ): void {
+        $resolver = new YouTubeResolverService(
+            $this->createMock(HttpClientInterface::class),
+        );
+
+        $result = $resolver->resolve(
+            'https://www.youtube.com/channel/'.$channelId,
+        );
+
+        $this->assertTrue($result->isSuccessful());
+        $this->assertStringContainsString(
+            'playlist_id='.$expectedPlaylistId,
+            $result->getFeedUrl(),
+        );
+    }
+
+    public static function channelIdConversionProvider(): array
+    {
+        return [
+            'simple channel id' => ['UCabc123', 'UULFabc123'],
+            'channel id with underscores' => [
+                'UCtest_channel_123',
+                'UULFtest_channel_123',
+            ],
+            'channel id with dashes' => [
+                'UCmy-channel-id',
+                'UULFmy-channel-id',
+            ],
+            'long channel id' => [
+                'UCabcdefghijklmnopqrstuvwx',
+                'UULFabcdefghijklmnopqrstuvwx',
+            ],
+        ];
+    }
+
+    #[Test]
+    public function alwaysUsesPlaylistIdFormat(): void
+    {
+        $resolver = new YouTubeResolverService(
+            $this->createMock(HttpClientInterface::class),
+        );
+
+        $result = $resolver->resolve(
+            'https://www.youtube.com/channel/UCtest123',
+        );
+
+        $this->assertTrue($result->isSuccessful());
+        $this->assertStringContainsString(
+            'playlist_id=',
+            $result->getFeedUrl(),
+        );
+        $this->assertStringNotContainsString(
+            'channel_id=',
+            $result->getFeedUrl(),
+        );
+    }
+
+    #[Test]
+    public function handlesRssLinkWithDifferentAttributeOrder(): void
+    {
+        $html = <<<'HTML'
+        <html>
+        <head>
+            <link type="application/rss+xml" rel="alternate"
+                  href="https://www.youtube.com/feeds/videos.xml?channel_id=UCdiffOrder">
+        </head>
+        </html>
+        HTML;
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getContent')->willReturn($html);
+
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->method('request')->willReturn($response);
+
+        $resolver = new YouTubeResolverService($client);
+
+        $result = $resolver->resolve('https://www.youtube.com/@user');
+
+        $this->assertTrue($result->isSuccessful());
+        $this->assertEquals(
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFdiffOrder',
+            $result->getFeedUrl(),
         );
     }
 }
