@@ -42,7 +42,7 @@
     </section>
 
     {% if form.existing|length > 0 %}
-    <section class="page-section page-section--bordered">
+    <section class="page-section">
         <h2>Manage Subscriptions</h2>
 
         {% for subscription in form.existing %}
@@ -59,7 +59,7 @@
                     <a href="{{ subscription.url.vars.value }}" target="_blank" rel="noopener" class="subscription-item__url">{{ subscription.url.vars.value }}</a>
                 </div>
 
-                <div class="form-row form-row--two-columns">
+                <div class="form-row form-row-two-columns">
                     <div>
                         <label>Name</label>
                         {{ form_widget(subscription.name) }}
@@ -82,7 +82,7 @@
                     </div>
                 </div>
 
-                <div class="form-row form-actions form-actions--space-between">
+                <div class="form-row form-actions form-actions-space-between">
                     {{ form_widget(subscription.save) }}
                     {{ form_widget(subscription.remove, {'attr': {'class': 'btn-secondary'}}) }}
                 </div>

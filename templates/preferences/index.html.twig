@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block header_actions %}
-    <span>Settings</span>
+    <span>Preferences</span>
 {% endblock %}
 
 {% block page_id %}preferences{% endblock %}
@@ -43,7 +43,7 @@
 
     {{ form_start(preferencesForm, {'attr': {'class': 'form', 'novalidate': 'novalidate'}}) }}
     <section class="page-section">
-        <h2>Preferences</h2>
+        <h2>Features</h2>
         <div class="form-row">
             {{ form_row(preferencesForm.theme) }}
         </div>

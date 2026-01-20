@@ -507,7 +507,7 @@ class CaptureScreenshotsCommand extends Command
 
         // Open the last details element to access the form inputs
         $detailsElements = $this->driver->findElements(
-            WebDriverBy::cssSelector('.page-section--bordered details'),
+            WebDriverBy::cssSelector('details.subscription-item'),
         );
         if (count($detailsElements) > 0) {
             $lastDetails = $detailsElements[count($detailsElements) - 1];

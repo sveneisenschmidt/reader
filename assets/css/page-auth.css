@@ -33,7 +33,7 @@
 
 /* Setup-specific: Password fields side by side */
 #setup {
-    & .form-row--passwords {
+    & .form-row-passwords {
         display: flex;
         flex-direction: column;
         gap: 0;

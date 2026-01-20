@@ -29,12 +29,12 @@
 }
 
 /* Form actions aligned right */
-.form-actions--right {
+.form-actions-right {
     justify-content: flex-end;
 }
 
 /* Form actions space between */
-.form-actions--space-between {
+.form-actions-space-between {
     justify-content: space-between;
 }
 
@@ -129,7 +129,7 @@
 }
 
 /* Full width button */
-.form-button--full {
+.form-button-full {
     width: 100%;
 }
 
@@ -147,26 +147,25 @@
     }
 }
 
-/* Radio button group (inline) */
+/* Radio button group */
 .form-row input[type="radio"] {
     width: auto;
     margin-right: var(--spacing-xs);
-}
 
-.form-row > div:has(input[type="radio"]) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-md);
+    & + label {
+        display: inline;
+        font-weight: normal;
+        cursor: pointer;
 
-    & > div {
-        display: flex;
-        align-items: center;
-
-        & label {
-            font-weight: normal;
-            margin-bottom: 0;
-            cursor: pointer;
+        &::after {
+            content: "";
+            display: block;
+            margin-bottom: var(--spacing-sm);
         }
+    }
+
+    &:last-of-type + label::after {
+        display: none;
     }
 }
 

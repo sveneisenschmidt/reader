@@ -64,7 +64,7 @@
 }
 
 /* Two-column layout for Name/Folder */
-.form-row--two-columns {
+.form-row-two-columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-md);

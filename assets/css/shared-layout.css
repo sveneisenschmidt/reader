@@ -38,12 +38,6 @@
     }
 }
 
-/* Section with top border (for visual separation) */
-.page-section--bordered {
-    border-top: 1px solid var(--color-border);
-    padding-top: var(--spacing-xl);
-}
-
 /* Flash messages */
 .flash-success {
     width: 100%;

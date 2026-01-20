@@ -85,7 +85,7 @@ class SubscriptionControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/subscriptions');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('.page-section--bordered');
+        $this->assertSelectorExists('.subscription-item');
         $this->assertSelectorExists(
             'button[name="subscriptions[existing][0][save]"]',
         );

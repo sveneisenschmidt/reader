@@ -1,5 +1,12 @@
 {# Minimal form theme - no wrapper divs, no extra markup #}
 
+{%- block choice_widget_expanded -%}
+    {%- for child in form %}
+        {{- form_widget(child) -}}
+        {{- form_label(child, null, {translation_domain: choice_translation_domain}) -}}
+    {% endfor -%}
+{%- endblock choice_widget_expanded -%}
+
 {%- block form_row -%}
     {{- form_label(form) -}}
     {{- form_widget(form) -}}
