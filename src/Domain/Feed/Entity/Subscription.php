@@ -52,6 +52,9 @@ class Subscription
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $useArchiveIs = false;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $lastRefreshDuration = null;
+
     public function __construct(
         int $userId,
         string $url,
@@ -153,6 +156,18 @@ class Subscription
     public function setUseArchiveIs(bool $useArchiveIs): self
     {
         $this->useArchiveIs = $useArchiveIs;
+
+        return $this;
+    }
+
+    public function getLastRefreshDuration(): ?int
+    {
+        return $this->lastRefreshDuration;
+    }
+
+    public function setLastRefreshDuration(?int $lastRefreshDuration): self
+    {
+        $this->lastRefreshDuration = $lastRefreshDuration;
 
         return $this;
     }

@@ -81,14 +81,19 @@ class RefreshFeedsHandler
                     continue;
                 }
 
+                $startTime = microtime(true);
                 try {
                     $this->feedReaderService->fetchAndPersistFeed(
                         $subscription->getUrl(),
                     );
+                    $durationMs = (int) ((microtime(true) - $startTime) * 1000);
                     $subscription->updateLastRefreshedAt();
+                    $subscription->setLastRefreshDuration($durationMs);
                     $subscription->setStatus(SubscriptionStatus::Success);
                     ++$successCount;
                 } catch (\Exception $e) {
+                    $durationMs = (int) ((microtime(true) - $startTime) * 1000);
+                    $subscription->setLastRefreshDuration($durationMs);
                     $status = $this->exceptionHandler->handleException(
                         $e,
                         $subscription,

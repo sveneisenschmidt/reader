@@ -21,9 +21,9 @@ class SubscriptionTest extends TestCase
     {
         return new Subscription(
             userId: 1,
-            url: 'https://example.com/feed.xml',
-            name: 'Example Feed',
-            guid: 'abc123def456789',
+            url: "https://example.com/feed.xml",
+            name: "Example Feed",
+            guid: "abc123def456789",
         );
     }
 
@@ -34,11 +34,11 @@ class SubscriptionTest extends TestCase
 
         $this->assertEquals(1, $subscription->getUserId());
         $this->assertEquals(
-            'https://example.com/feed.xml',
+            "https://example.com/feed.xml",
             $subscription->getUrl(),
         );
-        $this->assertEquals('Example Feed', $subscription->getName());
-        $this->assertEquals('abc123def456789', $subscription->getGuid());
+        $this->assertEquals("Example Feed", $subscription->getName());
+        $this->assertEquals("abc123def456789", $subscription->getGuid());
     }
 
     #[Test]
@@ -73,10 +73,10 @@ class SubscriptionTest extends TestCase
     {
         $subscription = $this->createSubscription();
 
-        $result = $subscription->setUrl('https://new.example.com/feed.xml');
+        $result = $subscription->setUrl("https://new.example.com/feed.xml");
 
         $this->assertEquals(
-            'https://new.example.com/feed.xml',
+            "https://new.example.com/feed.xml",
             $subscription->getUrl(),
         );
         $this->assertSame($subscription, $result);
@@ -87,9 +87,9 @@ class SubscriptionTest extends TestCase
     {
         $subscription = $this->createSubscription();
 
-        $result = $subscription->setName('New Name');
+        $result = $subscription->setName("New Name");
 
-        $this->assertEquals('New Name', $subscription->getName());
+        $this->assertEquals("New Name", $subscription->getName());
         $this->assertSame($subscription, $result);
     }
 
@@ -127,9 +127,9 @@ class SubscriptionTest extends TestCase
     {
         $subscription = $this->createSubscription();
 
-        $result = $subscription->setFolder('News');
+        $result = $subscription->setFolder("News");
 
-        $this->assertEquals('News', $subscription->getFolder());
+        $this->assertEquals("News", $subscription->getFolder());
         $this->assertSame($subscription, $result);
     }
 
@@ -137,7 +137,7 @@ class SubscriptionTest extends TestCase
     public function setFolderAcceptsNull(): void
     {
         $subscription = $this->createSubscription();
-        $subscription->setFolder('News');
+        $subscription->setFolder("News");
 
         $result = $subscription->setFolder(null);
 
@@ -206,6 +206,37 @@ class SubscriptionTest extends TestCase
 
         $result = $subscription->setUseArchiveIs(true);
 
+        $this->assertSame($subscription, $result);
+    }
+
+    #[Test]
+    public function lastRefreshDurationIsNullInitially(): void
+    {
+        $subscription = $this->createSubscription();
+
+        $this->assertNull($subscription->getLastRefreshDuration());
+    }
+
+    #[Test]
+    public function setLastRefreshDurationUpdatesValue(): void
+    {
+        $subscription = $this->createSubscription();
+
+        $result = $subscription->setLastRefreshDuration(1500);
+
+        $this->assertEquals(1500, $subscription->getLastRefreshDuration());
+        $this->assertSame($subscription, $result);
+    }
+
+    #[Test]
+    public function setLastRefreshDurationAcceptsNull(): void
+    {
+        $subscription = $this->createSubscription();
+        $subscription->setLastRefreshDuration(1500);
+
+        $result = $subscription->setLastRefreshDuration(null);
+
+        $this->assertNull($subscription->getLastRefreshDuration());
         $this->assertSame($subscription, $result);
     }
 }

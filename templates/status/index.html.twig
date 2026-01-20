@@ -50,6 +50,7 @@
                     <th>Name</th>
                     <th>Status</th>
                     <th>Last Refresh</th>
+                    <th>Duration</th>
                     <th>Items</th>
                     <th>Read</th>
                     <th>Seen</th>
@@ -70,13 +71,14 @@
                         {{ sub.status }}
                     </td>
                     <td>{{ sub.lastRefreshedAt ? sub.lastRefreshedAt|ago : 'Never' }}</td>
+                    <td>{{ sub.lastRefreshDuration ? (sub.lastRefreshDuration / 1000)|number_format(1) ~ 's' : '-' }}</td>
                     <td>{{ sub.itemCount }}</td>
                     <td>{{ sub.readCount }}/{{ sub.unreadCount }}</td>
                     <td>{{ sub.seenCount }}/{{ sub.unseenCount }}</td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="6">No subscriptions yet.</td>
+                    <td colspan="7">No subscriptions yet.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -86,6 +88,7 @@
                     <th>Total</th>
                     <th></th>
                     <th></th>
+                    <th>{{ totals.refreshDuration ? (totals.refreshDuration / 1000)|number_format(1) ~ 's' : '-' }}</th>
                     <th>{{ totals.items }}</th>
                     <th>{{ totals.read }}/{{ totals.unread }}</th>
                     <th>{{ totals.seen }}/{{ totals.unseen }}</th>

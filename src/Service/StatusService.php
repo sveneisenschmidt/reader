@@ -34,6 +34,7 @@ class StatusService
      *         guid: string,
      *         status: string,
      *         lastRefreshedAt: ?\DateTimeImmutable,
+     *         lastRefreshDuration: ?int,
      *         itemCount: int,
      *         readCount: int,
      *         unreadCount: int,
@@ -46,7 +47,8 @@ class StatusService
      *         read: int,
      *         unread: int,
      *         seen: int,
-     *         unseen: int
+     *         unseen: int,
+     *         refreshDuration: ?int
      *     }
      * }
      */
@@ -60,6 +62,10 @@ class StatusService
         $seenGuidsSet = array_flip($seenGuids);
 
         $stats = [];
+        $totalRefreshDuration = $this->subscriptionRepository->getTotalRefreshDuration(
+            $userId,
+        );
+
         $totals = [
             'subscriptions' => count($subscriptions),
             'items' => 0,
@@ -67,6 +73,7 @@ class StatusService
             'unread' => 0,
             'seen' => 0,
             'unseen' => 0,
+            'refreshDuration' => $totalRefreshDuration,
         ];
 
         foreach ($subscriptions as $subscription) {
@@ -95,6 +102,7 @@ class StatusService
                 'guid' => $subscription->getGuid(),
                 'status' => $subscription->getStatus()->value,
                 'lastRefreshedAt' => $subscription->getLastRefreshedAt(),
+                'lastRefreshDuration' => $subscription->getLastRefreshDuration(),
                 'itemCount' => $itemCount,
                 'readCount' => $readCount,
                 'unreadCount' => $unreadCount,

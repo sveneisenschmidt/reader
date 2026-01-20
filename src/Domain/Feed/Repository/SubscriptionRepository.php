@@ -141,4 +141,19 @@ class SubscriptionRepository extends ServiceEntityRepository
     {
         $this->getEntityManager()->flush();
     }
+
+    public function getTotalRefreshDuration(int $userId): ?int
+    {
+        $result = $this->createQueryBuilder('s')
+            ->select('SUM(s.lastRefreshDuration)')
+            ->where('s.userId = :userId')
+            ->andWhere('s.lastRefreshDuration IS NOT NULL')
+            ->andWhere('s.status = :status')
+            ->setParameter('userId', $userId)
+            ->setParameter('status', 'success')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $result !== null ? (int) $result : null;
+    }
 }
