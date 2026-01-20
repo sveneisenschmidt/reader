@@ -483,4 +483,186 @@ class YouTubeResolverServiceTest extends TestCase
             $result->getFeedUrl(),
         );
     }
+
+    #[Test]
+    public function fallsBackToMetaTagWhenRssLinkHasNoChannelId(): void
+    {
+        $html = <<<'HTML'
+        <html>
+        <head>
+            <link rel="alternate" type="application/rss+xml" href="https://example.com/feed">
+            <meta itemprop="channelId" content="UCfallback123">
+        </head>
+        </html>
+        HTML;
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getContent')->willReturn($html);
+
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->method('request')->willReturn($response);
+
+        $resolver = new YouTubeResolverService($client);
+
+        $result = $resolver->resolve('https://www.youtube.com/@user');
+
+        $this->assertTrue($result->isSuccessful());
+        $this->assertEquals(
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFfallback123',
+            $result->getFeedUrl(),
+        );
+    }
+
+    #[Test]
+    public function fallsBackToDataAttributeWhenMetaTagHasInvalidId(): void
+    {
+        $html = <<<'HTML'
+        <html>
+        <head>
+            <meta itemprop="channelId" content="INVALID">
+        </head>
+        <body>
+            <div data-channel-external-id="UCvalidData456"></div>
+        </body>
+        </html>
+        HTML;
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getContent')->willReturn($html);
+
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->method('request')->willReturn($response);
+
+        $resolver = new YouTubeResolverService($client);
+
+        $result = $resolver->resolve('https://www.youtube.com/@user');
+
+        $this->assertTrue($result->isSuccessful());
+        $this->assertEquals(
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFvalidData456',
+            $result->getFeedUrl(),
+        );
+    }
+
+    #[Test]
+    public function fallsBackToJsonWhenDataAttributeHasInvalidId(): void
+    {
+        $html = <<<'HTML'
+        <html>
+        <body>
+            <div data-channel-external-id="INVALID"></div>
+            <script>{"channelId":"UCjsonFallback"}</script>
+        </body>
+        </html>
+        HTML;
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getContent')->willReturn($html);
+
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->method('request')->willReturn($response);
+
+        $resolver = new YouTubeResolverService($client);
+
+        $result = $resolver->resolve('https://www.youtube.com/@user');
+
+        $this->assertTrue($result->isSuccessful());
+        $this->assertEquals(
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFjsonFallback',
+            $result->getFeedUrl(),
+        );
+    }
+
+    #[Test]
+    public function handlesRssLinkWithoutQueryString(): void
+    {
+        $html = <<<'HTML'
+        <html>
+        <head>
+            <link rel="alternate" type="application/rss+xml" href="https://youtube.com/feeds/videos.xml">
+        </head>
+        <body>
+            <script>{"channelId":"UCnoQuery789"}</script>
+        </body>
+        </html>
+        HTML;
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getContent')->willReturn($html);
+
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->method('request')->willReturn($response);
+
+        $resolver = new YouTubeResolverService($client);
+
+        $result = $resolver->resolve('https://www.youtube.com/@user');
+
+        $this->assertTrue($result->isSuccessful());
+        $this->assertEquals(
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFnoQuery789',
+            $result->getFeedUrl(),
+        );
+    }
+
+    #[Test]
+    public function handlesRssLinkWithInvalidChannelId(): void
+    {
+        $html = <<<'HTML'
+        <html>
+        <head>
+            <link rel="alternate" type="application/rss+xml" href="https://youtube.com/feeds/videos.xml?channel_id=INVALID">
+        </head>
+        <body>
+            <script>{"channelId":"UCvalidJson"}</script>
+        </body>
+        </html>
+        HTML;
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getContent')->willReturn($html);
+
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->method('request')->willReturn($response);
+
+        $resolver = new YouTubeResolverService($client);
+
+        $result = $resolver->resolve('https://www.youtube.com/@user');
+
+        $this->assertTrue($result->isSuccessful());
+        $this->assertEquals(
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFvalidJson',
+            $result->getFeedUrl(),
+        );
+    }
+
+    #[Test]
+    public function handlesRssLinkWithoutHref(): void
+    {
+        $html = <<<'HTML'
+        <html>
+        <head>
+            <link rel="alternate" type="application/rss+xml">
+        </head>
+        <body>
+            <script>{"channelId":"UCnoHref"}</script>
+        </body>
+        </html>
+        HTML;
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->method('getContent')->willReturn($html);
+
+        $client = $this->createMock(HttpClientInterface::class);
+        $client->method('request')->willReturn($response);
+
+        $resolver = new YouTubeResolverService($client);
+
+        $result = $resolver->resolve('https://www.youtube.com/@user');
+
+        $this->assertTrue($result->isSuccessful());
+        $this->assertEquals(
+            'https://www.youtube.com/feeds/videos.xml?playlist_id=UULFnoHref',
+            $result->getFeedUrl(),
+        );
+    }
 }
