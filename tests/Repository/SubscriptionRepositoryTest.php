@@ -44,9 +44,9 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/feed1.xml",
-            "Test Feed 1",
-            "subrepotest12345",
+            'https://example.com/feed1.xml',
+            'Test Feed 1',
+            'subrepotest12345',
         );
 
         $result = $this->repository->findByUserId($this->testUserId);
@@ -59,7 +59,7 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $result = $this->repository->findByUserIdAndGuid(
             $this->testUserId,
-            "nonexistent12345",
+            'nonexistent12345',
         );
 
         $this->assertNull($result);
@@ -70,18 +70,18 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/feed2.xml",
-            "Test Feed 2",
-            "subrepotest23456",
+            'https://example.com/feed2.xml',
+            'Test Feed 2',
+            'subrepotest23456',
         );
 
         $result = $this->repository->findByUserIdAndGuid(
             $this->testUserId,
-            "subrepotest23456",
+            'subrepotest23456',
         );
 
         $this->assertNotNull($result);
-        $this->assertEquals("subrepotest23456", $result->getGuid());
+        $this->assertEquals('subrepotest23456', $result->getGuid());
     }
 
     #[Test]
@@ -89,7 +89,7 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $result = $this->repository->findByUserIdAndUrl(
             $this->testUserId,
-            "https://nonexistent.com/feed.xml",
+            'https://nonexistent.com/feed.xml',
         );
 
         $this->assertNull($result);
@@ -98,12 +98,12 @@ class SubscriptionRepositoryTest extends KernelTestCase
     #[Test]
     public function findByUserIdAndUrlReturnsSubscription(): void
     {
-        $url = "https://example.com/urltest.xml";
+        $url = 'https://example.com/urltest.xml';
         $this->repository->addSubscription(
             $this->testUserId,
             $url,
-            "URL Test Feed",
-            "subrepotest34567",
+            'URL Test Feed',
+            'subrepotest34567',
         );
 
         $result = $this->repository->findByUserIdAndUrl(
@@ -120,37 +120,37 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $subscription = $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/new.xml",
-            "New Feed",
-            "subrepotest45678",
+            'https://example.com/new.xml',
+            'New Feed',
+            'subrepotest45678',
         );
 
         $this->assertNotNull($subscription);
-        $this->assertEquals("New Feed", $subscription->getName());
+        $this->assertEquals('New Feed', $subscription->getName());
         $this->assertEquals($this->testUserId, $subscription->getUserId());
     }
 
     #[Test]
     public function addSubscriptionReturnsExistingForDuplicateUrl(): void
     {
-        $url = "https://example.com/duplicate.xml";
+        $url = 'https://example.com/duplicate.xml';
 
         $first = $this->repository->addSubscription(
             $this->testUserId,
             $url,
-            "First Name",
-            "subrepotest56789",
+            'First Name',
+            'subrepotest56789',
         );
 
         $second = $this->repository->addSubscription(
             $this->testUserId,
             $url,
-            "Second Name",
-            "subrepotest67890",
+            'Second Name',
+            'subrepotest67890',
         );
 
         $this->assertEquals($first->getId(), $second->getId());
-        $this->assertEquals("First Name", $second->getName());
+        $this->assertEquals('First Name', $second->getName());
     }
 
     #[Test]
@@ -158,19 +158,19 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/remove.xml",
-            "Remove Feed",
-            "subrepotest78901",
+            'https://example.com/remove.xml',
+            'Remove Feed',
+            'subrepotest78901',
         );
 
         $this->repository->removeSubscription(
             $this->testUserId,
-            "subrepotest78901",
+            'subrepotest78901',
         );
 
         $result = $this->repository->findByUserIdAndGuid(
             $this->testUserId,
-            "subrepotest78901",
+            'subrepotest78901',
         );
         $this->assertNull($result);
     }
@@ -181,7 +181,7 @@ class SubscriptionRepositoryTest extends KernelTestCase
         // Should not throw
         $this->repository->removeSubscription(
             $this->testUserId,
-            "nonexistent99999",
+            'nonexistent99999',
         );
 
         $this->assertTrue(true);
@@ -192,18 +192,18 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/alias.xml",
-            "Alias Feed",
-            "subrepotest89012",
+            'https://example.com/alias.xml',
+            'Alias Feed',
+            'subrepotest89012',
         );
 
         $result = $this->repository->findByGuid(
             $this->testUserId,
-            "subrepotest89012",
+            'subrepotest89012',
         );
 
         $this->assertNotNull($result);
-        $this->assertEquals("subrepotest89012", $result->getGuid());
+        $this->assertEquals('subrepotest89012', $result->getGuid());
     }
 
     #[Test]
@@ -211,22 +211,22 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/rename.xml",
-            "Original Name",
-            "subrepotest90123",
+            'https://example.com/rename.xml',
+            'Original Name',
+            'subrepotest90123',
         );
 
         $this->repository->updateName(
             $this->testUserId,
-            "subrepotest90123",
-            "Updated Name",
+            'subrepotest90123',
+            'Updated Name',
         );
 
         $result = $this->repository->findByUserIdAndGuid(
             $this->testUserId,
-            "subrepotest90123",
+            'subrepotest90123',
         );
-        $this->assertEquals("Updated Name", $result->getName());
+        $this->assertEquals('Updated Name', $result->getName());
     }
 
     #[Test]
@@ -235,8 +235,8 @@ class SubscriptionRepositoryTest extends KernelTestCase
         // Should not throw
         $this->repository->updateName(
             $this->testUserId,
-            "nonexistent11111",
-            "New Name",
+            'nonexistent11111',
+            'New Name',
         );
 
         $this->assertTrue(true);
@@ -247,22 +247,22 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/folder.xml",
-            "Folder Feed",
-            "subrepotest01234",
+            'https://example.com/folder.xml',
+            'Folder Feed',
+            'subrepotest01234',
         );
 
         $this->repository->updateFolder(
             $this->testUserId,
-            "subrepotest01234",
-            "tech",
+            'subrepotest01234',
+            'tech',
         );
 
         $result = $this->repository->findByUserIdAndGuid(
             $this->testUserId,
-            "subrepotest01234",
+            'subrepotest01234',
         );
-        $this->assertEquals("tech", $result->getFolder());
+        $this->assertEquals('tech', $result->getFolder());
     }
 
     #[Test]
@@ -271,8 +271,8 @@ class SubscriptionRepositoryTest extends KernelTestCase
         // Should not throw when subscription doesn't exist
         $this->repository->updateFolder(
             $this->testUserId,
-            "nonexistent22222",
-            "testfolder",
+            'nonexistent22222',
+            'testfolder',
         );
 
         $this->assertTrue(true);
@@ -291,9 +291,9 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/hasany.xml",
-            "Has Any Feed",
-            "subrepohasany001",
+            'https://example.com/hasany.xml',
+            'Has Any Feed',
+            'subrepohasany001',
         );
 
         $result = $this->repository->hasAnyForUser($this->testUserId);
@@ -314,15 +314,15 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/count1.xml",
-            "Count Feed 1",
-            "subrepocounttest1",
+            'https://example.com/count1.xml',
+            'Count Feed 1',
+            'subrepocounttest1',
         );
         $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/count2.xml",
-            "Count Feed 2",
-            "subrepocounttest2",
+            'https://example.com/count2.xml',
+            'Count Feed 2',
+            'subrepocounttest2',
         );
 
         $count = $this->repository->countByUserId($this->testUserId);
@@ -344,9 +344,9 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $subscription = $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/oldest.xml",
-            "Oldest Feed",
-            "subrepooldest001",
+            'https://example.com/oldest.xml',
+            'Oldest Feed',
+            'subrepooldest001',
         );
 
         $subscription->updateLastRefreshedAt();
@@ -362,21 +362,21 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/archive-test.xml",
-            "Archive Test Feed",
-            "archivetest12345",
+            'https://example.com/archive-test.xml',
+            'Archive Test Feed',
+            'archivetest12345',
         );
 
-        $result = $this->repository->findBySubscriptionGuid("archivetest12345");
+        $result = $this->repository->findBySubscriptionGuid('archivetest12345');
 
         $this->assertNotNull($result);
-        $this->assertEquals("archivetest12345", $result->getGuid());
+        $this->assertEquals('archivetest12345', $result->getGuid());
     }
 
     #[Test]
     public function findBySubscriptionGuidReturnsNullForNonexistent(): void
     {
-        $result = $this->repository->findBySubscriptionGuid("nonexistent99999");
+        $result = $this->repository->findBySubscriptionGuid('nonexistent99999');
 
         $this->assertNull($result);
     }
@@ -394,9 +394,9 @@ class SubscriptionRepositoryTest extends KernelTestCase
     {
         $subscription = $this->repository->addSubscription(
             $this->testUserId,
-            "https://example.com/duration.xml",
-            "Duration Feed",
-            "subrepoduration01",
+            'https://example.com/duration.xml',
+            'Duration Feed',
+            'subrepoduration01',
         );
 
         $subscription->setLastRefreshDuration(1500);
@@ -415,18 +415,18 @@ class SubscriptionRepositoryTest extends KernelTestCase
 
         $success = $this->repository->addSubscription(
             $isolatedUserId,
-            "https://example.com/duration-success.xml",
-            "Success Feed",
-            "subrepodursuc001",
+            'https://example.com/duration-success.xml',
+            'Success Feed',
+            'subrepodursuc001',
         );
         $success->setLastRefreshDuration(1000);
         $success->setStatus(\App\Enum\SubscriptionStatus::Success);
 
         $failed = $this->repository->addSubscription(
             $isolatedUserId,
-            "https://example.com/duration-failed.xml",
-            "Failed Feed",
-            "subrepodurfail01",
+            'https://example.com/duration-failed.xml',
+            'Failed Feed',
+            'subrepodurfail01',
         );
         $failed->setLastRefreshDuration(500);
         $failed->setStatus(\App\Enum\SubscriptionStatus::Unreachable);

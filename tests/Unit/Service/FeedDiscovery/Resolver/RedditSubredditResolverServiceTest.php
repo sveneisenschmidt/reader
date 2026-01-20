@@ -19,8 +19,10 @@ class RedditSubredditResolverServiceTest extends TestCase
 {
     #[Test]
     #[DataProvider('supportedUrlsProvider')]
-    public function supportsRedditSubredditUrls(string $url, bool $expected): void
-    {
+    public function supportsRedditSubredditUrls(
+        string $url,
+        bool $expected,
+    ): void {
         $resolver = new RedditSubredditResolverService();
 
         $this->assertEquals($expected, $resolver->supports($url));
@@ -31,14 +33,23 @@ class RedditSubredditResolverServiceTest extends TestCase
         return [
             'subreddit path' => ['https://www.reddit.com/r/hackernews', true],
             'subreddit path without https' => ['reddit.com/r/php', true],
-            'subreddit with trailing slash' => ['https://www.reddit.com/r/programming/', true],
-            'subreddit with subpath' => ['https://www.reddit.com/r/technology/top', true],
+            'subreddit with trailing slash' => [
+                'https://www.reddit.com/r/programming/',
+                true,
+            ],
+            'subreddit with subpath' => [
+                'https://www.reddit.com/r/technology/top',
+                true,
+            ],
             'old reddit' => ['https://old.reddit.com/r/linux', true],
             'new reddit' => ['https://new.reddit.com/r/webdev', true],
             'non-reddit domain' => ['https://example.com/r/test', false],
             'reddit without path' => ['https://www.reddit.com', false],
             'reddit home' => ['https://www.reddit.com/', false],
-            'reddit user page' => ['https://www.reddit.com/user/someone', false],
+            'reddit user page' => [
+                'https://www.reddit.com/user/someone',
+                false,
+            ],
             'reddit search' => ['https://www.reddit.com/search?q=test', false],
             'fake reddit domain' => ['https://notreddit.com/r/test', false],
             'fake subdomain' => ['https://reddit.com.evil.com/r/test', false],
@@ -156,6 +167,20 @@ class RedditSubredditResolverServiceTest extends TestCase
         $this->assertEquals(
             'https://www.reddit.com/r/php8/top.rss?t=week&limit=25',
             $result->getFeedUrl(),
+        );
+    }
+
+    #[Test]
+    public function returnsErrorForInvalidSubredditPath(): void
+    {
+        $resolver = new RedditSubredditResolverService();
+
+        $result = $resolver->resolve('https://www.reddit.com/user/someone');
+
+        $this->assertFalse($result->isSuccessful());
+        $this->assertEquals(
+            'Could not determine subreddit from URL',
+            $result->getError(),
         );
     }
 }
