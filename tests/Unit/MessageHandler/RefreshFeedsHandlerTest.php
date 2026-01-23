@@ -13,6 +13,7 @@ namespace App\Tests\Unit\MessageHandler;
 use App\Domain\Feed\Entity\Subscription;
 use App\Domain\Feed\Repository\SubscriptionRepository;
 use App\Domain\Feed\Service\FeedExceptionHandler;
+use App\Domain\Feed\Service\FeedPersistenceService;
 use App\Domain\Feed\Service\FeedReaderService;
 use App\Enum\SubscriptionStatus;
 use App\Message\RefreshFeedsMessage;
@@ -49,6 +50,14 @@ class RefreshFeedsHandlerTest extends TestCase
         $lockFactory->method('createLock')->willReturn($lock);
 
         return $lockFactory;
+    }
+
+    private function createPersistenceService(): FeedPersistenceService
+    {
+        $service = $this->createMock(FeedPersistenceService::class);
+        $service->method('deleteDuplicates')->willReturn(0);
+
+        return $service;
     }
 
     #[Test]
@@ -88,6 +97,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -117,6 +127,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -157,7 +168,12 @@ class RefreshFeedsHandlerTest extends TestCase
                 if ($callCount === 2) {
                     $this->assertEquals('Feeds refreshed', $message);
                     $this->assertEquals(
-                        ['success' => 0, 'skipped' => 0, 'failed' => 0],
+                        [
+                            'success' => 0,
+                            'skipped' => 0,
+                            'failed' => 0,
+                            'duplicates_removed' => 0,
+                        ],
                         $context,
                     );
                 }
@@ -165,6 +181,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -235,6 +252,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -276,6 +294,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -315,6 +334,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -352,6 +372,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -393,6 +414,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -432,6 +454,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -471,6 +494,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -510,6 +534,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -545,6 +570,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -571,6 +597,9 @@ class RefreshFeedsHandlerTest extends TestCase
         $subscriptionRepository->method('findAll')->willReturn([$subscription]);
 
         $feedReaderService = $this->createMock(FeedReaderService::class);
+        $feedReaderService
+            ->method('fetchAndPersistFeed')
+            ->willReturn(['title' => 'Test', 'items' => []]);
 
         $logger = $this->createMock(LoggerInterface::class);
 
@@ -583,6 +612,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,
@@ -624,6 +654,7 @@ class RefreshFeedsHandlerTest extends TestCase
 
         $handler = new RefreshFeedsHandler(
             $feedReaderService,
+            $this->createPersistenceService(),
             $subscriptionRepository,
             $entityManager,
             $logger,

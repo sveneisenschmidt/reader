@@ -578,4 +578,268 @@ class FeedItemRepositoryTest extends KernelTestCase
             $countsWithoutFilter[$subscriptionGuid],
         );
     }
+
+    #[Test]
+    public function deleteDuplicatesKeepsItemsWithDifferentTitles(): void
+    {
+        $subscriptionGuid = 'dedupnone1234567';
+
+        // Create two items with different titles
+        $this->repository->upsert(
+            new FeedItem(
+                'dedupnone12345a1',
+                $subscriptionGuid,
+                'First Article Title',
+                'https://example.com/url1',
+                'Test Source',
+                'Excerpt 1',
+                new \DateTimeImmutable('2024-01-15 12:00:00'),
+            ),
+        );
+        $this->repository->upsert(
+            new FeedItem(
+                'dedupnone12345a2',
+                $subscriptionGuid,
+                'Second Article Title',
+                'https://example.com/url2',
+                'Test Source',
+                'Excerpt 2',
+                new \DateTimeImmutable('2024-01-15 12:30:00'),
+            ),
+        );
+
+        $this->repository->deleteDuplicates();
+
+        // Both items should still exist (different titles = no duplicates)
+        $this->assertNotNull($this->repository->findByGuid('dedupnone12345a1'));
+        $this->assertNotNull($this->repository->findByGuid('dedupnone12345a2'));
+    }
+
+    #[Test]
+    public function deleteDuplicatesRemovesOlderDuplicate(): void
+    {
+        $subscriptionGuid = 'dedupold12345678';
+
+        // Create two items with same title within 2h window
+        $olderItem = new FeedItem(
+            'dedupold123456a1',
+            $subscriptionGuid,
+            'Same Title Article',
+            'https://example.com/old-url',
+            'Test Source',
+            'Old excerpt',
+            new \DateTimeImmutable('2024-01-15 12:00:00'),
+        );
+        $newerItem = new FeedItem(
+            'dedupold123456a2',
+            $subscriptionGuid,
+            'Same Title Article',
+            'https://example.com/new-url',
+            'Test Source',
+            'New excerpt',
+            new \DateTimeImmutable('2024-01-15 13:00:00'),
+        );
+
+        $this->repository->upsert($olderItem);
+        $this->repository->upsert($newerItem);
+
+        $deleted = $this->repository->deleteDuplicates();
+
+        $this->assertEquals(1, $deleted);
+        $this->assertNull($this->repository->findByGuid('dedupold123456a1'));
+        $this->assertNotNull($this->repository->findByGuid('dedupold123456a2'));
+    }
+
+    #[Test]
+    public function deleteDuplicatesKeepsNewerItem(): void
+    {
+        $subscriptionGuid = 'dedupkeep1234567';
+
+        // Create two items with similar titles (Levenshtein <= 3)
+        $olderItem = new FeedItem(
+            'dedupkeep12345a1',
+            $subscriptionGuid,
+            'Mercosur-Abkommens',
+            'https://example.com/old-url',
+            'Test Source',
+            'Excerpt',
+            new \DateTimeImmutable('2024-01-15 12:00:00'),
+        );
+        $newerItem = new FeedItem(
+            'dedupkeep12345a2',
+            $subscriptionGuid,
+            'Mercosur-Abkommen',
+            'https://example.com/new-url',
+            'Test Source',
+            'Excerpt',
+            new \DateTimeImmutable('2024-01-15 12:30:00'),
+        );
+
+        $this->repository->upsert($olderItem);
+        $this->repository->upsert($newerItem);
+
+        $deleted = $this->repository->deleteDuplicates();
+
+        $this->assertEquals(1, $deleted);
+        $this->assertNull($this->repository->findByGuid('dedupkeep12345a1'));
+        $this->assertNotNull($this->repository->findByGuid('dedupkeep12345a2'));
+    }
+
+    #[Test]
+    public function deleteDuplicatesIgnoresDifferentTitles(): void
+    {
+        $subscriptionGuid = 'dedupdiff1234567';
+
+        // Create two items with titles that differ by more than 3 characters
+        $this->repository->upsert(
+            new FeedItem(
+                'dedupdiff12345a1',
+                $subscriptionGuid,
+                'First Article Title Here',
+                'https://example.com/url1',
+                'Test Source',
+                'Excerpt 1',
+                new \DateTimeImmutable('2024-01-15 12:00:00'),
+            ),
+        );
+        $this->repository->upsert(
+            new FeedItem(
+                'dedupdiff12345a2',
+                $subscriptionGuid,
+                'Second Article Title Here',
+                'https://example.com/url2',
+                'Test Source',
+                'Excerpt 2',
+                new \DateTimeImmutable('2024-01-15 12:30:00'),
+            ),
+        );
+
+        $deleted = $this->repository->deleteDuplicates();
+
+        $this->assertEquals(0, $deleted);
+        $this->assertNotNull($this->repository->findByGuid('dedupdiff12345a1'));
+        $this->assertNotNull($this->repository->findByGuid('dedupdiff12345a2'));
+    }
+
+    #[Test]
+    public function deleteDuplicatesIgnoresItemsOutsideTimeWindow(): void
+    {
+        $subscriptionGuid = 'deduptime1234567';
+
+        // Create two items with same title but more than 2h apart
+        $this->repository->upsert(
+            new FeedItem(
+                'deduptime12345a1',
+                $subscriptionGuid,
+                'Same Title Article',
+                'https://example.com/url1',
+                'Test Source',
+                'Excerpt 1',
+                new \DateTimeImmutable('2024-01-15 12:00:00'),
+            ),
+        );
+        $this->repository->upsert(
+            new FeedItem(
+                'deduptime12345a2',
+                $subscriptionGuid,
+                'Same Title Article',
+                'https://example.com/url2',
+                'Test Source',
+                'Excerpt 2',
+                new \DateTimeImmutable('2024-01-15 15:00:00'),
+            ),
+        );
+
+        $deleted = $this->repository->deleteDuplicates();
+
+        $this->assertEquals(0, $deleted);
+        $this->assertNotNull($this->repository->findByGuid('deduptime12345a1'));
+        $this->assertNotNull($this->repository->findByGuid('deduptime12345a2'));
+    }
+
+    #[Test]
+    public function deleteDuplicatesIgnoresDifferentSubscriptions(): void
+    {
+        $publishedAt = new \DateTimeImmutable('2024-01-15 12:00:00');
+
+        // Create two items with same title but different subscriptions
+        $this->repository->upsert(
+            new FeedItem(
+                'dedupsub123456a1',
+                'subscription1234a',
+                'Same Title Different Sub',
+                'https://example.com/url1',
+                'Source 1',
+                'Excerpt 1',
+                $publishedAt,
+            ),
+        );
+        $this->repository->upsert(
+            new FeedItem(
+                'dedupsub123456a2',
+                'subscription1234b',
+                'Same Title Different Sub',
+                'https://example.com/url2',
+                'Source 2',
+                'Excerpt 2',
+                $publishedAt,
+            ),
+        );
+
+        $deleted = $this->repository->deleteDuplicates();
+
+        $this->assertEquals(0, $deleted);
+        $this->assertNotNull($this->repository->findByGuid('dedupsub123456a1'));
+        $this->assertNotNull($this->repository->findByGuid('dedupsub123456a2'));
+    }
+
+    #[Test]
+    public function deleteDuplicatesReturnsCorrectCount(): void
+    {
+        $subscriptionGuid = 'dedupcnt12345678';
+        $publishedAt = new \DateTimeImmutable('2024-01-15 12:00:00');
+
+        // Create 3 items with same title (all duplicates of each other)
+        $this->repository->upsert(
+            new FeedItem(
+                'dedupcnt123456a1',
+                $subscriptionGuid,
+                'Triple Duplicate',
+                'https://example.com/url1',
+                'Test Source',
+                'Excerpt',
+                new \DateTimeImmutable('2024-01-15 12:00:00'),
+            ),
+        );
+        $this->repository->upsert(
+            new FeedItem(
+                'dedupcnt123456a2',
+                $subscriptionGuid,
+                'Triple Duplicate',
+                'https://example.com/url2',
+                'Test Source',
+                'Excerpt',
+                new \DateTimeImmutable('2024-01-15 12:30:00'),
+            ),
+        );
+        $this->repository->upsert(
+            new FeedItem(
+                'dedupcnt123456a3',
+                $subscriptionGuid,
+                'Triple Duplicate',
+                'https://example.com/url3',
+                'Test Source',
+                'Excerpt',
+                new \DateTimeImmutable('2024-01-15 13:00:00'),
+            ),
+        );
+
+        $deleted = $this->repository->deleteDuplicates();
+
+        // Should delete the two older items, keep only the newest
+        $this->assertEquals(2, $deleted);
+        $this->assertNull($this->repository->findByGuid('dedupcnt123456a1'));
+        $this->assertNull($this->repository->findByGuid('dedupcnt123456a2'));
+        $this->assertNotNull($this->repository->findByGuid('dedupcnt123456a3'));
+    }
 }

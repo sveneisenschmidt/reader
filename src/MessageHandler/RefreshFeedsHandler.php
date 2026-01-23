@@ -12,6 +12,7 @@ namespace App\MessageHandler;
 
 use App\Domain\Feed\Repository\SubscriptionRepository;
 use App\Domain\Feed\Service\FeedExceptionHandler;
+use App\Domain\Feed\Service\FeedPersistenceService;
 use App\Domain\Feed\Service\FeedReaderService;
 use App\Enum\SubscriptionStatus;
 use App\Message\RefreshFeedsMessage;
@@ -25,6 +26,7 @@ class RefreshFeedsHandler
 {
     public function __construct(
         private FeedReaderService $feedReaderService,
+        private FeedPersistenceService $persistenceService,
         private SubscriptionRepository $subscriptionRepository,
         private EntityManagerInterface $entityManager,
         private LoggerInterface $logger,
@@ -108,10 +110,14 @@ class RefreshFeedsHandler
             }
         }
 
+        // Remove duplicates after all feeds have been imported
+        $duplicatesRemoved = $this->persistenceService->deleteDuplicates();
+
         $this->logger->info('Feeds refreshed', [
             'success' => $successCount,
             'skipped' => $skippedCount,
             'failed' => count($subscriptions) - $successCount - $skippedCount,
+            'duplicates_removed' => $duplicatesRemoved,
         ]);
     }
 }

@@ -73,6 +73,16 @@ class FeedPersistenceService
         );
     }
 
+    /**
+     * Deletes duplicate feed items based on title similarity.
+     *
+     * @return int Number of deleted duplicates
+     */
+    public function deleteDuplicates(): int
+    {
+        return $this->feedItemRepository->deleteDuplicates();
+    }
+
     #[Param(items: 'list<array<string, mixed>>')]
     #[Returns('list<array<string, mixed>>')]
     private function deduplicateByGuid(array $items): array

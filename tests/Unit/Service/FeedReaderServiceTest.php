@@ -187,6 +187,48 @@ class FeedReaderServiceTest extends TestCase
         );
 
         $this->assertEquals('Test Feed', $feedData['title']);
+        $this->assertArrayHasKey('items', $feedData);
+        $this->assertIsArray($feedData['items']);
+    }
+
+    #[Test]
+    public function fetchAndPersistFeedReturnsItems(): void
+    {
+        $item = new Item();
+        $item->setLink('https://example.com/post1');
+        $item->setPublicId('post-1');
+        $item->setTitle('Post Title');
+        $item->setSummary('Post summary');
+
+        $feed = new Feed();
+        $feed->setTitle('Test Feed');
+        $feed->add($item);
+
+        $result = $this->createMock(Result::class);
+        $result->method('getFeed')->willReturn($feed);
+
+        $feedIo = $this->createMock(FeedIo::class);
+        $feedIo->method('read')->willReturn($result);
+
+        $processorChain = $this->createMock(FeedItemProcessorChain::class);
+        $processorChain
+            ->method('processItems')
+            ->willReturnCallback(fn ($items) => $items);
+
+        $persistenceService = $this->createMock(FeedPersistenceService::class);
+
+        $service = $this->createService(
+            $feedIo,
+            $processorChain,
+            $persistenceService,
+        );
+
+        $feedData = $service->fetchAndPersistFeed(
+            'https://example.com/feed.xml',
+        );
+
+        $this->assertCount(1, $feedData['items']);
+        $this->assertEquals('Post Title', $feedData['items'][0]['title']);
     }
 
     #[Test]

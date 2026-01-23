@@ -201,6 +201,22 @@ class FeedPersistenceServiceTest extends TestCase
         $this->assertEquals(42, $count);
     }
 
+    #[Test]
+    public function deleteDuplicatesCallsRepository(): void
+    {
+        $repository = $this->createMock(FeedItemRepository::class);
+        $repository
+            ->expects($this->once())
+            ->method('deleteDuplicates')
+            ->willReturn(3);
+
+        $service = $this->createService($repository);
+
+        $deleted = $service->deleteDuplicates();
+
+        $this->assertEquals(3, $deleted);
+    }
+
     private function createService(
         ?FeedItemRepository $repository = null,
         ?EntityManagerInterface $entityManager = null,

@@ -322,6 +322,81 @@ class FeedItemRepository extends ServiceEntityRepository
         return array_column($results, 'guid');
     }
 
+    /**
+     * Deletes duplicate feed items based on title similarity.
+     * A duplicate is defined as: same subscription + similar title (Levenshtein <= 3)
+     * + published_at within 2 hours.
+     * Keeps the newer article.
+     *
+     * @return int Number of deleted duplicates
+     */
+    public function deleteDuplicates(): int
+    {
+        $em = $this->getEntityManager();
+        $conn = $em->getConnection();
+
+        // Get all subscriptions
+        $subscriptionGuids = $conn->fetchFirstColumn(
+            'SELECT DISTINCT subscription_guid FROM feed_item',
+        );
+
+        $totalDeleted = 0;
+
+        foreach ($subscriptionGuids as $subscriptionGuid) {
+            // Get items for this subscription, newest first
+            $items = $em
+                ->createQuery(
+                    'SELECT f.guid, f.title, f.publishedAt
+                     FROM App\Domain\Feed\Entity\FeedItem f
+                     WHERE f.subscriptionGuid = :subscriptionGuid
+                     ORDER BY f.publishedAt DESC',
+                )
+                ->setParameter('subscriptionGuid', $subscriptionGuid)
+                ->getResult();
+
+            // Find duplicates via n:n comparison
+            $guidsToDelete = [];
+            $count = count($items);
+            for ($i = 0; $i < $count; ++$i) {
+                for ($j = $i + 1; $j < $count; ++$j) {
+                    $item1 = $items[$i]; // newer (due to ORDER BY DESC)
+                    $item2 = $items[$j]; // older
+
+                    // Already marked for deletion? Skip
+                    if (in_array($item2['guid'], $guidsToDelete, true)) {
+                        continue;
+                    }
+
+                    // Check time window (2h = 7200 seconds)
+                    $timeDiff = abs(
+                        $item1['publishedAt']->getTimestamp() -
+                            $item2['publishedAt']->getTimestamp(),
+                    );
+                    if ($timeDiff > 7200) {
+                        continue;
+                    }
+
+                    // Levenshtein on title
+                    if (levenshtein($item1['title'], $item2['title']) <= 3) {
+                        $guidsToDelete[] = $item2['guid']; // delete older
+                    }
+                }
+            }
+
+            if (!empty($guidsToDelete)) {
+                $deleted = $this->createQueryBuilder('f')
+                    ->delete()
+                    ->where('f.guid IN (:guidsToDelete)')
+                    ->setParameter('guidsToDelete', $guidsToDelete)
+                    ->getQuery()
+                    ->execute();
+                $totalDeleted += $deleted;
+            }
+        }
+
+        return $totalDeleted;
+    }
+
     #[Param(subscriptionGuids: 'list<string>')]
     #[Param(filterWords: 'list<string>')]
     #[Returns('array<string, int>')]

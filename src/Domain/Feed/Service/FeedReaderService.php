@@ -44,6 +44,9 @@ class FeedReaderService
         return $feed->getTitle() ?? '';
     }
 
+    /**
+     * @return array{title: string, items: list<array<string, mixed>>}
+     */
     #[Returns('array{title: string, items: list<array<string, mixed>>}')]
     public function fetchAndPersistFeed(string $url): array
     {
