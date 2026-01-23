@@ -43,7 +43,11 @@ class LinkRewriteExtension extends AbstractExtension
             '/<a\s+([^>]*?)href=["\']([^"\']+)["\']([^>]*)>/i',
             function ($matches) use ($fguid) {
                 $before = $matches[1];
-                $originalUrl = $matches[2];
+                $originalUrl = html_entity_decode(
+                    $matches[2],
+                    ENT_QUOTES | ENT_HTML5,
+                    'UTF-8',
+                );
                 $after = $matches[3];
 
                 // Skip anchor links and javascript
