@@ -54,8 +54,15 @@ class SetupType extends AbstractType
                 'constraints' => [
                     new Assert\NotBlank(message: 'Password is required.'),
                     new Assert\Length(
-                        min: 8,
+                        min: 12,
                         minMessage: 'Password must be at least {{ limit }} characters.',
+                    ),
+                    new Assert\PasswordStrength(
+                        minScore: Assert\PasswordStrength::STRENGTH_MEDIUM,
+                        message: 'Password is too weak. Use a mix of letters, numbers, and symbols.',
+                    ),
+                    new Assert\NotCompromisedPassword(
+                        message: 'This password has been leaked in a data breach. Please choose a different password.',
                     ),
                 ],
             ])
