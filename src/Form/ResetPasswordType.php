@@ -42,7 +42,7 @@ class ResetPasswordType extends AbstractType
                 ],
             ])
             ->add('otp', TextType::class, [
-                'label' => 'Verification Code',
+                'label' => 'Verification code',
                 'constraints' => [
                     new Assert\NotBlank(
                         message: 'Verification code is required.',
@@ -62,14 +62,14 @@ class ResetPasswordType extends AbstractType
             ->add('password', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'first_options' => [
-                    'label' => 'New Password',
+                    'label' => 'New password',
                     'attr' => [
                         'placeholder' => 'Choose a new password',
                         'autocomplete' => 'new-password',
                     ],
                 ],
                 'second_options' => [
-                    'label' => 'Confirm Password',
+                    'label' => 'Confirm password',
                     'attr' => [
                         'placeholder' => 'Repeat new password',
                         'autocomplete' => 'new-password',

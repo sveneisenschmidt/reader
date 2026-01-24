@@ -51,7 +51,7 @@ class LoginType extends AbstractType
                 ],
             ])
             ->add('otp', TextType::class, [
-                'label' => 'Authenticator Code',
+                'label' => 'Verification code',
                 'constraints' => [
                     new Assert\NotBlank(
                         message: 'Authenticator code is required.',

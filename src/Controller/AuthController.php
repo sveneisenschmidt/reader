@@ -102,14 +102,8 @@ class AuthController extends AbstractController
         throw new \LogicException('This should never be reached.');
     }
 
-    #[
-        Route(
-            '/reset-password',
-            name: 'auth_reset_password',
-            methods: ['GET', 'POST'],
-        ),
-    ]
-    public function resetPassword(
+    #[Route('/password', name: 'auth_password', methods: ['GET', 'POST'])]
+    public function password(
         Request $request,
         EncryptionService $encryptionService,
         UserPasswordHasherInterface $passwordHasher,
@@ -118,11 +112,13 @@ class AuthController extends AbstractController
             return $this->redirectToRoute('auth_setup');
         }
 
-        if ($this->getUser()) {
-            return $this->redirectToRoute('feed_index');
+        $currentUser = $this->getUser();
+        $initialData = [];
+        if ($currentUser instanceof \App\Domain\User\Entity\User) {
+            $initialData['email'] = $currentUser->getEmail();
         }
 
-        $form = $this->createForm(ResetPasswordType::class);
+        $form = $this->createForm(ResetPasswordType::class, $initialData);
         $form->handleRequest($request);
 
         $error = null;
@@ -149,10 +145,11 @@ class AuthController extends AbstractController
                 );
                 $this->userRepository->upgradePassword($user, $hashedPassword);
 
-                $this->addFlash(
-                    'success',
-                    'Password has been reset. Please log in.',
-                );
+                $this->addFlash('success', 'Password has been updated.');
+
+                if ($currentUser) {
+                    return $this->redirectToRoute('preferences');
+                }
 
                 return $this->redirectToRoute('auth_login');
             }
@@ -161,7 +158,7 @@ class AuthController extends AbstractController
         }
 
         return $this->render(
-            'auth/reset_password.html.twig',
+            'auth/password.html.twig',
             [
                 'form' => $form,
                 'error' => $error,

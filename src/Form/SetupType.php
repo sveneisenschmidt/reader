@@ -47,7 +47,7 @@ class SetupType extends AbstractType
                     'attr' => ['placeholder' => 'Choose a password'],
                 ],
                 'second_options' => [
-                    'label' => 'Confirm Password',
+                    'label' => 'Confirm password',
                     'attr' => ['placeholder' => 'Repeat password'],
                 ],
                 'invalid_message' => 'Passwords do not match.',
@@ -67,7 +67,7 @@ class SetupType extends AbstractType
                 ],
             ])
             ->add('otp', TextType::class, [
-                'label' => 'Verification Code',
+                'label' => 'Verification code',
                 'constraints' => [
                     new Assert\NotBlank(
                         message: 'Verification code is required.',

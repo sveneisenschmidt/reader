@@ -3,7 +3,8 @@
    ======================================== */
 
 #login,
-#setup {
+#setup,
+#password {
     & > p {
         width: 100%;
         margin-bottom: var(--spacing-lg);
@@ -31,8 +32,9 @@
     }
 }
 
-/* Setup-specific: Password fields side by side */
-#setup {
+/* Setup/Reset-specific: Password fields side by side */
+#setup,
+#password {
     & .form-row-passwords {
         display: flex;
         flex-direction: column;

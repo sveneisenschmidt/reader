@@ -32,8 +32,8 @@
             <p>Your email ({{ email }}) can not be changed.</p>
         </div>
         <div class="form-links">
-            <a href="{{ path('auth_reset_password') }}">Update Password →</a>
-            <a href="#">Update Authentication →</a>
+            <a href="{{ path('auth_password') }}">Update password →</a>
+            <a href="#">Update authentication →</a>
         </div>
         <div class="form-actions">
             {{ form_widget(profileForm.save) }}

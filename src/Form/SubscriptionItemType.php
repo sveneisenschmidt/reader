@@ -47,7 +47,7 @@ class SubscriptionItemType extends AbstractType
                 ]);
         } else {
             $builder->add('url', UrlType::class, [
-                'label' => 'Subscribe to new feed',
+                'label' => 'New feed URL',
                 'required' => false,
                 'constraints' => [
                     new Assert\Url(message: 'Please enter a valid URL'),

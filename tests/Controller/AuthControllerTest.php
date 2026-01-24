@@ -482,10 +482,10 @@ class AuthControllerTest extends WebTestCase
         $client = static::createClient();
         $this->createTestUser();
 
-        $client->request('GET', '/reset-password');
+        $client->request('GET', '/password');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('main#reset-password');
+        $this->assertSelectorExists('main#password');
         $this->assertSelectorExists('form');
     }
 
@@ -501,13 +501,13 @@ class AuthControllerTest extends WebTestCase
             ->createQuery("DELETE FROM App\Domain\User\Entity\User")
             ->execute();
 
-        $client->request('GET', '/reset-password');
+        $client->request('GET', '/password');
 
         $this->assertResponseRedirects('/setup');
     }
 
     #[Test]
-    public function resetPasswordPageRedirectsToFeedWhenLoggedIn(): void
+    public function resetPasswordPagePrefillsEmailWhenLoggedIn(): void
     {
         $client = static::createClient();
         $this->createTestUser();
@@ -517,9 +517,11 @@ class AuthControllerTest extends WebTestCase
         $user = $userRepository->findByUsername('test@example.com');
 
         $client->loginUser($user);
-        $client->request('GET', '/reset-password');
+        $crawler = $client->request('GET', '/password');
 
-        $this->assertResponseRedirects('/');
+        $this->assertResponseIsSuccessful();
+        $emailInput = $crawler->filter('input[name="reset_password[email]"]');
+        $this->assertEquals('test@example.com', $emailInput->attr('value'));
     }
 
     #[Test]
@@ -528,7 +530,7 @@ class AuthControllerTest extends WebTestCase
         $client = static::createClient();
         $this->createTestUser();
 
-        $crawler = $client->request('GET', '/reset-password');
+        $crawler = $client->request('GET', '/password');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('input[name="reset_password[email]"]');
@@ -549,9 +551,9 @@ class AuthControllerTest extends WebTestCase
         $client = static::createClient();
         $this->createTestUser();
 
-        $crawler = $client->request('GET', '/reset-password');
+        $crawler = $client->request('GET', '/password');
 
-        $form = $crawler->selectButton('Reset Password')->form([
+        $form = $crawler->selectButton('Update password')->form([
             'reset_password[email]' => 'nonexistent@example.com',
             'reset_password[otp]' => '123456',
             'reset_password[password][first]' => 'NewSecurePassword123!',
@@ -574,9 +576,9 @@ class AuthControllerTest extends WebTestCase
         $client = static::createClient();
         $this->createTestUser();
 
-        $crawler = $client->request('GET', '/reset-password');
+        $crawler = $client->request('GET', '/password');
 
-        $form = $crawler->selectButton('Reset Password')->form([
+        $form = $crawler->selectButton('Update password')->form([
             'reset_password[email]' => 'test@example.com',
             'reset_password[otp]' => '000000', // Wrong OTP
             'reset_password[password][first]' => 'NewSecurePassword123!',
@@ -603,9 +605,9 @@ class AuthControllerTest extends WebTestCase
         $totp = TOTP::createFromSecret('JBSWY3DPEHPK3PXP');
         $validOtp = $totp->now();
 
-        $crawler = $client->request('GET', '/reset-password');
+        $crawler = $client->request('GET', '/password');
 
-        $form = $crawler->selectButton('Reset Password')->form([
+        $form = $crawler->selectButton('Update password')->form([
             'reset_password[email]' => 'test@example.com',
             'reset_password[otp]' => $validOtp,
             'reset_password[password][first]' => 'NewSecurePassword123!',
@@ -640,9 +642,9 @@ class AuthControllerTest extends WebTestCase
         $client = static::createClient();
         $this->createTestUser();
 
-        $crawler = $client->request('GET', '/reset-password');
+        $crawler = $client->request('GET', '/password');
 
-        $form = $crawler->selectButton('Reset Password')->form([
+        $form = $crawler->selectButton('Update password')->form([
             'reset_password[email]' => 'test@example.com',
             'reset_password[otp]' => '123456',
             'reset_password[password][first]' => 'weak',
@@ -661,9 +663,9 @@ class AuthControllerTest extends WebTestCase
         $client = static::createClient();
         $this->createTestUser();
 
-        $crawler = $client->request('GET', '/reset-password');
+        $crawler = $client->request('GET', '/password');
 
-        $form = $crawler->selectButton('Reset Password')->form([
+        $form = $crawler->selectButton('Update password')->form([
             'reset_password[email]' => 'test@example.com',
             'reset_password[otp]' => '123456',
             'reset_password[password][first]' => 'NewSecurePassword123!',
@@ -682,10 +684,10 @@ class AuthControllerTest extends WebTestCase
         $client = static::createClient();
         $this->createTestUser();
 
-        $crawler = $client->request('GET', '/reset-password');
+        $crawler = $client->request('GET', '/password');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('a[href="/login"]');
-        $this->assertSelectorTextContains('a[href="/login"]', 'Back to Login');
+        $this->assertSelectorTextContains('a[href="/login"]', 'Back to login');
     }
 }
