@@ -21,6 +21,10 @@
     <main id="{% block page_id %}{% endblock %}" class="page-container">
         <p>{% block intro %}{% endblock %}</p>
 
+        {% for message in app.flashes('success') %}
+        <p class="flash-success">{{ message }}</p>
+        {% endfor %}
+
         {% if error is defined and error %}
         <p role="alert">{{ error }}</p>
         {% endif %}

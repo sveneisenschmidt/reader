@@ -14,10 +14,13 @@ use App\Domain\User\Repository\UserRepository;
 use App\Domain\User\Service\TotpService;
 use App\Domain\User\Service\UserRegistrationService;
 use App\Form\LoginType;
+use App\Form\ResetPasswordType;
 use App\Form\SetupType;
+use App\Service\EncryptionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 class AuthController extends AbstractController
@@ -97,6 +100,76 @@ class AuthController extends AbstractController
     public function logout(): never
     {
         throw new \LogicException('This should never be reached.');
+    }
+
+    #[
+        Route(
+            '/reset-password',
+            name: 'auth_reset_password',
+            methods: ['GET', 'POST'],
+        ),
+    ]
+    public function resetPassword(
+        Request $request,
+        EncryptionService $encryptionService,
+        UserPasswordHasherInterface $passwordHasher,
+    ): Response {
+        if (!$this->userRepository->hasAnyUser()) {
+            return $this->redirectToRoute('auth_setup');
+        }
+
+        if ($this->getUser()) {
+            return $this->redirectToRoute('feed_index');
+        }
+
+        $form = $this->createForm(ResetPasswordType::class);
+        $form->handleRequest($request);
+
+        $error = null;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $user = $this->userRepository->findByEmail($data['email']);
+
+            $isValid = false;
+            if ($user) {
+                $totpSecret = $encryptionService->decrypt(
+                    $user->getTotpSecret(),
+                );
+                $isValid = $this->totpService->verify(
+                    $totpSecret,
+                    $data['otp'],
+                );
+            }
+
+            if ($isValid && $user) {
+                $hashedPassword = $passwordHasher->hashPassword(
+                    $user,
+                    $data['password'],
+                );
+                $this->userRepository->upgradePassword($user, $hashedPassword);
+
+                $this->addFlash(
+                    'success',
+                    'Password has been reset. Please log in.',
+                );
+
+                return $this->redirectToRoute('auth_login');
+            }
+
+            $error = 'Invalid credentials.';
+        }
+
+        return $this->render(
+            'auth/reset_password.html.twig',
+            [
+                'form' => $form,
+                'error' => $error,
+            ],
+            new Response(
+                status: $form->isSubmitted() && !$form->isValid() ? 422 : 200,
+            ),
+        );
     }
 
     private function getOrCreateTotpSecret(Request $request): string

@@ -475,4 +475,217 @@ class AuthControllerTest extends WebTestCase
         $client->followRedirect();
         $this->assertResponseRedirects('/onboarding');
     }
+
+    #[Test]
+    public function resetPasswordPageLoadsWhenUserExists(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $client->request('GET', '/reset-password');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('main#reset-password');
+        $this->assertSelectorExists('form');
+    }
+
+    #[Test]
+    public function resetPasswordPageRedirectsToSetupWhenNoUser(): void
+    {
+        $client = static::createClient();
+
+        // Clear users first
+        $container = static::getContainer();
+        $entityManager = $container->get('doctrine.orm.entity_manager');
+        $entityManager
+            ->createQuery("DELETE FROM App\Domain\User\Entity\User")
+            ->execute();
+
+        $client->request('GET', '/reset-password');
+
+        $this->assertResponseRedirects('/setup');
+    }
+
+    #[Test]
+    public function resetPasswordPageRedirectsToFeedWhenLoggedIn(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByUsername('test@example.com');
+
+        $client->loginUser($user);
+        $client->request('GET', '/reset-password');
+
+        $this->assertResponseRedirects('/');
+    }
+
+    #[Test]
+    public function resetPasswordPageHasRequiredFields(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $crawler = $client->request('GET', '/reset-password');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('input[name="reset_password[email]"]');
+        $this->assertSelectorExists(
+            'input[name="reset_password[otp]"].otp-input',
+        );
+        $this->assertSelectorExists(
+            'input[name="reset_password[password][first]"]',
+        );
+        $this->assertSelectorExists(
+            'input[name="reset_password[password][second]"]',
+        );
+    }
+
+    #[Test]
+    public function resetPasswordWithInvalidEmailShowsError(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $crawler = $client->request('GET', '/reset-password');
+
+        $form = $crawler->selectButton('Reset Password')->form([
+            'reset_password[email]' => 'nonexistent@example.com',
+            'reset_password[otp]' => '123456',
+            'reset_password[password][first]' => 'NewSecurePassword123!',
+            'reset_password[password][second]' => 'NewSecurePassword123!',
+        ]);
+
+        $client->submit($form);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('p[role="alert"]');
+        $this->assertSelectorTextContains(
+            'p[role="alert"]',
+            'Invalid credentials',
+        );
+    }
+
+    #[Test]
+    public function resetPasswordWithInvalidOtpShowsError(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $crawler = $client->request('GET', '/reset-password');
+
+        $form = $crawler->selectButton('Reset Password')->form([
+            'reset_password[email]' => 'test@example.com',
+            'reset_password[otp]' => '000000', // Wrong OTP
+            'reset_password[password][first]' => 'NewSecurePassword123!',
+            'reset_password[password][second]' => 'NewSecurePassword123!',
+        ]);
+
+        $client->submit($form);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('p[role="alert"]');
+        $this->assertSelectorTextContains(
+            'p[role="alert"]',
+            'Invalid credentials',
+        );
+    }
+
+    #[Test]
+    public function resetPasswordWithValidDataChangesPassword(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        // Generate valid OTP for the test user's secret
+        $totp = TOTP::createFromSecret('JBSWY3DPEHPK3PXP');
+        $validOtp = $totp->now();
+
+        $crawler = $client->request('GET', '/reset-password');
+
+        $form = $crawler->selectButton('Reset Password')->form([
+            'reset_password[email]' => 'test@example.com',
+            'reset_password[otp]' => $validOtp,
+            'reset_password[password][first]' => 'NewSecurePassword123!',
+            'reset_password[password][second]' => 'NewSecurePassword123!',
+        ]);
+
+        $client->submit($form);
+
+        // Should redirect to login after successful reset
+        $this->assertResponseRedirects('/login');
+
+        // Follow redirect and check for success message
+        $client->followRedirect();
+        $this->assertSelectorExists('.flash-success');
+
+        // Verify we can login with the new password
+        $validOtp = $totp->now();
+        $crawler = $client->request('GET', '/login');
+        $form = $crawler->selectButton('Login')->form([
+            'login[email]' => 'test@example.com',
+            'login[password]' => 'NewSecurePassword123!',
+            'login[otp]' => $validOtp,
+        ]);
+
+        $client->submit($form);
+        $this->assertResponseRedirects('/');
+    }
+
+    #[Test]
+    public function resetPasswordWithWeakPasswordShowsError(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $crawler = $client->request('GET', '/reset-password');
+
+        $form = $crawler->selectButton('Reset Password')->form([
+            'reset_password[email]' => 'test@example.com',
+            'reset_password[otp]' => '123456',
+            'reset_password[password][first]' => 'weak',
+            'reset_password[password][second]' => 'weak',
+        ]);
+
+        $client->submit($form);
+
+        // 422 for validation error
+        $this->assertResponseStatusCodeSame(422);
+    }
+
+    #[Test]
+    public function resetPasswordWithMismatchedPasswordsShowsError(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $crawler = $client->request('GET', '/reset-password');
+
+        $form = $crawler->selectButton('Reset Password')->form([
+            'reset_password[email]' => 'test@example.com',
+            'reset_password[otp]' => '123456',
+            'reset_password[password][first]' => 'NewSecurePassword123!',
+            'reset_password[password][second]' => 'DifferentPassword456!',
+        ]);
+
+        $client->submit($form);
+
+        // 422 for validation error
+        $this->assertResponseStatusCodeSame(422);
+    }
+
+    #[Test]
+    public function resetPasswordHasBackToLoginLink(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $crawler = $client->request('GET', '/reset-password');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('a[href="/login"]');
+        $this->assertSelectorTextContains('a[href="/login"]', 'Back to Login');
+    }
 }
