@@ -52,9 +52,9 @@ trait AuthenticatedTestTrait
         $userRepository = $container->get(UserRepository::class);
         $passwordHasher = $container->get(UserPasswordHasherInterface::class);
 
-        $user = $userRepository->findByUsername('test@example.com');
+        $user = $userRepository->findByEmail('test@example.com');
         if (!$user) {
-            $user = new User('test@example.com');
+            $user = new User('test-user');
             $user->setEmail('test@example.com');
             $user->setPassword(
                 $passwordHasher->hashPassword($user, 'testpassword'),

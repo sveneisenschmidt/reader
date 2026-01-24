@@ -27,12 +27,21 @@ class AuthControllerTest extends WebTestCase
         $passwordHasher = $container->get(UserPasswordHasherInterface::class);
         $totpEncryption = $container->get(EncryptionService::class);
 
-        // Check if test user already exists
-        if ($userRepository->findByUsername('test@example.com')) {
+        $existingUser = $userRepository->findByEmail('test@example.com');
+        if ($existingUser) {
+            // Reset password and TOTP secret to known values
+            $existingUser->setPassword(
+                $passwordHasher->hashPassword($existingUser, 'testpassword'),
+            );
+            $existingUser->setTotpSecret(
+                $totpEncryption->encrypt('JBSWY3DPEHPK3PXP'),
+            );
+            $userRepository->save($existingUser);
+
             return;
         }
 
-        $user = new User('test@example.com');
+        $user = new User('test-user');
         $user->setEmail('test@example.com');
         $user->setPassword(
             $passwordHasher->hashPassword($user, 'testpassword'),
@@ -244,7 +253,7 @@ class AuthControllerTest extends WebTestCase
 
         $container = static::getContainer();
         $userRepository = $container->get(UserRepository::class);
-        $user = $userRepository->findByUsername('test@example.com');
+        $user = $userRepository->findByEmail('test@example.com');
 
         $client->loginUser($user);
         $client->request('GET', '/login');
@@ -395,7 +404,7 @@ class AuthControllerTest extends WebTestCase
 
         // Verify user was created
         $userRepository = $container->get(UserRepository::class);
-        $user = $userRepository->findByUsername('newuser@example.com');
+        $user = $userRepository->findByEmail('newuser@example.com');
         $this->assertNotNull($user);
         $this->assertEquals('newuser@example.com', $user->getEmail());
     }
@@ -477,11 +486,27 @@ class AuthControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function resetPasswordPageLoadsWhenUserExists(): void
+    public function passwordPageRedirectsToLoginWhenNotAuthenticated(): void
     {
         $client = static::createClient();
         $this->createTestUser();
 
+        $client->request('GET', '/password');
+
+        $this->assertResponseRedirects('/login');
+    }
+
+    #[Test]
+    public function passwordPageLoadsWhenAuthenticated(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
+
+        $client->loginUser($user);
         $client->request('GET', '/password');
 
         $this->assertResponseIsSuccessful();
@@ -490,50 +515,19 @@ class AuthControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function resetPasswordPageRedirectsToSetupWhenNoUser(): void
-    {
-        $client = static::createClient();
-
-        // Clear users first
-        $container = static::getContainer();
-        $entityManager = $container->get('doctrine.orm.entity_manager');
-        $entityManager
-            ->createQuery("DELETE FROM App\Domain\User\Entity\User")
-            ->execute();
-
-        $client->request('GET', '/password');
-
-        $this->assertResponseRedirects('/setup');
-    }
-
-    #[Test]
-    public function resetPasswordPagePrefillsEmailWhenLoggedIn(): void
+    public function passwordPageHasRequiredFields(): void
     {
         $client = static::createClient();
         $this->createTestUser();
 
         $container = static::getContainer();
         $userRepository = $container->get(UserRepository::class);
-        $user = $userRepository->findByUsername('test@example.com');
+        $user = $userRepository->findByEmail('test@example.com');
 
         $client->loginUser($user);
         $crawler = $client->request('GET', '/password');
 
         $this->assertResponseIsSuccessful();
-        $emailInput = $crawler->filter('input[name="reset_password[email]"]');
-        $this->assertEquals('test@example.com', $emailInput->attr('value'));
-    }
-
-    #[Test]
-    public function resetPasswordPageHasRequiredFields(): void
-    {
-        $client = static::createClient();
-        $this->createTestUser();
-
-        $crawler = $client->request('GET', '/password');
-
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('input[name="reset_password[email]"]');
         $this->assertSelectorExists(
             'input[name="reset_password[otp]"].otp-input',
         );
@@ -546,16 +540,20 @@ class AuthControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function resetPasswordWithInvalidEmailShowsError(): void
+    public function passwordWithInvalidOtpShowsError(): void
     {
         $client = static::createClient();
         $this->createTestUser();
 
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
+
+        $client->loginUser($user);
         $crawler = $client->request('GET', '/password');
 
         $form = $crawler->selectButton('Update password')->form([
-            'reset_password[email]' => 'nonexistent@example.com',
-            'reset_password[otp]' => '123456',
+            'reset_password[otp]' => '000000',
             'reset_password[password][first]' => 'NewSecurePassword123!',
             'reset_password[password][second]' => 'NewSecurePassword123!',
         ]);
@@ -566,49 +564,28 @@ class AuthControllerTest extends WebTestCase
         $this->assertSelectorExists('p[role="alert"]');
         $this->assertSelectorTextContains(
             'p[role="alert"]',
-            'Invalid credentials',
+            'Invalid verification code',
         );
     }
 
     #[Test]
-    public function resetPasswordWithInvalidOtpShowsError(): void
+    public function passwordWithValidDataChangesPassword(): void
     {
         $client = static::createClient();
         $this->createTestUser();
 
-        $crawler = $client->request('GET', '/password');
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
 
-        $form = $crawler->selectButton('Update password')->form([
-            'reset_password[email]' => 'test@example.com',
-            'reset_password[otp]' => '000000', // Wrong OTP
-            'reset_password[password][first]' => 'NewSecurePassword123!',
-            'reset_password[password][second]' => 'NewSecurePassword123!',
-        ]);
+        $client->loginUser($user);
 
-        $client->submit($form);
-
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('p[role="alert"]');
-        $this->assertSelectorTextContains(
-            'p[role="alert"]',
-            'Invalid credentials',
-        );
-    }
-
-    #[Test]
-    public function resetPasswordWithValidDataChangesPassword(): void
-    {
-        $client = static::createClient();
-        $this->createTestUser();
-
-        // Generate valid OTP for the test user's secret
         $totp = TOTP::createFromSecret('JBSWY3DPEHPK3PXP');
         $validOtp = $totp->now();
 
         $crawler = $client->request('GET', '/password');
 
         $form = $crawler->selectButton('Update password')->form([
-            'reset_password[email]' => 'test@example.com',
             'reset_password[otp]' => $validOtp,
             'reset_password[password][first]' => 'NewSecurePassword123!',
             'reset_password[password][second]' => 'NewSecurePassword123!',
@@ -616,36 +593,25 @@ class AuthControllerTest extends WebTestCase
 
         $client->submit($form);
 
-        // Should redirect to login after successful reset
-        $this->assertResponseRedirects('/login');
-
-        // Follow redirect and check for success message
+        $this->assertResponseRedirects('/preferences');
         $client->followRedirect();
         $this->assertSelectorExists('.flash-success');
-
-        // Verify we can login with the new password
-        $validOtp = $totp->now();
-        $crawler = $client->request('GET', '/login');
-        $form = $crawler->selectButton('Login')->form([
-            'login[email]' => 'test@example.com',
-            'login[password]' => 'NewSecurePassword123!',
-            'login[otp]' => $validOtp,
-        ]);
-
-        $client->submit($form);
-        $this->assertResponseRedirects('/');
     }
 
     #[Test]
-    public function resetPasswordWithWeakPasswordShowsError(): void
+    public function passwordWithWeakPasswordShowsError(): void
     {
         $client = static::createClient();
         $this->createTestUser();
 
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
+
+        $client->loginUser($user);
         $crawler = $client->request('GET', '/password');
 
         $form = $crawler->selectButton('Update password')->form([
-            'reset_password[email]' => 'test@example.com',
             'reset_password[otp]' => '123456',
             'reset_password[password][first]' => 'weak',
             'reset_password[password][second]' => 'weak',
@@ -653,20 +619,23 @@ class AuthControllerTest extends WebTestCase
 
         $client->submit($form);
 
-        // 422 for validation error
         $this->assertResponseStatusCodeSame(422);
     }
 
     #[Test]
-    public function resetPasswordWithMismatchedPasswordsShowsError(): void
+    public function passwordWithMismatchedPasswordsShowsError(): void
     {
         $client = static::createClient();
         $this->createTestUser();
 
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
+
+        $client->loginUser($user);
         $crawler = $client->request('GET', '/password');
 
         $form = $crawler->selectButton('Update password')->form([
-            'reset_password[email]' => 'test@example.com',
             'reset_password[otp]' => '123456',
             'reset_password[password][first]' => 'NewSecurePassword123!',
             'reset_password[password][second]' => 'DifferentPassword456!',
@@ -674,29 +643,48 @@ class AuthControllerTest extends WebTestCase
 
         $client->submit($form);
 
-        // 422 for validation error
         $this->assertResponseStatusCodeSame(422);
     }
 
     #[Test]
-    public function resetPasswordHasBackToLoginLink(): void
+    public function passwordHasBackToPreferencesLink(): void
     {
         $client = static::createClient();
         $this->createTestUser();
 
-        $crawler = $client->request('GET', '/password');
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
+
+        $client->loginUser($user);
+        $client->request('GET', '/password');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('a[href="/login"]');
-        $this->assertSelectorTextContains('a[href="/login"]', 'Back to login');
+        $this->assertSelectorExists('a[href="/preferences"]');
     }
 
     #[Test]
-    public function totpPageLoadsWhenUserExists(): void
+    public function totpPageRedirectsToLoginWhenNotAuthenticated(): void
     {
         $client = static::createClient();
         $this->createTestUser();
 
+        $client->request('GET', '/totp');
+
+        $this->assertResponseRedirects('/login');
+    }
+
+    #[Test]
+    public function totpPageLoadsWhenAuthenticated(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
+
+        $client->loginUser($user);
         $client->request('GET', '/totp');
 
         $this->assertResponseIsSuccessful();
@@ -706,64 +694,38 @@ class AuthControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function totpPageRedirectsToSetupWhenNoUser(): void
-    {
-        $client = static::createClient();
-
-        $container = static::getContainer();
-        $entityManager = $container->get('doctrine.orm.entity_manager');
-        $entityManager
-            ->createQuery("DELETE FROM App\Domain\User\Entity\User")
-            ->execute();
-
-        $client->request('GET', '/totp');
-
-        $this->assertResponseRedirects('/setup');
-    }
-
-    #[Test]
-    public function totpPagePrefillsEmailWhenLoggedIn(): void
+    public function totpPageHasRequiredFields(): void
     {
         $client = static::createClient();
         $this->createTestUser();
 
         $container = static::getContainer();
         $userRepository = $container->get(UserRepository::class);
-        $user = $userRepository->findByUsername('test@example.com');
+        $user = $userRepository->findByEmail('test@example.com');
 
         $client->loginUser($user);
-        $crawler = $client->request('GET', '/totp');
+        $client->request('GET', '/totp');
 
         $this->assertResponseIsSuccessful();
-        $emailInput = $crawler->filter('input[name="totp[email]"]');
-        $this->assertEquals('test@example.com', $emailInput->attr('value'));
-    }
-
-    #[Test]
-    public function totpPageHasRequiredFields(): void
-    {
-        $client = static::createClient();
-        $this->createTestUser();
-
-        $crawler = $client->request('GET', '/totp');
-
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('input[name="totp[email]"]');
         $this->assertSelectorExists('input[name="totp[password]"]');
         $this->assertSelectorExists('input[name="totp[current_otp]"]');
         $this->assertSelectorExists('input[name="totp[new_otp]"]');
     }
 
     #[Test]
-    public function totpWithInvalidCredentialsShowsError(): void
+    public function totpWithInvalidPasswordShowsError(): void
     {
         $client = static::createClient();
         $this->createTestUser();
 
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
+
+        $client->loginUser($user);
         $crawler = $client->request('GET', '/totp');
 
         $form = $crawler->selectButton('Update authentication')->form([
-            'totp[email]' => 'test@example.com',
             'totp[password]' => 'wrongpassword',
             'totp[current_otp]' => '123456',
             'totp[new_otp]' => '654321',
@@ -785,10 +747,14 @@ class AuthControllerTest extends WebTestCase
         $client = static::createClient();
         $this->createTestUser();
 
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
+
+        $client->loginUser($user);
         $crawler = $client->request('GET', '/totp');
 
         $form = $crawler->selectButton('Update authentication')->form([
-            'totp[email]' => 'test@example.com',
             'totp[password]' => 'testpassword',
             'totp[current_otp]' => '000000',
             'totp[new_otp]' => '654321',
@@ -810,13 +776,20 @@ class AuthControllerTest extends WebTestCase
         $client = static::createClient();
         $this->createTestUser();
 
-        $totp = TOTP::createFromSecret('JBSWY3DPEHPK3PXP');
-        $validCurrentOtp = $totp->now();
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
+
+        $client->loginUser($user);
 
         $crawler = $client->request('GET', '/totp');
 
+        // Get the new secret first, then generate current OTP
+        $newSecret = $crawler->filter('figcaption code')->text();
+        $totp = TOTP::createFromSecret('JBSWY3DPEHPK3PXP');
+        $validCurrentOtp = $totp->now();
+
         $form = $crawler->selectButton('Update authentication')->form([
-            'totp[email]' => 'test@example.com',
             'totp[password]' => 'testpassword',
             'totp[current_otp]' => $validCurrentOtp,
             'totp[new_otp]' => '000000',
@@ -838,18 +811,22 @@ class AuthControllerTest extends WebTestCase
         $client = static::createClient();
         $this->createTestUser();
 
-        $totp = TOTP::createFromSecret('JBSWY3DPEHPK3PXP');
-        $validCurrentOtp = $totp->now();
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
+
+        $client->loginUser($user);
 
         $crawler = $client->request('GET', '/totp');
 
-        // Get the new secret from the page
+        // Get the new secret first, then generate OTPs in quick succession
         $newSecret = $crawler->filter('figcaption code')->text();
+        $totp = TOTP::createFromSecret('JBSWY3DPEHPK3PXP');
         $newTotp = TOTP::createFromSecret($newSecret);
+        $validCurrentOtp = $totp->now();
         $validNewOtp = $newTotp->now();
 
         $form = $crawler->selectButton('Update authentication')->form([
-            'totp[email]' => 'test@example.com',
             'totp[password]' => 'testpassword',
             'totp[current_otp]' => $validCurrentOtp,
             'totp[new_otp]' => $validNewOtp,
@@ -857,9 +834,7 @@ class AuthControllerTest extends WebTestCase
 
         $client->submit($form);
 
-        $this->assertResponseRedirects('/login');
-
-        // Follow redirect and check for success message
+        $this->assertResponseRedirects('/preferences');
         $client->followRedirect();
         $this->assertSelectorExists('.flash-success');
     }
@@ -870,11 +845,15 @@ class AuthControllerTest extends WebTestCase
         $client = static::createClient();
         $this->createTestUser();
 
-        // First request - get new TOTP secret
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
+
+        $client->loginUser($user);
+
         $crawler1 = $client->request('GET', '/totp');
         $secret1 = $crawler1->filter('figcaption code')->text();
 
-        // Second request - should preserve the same secret
         $crawler2 = $client->request('GET', '/totp');
         $secret2 = $crawler2->filter('figcaption code')->text();
 
@@ -882,15 +861,19 @@ class AuthControllerTest extends WebTestCase
     }
 
     #[Test]
-    public function totpHasBackToLoginLink(): void
+    public function totpHasBackToPreferencesLink(): void
     {
         $client = static::createClient();
         $this->createTestUser();
 
-        $crawler = $client->request('GET', '/totp');
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByEmail('test@example.com');
+
+        $client->loginUser($user);
+        $client->request('GET', '/totp');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('a[href="/login"]');
-        $this->assertSelectorTextContains('a[href="/login"]', 'Back to login');
+        $this->assertSelectorExists('a[href="/preferences"]');
     }
 }

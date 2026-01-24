@@ -30,7 +30,7 @@ class UserRepositoryTest extends KernelTestCase
     #[Test]
     public function findByUsernameReturnsNullWhenNotFound(): void
     {
-        $result = $this->repository->findByUsername('nonexistent_user_12345');
+        $result = $this->repository->findByUsername('nonexistent-username');
 
         $this->assertNull($result);
     }
@@ -54,7 +54,7 @@ class UserRepositoryTest extends KernelTestCase
     #[Test]
     public function upgradePasswordUpdatesUserPassword(): void
     {
-        $user = $this->repository->findByUsername('test@example.com');
+        $user = $this->repository->findByEmail('test@example.com');
 
         if ($user === null) {
             $this->markTestSkipped('Test user not found');
@@ -65,7 +65,7 @@ class UserRepositoryTest extends KernelTestCase
 
         $this->repository->upgradePassword($user, $newPassword);
 
-        $updatedUser = $this->repository->findByUsername('test@example.com');
+        $updatedUser = $this->repository->findByEmail('test@example.com');
         $this->assertEquals($newPassword, $updatedUser->getPassword());
 
         // Restore original password

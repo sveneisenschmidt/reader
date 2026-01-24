@@ -43,7 +43,8 @@ class UserRegistrationServiceTest extends KernelTestCase
 
         $this->assertNotNull($user->getId());
         $this->assertEquals($email, $user->getEmail());
-        $this->assertEquals($email, $user->getUsername());
+        $this->assertNotEmpty($user->getUsername());
+        $this->assertNotEquals($email, $user->getUsername()); // Username is auto-generated
         $this->assertNotEquals($password, $user->getPassword());
         $this->assertNotEquals($totpSecret, $user->getTotpSecret());
         $this->assertEquals(

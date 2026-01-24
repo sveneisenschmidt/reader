@@ -21,6 +21,7 @@ class UserRegistrationService
         private UserRepository $userRepository,
         private UserPasswordHasherInterface $passwordHasher,
         private EncryptionService $totpEncryption,
+        private UsernameGenerator $usernameGenerator,
     ) {
     }
 
@@ -29,7 +30,8 @@ class UserRegistrationService
         string $password,
         string $totpSecret,
     ): User {
-        $user = new User($email);
+        $username = $this->usernameGenerator->generate();
+        $user = new User($username);
         $user->setEmail($email);
         $user->setPassword(
             $this->passwordHasher->hashPassword($user, $password),

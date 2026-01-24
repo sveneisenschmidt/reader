@@ -97,7 +97,6 @@ class AuthController extends AbstractController
     }
 
     #[Route('/logout', name: 'auth_logout')]
-    #[\PHPUnit\Framework\Attributes\CodeCoverageIgnore]
     public function logout(): never
     {
         throw new \LogicException('This should never be reached.');
@@ -109,53 +108,40 @@ class AuthController extends AbstractController
         EncryptionService $encryptionService,
         UserPasswordHasherInterface $passwordHasher,
     ): Response {
-        if (!$this->userRepository->hasAnyUser()) {
-            return $this->redirectToRoute('auth_setup');
-        }
-
         $currentUser = $this->getUser();
-        $initialData = [];
-        if ($currentUser instanceof \App\Domain\User\Entity\User) {
-            $initialData['email'] = $currentUser->getEmail();
+        if (!$currentUser instanceof \App\Domain\User\Entity\User) {
+            return $this->redirectToRoute('auth_login');
         }
 
-        $form = $this->createForm(ResetPasswordType::class, $initialData);
+        $form = $this->createForm(ResetPasswordType::class);
         $form->handleRequest($request);
 
         $error = null;
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $user = $this->userRepository->findByEmail($data['email']);
 
-            $isValid = false;
-            if ($user) {
-                $totpSecret = $encryptionService->decrypt(
-                    $user->getTotpSecret(),
-                );
-                $isValid = $this->totpService->verify(
-                    $totpSecret,
-                    $data['otp'],
-                );
-            }
+            $totpSecret = $encryptionService->decrypt(
+                $currentUser->getTotpSecret(),
+            );
+            $isValid = $this->totpService->verify($totpSecret, $data['otp']);
 
-            if ($isValid && $user) {
+            if ($isValid) {
                 $hashedPassword = $passwordHasher->hashPassword(
-                    $user,
+                    $currentUser,
                     $data['password'],
                 );
-                $this->userRepository->upgradePassword($user, $hashedPassword);
+                $this->userRepository->upgradePassword(
+                    $currentUser,
+                    $hashedPassword,
+                );
 
                 $this->addFlash('success', 'Password has been updated.');
 
-                if ($currentUser) {
-                    return $this->redirectToRoute('preferences');
-                }
-
-                return $this->redirectToRoute('auth_login');
+                return $this->redirectToRoute('preferences');
             }
 
-            $error = 'Invalid credentials.';
+            $error = 'Invalid verification code.';
         }
 
         return $this->render(
@@ -176,14 +162,9 @@ class AuthController extends AbstractController
         EncryptionService $encryptionService,
         UserPasswordHasherInterface $passwordHasher,
     ): Response {
-        if (!$this->userRepository->hasAnyUser()) {
-            return $this->redirectToRoute('auth_setup');
-        }
-
         $currentUser = $this->getUser();
-        $initialData = [];
-        if ($currentUser instanceof \App\Domain\User\Entity\User) {
-            $initialData['email'] = $currentUser->getEmail();
+        if (!$currentUser instanceof \App\Domain\User\Entity\User) {
+            return $this->redirectToRoute('auth_login');
         }
 
         $newTotpSecret = $this->getOrCreateTotpSecret(
@@ -191,24 +172,22 @@ class AuthController extends AbstractController
             'totp_new_secret',
         );
 
-        $form = $this->createForm(TotpType::class, $initialData);
+        $form = $this->createForm(TotpType::class);
         $form->handleRequest($request);
 
         $error = null;
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $user = $this->userRepository->findByEmail($data['email']);
 
-            $isValid = false;
-            if (
-                $user
-                && $passwordHasher->isPasswordValid($user, $data['password'])
-            ) {
+            $isValid = $passwordHasher->isPasswordValid(
+                $currentUser,
+                $data['password'],
+            );
+            if ($isValid) {
                 $currentTotpSecret = $encryptionService->decrypt(
-                    $user->getTotpSecret(),
+                    $currentUser->getTotpSecret(),
                 );
-                // Use window=1 for tolerance (allows ±30 seconds)
                 $isValid = $this->totpService->verify(
                     $currentTotpSecret,
                     $data['current_otp'],
@@ -216,15 +195,14 @@ class AuthController extends AbstractController
                 );
             }
 
-            if ($isValid && $user) {
-                // Verify new OTP against new secret
+            if ($isValid) {
                 if (
                     $this->totpService->verify($newTotpSecret, $data['new_otp'])
                 ) {
-                    $user->setTotpSecret(
+                    $currentUser->setTotpSecret(
                         $encryptionService->encrypt($newTotpSecret),
                     );
-                    $this->userRepository->save($user);
+                    $this->userRepository->save($currentUser);
 
                     $request->getSession()->remove('totp_new_secret');
                     $this->addFlash(
@@ -232,11 +210,7 @@ class AuthController extends AbstractController
                         'Authentication has been updated.',
                     );
 
-                    if ($currentUser) {
-                        return $this->redirectToRoute('preferences');
-                    }
-
-                    return $this->redirectToRoute('auth_login');
+                    return $this->redirectToRoute('preferences');
                 }
 
                 $error =

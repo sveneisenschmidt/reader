@@ -3,16 +3,10 @@
 {% block title %}Update Authentication | Reader{% endblock %}
 {% block header_actions %}Update Authentication{% endblock %}
 {% block page_id %}totp{% endblock %}
-{% block intro %}Enter your credentials and current verification code, then scan the new QR code and enter the new code.{% endblock %}
+{% block intro %}Enter your password and current verification code, then scan the new QR code and enter the new code.{% endblock %}
 
 {% block form %}
     {{ form_start(form, {'attr': {'class': 'form', 'novalidate': 'novalidate'}}) }}
-
-    <div class="form-row">
-        {{ form_label(form.email) }}
-        {{ form_widget(form.email, {'attr': {'required': true}}) }}
-        {{ form_errors(form.email) }}
-    </div>
 
     <div class="form-row">
         {{ form_label(form.password) }}
@@ -44,11 +38,7 @@
     <button type="submit">Update authentication</button>
 
     <div class="form-links">
-        {% if app.user %}
-            <a href="{{ path('preferences') }}">Back to preferences →</a>
-        {% else %}
-            <a href="{{ path('auth_login') }}">Back to login →</a>
-        {% endif %}
+        <a href="{{ path('preferences') }}">Back to preferences →</a>
     </div>
 
     {{ form_end(form) }}

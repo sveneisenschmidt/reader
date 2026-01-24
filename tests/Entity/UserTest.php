@@ -54,11 +54,12 @@ class UserTest extends TestCase
     }
 
     #[Test]
-    public function getUserIdentifierReturnsUsername(): void
+    public function getUserIdentifierReturnsEmail(): void
     {
         $user = new User('testuser');
+        $user->setEmail('test@example.com');
 
-        $this->assertEquals('testuser', $user->getUserIdentifier());
+        $this->assertEquals('test@example.com', $user->getUserIdentifier());
     }
 
     #[Test]

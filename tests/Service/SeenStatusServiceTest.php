@@ -37,9 +37,9 @@ class SeenStatusServiceTest extends KernelTestCase
         $userRepository = $container->get(UserRepository::class);
         $passwordHasher = $container->get(UserPasswordHasherInterface::class);
 
-        $user = $userRepository->findByUsername('seenstatus_test@example.com');
+        $user = $userRepository->findByEmail('seenstatus_test@example.com');
         if (!$user) {
-            $user = new User('seenstatus_test@example.com');
+            $user = new User('seenstatus-test-user');
             $user->setEmail('seenstatus_test@example.com');
             $user->setPassword(
                 $passwordHasher->hashPassword($user, 'testpassword'),

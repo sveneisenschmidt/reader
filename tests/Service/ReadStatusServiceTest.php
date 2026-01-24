@@ -37,9 +37,9 @@ class ReadStatusServiceTest extends KernelTestCase
         $userRepository = $container->get(UserRepository::class);
         $passwordHasher = $container->get(UserPasswordHasherInterface::class);
 
-        $user = $userRepository->findByUsername('readstatus_test@example.com');
+        $user = $userRepository->findByEmail('readstatus_test@example.com');
         if (!$user) {
-            $user = new User('readstatus_test@example.com');
+            $user = new User('readstatus-test-user');
             $user->setEmail('readstatus_test@example.com');
             $user->setPassword(
                 $passwordHasher->hashPassword($user, 'testpassword'),

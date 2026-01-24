@@ -118,11 +118,9 @@ class AppAuthenticatorTest extends KernelTestCase
     {
         // Ensure a user exists
         $container = static::getContainer();
-        $userRepository = $container->get(
-            UserRepository::class,
-        );
+        $userRepository = $container->get(UserRepository::class);
         if (!$userRepository->hasAnyUser()) {
-            $user = new User('test@example.com');
+            $user = new User('test-user');
             $user->setEmail('test@example.com');
             $user->setPassword('hashedpassword');
             $userRepository->save($user);
@@ -162,7 +160,7 @@ class AppAuthenticatorTest extends KernelTestCase
         $passwordHasher = $container->get(UserPasswordHasherInterface::class);
 
         // Create user without TOTP secret
-        $user = new User('no-totp@example.com');
+        $user = new User('no-totp-user');
         $user->setEmail('no-totp@example.com');
         $user->setPassword(
             $passwordHasher->hashPassword($user, 'testpassword'),

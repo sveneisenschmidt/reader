@@ -12,7 +12,6 @@ namespace App\Form;
 
 use PhpStaticAnalysis\Attributes\Template;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -27,19 +26,6 @@ class TotpType extends AbstractType
         array $options,
     ): void {
         $builder
-            ->add('email', EmailType::class, [
-                'label' => 'Email',
-                'constraints' => [
-                    new Assert\NotBlank(message: 'Email is required.'),
-                    new Assert\Email(
-                        message: 'Please enter a valid email address.',
-                    ),
-                ],
-                'attr' => [
-                    'placeholder' => 'you@example.com',
-                    'autocomplete' => 'email',
-                ],
-            ])
             ->add('password', PasswordType::class, [
                 'label' => 'Password',
                 'constraints' => [
