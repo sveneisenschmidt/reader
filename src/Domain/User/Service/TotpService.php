@@ -25,11 +25,11 @@ class TotpService
         return TOTP::generate()->getSecret();
     }
 
-    public function verify(string $secret, string $code): bool
+    public function verify(string $secret, string $code, int $window = 0): bool
     {
         $totp = TOTP::createFromSecret($secret);
 
-        return $totp->verify($code);
+        return $totp->verify($code, null, $window);
     }
 
     public function getProvisioningUri(string $secret): string

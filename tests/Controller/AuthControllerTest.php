@@ -82,7 +82,7 @@ class AuthControllerTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/setup');
 
-        $form = $crawler->selectButton('Create Account')->form();
+        $form = $crawler->selectButton('Create account')->form();
         $client->submit($form);
 
         // 422 is expected for validation errors
@@ -277,7 +277,7 @@ class AuthControllerTest extends WebTestCase
 
         $crawler = $client->request('GET', '/setup');
 
-        $form = $crawler->selectButton('Create Account')->form([
+        $form = $crawler->selectButton('Create account')->form([
             'setup[email]' => 'newuser@example.com',
             'setup[password][first]' => 'securepassword123',
             'setup[password][second]' => 'securepassword123',
@@ -305,7 +305,7 @@ class AuthControllerTest extends WebTestCase
 
         $crawler = $client->request('GET', '/setup');
 
-        $form = $crawler->selectButton('Create Account')->form([
+        $form = $crawler->selectButton('Create account')->form([
             'setup[email]' => 'newuser@example.com',
             'setup[password][first]' => 'password1',
             'setup[password][second]' => 'password2', // Mismatch
@@ -381,7 +381,7 @@ class AuthControllerTest extends WebTestCase
         $totp = TOTP::createFromSecret($secret);
         $validOtp = $totp->now();
 
-        $form = $crawler->selectButton('Create Account')->form([
+        $form = $crawler->selectButton('Create account')->form([
             'setup[email]' => 'newuser@example.com',
             'setup[password][first]' => 'securepassword123',
             'setup[password][second]' => 'securepassword123',
@@ -685,6 +685,209 @@ class AuthControllerTest extends WebTestCase
         $this->createTestUser();
 
         $crawler = $client->request('GET', '/password');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('a[href="/login"]');
+        $this->assertSelectorTextContains('a[href="/login"]', 'Back to login');
+    }
+
+    #[Test]
+    public function totpPageLoadsWhenUserExists(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $client->request('GET', '/totp');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('main#totp');
+        $this->assertSelectorExists('form');
+        $this->assertSelectorExists('figure.qr-code img');
+    }
+
+    #[Test]
+    public function totpPageRedirectsToSetupWhenNoUser(): void
+    {
+        $client = static::createClient();
+
+        $container = static::getContainer();
+        $entityManager = $container->get('doctrine.orm.entity_manager');
+        $entityManager
+            ->createQuery("DELETE FROM App\Domain\User\Entity\User")
+            ->execute();
+
+        $client->request('GET', '/totp');
+
+        $this->assertResponseRedirects('/setup');
+    }
+
+    #[Test]
+    public function totpPagePrefillsEmailWhenLoggedIn(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $container = static::getContainer();
+        $userRepository = $container->get(UserRepository::class);
+        $user = $userRepository->findByUsername('test@example.com');
+
+        $client->loginUser($user);
+        $crawler = $client->request('GET', '/totp');
+
+        $this->assertResponseIsSuccessful();
+        $emailInput = $crawler->filter('input[name="totp[email]"]');
+        $this->assertEquals('test@example.com', $emailInput->attr('value'));
+    }
+
+    #[Test]
+    public function totpPageHasRequiredFields(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $crawler = $client->request('GET', '/totp');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('input[name="totp[email]"]');
+        $this->assertSelectorExists('input[name="totp[password]"]');
+        $this->assertSelectorExists('input[name="totp[current_otp]"]');
+        $this->assertSelectorExists('input[name="totp[new_otp]"]');
+    }
+
+    #[Test]
+    public function totpWithInvalidCredentialsShowsError(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $crawler = $client->request('GET', '/totp');
+
+        $form = $crawler->selectButton('Update authentication')->form([
+            'totp[email]' => 'test@example.com',
+            'totp[password]' => 'wrongpassword',
+            'totp[current_otp]' => '123456',
+            'totp[new_otp]' => '654321',
+        ]);
+
+        $client->submit($form);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('p[role="alert"]');
+        $this->assertSelectorTextContains(
+            'p[role="alert"]',
+            'Invalid credentials',
+        );
+    }
+
+    #[Test]
+    public function totpWithInvalidCurrentOtpShowsError(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $crawler = $client->request('GET', '/totp');
+
+        $form = $crawler->selectButton('Update authentication')->form([
+            'totp[email]' => 'test@example.com',
+            'totp[password]' => 'testpassword',
+            'totp[current_otp]' => '000000',
+            'totp[new_otp]' => '654321',
+        ]);
+
+        $client->submit($form);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('p[role="alert"]');
+        $this->assertSelectorTextContains(
+            'p[role="alert"]',
+            'Invalid credentials',
+        );
+    }
+
+    #[Test]
+    public function totpWithValidDataButInvalidNewOtpShowsError(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $totp = TOTP::createFromSecret('JBSWY3DPEHPK3PXP');
+        $validCurrentOtp = $totp->now();
+
+        $crawler = $client->request('GET', '/totp');
+
+        $form = $crawler->selectButton('Update authentication')->form([
+            'totp[email]' => 'test@example.com',
+            'totp[password]' => 'testpassword',
+            'totp[current_otp]' => $validCurrentOtp,
+            'totp[new_otp]' => '000000',
+        ]);
+
+        $client->submit($form);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('p[role="alert"]');
+        $this->assertSelectorTextContains(
+            'p[role="alert"]',
+            'Invalid new verification code',
+        );
+    }
+
+    #[Test]
+    public function totpWithValidDataUpdatesSecret(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $totp = TOTP::createFromSecret('JBSWY3DPEHPK3PXP');
+        $validCurrentOtp = $totp->now();
+
+        $crawler = $client->request('GET', '/totp');
+
+        // Get the new secret from the page
+        $newSecret = $crawler->filter('figcaption code')->text();
+        $newTotp = TOTP::createFromSecret($newSecret);
+        $validNewOtp = $newTotp->now();
+
+        $form = $crawler->selectButton('Update authentication')->form([
+            'totp[email]' => 'test@example.com',
+            'totp[password]' => 'testpassword',
+            'totp[current_otp]' => $validCurrentOtp,
+            'totp[new_otp]' => $validNewOtp,
+        ]);
+
+        $client->submit($form);
+
+        $this->assertResponseRedirects('/login');
+
+        // Follow redirect and check for success message
+        $client->followRedirect();
+        $this->assertSelectorExists('.flash-success');
+    }
+
+    #[Test]
+    public function totpPreservesNewSecretInSession(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        // First request - get new TOTP secret
+        $crawler1 = $client->request('GET', '/totp');
+        $secret1 = $crawler1->filter('figcaption code')->text();
+
+        // Second request - should preserve the same secret
+        $crawler2 = $client->request('GET', '/totp');
+        $secret2 = $crawler2->filter('figcaption code')->text();
+
+        $this->assertEquals($secret1, $secret2);
+    }
+
+    #[Test]
+    public function totpHasBackToLoginLink(): void
+    {
+        $client = static::createClient();
+        $this->createTestUser();
+
+        $crawler = $client->request('GET', '/totp');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('a[href="/login"]');

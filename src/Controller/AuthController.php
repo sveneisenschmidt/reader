@@ -16,6 +16,7 @@ use App\Domain\User\Service\UserRegistrationService;
 use App\Form\LoginType;
 use App\Form\ResetPasswordType;
 use App\Form\SetupType;
+use App\Form\TotpType;
 use App\Service\EncryptionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -169,13 +170,107 @@ class AuthController extends AbstractController
         );
     }
 
-    private function getOrCreateTotpSecret(Request $request): string
-    {
-        $totpSecret = $request->getSession()->get('setup_totp_secret');
+    #[Route('/totp', name: 'auth_totp', methods: ['GET', 'POST'])]
+    public function totp(
+        Request $request,
+        EncryptionService $encryptionService,
+        UserPasswordHasherInterface $passwordHasher,
+    ): Response {
+        if (!$this->userRepository->hasAnyUser()) {
+            return $this->redirectToRoute('auth_setup');
+        }
+
+        $currentUser = $this->getUser();
+        $initialData = [];
+        if ($currentUser instanceof \App\Domain\User\Entity\User) {
+            $initialData['email'] = $currentUser->getEmail();
+        }
+
+        $newTotpSecret = $this->getOrCreateTotpSecret(
+            $request,
+            'totp_new_secret',
+        );
+
+        $form = $this->createForm(TotpType::class, $initialData);
+        $form->handleRequest($request);
+
+        $error = null;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $user = $this->userRepository->findByEmail($data['email']);
+
+            $isValid = false;
+            if (
+                $user
+                && $passwordHasher->isPasswordValid($user, $data['password'])
+            ) {
+                $currentTotpSecret = $encryptionService->decrypt(
+                    $user->getTotpSecret(),
+                );
+                // Use window=1 for tolerance (allows ±30 seconds)
+                $isValid = $this->totpService->verify(
+                    $currentTotpSecret,
+                    $data['current_otp'],
+                    1,
+                );
+            }
+
+            if ($isValid && $user) {
+                // Verify new OTP against new secret
+                if (
+                    $this->totpService->verify($newTotpSecret, $data['new_otp'])
+                ) {
+                    $user->setTotpSecret(
+                        $encryptionService->encrypt($newTotpSecret),
+                    );
+                    $this->userRepository->save($user);
+
+                    $request->getSession()->remove('totp_new_secret');
+                    $this->addFlash(
+                        'success',
+                        'Authentication has been updated.',
+                    );
+
+                    if ($currentUser) {
+                        return $this->redirectToRoute('preferences');
+                    }
+
+                    return $this->redirectToRoute('auth_login');
+                }
+
+                $error =
+                    'Invalid new verification code. Please scan the QR code and try again.';
+            } else {
+                $error = 'Invalid credentials.';
+            }
+        }
+
+        return $this->render(
+            'auth/totp.html.twig',
+            [
+                'form' => $form,
+                'error' => $error,
+                'totp_secret' => $newTotpSecret,
+                'totp_qr_data_uri' => $this->totpService->getQrCodeDataUri(
+                    $newTotpSecret,
+                ),
+            ],
+            new Response(
+                status: $form->isSubmitted() && !$form->isValid() ? 422 : 200,
+            ),
+        );
+    }
+
+    private function getOrCreateTotpSecret(
+        Request $request,
+        string $sessionKey = 'setup_totp_secret',
+    ): string {
+        $totpSecret = $request->getSession()->get($sessionKey);
 
         if (!$totpSecret) {
             $totpSecret = $this->totpService->generateSecret();
-            $request->getSession()->set('setup_totp_secret', $totpSecret);
+            $request->getSession()->set($sessionKey, $totpSecret);
         }
 
         return $totpSecret;

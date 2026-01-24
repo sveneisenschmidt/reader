@@ -4,7 +4,8 @@
 
 #login,
 #setup,
-#password {
+#password,
+#totp {
     & > p {
         width: 100%;
         margin-bottom: var(--spacing-lg);
@@ -32,9 +33,10 @@
     }
 }
 
-/* Setup/Reset-specific: Password fields side by side */
+/* Setup/Password/Totp-specific styles */
 #setup,
-#password {
+#password,
+#totp {
     & .form-row-passwords {
         display: flex;
         flex-direction: column;
