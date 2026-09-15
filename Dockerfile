@@ -3,7 +3,7 @@
 # environment variables (APP_SECRET, DATABASE_URL, ...), see DEPLOYMENT.md.
 FROM dunglas/frankenphp:1-php8.4
 
-RUN install-php-extensions pdo_sqlite gd intl opcache
+RUN install-php-extensions pdo_sqlite gd intl opcache zip
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
