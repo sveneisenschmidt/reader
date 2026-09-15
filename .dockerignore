@@ -1,0 +1,8 @@
+.git
+.github
+docs
+tests
+var
+node_modules
+vendor
+public/assets
