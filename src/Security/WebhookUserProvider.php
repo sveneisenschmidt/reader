@@ -31,7 +31,7 @@ class WebhookUserProvider implements UserProviderInterface
 
     public function __construct(
         #[Autowire(env: 'WEBHOOK_USER')] private string $webhookUser,
-        #[Autowire(env: 'WEBHOOK_PASSWORD')] string $webhookPassword,
+        #[Autowire('%env(default:reader.webhook_password:trim:file:WEBHOOK_PASSWORD_FILE)%')] string $webhookPassword,
         EncryptionService $encryption,
     ) {
         $this->decryptedPassword = $encryption->decrypt($webhookPassword);
