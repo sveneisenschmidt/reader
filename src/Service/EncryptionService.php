@@ -17,7 +17,7 @@ class EncryptionService
     private string $key;
 
     public function __construct(
-        #[Autowire('%env(APP_SECRET)%')] string $appSecret,
+        #[Autowire('%env(default:reader.app_secret:trim:file:APP_SECRET_FILE)%')] string $appSecret,
     ) {
         $this->key = hash('sha256', $appSecret, binary: true);
     }

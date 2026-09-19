@@ -1,6 +1,13 @@
 # yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
 
 parameters:
+    # The fallback each secret uses when its *_FILE variable is unset. The env(file:)
+    # processor throws on an unset variable, so a deployment that hands the value in the
+    # old way needs something for default: to fall back to, and so does the test suite,
+    # which writes a .env with the plain names.
+    reader.app_secret: "%env(APP_SECRET)%"
+    reader.mailer_dsn: "%env(MAILER_DSN)%"
+    reader.webhook_password: "%env(WEBHOOK_PASSWORD)%"
 
 services:
     _defaults:
